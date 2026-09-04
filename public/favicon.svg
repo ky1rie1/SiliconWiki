@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%" fill="none">
+  <title>SiliconWiki Favicon</title>
+  <!-- Silicon Gold Brand Squircle Canvas -->
+  <rect width="64" height="64" rx="14" fill="#F7D84A" />
+
+  <!-- Obsidian Chip Package Body -->
+  <rect x="9" y="9" width="46" height="46" rx="5" fill="#000000" />
+
+  <!-- Inner Gold Circuit Squircle Ring -->
+  <rect x="13.5" y="13.5" width="37" height="37" rx="10" fill="none" stroke="#F7D84A" stroke-width="2.5" stroke-linejoin="round" />
+
+  <!-- Central Silicon Die -->
+  <rect x="23" y="23" width="18" height="18" rx="2.5" fill="#F7D84A" />
+</svg>

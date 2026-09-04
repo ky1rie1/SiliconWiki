@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 120" width="100%" height="100%" fill="none">
+  <title>SiliconWiki Brand Logo</title>
+  <desc>SiliconWiki horizontal lockup with iconic chip mark, clean geometric typography, and Chinese subtitle</desc>
+  <style>
+    .brand-primary { fill: #09090b; }
+    .brand-accent { fill: #d97706; }
+    .brand-sub { fill: #64748b; }
+    .chip-border { stroke: rgba(247, 216, 74, 0.35); }
+    @media (prefers-color-scheme: dark) {
+      .brand-primary { fill: #ffffff; }
+      .brand-accent { fill: #F7D84A; }
+      .brand-sub { fill: #94a3b8; }
+    }
+  </style>
+
+  <!-- Left: Iconic Hardware Chip Mark -->
+  <g transform="translate(16, 16)">
+    <!-- Outer Obsidian Package Substrate -->
+    <rect x="0" y="0" width="88" height="88" rx="10" fill="#000000" class="chip-border" stroke-width="1.5" />
+
+    <!-- Inner Gold Squircle Circuit Ring -->
+    <rect x="7.5" y="7.5" width="73" height="73" rx="20" fill="none" stroke="#F7D84A" stroke-width="2.8" stroke-linejoin="round" />
+
+    <!-- Center Silicon Die -->
+    <rect x="26.5" y="26.5" width="35" height="35" rx="3.5" fill="#F7D84A" />
+  </g>
+
+  <!-- Right: Typography Lockup -->
+  <!-- Main Title: SiliconWiki -->
+  <text x="124" y="66" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Plus Jakarta Sans', Roboto, sans-serif" font-weight="900" font-size="44" letter-spacing="-0.035em">
+    <tspan class="brand-primary">Silicon</tspan><tspan fill="#F7D84A">Wiki</tspan>
+  </text>
+
+  <!-- Subtitle Tag: 芯知硬件百科 -->
+  <g transform="translate(126, 92)">
+    <!-- Category Pill Badge -->
+    <rect x="0" y="-14" width="62" height="18" rx="4" fill="#F7D84A" fill-opacity="0.15" stroke="#F7D84A" stroke-width="1" stroke-opacity="0.4" />
+    <text x="6" y="-1" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="800" fill="#F7D84A" letter-spacing="0.08em">HARDWARE</text>
+    
+    <!-- Chinese Subtitle -->
+    <text x="72" y="-1" font-family="'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif" font-size="12" font-weight="600" class="brand-sub" letter-spacing="0.25em">芯知硬件百科</text>
+  </g>
+</svg>

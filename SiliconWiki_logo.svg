@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <title>SiliconWiki Logo — Reference Wordmark</title>
+  <desc>SiliconWiki logo with the wordmark vector-traced from the supplied reference image.</desc>
+
+  <rect width="1200" height="1200" fill="#F7D84A"/>
+
+  <rect x="235" y="105" width="730" height="730" rx="72" fill="#000000"/>
+
+  <rect x="295" y="165" width="610" height="610" rx="165"
+        fill="none" stroke="#F7D84A" stroke-width="22"/>
+
+  <rect x="455" y="325" width="290" height="290" rx="28" fill="#F7D84A"/>
+
+  <!-- Reference-matched SiliconWiki wordmark -->
+  <g transform="translate(366.5 839)" fill="#000000" fill-rule="evenodd">
+    <g transform="translate(0 0)">
+      <path d="M 431 49 L 431 94 L 443 94 L 443 49 Z M 359 49 L 359 94 L 371 94 L 371 49 Z M 123 49 L 123 94 L 136 94 L 136 49 Z M 74 49 L 74 94 L 87 94 L 87 49 Z M 264 50 L 259 48 L 251 48 L 250 49 L 248 49 L 244 53 L 244 55 L 243 56 L 242 55 L 242 49 L 230 49 L 230 94 L 243 94 L 243 60 L 245 58 L 253 58 L 255 60 L 255 94 L 267 94 L 267 54 Z M 188 50 L 183 56 L 183 88 L 184 89 L 184 91 L 187 94 L 216 94 L 220 88 L 220 58 L 218 53 L 215 50 L 210 49 L 209 48 L 195 48 L 194 49 Z M 197 59 L 207 59 L 208 60 L 208 63 L 207 64 L 208 72 L 207 73 L 207 85 L 206 86 L 197 86 L 195 84 L 195 61 Z M 152 50 L 147 56 L 147 62 L 146 63 L 146 83 L 147 84 L 148 91 L 151 94 L 176 94 L 176 86 L 161 86 L 159 84 L 159 60 L 160 59 L 176 59 L 176 48 L 158 48 L 157 49 Z M 279 35 L 279 89 L 280 90 L 280 92 L 282 94 L 309 94 L 312 88 L 315 94 L 343 94 L 345 91 L 345 87 L 346 86 L 346 71 L 345 70 L 345 35 L 332 35 L 332 84 L 331 85 L 320 85 L 318 82 L 318 35 L 306 35 L 306 83 L 304 85 L 294 85 L 292 83 L 292 35 Z M 34 35 L 28 38 L 24 44 L 24 49 L 23 50 L 24 61 L 26 65 L 29 68 L 33 70 L 35 70 L 36 71 L 50 71 L 52 73 L 52 82 L 50 84 L 25 84 L 25 94 L 58 94 L 62 91 L 65 85 L 65 71 L 64 70 L 64 68 L 59 62 L 55 60 L 53 60 L 52 59 L 38 59 L 37 58 L 37 48 L 39 46 L 63 46 L 63 35 L 43 35 L 42 34 L 40 35 Z M 431 31 L 431 42 L 443 42 L 443 31 Z M 383 31 L 383 94 L 395 94 L 395 78 L 397 76 L 403 76 L 406 78 L 406 81 L 408 85 L 408 88 L 409 89 L 410 94 L 423 94 L 423 92 L 421 88 L 421 85 L 419 82 L 418 77 L 416 73 L 413 71 L 417 62 L 417 59 L 418 58 L 418 55 L 419 54 L 420 49 L 408 49 L 407 50 L 407 53 L 406 54 L 404 64 L 402 66 L 396 66 L 395 65 L 395 31 Z M 359 31 L 359 42 L 371 42 L 371 31 Z M 123 32 L 123 42 L 136 42 L 136 31 L 124 31 Z M 99 31 L 99 94 L 111 94 L 111 31 Z M 74 31 L 74 42 L 87 42 L 87 31 Z"/>
+    </g>
+  </g>
+</svg>

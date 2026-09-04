@@ -204,16 +204,20 @@ export const AssemblySimulator3D: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Top Banner */}
-      <div className="rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
-        <div className="space-y-1.5 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200 dark:border-blue-500/20">
-            <Box className="w-3.5 h-3.5" />
+      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-indigo-50/80 via-blue-50/40 to-white dark:from-indigo-950/40 dark:via-blue-950/20 dark:to-slate-900 border border-blue-200/50 dark:border-blue-800/40 backdrop-blur-xl relative overflow-hidden shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+        {/* Ambient lighting decorative accents */}
+        <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="space-y-2 max-w-2xl relative z-10">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-cyan-300 text-xs font-semibold border border-blue-200/60 dark:border-blue-500/30">
+            <Box className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
             <span>三维实景装机工坊 · 仿真硬件结构</span>
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             全三维分步实景拼装 · 零门槛掌握装机逻辑
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             点击画布硬件可直接联动右侧工序说明。支持 360° 无死角旋转、部件对位仿真、防呆防坑要点，附 B 站实操精讲直达。
           </p>
         </div>
@@ -221,7 +225,7 @@ export const AssemblySimulator3D: React.FC = () => {
         {/* Video Tutorial Launcher Button */}
         <button
           onClick={() => setIsBilibiliModalOpen(true)}
-          className="flex items-center space-x-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-pink-500/20 transition-all shrink-0 cursor-pointer"
+          className="relative z-10 flex items-center space-x-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-pink-500/25 border border-pink-400/20 active:scale-95 transition-all shrink-0 cursor-pointer"
         >
           <Tv className="w-4 h-4" />
           <span>📺 B站保姆级视频精选</span>

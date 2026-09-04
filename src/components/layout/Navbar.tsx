@@ -56,18 +56,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center space-x-2.5 cursor-pointer group select-none shrink-0"
           onClick={() => onTabChange('wiki')}
         >
-          <div className="relative p-2 rounded-xl sm:rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white shadow-md shadow-blue-500/25 group-hover:scale-105 group-active:scale-95 transition-spring">
-            <Cpu className="w-4 h-4" />
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white dark:ring-slate-950 animate-pulse" />
+          {/* Iconic Chip Mark */}
+          <div className="relative w-8 h-8 rounded-xl bg-black p-1 ring-1 ring-[#F7D84A]/30 shadow-md shadow-[#F7D84A]/10 group-hover:scale-105 group-hover:shadow-[#F7D84A]/25 group-hover:ring-[#F7D84A]/60 group-active:scale-95 transition-spring shrink-0 flex items-center justify-center">
+            <svg viewBox="0 0 64 64" className="w-full h-full" fill="none">
+              {/* Outer squircle substrate */}
+              <rect x="2" y="2" width="60" height="60" rx="7" fill="#000000" stroke="#F7D84A" strokeWidth="1.5" strokeOpacity="0.3" />
+              {/* Gold circuit ring */}
+              <rect x="9" y="9" width="46" height="46" rx="13" fill="none" stroke="#F7D84A" strokeWidth="3" strokeLinejoin="round" />
+              {/* Central silicon die */}
+              <rect x="22" y="22" width="20" height="20" rx="2.5" fill="#F7D84A" />
+            </svg>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#F7D84A] ring-2 ring-white dark:ring-slate-950 shadow-[0_0_8px_#F7D84A] animate-pulse" />
           </div>
 
           <div className="flex items-center space-x-2">
             <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white font-mono leading-none">
-              Silicon<span className="text-blue-600 dark:text-cyan-400">Wiki</span>
+              Silicon<span className="text-[#F7D84A] drop-shadow-[0_0_12px_rgba(247,216,74,0.35)]">Wiki</span>
             </span>
-            <span className="hidden xl:inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-medium tracking-wide">
-              <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-              <span>{lang === 'zh' ? '芯知百科' : 'Wiki'}</span>
+            <span className="hidden xl:inline-flex items-center space-x-1.5 text-[10px] px-2 py-0.5 rounded-full bg-[#F7D84A]/10 border border-[#F7D84A]/30 text-amber-900 dark:text-[#F7D84A] font-semibold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F7D84A] shadow-[0_0_6px_#F7D84A]" />
+              <span>{lang === 'zh' ? '芯知硬件百科' : 'SiliconWiki'}</span>
             </span>
           </div>
         </div>
@@ -82,16 +90,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => onTabChange(item.id)}
                 className={`relative flex items-center space-x-1.5 px-2.5 lg:px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-spring ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 dark:bg-white dark:text-slate-950'
+                    ? 'bg-slate-950 text-white shadow-md shadow-black/20 dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/40'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/10'
                 }`}
               >
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-cyan-500 text-white font-bold leading-tight uppercase">
+                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#F7D84A] text-slate-950 font-black leading-tight uppercase shadow-sm">
                     {item.badge}
                   </span>
+                )}
+                {isActive && (
+                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-[#F7D84A] shadow-[0_0_6px_#F7D84A]" />
                 )}
               </button>
             );
@@ -103,12 +114,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Omnisearch Command Bar Button */}
           <button
             onClick={onOpenSearch}
-            className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-blue-400 dark:hover:border-cyan-400 text-xs font-medium transition-spring"
+            className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/60 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-spring group"
             title={lang === 'zh' ? '全局搜索 (快捷键: / 或 Ctrl+K)' : 'Omnisearch (Shortcut: / or Ctrl+K)'}
           >
-            <Search className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
+            <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#F7D84A] transition-colors" />
             <span className="hidden 2xl:inline text-slate-600 dark:text-slate-300 font-sans">{t('searchPlaceholder')}</span>
-            <kbd className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400">
+            <kbd className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 group-hover:border-[#F7D84A]/40 transition-colors">
               {t('searchShortcut')}
             </kbd>
           </button>
@@ -187,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-spring ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-sm'
+                    ? 'bg-slate-950 text-white dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/50 shadow-sm'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
@@ -196,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-cyan-400 text-slate-950 font-black">
+                  <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-[#F7D84A] text-slate-950 font-black">
                     {item.badge}
                   </span>
                 )}

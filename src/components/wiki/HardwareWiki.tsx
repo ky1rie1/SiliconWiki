@@ -67,18 +67,6 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
     setSelectedSpecs({});
   };
 
-  // Toggle or select a specific specification dimension
-  const handleSpecSelect = (dimensionId: string, optionId: string) => {
-    setSelectedSpecs((prev) => {
-      if (prev[dimensionId] === optionId || optionId === 'all') {
-        const next = { ...prev };
-        delete next[dimensionId];
-        return next;
-      }
-      return { ...prev, [dimensionId]: optionId };
-    });
-  };
-
   // Listen for user text selection to trigger term explanation card
   useEffect(() => {
     const handleMouseUp = (e: MouseEvent) => {
@@ -225,33 +213,86 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'am5',
                 label: 'AMD AM5 (9000/7000系列)',
-                matcher: (i) =>
-                  (i.specs['插槽接口'] || '').includes('AM5') ||
-                  (i.architecture || '').includes('Zen 5') ||
-                  (i.architecture || '').includes('Zen 4'),
+                matcher: (i) => {
+                  const socket = (
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽/平台'] || '')
+                  ).toUpperCase();
+                  const arch = (i.architecture || '').toUpperCase();
+                  return (
+                    socket.includes('AM5') ||
+                    arch.includes('ZEN 5') ||
+                    arch.includes('ZEN 4') ||
+                    i.series.includes('9000') ||
+                    i.series.includes('7000') ||
+                    /(?:9800X3D|7800X3D|7950X3D|9950X|9900X|9700X|9600X|7700X|7600X|7500F)\b/i.test(i.name)
+                  );
+                },
               },
               {
                 id: 'lga1851',
                 label: 'Intel LGA1851 (Ultra 200S)',
-                matcher: (i) =>
-                  (i.specs['插槽接口'] || '').includes('1851') ||
-                  i.series.includes('Ultra'),
+                matcher: (i) => {
+                  const socket = (
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽/平台'] || '')
+                  ).toUpperCase();
+                  return (
+                    socket.includes('1851') ||
+                    i.series.includes('Ultra 200S') ||
+                    i.series.includes('200S') ||
+                    /(?:285K|265K|245K)\b/i.test(i.name)
+                  );
+                },
               },
               {
                 id: 'lga1700',
                 label: 'Intel LGA1700 (14/13/12代)',
-                matcher: (i) =>
-                  (i.specs['插槽接口'] || '').includes('1700') ||
-                  i.series.includes('14') ||
-                  i.series.includes('13') ||
-                  i.series.includes('12'),
+                matcher: (i) => {
+                  const socket = (
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽/平台'] || '')
+                  ).toUpperCase();
+                  const isDesktopIntel =
+                    !i.name.includes('HX') &&
+                    !i.series.includes('移动') &&
+                    i.brand === 'Intel';
+                  return (
+                    socket.includes('1700') ||
+                    (isDesktopIntel &&
+                      (i.series.includes('14 代') ||
+                        i.series.includes('13 代') ||
+                        i.series.includes('12 代') ||
+                        /(?:14\d{3}|13\d{3}|12\d{3})[KFSE]*/i.test(i.name)))
+                  );
+                },
               },
               {
                 id: 'am4',
                 label: 'AMD AM4 (5000性价比)',
-                matcher: (i) =>
-                  (i.specs['插槽接口'] || '').includes('AM4') ||
-                  i.series.includes('5000'),
+                matcher: (i) => {
+                  const socket = (
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽/平台'] || '')
+                  ).toUpperCase();
+                  return (
+                    socket.includes('AM4') ||
+                    i.series.includes('5000') ||
+                    /(?:5800X3D|5700X3D|5600X|5600G|5600)\b/i.test(i.name)
+                  );
+                },
               },
             ],
           },
@@ -265,29 +306,37 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 label: '3D V-Cache 游戏神U',
                 matcher: (i) =>
                   i.name.includes('X3D') ||
-                  i.highlights.some((h) => h.includes('3D V-Cache')),
+                  i.highlights.some((h) => h.includes('3D V-Cache')) ||
+                  (i.architecture || '').includes('3D V-Cache'),
               },
               {
                 id: 'oc',
                 label: '可超频 (K/KF/X)',
                 matcher: (i) =>
-                  /([0-9]+[kfx]+)/i.test(i.name) ||
-                  i.name.includes('K') ||
-                  i.name.includes('X'),
+                  /\d{3,5}(?:X3D|XT|X|KF|KS|K)\b/i.test(i.name) ||
+                  (i.specs['基础/加速频率'] || '').includes('解锁超频'),
               },
               {
                 id: 'f-series',
                 label: '甜点无核显 (F系列)',
                 matcher: (i) =>
-                  /([0-9]+f)/i.test(i.name) ||
+                  /\d+[Ff]\b/.test(i.name) ||
                   (i.specs['核显'] || '').includes('无'),
               },
               {
                 id: 'high-core',
                 label: '多核生产力 (14核+)',
                 matcher: (i) => {
-                  const c = parseInt(i.specs['核心/线程'] || '0', 10);
-                  return c >= 14 || Boolean(i.specs['核心数'] && parseInt(i.specs['核心数'], 10) >= 12);
+                  const raw =
+                    (i.specs['核心/线程'] || '') +
+                    ' ' +
+                    (i.specs['核心数'] || '');
+                  const match = raw.match(/(\d+)\s*核/);
+                  if (match) {
+                    return parseInt(match[1], 10) >= 14;
+                  }
+                  const c = parseInt(raw, 10);
+                  return c >= 14;
                 },
               },
             ],
@@ -341,12 +390,21 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const v =
                     (i.specs['显存容量/类型'] || '') +
-                    (i.specs['显存容量'] || '');
+                    ' ' +
+                    (i.specs['显存容量'] || '') +
+                    ' ' +
+                    (i.specs['显存'] || '') +
+                    ' ' +
+                    i.name;
                   return (
                     v.includes('16GB') ||
+                    v.includes('16 GB') ||
                     v.includes('20GB') ||
+                    v.includes('20 GB') ||
                     v.includes('24GB') ||
-                    v.includes('32GB')
+                    v.includes('24 GB') ||
+                    v.includes('32GB') ||
+                    v.includes('32 GB')
                   );
                 },
               },
@@ -356,8 +414,13 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const v =
                     (i.specs['显存容量/类型'] || '') +
-                    (i.specs['显存容量'] || '');
-                  return v.includes('12GB');
+                    ' ' +
+                    (i.specs['显存容量'] || '') +
+                    ' ' +
+                    (i.specs['显存'] || '') +
+                    ' ' +
+                    i.name;
+                  return v.includes('12GB') || v.includes('12 GB');
                 },
               },
               {
@@ -366,8 +429,13 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const v =
                     (i.specs['显存容量/类型'] || '') +
-                    (i.specs['显存容量'] || '');
-                  return v.includes('8GB');
+                    ' ' +
+                    (i.specs['显存容量'] || '') +
+                    ' ' +
+                    (i.specs['显存'] || '') +
+                    ' ' +
+                    i.name;
+                  return v.includes('8GB') || v.includes('8 GB');
                 },
               },
             ],
@@ -384,24 +452,62 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'matx',
                 label: 'M-ATX 紧凑主流',
-                matcher: (i) =>
-                  (i.specs['主板板型'] || '').includes('M-ATX') ||
-                  (i.specs['主板板型'] || '').includes('Micro-ATX') ||
-                  i.name.includes('M-'),
+                matcher: (i) => {
+                  const ff = (
+                    (i.specs['主板板型'] || '') +
+                    ' ' +
+                    (i.specs['板型'] || '') +
+                    ' ' +
+                    i.name
+                  ).toUpperCase();
+                  return (
+                    ff.includes('M-ATX') ||
+                    ff.includes('MICRO-ATX') ||
+                    ff.includes('MICRO ATX') ||
+                    /B\d{3}M\b/i.test(i.name) ||
+                    /Z\d{3}M\b/i.test(i.name)
+                  );
+                },
               },
               {
                 id: 'atx',
                 label: 'ATX 标准大板',
-                matcher: (i) =>
-                  (i.specs['主板板型'] || '').includes('ATX') &&
-                  !(i.specs['主板板型'] || '').includes('M-ATX'),
+                matcher: (i) => {
+                  const ff = (
+                    (i.specs['主板板型'] || '') +
+                    ' ' +
+                    (i.specs['板型'] || '')
+                  ).toUpperCase();
+                  if (
+                    ff.includes('M-ATX') ||
+                    ff.includes('MICRO') ||
+                    ff.includes('ITX') ||
+                    ff.includes('MINI')
+                  ) {
+                    return false;
+                  }
+                  return (
+                    ff.includes('ATX') ||
+                    (!i.name.includes('-M') &&
+                      !i.name.includes('M-') &&
+                      !/B\d{3}M/i.test(i.name) &&
+                      !i.name.includes('ITX'))
+                  );
+                },
               },
               {
                 id: 'itx',
                 label: 'ITX 迷你钢炮',
-                matcher: (i) =>
-                  (i.specs['主板板型'] || '').includes('ITX') ||
-                  i.name.includes('ITX'),
+                matcher: (i) => {
+                  const ff = (
+                    (i.specs['主板板型'] || '') +
+                    ' ' +
+                    (i.specs['板型'] || '') +
+                    ' ' +
+                    i.name
+                  ).toUpperCase();
+                  return ff.includes('ITX') || ff.includes('MINI-ITX');
+                },
               },
             ],
           },
@@ -413,27 +519,79 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'amd-am5',
                 label: 'AMD AM5 (B650 / X870)',
-                matcher: (i) =>
-                  i.name.includes('B650') ||
-                  i.name.includes('X870') ||
-                  i.name.includes('X670') ||
-                  (i.specs['CPU 插槽'] || '').includes('AM5'),
+                matcher: (i) => {
+                  const text = (
+                    i.name +
+                    ' ' +
+                    (i.specs['CPU 插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['芯片组'] || '') +
+                    ' ' +
+                    (i.series || '')
+                  ).toUpperCase();
+                  return (
+                    text.includes('AM5') ||
+                    text.includes('B650') ||
+                    text.includes('X870') ||
+                    text.includes('X670') ||
+                    text.includes('A620')
+                  );
+                },
               },
               {
                 id: 'intel-lga1700',
                 label: 'Intel LGA1700 (B760 / Z790)',
-                matcher: (i) =>
-                  i.name.includes('B760') ||
-                  i.name.includes('Z790') ||
-                  (i.specs['CPU 插槽'] || '').includes('1700'),
+                matcher: (i) => {
+                  const text = (
+                    i.name +
+                    ' ' +
+                    (i.specs['CPU 插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['芯片组'] || '') +
+                    ' ' +
+                    (i.series || '')
+                  ).toUpperCase();
+                  return (
+                    text.includes('1700') ||
+                    text.includes('B760') ||
+                    text.includes('Z790') ||
+                    text.includes('Z690') ||
+                    text.includes('B660') ||
+                    text.includes('H610')
+                  );
+                },
               },
               {
                 id: 'intel-lga1851',
-                label: 'Intel LGA1851 (Z890)',
-                matcher: (i) =>
-                  i.name.includes('Z890') ||
-                  i.name.includes('B860') ||
-                  (i.specs['CPU 插槽'] || '').includes('1851'),
+                label: 'Intel LGA1851 (Z890 / B860)',
+                matcher: (i) => {
+                  const text = (
+                    i.name +
+                    ' ' +
+                    (i.specs['CPU 插槽'] || '') +
+                    ' ' +
+                    (i.specs['插槽接口'] || '') +
+                    ' ' +
+                    (i.specs['插槽'] || '') +
+                    ' ' +
+                    (i.specs['芯片组'] || '') +
+                    ' ' +
+                    (i.series || '')
+                  ).toUpperCase();
+                  return (
+                    text.includes('1851') ||
+                    text.includes('Z890') ||
+                    text.includes('B860')
+                  );
+                },
               },
             ],
           },
@@ -448,6 +606,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) =>
                   (i.specs['M.2 接口'] || '').includes('5.0') ||
                   (i.specs['PCIe 规格'] || '').includes('5.0') ||
+                  (i.specs['PCIe 插槽'] || '').includes('5.0') ||
                   i.highlights.some((h) => h.includes('5.0')),
               },
               {
@@ -456,18 +615,20 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) =>
                   i.name.includes('白色') ||
                   i.name.includes('吹雪') ||
+                  i.name.includes('天选') ||
                   i.name.includes('Pro RS') ||
                   i.name.includes('Frozen') ||
-                  i.highlights.some((h) => h.includes('白')),
+                  i.name.includes('冰封') ||
+                  i.highlights.some((h) => h.includes('白') || h.includes('银')),
               },
               {
                 id: 'wifi',
                 label: '标配 Wi-Fi 无线网卡',
                 matcher: (i) =>
-                  i.name.includes('WIFI') ||
-                  i.name.includes('AX') ||
-                  (i.specs['网络连接'] || '').includes('Wi-Fi') ||
-                  (i.specs['网络配置'] || '').includes('Wi-Fi'),
+                  i.name.toUpperCase().includes('WIFI') ||
+                  i.name.toUpperCase().includes('AX') ||
+                  (i.specs['网络连接'] || '').toUpperCase().includes('WI-FI') ||
+                  (i.specs['网络配置'] || '').toUpperCase().includes('WI-FI'),
               },
             ],
           },
@@ -483,18 +644,34 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'ddr5',
                 label: 'DDR5 新一代主流',
-                matcher: (i) =>
-                  i.name.includes('DDR5') ||
-                  (i.specs['标称频率'] || '').includes('DDR5') ||
-                  (i.specs['内存类型'] || '').includes('DDR5'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['标称频率'] || '') +
+                    ' ' +
+                    (i.specs['内存类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '')
+                  ).toUpperCase();
+                  return s.includes('DDR5');
+                },
               },
               {
                 id: 'ddr4',
                 label: 'DDR4 经典性价比',
-                matcher: (i) =>
-                  i.name.includes('DDR4') ||
-                  (i.specs['标称频率'] || '').includes('DDR4') ||
-                  (i.specs['内存类型'] || '').includes('DDR4'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['标称频率'] || '') +
+                    ' ' +
+                    (i.specs['内存类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '')
+                  ).toUpperCase();
+                  return s.includes('DDR4');
+                },
               },
             ],
           },
@@ -507,7 +684,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 id: 'f6000',
                 label: '6000~6400 MT/s 甜点',
                 matcher: (i) => {
-                  const s = i.name + (i.specs['标称频率'] || '');
+                  const s = i.name + ' ' + (i.specs['标称频率'] || '') + ' ' + (i.specs['频率'] || '');
                   return s.includes('6000') || s.includes('6400');
                 },
               },
@@ -515,11 +692,13 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 id: 'f6800',
                 label: '6800~7200+ MT/s 极速特挑',
                 matcher: (i) => {
-                  const s = i.name + (i.specs['标称频率'] || '');
+                  const s = i.name + ' ' + (i.specs['标称频率'] || '') + ' ' + (i.specs['频率'] || '');
                   return (
                     s.includes('6800') ||
                     s.includes('7200') ||
-                    s.includes('8000')
+                    s.includes('8000') ||
+                    s.includes('8200') ||
+                    s.includes('8400')
                   );
                 },
               },
@@ -527,7 +706,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 id: 'f3200',
                 label: '3200~3600 MT/s DDR4',
                 matcher: (i) => {
-                  const s = i.name + (i.specs['标称频率'] || '');
+                  const s = i.name + ' ' + (i.specs['标称频率'] || '') + ' ' + (i.specs['频率'] || '');
                   return s.includes('3200') || s.includes('3600');
                 },
               },
@@ -541,17 +720,40 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'rgb',
                 label: 'ARGB 神光同步',
-                matcher: (i) =>
-                  i.name.includes('RGB') ||
-                  (i.specs['外观散热'] || '').includes('RGB') ||
-                  i.highlights.some((h) => h.includes('RGB') || h.includes('灯')),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['外观散热'] || '') +
+                    ' ' +
+                    (i.specs['散热马甲'] || '') +
+                    ' ' +
+                    (i.specs['散热工艺'] || '')
+                  ).toUpperCase();
+                  return (
+                    s.includes('RGB') ||
+                    i.highlights.some((h) => h.includes('RGB') || h.includes('灯'))
+                  );
+                },
               },
               {
                 id: 'no-rgb',
                 label: '无光金属低调马甲',
-                matcher: (i) =>
-                  !i.name.includes('RGB') &&
-                  !(i.specs['外观散热'] || '').includes('RGB'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['外观散热'] || '') +
+                    ' ' +
+                    (i.specs['散热马甲'] || '') +
+                    ' ' +
+                    (i.specs['散热工艺'] || '')
+                  ).toUpperCase();
+                  return (
+                    !s.includes('RGB') &&
+                    !i.highlights.some((h) => h.includes('RGB') || h.includes('灯'))
+                  );
+                },
               },
             ],
           },
@@ -567,19 +769,40 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'pcie4',
                 label: 'PCIe 4.0 满速 (7000MB/s+)',
-                matcher: (i) =>
-                  (i.specs['接口总线'] || '').includes('4.0') ||
-                  i.name.includes('4.0') ||
-                  i.name.includes('TiPlus') ||
-                  i.name.includes('990') ||
-                  i.name.includes('SN850'),
+                matcher: (i) => {
+                  const s = (
+                    (i.specs['接口总线'] || '') +
+                    ' ' +
+                    (i.specs['接口类型'] || '') +
+                    ' ' +
+                    (i.specs['总线'] || '') +
+                    ' ' +
+                    i.name
+                  ).toUpperCase();
+                  return (
+                    s.includes('4.0') ||
+                    s.includes('PCIE 4') ||
+                    i.name.includes('TiPlus') ||
+                    i.name.includes('990') ||
+                    i.name.includes('SN850')
+                  );
+                },
               },
               {
                 id: 'pcie5',
                 label: 'PCIe 5.0 旗舰 (10000MB/s+)',
-                matcher: (i) =>
-                  (i.specs['接口总线'] || '').includes('5.0') ||
-                  i.name.includes('5.0'),
+                matcher: (i) => {
+                  const s = (
+                    (i.specs['接口总线'] || '') +
+                    ' ' +
+                    (i.specs['接口类型'] || '') +
+                    ' ' +
+                    (i.specs['总线'] || '') +
+                    ' ' +
+                    i.name
+                  ).toUpperCase();
+                  return s.includes('5.0') || s.includes('PCIE 5');
+                },
               },
             ],
           },
@@ -591,19 +814,27 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'cap2tb',
                 label: '2TB 及以上大容量',
-                matcher: (i) =>
-                  i.name.includes('2TB') ||
-                  i.name.includes('4TB') ||
-                  (i.specs['容量'] || '').includes('2TB') ||
-                  (i.specs['容量'] || '').includes('2 TB'),
+                matcher: (i) => {
+                  const s = (i.name + ' ' + (i.specs['容量'] || '')).toUpperCase();
+                  return (
+                    s.includes('2TB') ||
+                    s.includes('2 TB') ||
+                    s.includes('4TB') ||
+                    s.includes('4 TB')
+                  );
+                },
               },
               {
                 id: 'cap1tb',
                 label: '1TB 主流甜点',
-                matcher: (i) =>
-                  i.name.includes('1TB') ||
-                  (i.specs['容量'] || '').includes('1TB') ||
-                  (i.specs['容量'] || '').includes('1 TB'),
+                matcher: (i) => {
+                  const s = (i.name + ' ' + (i.specs['容量'] || '')).toUpperCase();
+                  return (
+                    (s.includes('1TB') || s.includes('1 TB')) &&
+                    !s.includes('2TB') &&
+                    !s.includes('4TB')
+                  );
+                },
               },
             ],
           },
@@ -618,7 +849,10 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const c =
                     (i.specs['独立缓存 (DRAM)'] || '') +
-                    (i.specs['独立缓存'] || '');
+                    ' ' +
+                    (i.specs['独立缓存'] || '') +
+                    ' ' +
+                    (i.specs['缓存'] || '');
                   return (
                     c.includes('独立') ||
                     c.includes('LPDDR') ||
@@ -634,11 +868,14 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const c =
                     (i.specs['独立缓存 (DRAM)'] || '') +
-                    (i.specs['独立缓存'] || '');
+                    ' ' +
+                    (i.specs['独立缓存'] || '') +
+                    ' ' +
+                    (i.specs['缓存'] || '');
                   return (
                     c.includes('HMB') ||
                     c.includes('无缓') ||
-                    (!c.includes('独立') && !c.includes('GB'))
+                    (!c.includes('独立') && !c.includes('GB') && !c.includes('LPDDR'))
                   );
                 },
               },
@@ -656,36 +893,73 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'aio360',
                 label: '360 一体水冷',
-                matcher: (i) =>
-                  i.name.includes('360') ||
-                  (i.specs['散热类型'] || '').includes('360'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['散热类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '') +
+                    ' ' +
+                    (i.specs['冷排尺寸'] || '')
+                  );
+                  return s.includes('360');
+                },
               },
               {
                 id: 'aio240',
                 label: '240 一体水冷',
-                matcher: (i) =>
-                  i.name.includes('240') ||
-                  (i.specs['散热类型'] || '').includes('240'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['散热类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '') +
+                    ' ' +
+                    (i.specs['冷排尺寸'] || '')
+                  );
+                  return s.includes('240');
+                },
               },
               {
                 id: 'air-dual',
                 label: '双塔双扇顶级风冷',
-                matcher: (i) =>
-                  (i.specs['散热类型'] || '').includes('双塔') ||
-                  i.name.includes('双塔') ||
-                  i.name.includes('PS120') ||
-                  i.name.includes('FC140') ||
-                  i.name.includes('AK620') ||
-                  i.name.includes('D15'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['散热类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '')
+                  );
+                  return (
+                    s.includes('双塔') ||
+                    i.name.includes('PS120') ||
+                    i.name.includes('FC140') ||
+                    i.name.includes('AK620') ||
+                    i.name.includes('D15') ||
+                    i.name.includes('PA120')
+                  );
+                },
               },
               {
                 id: 'air-single',
                 label: '单塔四热管风冷',
-                matcher: (i) =>
-                  (i.specs['散热类型'] || '').includes('单塔') ||
-                  i.name.includes('单塔') ||
-                  i.name.includes('AX120') ||
-                  (i.specs['热管规格'] || '').includes('4'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['散热类型'] || '') +
+                    ' ' +
+                    (i.specs['类型'] || '')
+                  );
+                  return (
+                    s.includes('单塔') ||
+                    i.name.includes('AX120') ||
+                    (i.specs['热管规格'] || '').includes('4')
+                  );
+                },
               },
             ],
           },
@@ -700,6 +974,8 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const raw =
                     i.specs['标称解热功耗 (D-TDP)'] ||
+                    i.specs['解热能力 (D-TDP)'] ||
+                    i.specs['解热能力'] ||
                     i.specs['标称解热能力'] ||
                     '';
                   const t = parseInt(raw.replace(/\D/g, ''), 10);
@@ -712,19 +988,36 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 matcher: (i) => {
                   const raw =
                     i.specs['标称解热功耗 (D-TDP)'] ||
+                    i.specs['解热能力 (D-TDP)'] ||
+                    i.specs['解热能力'] ||
                     i.specs['标称解热能力'] ||
                     '';
                   const t = parseInt(raw.replace(/\D/g, ''), 10);
-                  return (t >= 200 && t < 250) || i.name.includes('双塔');
+                  return (
+                    (t >= 200 && t < 250) ||
+                    (i.tdpWatts >= 200 && i.tdpWatts < 250) ||
+                    (i.name.includes('双塔') && t < 250 && i.tdpWatts < 250)
+                  );
                 },
               },
               {
                 id: 'tdp150',
                 label: '150W~180W 甜点日常',
-                matcher: (i) =>
-                  i.name.includes('单塔') ||
-                  i.name.includes('AX120') ||
-                  i.tdpWatts < 200,
+                matcher: (i) => {
+                  const raw =
+                    i.specs['标称解热功耗 (D-TDP)'] ||
+                    i.specs['解热能力 (D-TDP)'] ||
+                    i.specs['解热能力'] ||
+                    i.specs['标称解热能力'] ||
+                    '';
+                  const t = parseInt(raw.replace(/\D/g, ''), 10);
+                  return (
+                    (t > 0 && t < 200) ||
+                    i.name.includes('单塔') ||
+                    i.name.includes('AX120') ||
+                    (i.tdpWatts > 0 && i.tdpWatts < 200)
+                  );
+                },
               },
             ],
           },
@@ -740,28 +1033,43 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: '1000w',
                 label: '1000W+ 旗舰怪兽',
-                matcher: (i) =>
-                  i.name.includes('1000W') ||
-                  i.name.includes('1200W') ||
-                  i.name.includes('1300W') ||
-                  (i.specs['额定功率'] || '').includes('1000') ||
-                  (i.specs['额定功率'] || '').includes('1200'),
+                matcher: (i) => {
+                  const s = (i.name + ' ' + (i.specs['额定功率'] || '')).toUpperCase();
+                  return (
+                    s.includes('1000W') ||
+                    s.includes('1200W') ||
+                    s.includes('1300W') ||
+                    s.includes('1000 W') ||
+                    s.includes('1200 W') ||
+                    i.tdpWatts >= 1000
+                  );
+                },
               },
               {
                 id: '850w',
                 label: '850W 主流 3A 甜点',
-                matcher: (i) =>
-                  i.name.includes('850W') ||
-                  (i.specs['额定功率'] || '').includes('850'),
+                matcher: (i) => {
+                  const s = (i.name + ' ' + (i.specs['额定功率'] || '')).toUpperCase();
+                  return (
+                    s.includes('850W') ||
+                    s.includes('850 W') ||
+                    i.tdpWatts === 850
+                  );
+                },
               },
               {
                 id: '750w',
                 label: '650W~750W 性价比',
-                matcher: (i) =>
-                  i.name.includes('750W') ||
-                  i.name.includes('650W') ||
-                  (i.specs['额定功率'] || '').includes('750') ||
-                  (i.specs['额定功率'] || '').includes('650'),
+                matcher: (i) => {
+                  const s = (i.name + ' ' + (i.specs['额定功率'] || '')).toUpperCase();
+                  return (
+                    s.includes('750W') ||
+                    s.includes('650W') ||
+                    s.includes('750 W') ||
+                    s.includes('650 W') ||
+                    (i.tdpWatts >= 650 && i.tdpWatts <= 750)
+                  );
+                },
               },
             ],
           },
@@ -773,18 +1081,56 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'atx3',
                 label: '原生 ATX 3.0 / 3.1 (12V-2x6)',
-                matcher: (i) =>
-                  i.name.includes('ATX 3') ||
-                  (i.specs['标准规范'] || '').includes('ATX 3') ||
-                  (i.specs['显卡原生接口'] || '').includes('12V') ||
-                  (i.specs['标准'] || '').includes('ATX 3'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['标准规范'] || '') +
+                    ' ' +
+                    (i.specs['标准'] || '') +
+                    ' ' +
+                    (i.specs['规范'] || '') +
+                    ' ' +
+                    (i.specs['规范与接口'] || '') +
+                    ' ' +
+                    (i.specs['显卡原生接口'] || '') +
+                    ' ' +
+                    (i.specs['接口'] || '')
+                  ).toUpperCase();
+                  return (
+                    s.includes('ATX 3') ||
+                    s.includes('ATX3') ||
+                    s.includes('12V-2X6') ||
+                    s.includes('12VHPWR')
+                  );
+                },
               },
               {
                 id: 'atx2',
                 label: '经典 ATX 2.x',
-                matcher: (i) =>
-                  !i.name.includes('ATX 3') &&
-                  !(i.specs['标准规范'] || '').includes('ATX 3'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['标准规范'] || '') +
+                    ' ' +
+                    (i.specs['标准'] || '') +
+                    ' ' +
+                    (i.specs['规范'] || '') +
+                    ' ' +
+                    (i.specs['规范与接口'] || '') +
+                    ' ' +
+                    (i.specs['显卡原生接口'] || '') +
+                    ' ' +
+                    (i.specs['接口'] || '')
+                  ).toUpperCase();
+                  return (
+                    !s.includes('ATX 3') &&
+                    !s.includes('ATX3') &&
+                    !s.includes('12V-2X6') &&
+                    !s.includes('12VHPWR')
+                  );
+                },
               },
             ],
           },
@@ -800,31 +1146,65 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               {
                 id: 'panoramic',
                 label: '270°全景无立柱海景房',
-                matcher: (i) =>
-                  i.name.includes('海景房') ||
-                  (i.specs['机箱结构'] || '').includes('海景房') ||
-                  i.highlights.some((h) => h.includes('海景房')) ||
-                  i.name.includes('包豪斯') ||
-                  i.name.includes('O11') ||
-                  i.name.includes('D300'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['机箱结构'] || '') +
+                    ' ' +
+                    (i.specs['结构'] || '')
+                  );
+                  return (
+                    s.includes('海景房') ||
+                    s.includes('全景') ||
+                    s.includes('包豪斯') ||
+                    s.includes('O11') ||
+                    s.includes('D300') ||
+                    i.highlights.some((h) => h.includes('海景房') || h.includes('全景'))
+                  );
+                },
               },
               {
                 id: 'mid-tower',
                 label: '中塔标准风道/静音木纹',
-                matcher: (i) =>
-                  (i.specs['机箱结构'] || '').includes('中塔') ||
-                  i.name.includes('North') ||
-                  i.name.includes('H5') ||
-                  i.name.includes('P30'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['机箱结构'] || '') +
+                    ' ' +
+                    (i.specs['结构'] || '')
+                  );
+                  return (
+                    s.includes('中塔') ||
+                    i.name.includes('North') ||
+                    i.name.includes('H5') ||
+                    i.name.includes('P30') ||
+                    i.name.includes('分形工艺')
+                  );
+                },
               },
               {
                 id: 'compact',
                 label: '紧凑便携 M-ATX / ITX',
-                matcher: (i) =>
-                  (i.specs['主板兼容'] || '').includes('ITX') ||
-                  i.name.includes('AP201') ||
-                  i.name.includes('A4') ||
-                  i.name.includes('D300'),
+                matcher: (i) => {
+                  const s = (
+                    i.name +
+                    ' ' +
+                    (i.specs['主板兼容'] || '') +
+                    ' ' +
+                    (i.specs['主板支持'] || '') +
+                    ' ' +
+                    (i.specs['机箱结构'] || '')
+                  ).toUpperCase();
+                  return (
+                    s.includes('ITX') ||
+                    s.includes('MINI') ||
+                    i.name.includes('AP201') ||
+                    i.name.includes('A4') ||
+                    i.name.includes('D300')
+                  );
+                },
               },
             ],
           },
@@ -896,6 +1276,67 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
       }
       return opt.matcher(item);
     }).length;
+  };
+
+  // Toggle or select a brand: clicking an active brand unselects it back to 'all'
+  const handleBrandClick = (brandName: string) => {
+    const nextBrand = selectedBrand === brandName || brandName === 'all' ? 'all' : brandName;
+    setSelectedBrand(nextBrand);
+
+    if (nextBrand !== 'all') {
+      // Auto-clear active specs that have 0 matches under this new brand to avoid 0-result trap
+      setSelectedSpecs((prev) => {
+        let changed = false;
+        const next = { ...prev };
+        for (const [dimId, optId] of Object.entries(prev)) {
+          if (!optId || optId === 'all') continue;
+          const dim = currentDimensions.find((d) => d.id === dimId);
+          const opt = dim?.options.find((o) => o.id === optId);
+          if (opt) {
+            const hasMatch = baseCategoryPool.some(
+              (item) => item.brand === nextBrand && opt.matcher(item)
+            );
+            if (!hasMatch) {
+              delete next[dimId];
+              changed = true;
+            }
+          }
+        }
+        return changed ? next : prev;
+      });
+    }
+  };
+
+  // Toggle or select a specific specification dimension
+  const handleSpecSelect = (dimensionId: string, optionId: string) => {
+    if (selectedSpecs[dimensionId] === optionId || optionId === 'all') {
+      setSelectedSpecs((prev) => {
+        const next = { ...prev };
+        delete next[dimensionId];
+        return next;
+      });
+      return;
+    }
+
+    const dim = currentDimensions.find((d) => d.id === dimensionId);
+    const opt = dim?.options.find((o) => o.id === optionId);
+
+    // If user clicks a spec option that has 0 items under the current brand
+    // (e.g. user selected Intel, but clicks AMD AM5), automatically reset selectedBrand to 'all'
+    // so the user instantly sees the hardware rather than being blocked!
+    if (opt && selectedBrand !== 'all') {
+      const matchesCurrentBrand = baseCategoryPool.some(
+        (item) => item.brand === selectedBrand && opt.matcher(item)
+      );
+      if (!matchesCurrentBrand) {
+        setSelectedBrand('all');
+      }
+    }
+
+    setSelectedSpecs((prev) => ({
+      ...prev,
+      [dimensionId]: optionId,
+    }));
   };
 
   // Reset all filters
@@ -1002,18 +1443,18 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               onClick={() => handleCategoryChange(cat.id)}
               className={`group flex items-center space-x-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
                 isSelected
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-cyan-500 dark:to-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-400/40 dark:ring-cyan-400/40 scale-[1.02]'
-                  : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-cyan-700 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-md ring-2 ring-[#F7D84A] scale-[1.02]'
+                  : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/40 dark:hover:border-[#F7D84A]/40 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <span className={isSelected ? 'text-white' : 'text-blue-500 dark:text-cyan-400'}>
+              <span className={isSelected ? 'text-[#F7D84A] dark:text-amber-500' : 'text-slate-500 dark:text-slate-400 group-hover:text-[#F7D84A]'}>
                 {cat.icon}
               </span>
               <span>{cat.label}</span>
               <span
                 className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono font-medium transition-colors ${
                   isSelected
-                    ? 'bg-white/20 text-white font-bold'
+                    ? 'bg-[#F7D84A]/20 dark:bg-black/10 text-[#F7D84A] dark:text-slate-900 font-bold'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
                 }`}
               >
@@ -1040,7 +1481,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="模糊搜索：支持空格多词 (如 华硕 b650, 4070 12g) 或拼音别名 (zps, pjp, xd, 98x3d, 75f)..."
+                  placeholder="搜索硬件型号、品牌、架构或代号（如 9800X3D, RTX 4070, 重炮手）..."
                   className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 transition-all"
                 />
                 {searchQuery && (
@@ -1082,8 +1523,8 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   return (
                     <button
                       key={b.name}
-                      onClick={() => setSelectedBrand(b.name)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+                      onClick={() => handleBrandClick(b.name)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
                         isBrandActive
                           ? 'bg-blue-600 dark:bg-cyan-500 text-white shadow-xs scale-[1.02]'
                           : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-750'
@@ -1123,18 +1564,22 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                         {dim.options.map((opt) => {
                           const isOptionActive = activeOptionId === opt.id;
                           const optCount = getSpecOptionCount(opt);
-                          const isDisabled = optCount === 0 && !isOptionActive;
+                          const isZeroUnderBrand = optCount === 0 && !isOptionActive;
 
                           return (
                             <button
                               key={opt.id}
                               onClick={() => handleSpecSelect(dim.id, opt.id)}
-                              disabled={isDisabled}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+                              title={
+                                isZeroUnderBrand
+                                  ? '当前品牌下无此规格硬件，点击将自动切换至「全部品牌」查看'
+                                  : undefined
+                              }
+                              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
                                 isOptionActive
-                                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold shadow-xs'
-                                  : isDisabled
-                                  ? 'bg-slate-50/50 dark:bg-slate-850/40 text-slate-300 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800 cursor-not-allowed opacity-50'
+                                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold shadow-xs scale-[1.02]'
+                                  : isZeroUnderBrand
+                                  ? 'bg-slate-50/70 dark:bg-slate-850/50 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 border border-dashed border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
                                   : 'bg-slate-50 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-700/60'
                               }`}
                             >
@@ -1142,7 +1587,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                               <span
                                 className={`text-[10px] font-mono ${
                                   isOptionActive
-                                    ? 'text-white/80 dark:text-slate-800'
+                                    ? 'text-white/80 dark:text-slate-800 font-bold'
                                     : 'text-slate-400 dark:text-slate-500'
                                 }`}
                               >

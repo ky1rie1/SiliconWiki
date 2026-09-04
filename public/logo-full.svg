@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="100%" height="100%">
+  <title>SiliconWiki Logo — Master Vector Lockup</title>
+  <desc>Perfection of SiliconWiki logo: Iconic Obsidian Chip Mark with crisp geometric typography and zero jagged lines</desc>
+
+  <!-- Signature Silicon Gold Canvas -->
+  <rect width="1200" height="1200" fill="#F7D84A" />
+
+  <!-- Outer Machined Substrate / Chip Package (Obsidian Black) -->
+  <rect x="235" y="105" width="730" height="730" rx="72" fill="#000000" />
+
+  <!-- Inner Gold Squircle Circuit Ring -->
+  <rect x="295" y="165" width="610" height="610" rx="165" fill="none" stroke="#F7D84A" stroke-width="22" stroke-linejoin="round" />
+
+  <!-- Central Silicon Core / Die -->
+  <rect x="455" y="325" width="290" height="290" rx="28" fill="#F7D84A" />
+
+  <!-- Pristine Geometric Wordmark & Subtag (Vector Typography with Zero Artifacts) -->
+  <g text-anchor="middle">
+    <!-- Primary Wordmark -->
+    <text x="600" y="960" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Plus Jakarta Sans', Roboto, sans-serif" font-weight="900" font-size="112" fill="#000000" letter-spacing="-0.04em">
+      SiliconWiki
+    </text>
+
+    <!-- Subtitle: 芯知硬件百科 -->
+    <text x="600" y="1035" font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, sans-serif" font-weight="700" font-size="34" fill="#000000" fill-opacity="0.8" letter-spacing="0.5em">
+      芯知硬件百科
+    </text>
+  </g>
+</svg>

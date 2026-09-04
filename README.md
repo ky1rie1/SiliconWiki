@@ -1,19 +1,31 @@
-# SiliconWiki 芯知
-
 <div align="center">
 
-**The Definitive Computer Hardware Encyclopedia & Interactive 3D PC Assembly Guide**
+<br />
 
-🚀 **[SiliconWiki | 芯知硬件百科 - 现代化全功能硬件知识与 3D 装机互动应用 (Online Live Demo)](https://computer-wiki.vercel.app/)**
+<img src="public/logo.svg" alt="SiliconWiki Logo" width="460" />
 
-[English](#english) | [简体中文](#简体中文)
+<br />
+<br />
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-computer--wiki.vercel.app-22c55e.svg?style=flat&logo=vercel)](https://computer-wiki.vercel.app/)
-[![React](https://img.shields.io/badge/React-19-61dafb.svg?style=flat&logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
-[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black.svg?style=flat&logo=three.js)](https://threejs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](LICENSE)
+# SiliconWiki · 芯知硬件百科
+
+**The Definitive Hardware Knowledge Base & Interactive 3D PC Assembly Studio**  
+现代化全功能计算机硬件全景百科 · 权威归一化能效天梯榜 · Three.js 3D 实景装机互动模拟室
+
+<br />
+
+[![Silicon Gold Brand](https://img.shields.io/badge/Brand-Silicon%20Gold%20%23F7D84A-09090b?style=for-the-badge&logoColor=F7D84A&labelColor=09090b)](https://computer-wiki.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Online%20Demo-computer--wiki.vercel.app-F7D84A?style=for-the-badge&logo=vercel&logoColor=black&labelColor=09090b)](https://computer-wiki.vercel.app/)
+[![3D WebGL Studio](https://img.shields.io/badge/3D%20Studio-Three.js%20WebGL-09090b?style=for-the-badge&logo=three.js&logoColor=F7D84A)](https://threejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-09090b?style=for-the-badge&logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Design-Tailwind%20CSS-09090b?style=for-the-badge&logo=tailwindcss&logoColor=38bdf8)](https://tailwindcss.com/)
+[![License MIT](https://img.shields.io/badge/License-MIT-09090b?style=for-the-badge&logoColor=F7D84A)](LICENSE)
+
+<br />
+
+[🌐 English](#english) &nbsp;•&nbsp; [🇨🇳 简体中文](#简体中文) &nbsp;•&nbsp; [🚀 在线体验 Live Demo](https://computer-wiki.vercel.app/)
+
+<br />
 
 </div>
 

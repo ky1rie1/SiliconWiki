@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { CustomContentProvider } from './context/CustomContentContext';
@@ -15,11 +15,97 @@ import { ChangelogModal } from './components/changelog/ChangelogModal';
 import { ActiveTab } from './types';
 import { changelogList } from './data/changelog';
 
+/**
+ * Parses current route from URL query params, hash, pathname, or hostname subdomain.
+ * Priority: Query Param > URL Hash > Pathname > Subdomain > Default ('wiki')
+ */
+function parseRouteToTab(): ActiveTab {
+  if (typeof window === 'undefined') return 'wiki';
+
+  // 1. URL Query Parameter (?tab=simulator3d, ?tab=rankings, ?tab=3d, etc.)
+  const searchParams = new URLSearchParams(window.location.search);
+  const tabParam = searchParams.get('tab')?.toLowerCase();
+  if (tabParam) {
+    if (tabParam === 'simulator3d' || tabParam === '3d' || tabParam === 'build') return 'simulator3d';
+    if (tabParam === 'rankings' || tabParam === 'rank' || tabParam === 'ladder') return 'rankings';
+    if (tabParam === 'wiki') return 'wiki';
+    if (tabParam === 'glossary' || tabParam === 'dict') return 'glossary';
+    if (tabParam === 'builds' || tabParam === 'budget') return 'builds';
+  }
+
+  // 2. URL Hash (/#/3d, #/rankings, #simulator3d, #builds, etc.)
+  const rawHash = window.location.hash.toLowerCase().replace(/^#\/?/, '').trim();
+  if (rawHash) {
+    if (rawHash === 'simulator3d' || rawHash === '3d' || rawHash === 'build') return 'simulator3d';
+    if (rawHash === 'rankings' || rawHash === 'rank' || rawHash === 'ladder') return 'rankings';
+    if (rawHash === 'wiki') return 'wiki';
+    if (rawHash === 'glossary' || rawHash === 'dict') return 'glossary';
+    if (rawHash === 'builds' || rawHash === 'budget') return 'builds';
+  }
+
+  // 3. Pathname for SPA rewrites (/3d, /rankings, /wiki, /glossary, /builds)
+  const pathname = window.location.pathname.toLowerCase().replace(/^\/+|\/+$/g, '').trim();
+  if (pathname) {
+    if (pathname === 'simulator3d' || pathname === '3d' || pathname === 'build') return 'simulator3d';
+    if (pathname === 'rankings' || pathname === 'rank' || pathname === 'ladder') return 'rankings';
+    if (pathname === 'wiki') return 'wiki';
+    if (pathname === 'glossary' || pathname === 'dict') return 'glossary';
+    if (pathname === 'builds' || pathname === 'budget') return 'builds';
+  }
+
+  // 4. Subdomain from hostname
+  const hostname = window.location.hostname.toLowerCase();
+  if (hostname.startsWith('3d.') || hostname.startsWith('build.')) return 'simulator3d';
+  if (hostname.startsWith('rank.') || hostname.startsWith('ladder.')) return 'rankings';
+  if (hostname.startsWith('wiki.')) return 'wiki';
+  if (hostname.startsWith('dict.') || hostname.startsWith('glossary.')) return 'glossary';
+  if (hostname.startsWith('budget.')) return 'builds';
+
+  return 'wiki';
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('wiki');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(parseRouteToTab);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [hasUnreadChangelog, setHasUnreadChangelog] = useState(true);
+
+  // Synchronize tab changes to URL hash or query cleanly
+  const handleTabChange = useCallback((newTab: ActiveTab, shouldScroll = true) => {
+    setActiveTab(newTab);
+
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('tab')) {
+        url.searchParams.set('tab', newTab);
+        url.hash = '';
+        window.history.replaceState(null, '', url.pathname + url.search);
+      } else {
+        window.history.replaceState(null, '', `#/${newTab}`);
+      }
+    } catch {
+      window.location.hash = `#/${newTab}`;
+    }
+
+    if (shouldScroll) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  // Listen for browser Back / Forward buttons and external hash changes
+  useEffect(() => {
+    const handlePopState = () => {
+      const parsedTab = parseRouteToTab();
+      setActiveTab((current) => (current !== parsedTab ? parsedTab : current));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
+    };
+  }, []);
 
   // Check if current version announcement was already dismissed by user
   useEffect(() => {
@@ -73,14 +159,11 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <CustomContentProvider>
-          <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white transition-colors duration-200">
+          <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 selection:bg-[#F7D84A]/30 selection:text-slate-950 dark:selection:text-[#F7D84A] transition-colors duration-200">
             {/* Global Navbar */}
             <Navbar
               activeTab={activeTab}
-              onTabChange={(tab) => {
-                setActiveTab(tab);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onTabChange={handleTabChange}
               onOpenSearch={() => setIsSearchOpen(true)}
               onOpenChangelog={() => setIsChangelogOpen(true)}
               hasUnreadChangelog={hasUnreadChangelog}
@@ -90,10 +173,7 @@ export default function App() {
             <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
               {activeTab === 'wiki' && (
                 <HardwareWiki
-                  onNavigateToGlossary={() => {
-                    setActiveTab('glossary');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
+                  onNavigateToGlossary={() => handleTabChange('glossary')}
                 />
               )}
               {activeTab === 'rankings' && <BenchmarkLadder />}
@@ -104,10 +184,7 @@ export default function App() {
 
             {/* Global Footer */}
             <Footer
-              onTabChange={(tab) => {
-                setActiveTab(tab);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onTabChange={handleTabChange}
               onOpenChangelog={() => setIsChangelogOpen(true)}
             />
 
@@ -115,10 +192,7 @@ export default function App() {
             <SearchModal
               isOpen={isSearchOpen}
               onClose={() => setIsSearchOpen(false)}
-              onNavigate={(tab) => {
-                setActiveTab(tab);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onNavigate={handleTabChange}
             />
 
             {/* Changelog & Announcements Modal */}

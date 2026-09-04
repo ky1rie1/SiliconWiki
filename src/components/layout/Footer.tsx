@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, ExternalLink, Heart, ShieldAlert, BookOpen } from 'lucide-react';
+import { ExternalLink, Heart, ShieldAlert, BookOpen } from 'lucide-react';
 import { ActiveTab } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -17,12 +17,16 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Col 1: Brand & Philosophy */}
           <div className="md:col-span-1 space-y-3">
-            <div className="flex items-center space-x-2">
-              <div className="p-1.5 rounded-lg bg-blue-600 text-white">
-                <Cpu className="w-4 h-4" />
+            <div className="flex items-center space-x-2.5">
+              <div className="w-7 h-7 rounded-lg bg-black p-0.5 ring-1 ring-[#F7D84A]/35 shadow-sm shrink-0 flex items-center justify-center">
+                <svg viewBox="0 0 64 64" className="w-full h-full" fill="none">
+                  <rect x="2" y="2" width="60" height="60" rx="7" fill="#000000" stroke="#F7D84A" strokeWidth="1.5" strokeOpacity="0.4" />
+                  <rect x="9" y="9" width="46" height="46" rx="13" fill="none" stroke="#F7D84A" strokeWidth="3" strokeLinejoin="round" />
+                  <rect x="22" y="22" width="20" height="20" rx="2.5" fill="#F7D84A" />
+                </svg>
               </div>
-              <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white font-mono">
-                {t('brandName')}
+              <span className="text-base font-black tracking-tight text-slate-900 dark:text-white font-mono">
+                Silicon<span className="text-[#F7D84A]">Wiki</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -44,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               <li>
                 <button
                   onClick={() => onTabChange('wiki')}
-                  className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   🖥️ {t('navWiki')}
                 </button>
@@ -52,7 +56,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               <li>
                 <button
                   onClick={() => onTabChange('rankings')}
-                  className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   📊 {t('navRankings')}
                 </button>
@@ -60,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               <li>
                 <button
                   onClick={() => onTabChange('simulator3d')}
-                  className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   🛠️ {t('nav3D')}
                 </button>
@@ -68,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               <li>
                 <button
                   onClick={() => onTabChange('glossary')}
-                  className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   📖 {t('navGlossary')}
                 </button>
@@ -76,7 +80,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               <li>
                 <button
                   onClick={() => onTabChange('builds')}
-                  className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   💰 {t('navBuilds')}
                 </button>
@@ -95,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   href="https://socpk.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="flex items-center space-x-1.5 hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   <span>极客湾 Geekerwan 天梯排行榜</span>
                   <ExternalLink className="w-3 h-3" />
@@ -106,7 +110,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   href="https://www.techpowerup.com/gpu-specs/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="flex items-center space-x-1.5 hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   <span>TechPowerUp GPU 官方芯片库</span>
                   <ExternalLink className="w-3 h-3" />
@@ -117,7 +121,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   href="https://www.3dmark.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="flex items-center space-x-1.5 hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   <span>UL 3DMark 基准测试平台</span>
                   <ExternalLink className="w-3 h-3" />
@@ -128,7 +132,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   href="https://ark.intel.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1.5 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
+                  className="flex items-center space-x-1.5 hover:text-amber-600 dark:hover:text-[#F7D84A] transition-colors"
                 >
                   <span>Intel ARK & AMD 官方芯片白皮书</span>
                   <ExternalLink className="w-3 h-3" />
@@ -143,7 +147,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               {t('footerPlatform')}
             </h4>
             <div className="space-y-3 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center space-x-1.5 text-blue-600 dark:text-cyan-400">
+              <div className="flex items-center space-x-1.5 text-amber-600 dark:text-[#F7D84A]">
                 <BookOpen className="w-3.5 h-3.5" />
                 <span className="font-medium">
                   {lang === 'zh'
@@ -158,7 +162,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
               </p>
               <button
                 onClick={onOpenChangelog}
-                className="inline-flex items-center space-x-1 text-blue-600 dark:text-cyan-400 hover:underline block"
+                className="inline-flex items-center space-x-1 text-amber-600 dark:text-[#F7D84A] hover:underline block font-medium"
               >
                 <span>{lang === 'zh' ? '查看版本更新日志与公告' : 'View Version Changelog'}</span>
               </button>
@@ -169,7 +173,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
         {/* Bottom Bar: Disclaimer */}
         <div className="pt-6 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 gap-2">
           <div className="flex items-center space-x-1.5">
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+            <ShieldAlert className="w-3.5 h-3.5 text-[#F7D84A]" />
             <span>{t('footerDisclaimer')}</span>
           </div>
           <div>© {new Date().getFullYear()} SiliconWiki. All rights reserved.</div>

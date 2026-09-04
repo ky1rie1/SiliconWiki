@@ -11,7 +11,7 @@
   }
 
   body {
-    @apply transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 selection:bg-cyan-500/20 selection:text-cyan-400;
+    @apply transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 selection:bg-[#F7D84A]/30 selection:text-slate-950 dark:selection:text-[#F7D84A];
   }
 }
 
@@ -27,16 +27,18 @@
 /* Ambient Subtle Background Orbs */
 .bg-ambient-glow {
   background-image: 
+    radial-gradient(circle at 50% 0%, rgba(247, 216, 74, 0.06) 0%, transparent 45%),
     radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+    radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
 }
 
 .dark .bg-ambient-glow {
   background-image: 
+    radial-gradient(circle at 50% 0%, rgba(247, 216, 74, 0.08) 0%, transparent 45%),
     radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.12) 0%, transparent 45%),
     radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.07) 0%, transparent 50%);
+    radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
 }
 
 /* Double-Bezel nested architecture highlights */
@@ -70,7 +72,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.6);
+  background: rgba(247, 216, 74, 0.5);
   background-clip: padding-box;
 }
 
@@ -81,7 +83,7 @@
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.7);
+  background: rgba(247, 216, 74, 0.6);
   background-clip: padding-box;
 }
 

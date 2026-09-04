@@ -1222,11 +1222,17 @@ export class PCScene3D {
       ) {
         const origEmissive = child.material.emissive.clone();
         const origIntensity = child.material.emissiveIntensity;
-        child.material.emissive.set(0x10b981); // Emerald green fit confirmation
-        child.material.emissiveIntensity = 0.6;
+        const origRoughness = child.material.roughness;
+
+        // Natural studio specular reflection pulse (neutral warm white sheen, no green tint)
+        child.material.emissive.set(0xffffff);
+        child.material.emissiveIntensity = 0.25;
+        child.material.roughness = Math.max(0.08, origRoughness * 0.4);
+
         setTimeout(() => {
           child.material.emissive.copy(origEmissive);
           child.material.emissiveIntensity = origIntensity;
+          child.material.roughness = origRoughness;
         }, 450);
       }
     });
