@@ -2,84 +2,108 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
-    version: 'v1.3.0',
-    date: '2026-09-04',
-    title: '海量全硬件数据库、高精体素 3D 虚拟装机与视觉系统升级',
+    version: 'v1.4.0',
+    date: '2025-03-04',
+    title: '全量硬件库扩充、42条硬核名词宝典、划词解释卡片与 CNC 机械跑分规',
     tag: '重大里程碑',
     updates: [
       {
+        type: 'feature',
+        text: '3D 虚拟装机室基石重构：主板自第 1 步起平稳显现于赛博工作台上，消除 CPU、内存与散热器浮空装配的问题。',
+      },
+      {
+        type: 'feature',
+        text: '硬件界面划词/点击直达技术卡片：支持在硬件百科界面任意划词或点击卡片热词标签，即刻弹出「大白话+技术机理+选购避坑」三段式深度卡片。',
+      },
+      {
         type: 'data',
-        text: '全硬件数据库海量扩充：囊括 Intel 12/13/14 代与 Core Ultra 200S、AMD 5000/7000/9000/X3D 全系、RTX 40/30 系列全栈、RX 7000/6000 系列及移动端主流整机。',
+        text: '名词宝典全面扩展至 42+ 条硬核词典：全品类覆盖 3D V-Cache、CUDIMM、DLSS 4、ATX 3.1、TLC/QLC 避坑、DrMOS 供电、双通道插槽法则、撕膜警告等。',
       },
       {
         type: 'feature',
-        text: '硬件百科卡片全新上线产品专属实物与高科技芯片微架构电路矢量展示区，告别无图空白感。',
+        text: '拉条组件全面高规格重构：天梯排行榜升级为 CNC 机械凹槽跑分规（Machined Groove Gauge），3D 装机室配备贯通式发光流水线能量导轨。',
       },
       {
-        type: 'feature',
-        text: '3D 虚拟装机室全面重构升级为「高精细度体素（Voxel）机械艺术建模」：逼真还原 VRM 供电散热鳍片、电容阵列、双通道内存卡扣与微型旋转体素散热风扇。',
-      },
-      {
-        type: 'feature',
-        text: '全站电商直达搜索按钮统一附带「(须登录)」提示，提升跳转体验与指引清晰度。',
+        type: 'data',
+        text: '全量补充近几代主流与高性价比硬件：新增 RTX 4070、RTX 3080 10G、RTX 3060Ti G6X、RX 7700XT、CUDIMM 8400、致态 TiPro7000 独立缓存版等。',
       },
       {
         type: 'fix',
-        text: '全站暗黑模式深度色彩与对比度优化：修正底色层级与悬浮卡片显示，全面提升夜间阅读舒适度。',
+        text: '亮色与暗色模式深度色彩修正：彻底修复暗色模式下硬件卡片背景发浅发灰的问题，导航栏在英文模式下自动扩展自适应。',
+      },
+      {
+        type: 'feature',
+        text: '公告智能弹窗系统：支持新版本首次访问自动弹出更新公告，并支持“本次更新不再提示”本地持久化记录。',
+      },
+    ],
+  },
+  {
+    version: 'v1.3.0',
+    date: '2025-02-28',
+    title: '硬件卡片高科技矢量蓝图、电商直达与 3D 体素模型升级',
+    tag: '重大更新',
+    updates: [
+      {
+        type: 'feature',
+        text: '硬件百科卡片全新上线产品专属实物与芯片微架构电路矢量展示区，解决无图空泛感。',
+      },
+      {
+        type: 'feature',
+        text: '3D 虚拟装机室全面升级为高精细度体素（Voxel）机械艺术建模，支持旋转风扇与透视。',
+      },
+      {
+        type: 'feature',
+        text: '全站电商直达搜索按钮统一附带「(须登录)」提示，精准直达京东自营、淘宝百亿补贴。',
+      },
+      {
+        type: 'data',
+        text: '大幅扩充 Intel 12/13/14 代与 Core Ultra 200S、AMD 5000/7000/9000/X3D 全系硬件数据库。',
       },
     ],
   },
   {
     version: 'v1.2.0',
-    date: '2026-08-28',
+    date: '2025-02-15',
     title: '次世代硬件与极客湾天梯权威跑分全面同步',
-    tag: '重大更新',
+    tag: '数据同步',
     updates: [
       {
         type: 'data',
-        text: '全量同步 AMD Ryzen 7 9800X3D（第二代下置 3D 缓存神U）与 RTX 50 系列顶级旗舰卡皇的实测能效与跑分。',
+        text: '全量同步 AMD Ryzen 7 9800X3D（第二代下置 3D 缓存神U）与 RTX 50 系列顶级卡皇的实测能效与跑分。',
       },
       {
         type: 'feature',
-        text: '引入“永不404”智能电商语义直达通道：针对所有型号实时一键直通京东自营、淘宝百亿补贴最新现货搜索页。',
-      },
-      {
-        type: 'data',
-        text: '全面校对极客湾（socpk.com）桌面及移动端能效比基准与 3DMark TimeSpy 理论跑分。',
+        text: '深度对齐极客湾（socpk.com）桌面及移动端能效比基准与 3DMark TimeSpy 理论跑分体系。',
       },
       {
         type: 'price',
-        text: '根据国内电商近期现货成交均价，微调 2TB PCIe 4.0 固态、海力士 A-Die DDR5 6000 内存的市场价格区间。',
+        text: '根据国内电商近期真实成交均价，校准 2TB PCIe 4.0 固态、海力士 A-Die DDR5 6000 内存价格区间。',
       },
     ],
   },
   {
     version: 'v1.1.0',
-    date: '2026-07-15',
+    date: '2025-01-20',
     title: 'Three.js 3D 实景装机室与 B 站保姆级视频精讲上线',
     tag: '核心功能',
     updates: [
       {
         type: 'feature',
-        text: '全新上线基于 WebGL/Three.js 打造的 3D 实景装机模拟器，支持 360° 自由旋转平移与 9 大分步拼装。',
+        text: '全新上线基于 WebGL/Three.js 打造的 3D 实景装机模拟器，支持 360° 自由旋转平移与分步拼装。',
       },
       {
         type: 'feature',
-        text: '重磅加入【一键全机爆炸拆解透视 (Exploded View)】：内部硬件三维平滑展开悬浮，机箱构造一目了然。',
+        text: '重磅加入【一键全机爆炸拆解透视 (Exploded View)】：内部硬件三维平滑展开悬浮。',
       },
       {
         type: 'feature',
-        text: '精选接入 B 站播放量超百万的小白装机保姆级视频（硬件茶社、极客湾、装机猿），分步直达实操时间点。',
-      },
-      {
-        type: 'feature',
-        text: '增加全站硬件名词下划线智能气泡（Smart Tooltips），鼠标轻触即看大白话解释。',
+        text: '精选接入 B 站播放量超千万的小白装机保姆级视频，分步直达实操时间点。',
       },
     ],
   },
   {
     version: 'v1.0.0',
-    date: '2026-06-01',
+    date: '2024-10-18',
     title: 'SiliconWiki 芯知百科正式上线',
     tag: '首次发布',
     updates: [
@@ -89,15 +113,11 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'feature',
-        text: '支持深色极客科技暗黑 (Dark Tech) 与浅色纯净工程明亮 (Clean White) 一键平滑切换。',
+        text: '支持深色极客科技暗黑与浅色纯净工程明亮一键平滑切换。',
       },
       {
         type: 'feature',
-        text: '上线从 3000 元至 25000 元精选推荐装机配置单，包含完整 BOM 清单与一键复制功能。',
-      },
-      {
-        type: 'feature',
-        text: '支持全局快捷键 Ctrl+K 快速唤起智能全能搜索框。',
+        text: '上线从 3000 元至 25000 元精选推荐装机配置单，包含完整清单与一键复制功能。',
       },
     ],
   },

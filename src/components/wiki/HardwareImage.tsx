@@ -31,56 +31,56 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
     switch (category) {
       case 'cpu':
         return {
-          gradient: 'from-amber-500/10 via-blue-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-amber-500/10 via-slate-100/50 to-slate-100 dark:from-amber-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-amber-600 dark:text-amber-500',
           border: 'border-amber-500/20',
           badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
         };
       case 'gpu':
         return {
-          gradient: 'from-emerald-500/10 via-teal-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-emerald-500/10 via-slate-100/50 to-slate-100 dark:from-emerald-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-emerald-600 dark:text-emerald-500',
           border: 'border-emerald-500/20',
           badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
         };
       case 'motherboard':
         return {
-          gradient: 'from-indigo-500/10 via-purple-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-indigo-500/10 via-slate-100/50 to-slate-100 dark:from-indigo-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-indigo-600 dark:text-indigo-500',
           border: 'border-indigo-500/20',
           badge: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
         };
       case 'ram':
         return {
-          gradient: 'from-cyan-500/10 via-blue-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-cyan-500/10 via-slate-100/50 to-slate-100 dark:from-cyan-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-cyan-600 dark:text-cyan-500',
           border: 'border-cyan-500/20',
           badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
         };
       case 'storage':
         return {
-          gradient: 'from-violet-500/10 via-fuchsia-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-violet-500/10 via-slate-100/50 to-slate-100 dark:from-violet-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-violet-600 dark:text-violet-500',
           border: 'border-violet-500/20',
           badge: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
         };
       case 'psu':
         return {
-          gradient: 'from-yellow-500/10 via-amber-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-yellow-500/10 via-slate-100/50 to-slate-100 dark:from-yellow-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-yellow-600 dark:text-yellow-500',
           border: 'border-yellow-500/20',
           badge: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
         };
       case 'cooler':
         return {
-          gradient: 'from-sky-500/10 via-cyan-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-sky-500/10 via-slate-100/50 to-slate-100 dark:from-sky-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-sky-600 dark:text-sky-500',
           border: 'border-sky-500/20',
           badge: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
         };
       case 'case':
         return {
-          gradient: 'from-blue-500/10 via-slate-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-blue-500/10 via-slate-100/50 to-slate-100 dark:from-blue-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-blue-600 dark:text-blue-500',
           border: 'border-blue-500/20',
           badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
@@ -88,7 +88,7 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
       case 'laptop':
       default:
         return {
-          gradient: 'from-purple-500/10 via-indigo-500/5 to-slate-200/50 dark:to-slate-950/70',
+          gradient: 'from-purple-500/10 via-slate-100/50 to-slate-100 dark:from-purple-500/10 dark:via-slate-900/60 dark:to-[#070b14]',
           accent: 'text-purple-600 dark:text-purple-500',
           border: 'border-purple-500/20',
           badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
@@ -349,7 +349,7 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br ${theme.gradient} bg-slate-100 dark:bg-slate-925 flex items-center justify-center group/img`}>
+    <div className={`relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br ${theme.gradient} bg-slate-100 dark:bg-[#070b14] flex items-center justify-center group/img`}>
       {/* Background Grid Pattern */}
       <div
         className="absolute inset-0 opacity-10 dark:opacity-20"

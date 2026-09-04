@@ -3,7 +3,6 @@ import {
   X,
   Bell,
   Sparkles,
-  CheckCircle2,
   Calendar,
   Layers,
   Zap,
@@ -13,15 +12,18 @@ import { changelogList } from '../../data/changelog';
 
 interface ChangelogModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (dontShowAgain?: boolean) => void;
   onMarkAllAsRead: () => void;
+  latestVersion?: string;
 }
 
 export const ChangelogModal: React.FC<ChangelogModalProps> = ({
   isOpen,
   onClose,
   onMarkAllAsRead,
+  latestVersion,
 }) => {
+  const [dontShowAgain, setDontShowAgain] = React.useState(true);
   if (!isOpen) return null;
 
   const getTypeBadge = (type: 'feature' | 'data' | 'price' | 'fix') => {
@@ -67,9 +69,16 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
               <Bell className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">
-                版本更新日志与公告
-              </h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                  版本更新日志与公告
+                </h3>
+                {latestVersion && (
+                  <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-cyan-300 font-mono font-bold">
+                    {latestVersion}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 记录每一次硬件数据库同步、天梯跑分更新与功能迭代
               </p>
@@ -77,7 +86,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
           </div>
 
           <button
-            onClick={onClose}
+            onClick={() => onClose(dontShowAgain)}
             className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -132,24 +141,28 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-          <button
-            onClick={() => {
-              onMarkAllAsRead();
-              onClose();
-            }}
-            className="flex items-center space-x-1.5 text-blue-600 dark:text-cyan-400 hover:underline font-semibold"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>已读全部更新提醒</span>
-          </button>
+        <div className="p-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <label className="flex items-center space-x-2 text-slate-700 dark:text-slate-300 select-none cursor-pointer">
+            <input
+              type="checkbox"
+              checked={dontShowAgain}
+              onChange={(e) => setDontShowAgain(e.target.checked)}
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+            />
+            <span className="font-medium">本次更新不再主动提醒 (下次有新版本时再通知)</span>
+          </label>
 
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs transition-colors"
-          >
-            我知道了
-          </button>
+          <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
+            <button
+              onClick={() => {
+                onMarkAllAsRead();
+                onClose(dontShowAgain);
+              }}
+              className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all cursor-pointer"
+            >
+              我知道了
+            </button>
+          </div>
         </div>
       </div>
     </div>

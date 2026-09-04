@@ -294,12 +294,14 @@ export class PCScene3D {
     // 2. MOTHERBOARD (ATX 主板 - 供电鳍片、电容阵列与插槽)
     // =========================================================
     const mbGroup = new THREE.Group();
-    // PCB base slab
+    // PCB base slab (Matte Emerald / Carbon Black PCB)
     mbGroup.add(this.createVoxel(0, 0, 0, 2.8, 3.2, 0.08, pcbMat));
 
-    // Decorative circuit trace voxel strips
+    // Decorative golden PCB circuit trace voxel strips & bus lines
     mbGroup.add(this.createVoxel(-0.6, 0.2, 0.05, 0.04, 2.2, 0.02, goldMat));
     mbGroup.add(this.createVoxel(0.4, -0.4, 0.05, 1.2, 0.04, 0.02, goldMat));
+    mbGroup.add(this.createVoxel(0.9, 0.1, 0.05, 0.03, 1.6, 0.02, goldMat));
+    mbGroup.add(this.createVoxel(-0.2, -0.75, 0.05, 1.5, 0.03, 0.02, goldMat));
 
     // VRM Heatsink Armor (Top & Left Aluminum Fin Voxels)
     const vrmLeft = new THREE.Group();
@@ -316,51 +318,113 @@ export class PCScene3D {
     }
     mbGroup.add(vrmTop);
 
-    // VRM Solid Capacitors Array (12 Micro-Voxel Cylinders)
-    for (let i = 0; i < 6; i++) {
+    // VRM Solid Capacitors Array (Nichicon Black/Silver Caps)
+    for (let i = 0; i < 7; i++) {
       const capGeom = new THREE.CylinderGeometry(0.04, 0.04, 0.14, 8);
       const cap = new THREE.Mesh(capGeom, capacitorMat);
       cap.rotation.x = Math.PI / 2;
-      cap.position.set(-0.55, 0.1 + i * 0.18, 0.12);
+      cap.position.set(-0.55, 0.05 + i * 0.18, 0.12);
       mbGroup.add(cap);
     }
+    for (let i = 0; i < 5; i++) {
+      const capGeom = new THREE.CylinderGeometry(0.04, 0.04, 0.14, 8);
+      const cap = new THREE.Mesh(capGeom, capacitorMat);
+      cap.rotation.x = Math.PI / 2;
+      cap.position.set(-0.35 + i * 0.2, 0.96, 0.12);
+      mbGroup.add(cap);
+    }
+
+    // Dual 8-Pin CPU EPS Power Sockets (Top Left)
+    const eps1 = this.createVoxel(-0.82, 1.48, 0.11, 0.2, 0.16, 0.14, darkMetalMat);
+    const eps2 = this.createVoxel(-0.58, 1.48, 0.11, 0.2, 0.16, 0.14, darkMetalMat);
+    mbGroup.add(eps1, eps2);
+    // Gold contact pins inside EPS
+    mbGroup.add(this.createVoxel(-0.82, 1.48, 0.18, 0.16, 0.12, 0.02, goldMat));
+    mbGroup.add(this.createVoxel(-0.58, 1.48, 0.18, 0.16, 0.12, 0.02, goldMat));
 
     // AM5 CPU Socket Outline & Load Lever
     mbGroup.add(this.createVoxel(-0.05, 0.65, 0.06, 0.85, 0.85, 0.04, darkMetalMat));
     mbGroup.add(this.createVoxel(-0.05, 0.65, 0.085, 0.72, 0.72, 0.02, goldMat)); // Pin grid area
-    // Metal Socket Lever
+    // Metal Socket Retention Lever
     const socketLever = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.85, 6), vrmArmorMat);
     socketLever.position.set(0.42, 0.65, 0.1);
     mbGroup.add(socketLever);
 
-    // 4 DDR5 RAM Slots with End Clips
+    // 4 DDR5 RAM Slots with Reinforced Metallic End Clips
     for (let s = 0; s < 4; s++) {
       const slotX = 0.62 + s * 0.16;
       mbGroup.add(this.createVoxel(slotX, 0.65, 0.08, 0.06, 1.4, 0.08, darkMetalMat));
-      // End clips
+      // Top & Bottom End clips
       mbGroup.add(this.createVoxel(slotX, 1.36, 0.09, 0.08, 0.06, 0.08, vrmArmorMat));
       mbGroup.add(this.createVoxel(slotX, -0.06, 0.09, 0.08, 0.06, 0.08, vrmArmorMat));
+      // Center notch
+      mbGroup.add(this.createVoxel(slotX, 0.65, 0.11, 0.07, 0.08, 0.04, darkMetalMat));
+    }
+
+    // 24-Pin ATX Mainboard Power Socket (Right Edge)
+    const atx24pSocket = this.createVoxel(1.28, 0.65, 0.12, 0.16, 0.75, 0.16, darkMetalMat);
+    mbGroup.add(atx24pSocket);
+    for (let p = -0.32; p <= 0.32; p += 0.064) {
+      mbGroup.add(this.createVoxel(1.28, 0.65 + p, 0.2, 0.1, 0.025, 0.02, goldMat));
     }
 
     // PCIe x16 Steel Reinforced Slots (Slot 1 & Slot 2)
     mbGroup.add(this.createVoxel(0.05, -0.45, 0.1, 1.9, 0.12, 0.12, vrmArmorMat));
     mbGroup.add(this.createVoxel(0.05, -0.45, 0.17, 1.8, 0.03, 0.03, goldMat));
-    mbGroup.add(this.createVoxel(0.05, -1.05, 0.08, 1.9, 0.11, 0.1, darkMetalMat));
+    // PCIe Retention Latch
+    mbGroup.add(this.createVoxel(1.02, -0.45, 0.14, 0.08, 0.14, 0.1, darkMetalMat));
 
-    // Chipset Armor with RGB Accent
+    mbGroup.add(this.createVoxel(0.05, -1.05, 0.08, 1.9, 0.11, 0.1, darkMetalMat));
+    mbGroup.add(this.createVoxel(0.05, -1.05, 0.14, 1.8, 0.03, 0.02, goldMat));
+
+    // CR2032 CMOS Coin Battery with retention socket (Center-Lower)
+    const cmosHolder = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.05, 16), darkMetalMat);
+    cmosHolder.rotation.x = Math.PI / 2;
+    cmosHolder.position.set(0.15, -0.15, 0.07);
+    const cmosBattery = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.04, 16), vrmArmorMat);
+    cmosBattery.rotation.x = Math.PI / 2;
+    cmosBattery.position.set(0.15, -0.15, 0.09);
+    mbGroup.add(cmosHolder, cmosBattery);
+
+    // 4x Stacked SATA 6Gbps Ports on lower right edge
+    for (let sp = 0; sp < 2; sp++) {
+      const sataY = -0.55 + sp * 0.22;
+      mbGroup.add(this.createVoxel(1.3, sataY, 0.12, 0.14, 0.18, 0.16, darkMetalMat));
+      mbGroup.add(this.createVoxel(1.36, sataY, 0.12, 0.02, 0.14, 0.12, goldMat)); // L-shaped contact
+    }
+
+    // Chipset Armor with CNC Grooves & RGB Accent
     mbGroup.add(this.createVoxel(0.8, -0.95, 0.14, 0.75, 0.75, 0.2, vrmArmorMat));
     mbGroup.add(this.createVoxel(0.8, -0.95, 0.25, 0.45, 0.06, 0.02, rgbCyanMat));
+    // M.2 Armor heatsink block
+    mbGroup.add(this.createVoxel(0.05, -0.75, 0.12, 1.4, 0.26, 0.12, darkMetalMat));
 
-    // Rear I/O Ports Block
+    // Rear I/O Ports Block & Wi-Fi 7 Antenna gold posts
     const rearIo = new THREE.Group();
     rearIo.add(this.createVoxel(-1.25, 0.8, 0.25, 0.25, 1.2, 0.42, darkMetalMat));
     rearIo.add(this.createVoxel(-1.25, 1.2, 0.47, 0.12, 0.08, 0.04, rgbCyanMat)); // USB 3.0
     rearIo.add(this.createVoxel(-1.25, 1.0, 0.47, 0.12, 0.08, 0.04, rgbCyanMat));
+    rearIo.add(this.createVoxel(-1.25, 0.75, 0.47, 0.08, 0.06, 0.04, debugLedRed)); // USB 3.2 Gen 2x2
+    rearIo.add(this.createVoxel(-1.25, 0.55, 0.47, 0.06, 0.12, 0.04, darkMetalMat)); // RJ45 2.5G LAN
+    // Wi-Fi 7 SMA threaded gold antenna posts
+    const wifiPost1 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8), goldMat);
+    wifiPost1.position.set(-1.25, 0.38, 0.49);
+    wifiPost1.rotation.x = Math.PI / 2;
+    const wifiPost2 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.12, 8), goldMat);
+    wifiPost2.position.set(-1.25, 0.26, 0.49);
+    wifiPost2.rotation.x = Math.PI / 2;
+    rearIo.add(wifiPost1, wifiPost2);
     mbGroup.add(rearIo);
 
-    // Debug LED Array (Top Right corner: Red/Yellow/White/Green)
-    mbGroup.add(this.createVoxel(1.2, 1.45, 0.06, 0.03, 0.03, 0.02, debugLedRed));
-    mbGroup.add(this.createVoxel(1.24, 1.45, 0.06, 0.03, 0.03, 0.02, debugLedGreen));
+    // 2-Digit 7-Segment Debug LED (Top-Right: "A0" Status)
+    const debugLedBezel = this.createVoxel(1.18, 1.35, 0.07, 0.18, 0.12, 0.04, bgaChipMat);
+    const debugSegment1 = this.createVoxel(1.14, 1.35, 0.095, 0.06, 0.08, 0.01, debugLedGreen);
+    const debugSegment2 = this.createVoxel(1.22, 1.35, 0.095, 0.06, 0.08, 0.01, debugLedGreen);
+    mbGroup.add(debugLedBezel, debugSegment1, debugSegment2);
+
+    // Front-panel USB 3.2 Key-A & 19-Pin Headers (Right lower border)
+    mbGroup.add(this.createVoxel(1.28, 0.1, 0.1, 0.12, 0.14, 0.12, darkMetalMat));
+    mbGroup.add(this.createVoxel(1.28, -0.2, 0.1, 0.12, 0.22, 0.12, darkMetalMat));
 
     this.registerComponent({
       id: 'motherboard',
@@ -375,12 +439,15 @@ export class PCScene3D {
     // 3. CPU (处理器 - 带金色防呆三角标与顶盖镭雕)
     // =========================================================
     const cpuGroup = new THREE.Group();
-    // Substrate PCB
+    // Substrate PCB with SMD capacitors in center cutout
     cpuGroup.add(this.createVoxel(0, 0, 0, 0.68, 0.68, 0.05, goldMat));
-    // Nickel-plated IHS cover
+    // Nickel-plated IHS copper heat spreader
     cpuGroup.add(this.createVoxel(0, 0, 0.05, 0.58, 0.58, 0.06, vrmArmorMat));
     // Top central laser etched surface
     cpuGroup.add(this.createVoxel(0, 0, 0.085, 0.48, 0.48, 0.02, darkMetalMat));
+    // CPU IHS octagonal heatspreader wing cutouts
+    cpuGroup.add(this.createVoxel(-0.27, 0, 0.06, 0.04, 0.3, 0.05, darkMetalMat));
+    cpuGroup.add(this.createVoxel(0.27, 0, 0.06, 0.04, 0.3, 0.05, darkMetalMat));
 
     // Golden Alignment Triangle (Pin 1 Indicator)
     const triGeom = new THREE.ConeGeometry(0.045, 0.06, 3);
@@ -406,20 +473,21 @@ export class PCScene3D {
       const stick = new THREE.Group();
       // PCB
       stick.add(this.createVoxel(0, 0, 0, 0.05, 1.35, 0.28, pcbMat));
-      // Gold teeth
+      // Gold teeth with center notch
       stick.add(this.createVoxel(0, -0.66, -0.06, 0.04, 0.06, 0.24, goldMat));
-      // Metal armor
+      // Metal armor with brushed chamfers
       stick.add(this.createVoxel(0, 0.05, 0.04, 0.09, 1.25, 0.24, vrmArmorMat));
       // BGA DRAM chip voxels
       for (let c = -0.45; c <= 0.45; c += 0.28) {
         stick.add(this.createVoxel(0.05, c, 0.02, 0.03, 0.16, 0.16, bgaChipMat));
       }
-      // Top RGB Diffuser Bar
+      // Top RGB Diffuser Bar & Frosted Fins
       stick.add(this.createVoxel(0, 0.7, 0.05, 0.08, 0.08, 0.26, rgbCyanMat));
+      stick.add(this.createVoxel(0, 0.73, 0.05, 0.04, 0.04, 0.22, vrmArmorMat));
       return stick;
     };
 
-    // Placed in Channel 2 & 4 (Standard best practice)
+    // Placed in Channel 2 & 4 (Standard dual channel best practice)
     const ram1 = createVoxelRamStick();
     ram1.position.set(0.62 + 0.16, 0.65, 0.1);
     const ram2 = createVoxelRamStick();
@@ -441,13 +509,17 @@ export class PCScene3D {
     const ssdGroup = new THREE.Group();
     // 2280 PCB
     ssdGroup.add(this.createVoxel(0, 0, 0, 0.85, 0.26, 0.04, pcbMat));
-    // Gold contacts
+    // Gold contacts with M-Key notch
     ssdGroup.add(this.createVoxel(-0.41, 0, 0, 0.06, 0.2, 0.03, goldMat));
     // Controller & NAND Flash Dies
     ssdGroup.add(this.createVoxel(-0.15, 0, 0.03, 0.18, 0.18, 0.03, bgaChipMat));
     ssdGroup.add(this.createVoxel(0.18, 0, 0.03, 0.22, 0.2, 0.03, bgaChipMat));
     // Grooved Aluminum Heatsink
     ssdGroup.add(this.createVoxel(0.05, 0, 0.07, 0.78, 0.26, 0.06, darkMetalMat));
+    // CNC Heatsink Fins
+    for (let hf = -0.25; hf <= 0.35; hf += 0.12) {
+      ssdGroup.add(this.createVoxel(0.05 + hf, 0, 0.11, 0.04, 0.24, 0.03, vrmArmorMat));
+    }
     // Thermal Pad Layer indicator (blue)
     ssdGroup.add(this.createVoxel(0.05, 0, 0.045, 0.76, 0.24, 0.01, rgbCyanMat));
 
@@ -464,10 +536,10 @@ export class PCScene3D {
     // 6. COOLER (双塔风冷散热器 - 7根热管与旋转体素风扇)
     // =========================================================
     const coolerGroup = new THREE.Group();
-    // Copper mirror base
+    // Pure Copper mirror nickel-plated base
     coolerGroup.add(this.createVoxel(0, -0.5, 0, 0.85, 0.12, 0.85, copperMat));
 
-    // 6 Curved Copper Heat Pipes
+    // 6 U-shaped Sintered Copper Heat Pipes
     for (let hp = -0.3; hp <= 0.3; hp += 0.12) {
       const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.4, 8), copperMat);
       pipe.position.set(hp, 0.1, 0);
@@ -480,26 +552,53 @@ export class PCScene3D {
     for (let f = -0.3; f <= 0.7; f += 0.12) {
       tower1.add(this.createVoxel(0, f, -0.26, 0.98, 0.02, 0.38, darkMetalMat));
     }
+    // Heatpipe End Sealing Caps on top of Tower 1
+    for (let hp = -0.3; hp <= 0.3; hp += 0.12) {
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.06, 8), copperMat);
+      cap.position.set(hp, 0.78, -0.26);
+      tower1.add(cap);
+    }
 
     const tower2 = new THREE.Group();
     tower2.add(this.createVoxel(0, 0.2, 0.26, 0.95, 1.1, 0.36, vrmArmorMat));
     for (let f = -0.3; f <= 0.7; f += 0.12) {
       tower2.add(this.createVoxel(0, f, 0.26, 0.98, 0.02, 0.38, darkMetalMat));
     }
+    // Heatpipe End Sealing Caps on top of Tower 2
+    for (let hp = -0.3; hp <= 0.3; hp += 0.12) {
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.06, 8), copperMat);
+      cap.position.set(hp, 0.78, 0.26);
+      tower2.add(cap);
+    }
     coolerGroup.add(tower1, tower2);
 
-    // Front & Center 120mm Voxel Fans
+    // Front & Center 120mm Voxel Fans with Anti-Vibration Pads
     const createCoolerFan = (zOffset: number) => {
       const fanRoot = new THREE.Group();
       // Outer Fan Frame
       fanRoot.add(this.createVoxel(0, 0.2, zOffset, 1.05, 1.05, 0.12, darkMetalMat));
 
-      // Spinning Blade Hub
+      // 4 Anti-Vibration Silicone Corner Pads
+      const corners = [
+        [-0.46, 0.66],
+        [0.46, 0.66],
+        [-0.46, -0.26],
+        [0.46, -0.26],
+      ];
+      corners.forEach(([cx, cy]) => {
+        fanRoot.add(this.createVoxel(cx, cy, zOffset, 0.12, 0.12, 0.14, pcbMat));
+      });
+
+      // Spinning Blade Hub with Metallic Center Badge
       const bladeHub = new THREE.Group();
       bladeHub.position.set(0, 0.2, zOffset);
       bladeHub.add(this.createVoxel(0, 0, 0, 0.22, 0.22, 0.14, darkMetalMat));
+      // Center silver metallic emblem ring
+      const emblem = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.15, 16), vrmArmorMat);
+      emblem.rotation.x = Math.PI / 2;
+      bladeHub.add(emblem);
 
-      // 7 Voxel Blades
+      // 7 Aerodynamic Voxel Blades
       for (let b = 0; b < 7; b++) {
         const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.04), vrmArmorMat);
         blade.rotation.z = (b * Math.PI * 2) / 7;
@@ -527,40 +626,60 @@ export class PCScene3D {
     // 7. GPU (显卡 - 三风扇机甲外壳、金属背板与旋转风扇)
     // =========================================================
     const gpuGroup = new THREE.Group();
-    // Shroud body
+    // Shroud body with chamfered sci-fi armor
     gpuGroup.add(this.createVoxel(0, 0, 0, 2.7, 0.9, 0.42, darkMetalMat));
     // Metal backplate
     gpuGroup.add(this.createVoxel(0, 0.44, 0, 2.7, 0.06, 0.44, vrmArmorMat));
-    // PCIe Gold Finger
+
+    // Flow-Through Cutout Window on Backplate (exposing copper heatpipe fins)
+    gpuGroup.add(this.createVoxel(0.85, 0.44, 0, 0.7, 0.07, 0.32, darkMetalMat));
+    for (let cFin = 0.55; cFin <= 1.15; cFin += 0.1) {
+      gpuGroup.add(this.createVoxel(cFin, 0.38, 0, 0.03, 0.1, 0.3, copperMat));
+    }
+
+    // PCIe 5.0 x16 Gold Finger with Key Notch
     gpuGroup.add(this.createVoxel(-0.3, 0.52, -0.15, 1.4, 0.1, 0.04, goldMat));
 
-    // Rear metal bracket & display ports
+    // Rear Dual-Slot Metal Bracket & DisplayPort / HDMI outputs
     const ioBracket = new THREE.Group();
     ioBracket.add(this.createVoxel(-1.4, 0.1, 0, 0.1, 1.2, 0.44, vrmArmorMat));
-    ioBracket.add(this.createVoxel(-1.46, 0.1, -0.1, 0.04, 0.1, 0.12, darkMetalMat)); // DP
-    ioBracket.add(this.createVoxel(-1.46, 0.1, 0.1, 0.04, 0.1, 0.12, darkMetalMat)); // HDMI
+    // 3x DisplayPort 2.1 & 1x HDMI 2.1
+    ioBracket.add(this.createVoxel(-1.46, 0.3, -0.1, 0.04, 0.08, 0.12, darkMetalMat)); // DP 1
+    ioBracket.add(this.createVoxel(-1.46, 0.1, -0.1, 0.04, 0.08, 0.12, darkMetalMat)); // DP 2
+    ioBracket.add(this.createVoxel(-1.46, -0.1, -0.1, 0.04, 0.08, 0.12, darkMetalMat)); // DP 3
+    ioBracket.add(this.createVoxel(-1.46, -0.1, 0.1, 0.04, 0.08, 0.12, goldMat)); // HDMI
     gpuGroup.add(ioBracket);
 
-    // 12V-2x6 Power Connector on top
-    gpuGroup.add(this.createVoxel(0.5, 0.48, 0.1, 0.22, 0.08, 0.12, goldMat));
+    // 16-Pin 12V-2x6 Power Connector on top edge (with 4 Micro-Sense Pins)
+    const pwrConnector = new THREE.Group();
+    pwrConnector.add(this.createVoxel(0.5, 0.48, 0.1, 0.24, 0.08, 0.14, darkMetalMat));
+    pwrConnector.add(this.createVoxel(0.5, 0.51, 0.1, 0.2, 0.02, 0.1, goldMat)); // 12 power pins
+    pwrConnector.add(this.createVoxel(0.5, 0.53, 0.14, 0.12, 0.02, 0.03, goldMat)); // 4 sense pins
+    gpuGroup.add(pwrConnector);
 
     // Side RGB Logo Bar
     gpuGroup.add(this.createVoxel(0, -0.42, 0.22, 1.6, 0.06, 0.03, rgbCyanMat));
+    // GeForece RTX Brand badge inlay
+    gpuGroup.add(this.createVoxel(-0.4, -0.42, 0.23, 0.5, 0.04, 0.02, vrmArmorMat));
 
-    // 3 Voxel Rotating Cooling Fans
+    // 3 Voxel Rotating Cooling Fans (Alternate Direction Ring Blade Fans)
     const fanPositions = [-0.75, 0, 0.75];
-    fanPositions.forEach((posX) => {
+    fanPositions.forEach((posX, idx) => {
       const fanAssembly = new THREE.Group();
       fanAssembly.position.set(posX, 0, 0.23);
 
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 12), darkMetalMat);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16), darkMetalMat);
       hub.rotation.x = Math.PI / 2;
       fanAssembly.add(hub);
+      // Silver Metallic Center Inlay
+      const hubEmblem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.07, 12), vrmArmorMat);
+      hubEmblem.rotation.x = Math.PI / 2;
+      fanAssembly.add(hubEmblem);
 
-      // 9 Voxel Blades
+      // 9 Voxel Ring Blades
       for (let b = 0; b < 9; b++) {
         const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.26, 0.02), darkMetalMat);
-        blade.rotation.z = (b * Math.PI * 2) / 9;
+        blade.rotation.z = (b * Math.PI * 2) / 9 + (idx % 2 === 1 ? 0.3 : 0);
         blade.position.y = 0.15;
         fanAssembly.add(blade);
       }
@@ -582,26 +701,36 @@ export class PCScene3D {
     // 8. POWER SUPPLY (850W 金牌模组电源与风扇进风网)
     // =========================================================
     const psuGroup = new THREE.Group();
-    // Outer metal case
+    // Outer metal chassis
     psuGroup.add(this.createVoxel(0, 0, 0, 1.9, 1.1, 1.6, darkMetalMat));
 
-    // Bottom Fan Intake Grill
+    // Bottom Fan Intake Grill with Hexagonal Pattern
     psuGroup.add(this.createVoxel(0, -0.56, 0, 1.3, 0.04, 1.3, pcbMat));
     const psuFan = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.06, 16), darkMetalMat);
     psuFan.position.set(0, -0.52, 0);
     psuGroup.add(psuFan);
 
-    // Rear AC Power Socket & Rocker Switch
-    psuGroup.add(this.createVoxel(-0.96, 0.15, 0.3, 0.04, 0.25, 0.3, darkMetalMat));
-    psuGroup.add(this.createVoxel(-0.96, 0.15, -0.25, 0.04, 0.18, 0.14, debugLedRed)); // I/O Switch
+    // Rear AC Power C14 Receptacle & Rocker Switch
+    psuGroup.add(this.createVoxel(-0.96, 0.15, 0.3, 0.04, 0.25, 0.3, darkMetalMat)); // C14 housing
+    // 3 Copper Pins inside C14
+    for (let cp = -0.06; cp <= 0.06; cp += 0.06) {
+      psuGroup.add(this.createVoxel(-0.98, 0.15, 0.3 + cp, 0.03, 0.06, 0.02, copperMat));
+    }
+    // Red Lighted AC Master Rocker Switch
+    psuGroup.add(this.createVoxel(-0.96, 0.15, -0.25, 0.04, 0.18, 0.14, debugLedRed));
+    // Eco / Hybrid Fan Mode Switch
+    psuGroup.add(this.createVoxel(-0.96, 0.15, -0.05, 0.03, 0.08, 0.08, vrmArmorMat));
 
-    // 80Plus Gold Emblem
+    // 80Plus Gold Emblem Badge
     psuGroup.add(this.createVoxel(0, 0.1, 0.81, 0.35, 0.25, 0.02, goldMat));
 
-    // Modular cable sockets on front
-    for (let r = -0.3; r <= 0.3; r += 0.28) {
-      psuGroup.add(this.createVoxel(0.96, r, 0.2, 0.04, 0.18, 0.26, pcbMat));
-    }
+    // Full Modular Cable Socket Array (Front)
+    // 24P Motherboard (10+14 split)
+    psuGroup.add(this.createVoxel(0.96, 0.22, 0.25, 0.04, 0.14, 0.42, pcbMat));
+    // 4x 8-Pin CPU/PCIe sockets
+    psuGroup.add(this.createVoxel(0.96, -0.05, 0.25, 0.04, 0.12, 0.42, darkMetalMat));
+    // 3x 6-Pin SATA/Molex sockets
+    psuGroup.add(this.createVoxel(0.96, -0.28, 0.25, 0.04, 0.1, 0.38, pcbMat));
 
     this.registerComponent({
       id: 'psu',
@@ -613,7 +742,7 @@ export class PCScene3D {
     });
 
     // =========================================================
-    // 9. CABLES (模组走线与机箱跳线 - 蛇皮网编织质感)
+    // 9. CABLES (模组走线与机箱跳线 - 蛇皮网编织质感与理线梳)
     // =========================================================
     const cablesGroup = new THREE.Group();
     const cableMat = new THREE.MeshStandardMaterial({
@@ -622,19 +751,29 @@ export class PCScene3D {
       metalness: 0.1,
     });
     const cable24pMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b, // Stealth dark weave
+      color: 0x1e293b, // Stealth carbon dark weave
       roughness: 0.7,
+    });
+    const combMat = new THREE.MeshStandardMaterial({
+      color: 0x09090b, // Stealth black cable combs
+      roughness: 0.3,
+      metalness: 0.5,
     });
 
     // 24-Pin ATX Mainboard Braided Cable curve
     const atxCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0.95, 0.8, -0.75),
-      new THREE.Vector3(1.35, 0.7, -0.5),
-      new THREE.Vector3(1.4, -0.2, -0.4),
+      new THREE.Vector3(1.05, 0.7, -0.75),
+      new THREE.Vector3(1.4, 0.65, -0.5),
+      new THREE.Vector3(1.45, -0.2, -0.4),
       new THREE.Vector3(0.5, -1.2, -0.2),
     ]);
-    const atxGeo = new THREE.TubeGeometry(atxCurve, 24, 0.08, 8, false);
+    const atxGeo = new THREE.TubeGeometry(atxCurve, 28, 0.085, 8, false);
     cablesGroup.add(new THREE.Mesh(atxGeo, cable24pMat));
+
+    // Cable Combs along the 24-Pin cable run
+    const comb1 = this.createVoxel(1.35, 0.6, -0.52, 0.06, 0.22, 0.18, combMat);
+    const comb2 = this.createVoxel(1.42, 0.1, -0.42, 0.06, 0.22, 0.18, combMat);
+    cablesGroup.add(comb1, comb2);
 
     // 16-Pin 12V-2x6 GPU Braided Power Cable
     const gpuCurve = new THREE.CatmullRomCurve3([
@@ -642,8 +781,12 @@ export class PCScene3D {
       new THREE.Vector3(0.4, -0.7, -0.2),
       new THREE.Vector3(0.2, -1.2, -0.15),
     ]);
-    const gpuCableGeo = new THREE.TubeGeometry(gpuCurve, 20, 0.05, 8, false);
+    const gpuCableGeo = new THREE.TubeGeometry(gpuCurve, 22, 0.055, 8, false);
     cablesGroup.add(new THREE.Mesh(gpuCableGeo, cableMat));
+
+    // GPU Cable Comb
+    const gpuComb = this.createVoxel(0.38, -0.65, -0.21, 0.04, 0.14, 0.12, combMat);
+    cablesGroup.add(gpuComb);
 
     // Front Panel Jumpers Cable
     const fpanelCurve = new THREE.CatmullRomCurve3([
@@ -654,9 +797,18 @@ export class PCScene3D {
     const fpanelGeo = new THREE.TubeGeometry(fpanelCurve, 20, 0.03, 6, false);
     cablesGroup.add(new THREE.Mesh(fpanelGeo, rgbMagentaMat));
 
+    // Top CPU 8-Pin EPS Braided Power Cable
+    const cpuEpsCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.7, 1.55, -0.75),
+      new THREE.Vector3(-0.8, 1.85, -0.6),
+      new THREE.Vector3(-1.2, 1.9, -0.3),
+    ]);
+    const cpuEpsGeo = new THREE.TubeGeometry(cpuEpsCurve, 16, 0.05, 8, false);
+    cablesGroup.add(new THREE.Mesh(cpuEpsGeo, cable24pMat));
+
     this.registerComponent({
       id: 'cables',
-      name: '编织网模组电源线与机箱前置跳线',
+      name: '编织网模组电源线与理线梳',
       group: cablesGroup,
       assembledPos: new THREE.Vector3(0, 0, 0),
       explodedPos: new THREE.Vector3(0, -0.8, 0.4),

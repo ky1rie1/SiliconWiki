@@ -19,18 +19,31 @@ export default function App() {
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [hasUnreadChangelog, setHasUnreadChangelog] = useState(true);
 
-  // Check unread version on mount
+  // Check if current version announcement was already dismissed by user
   useEffect(() => {
     const latestVersion = changelogList[0]?.version || 'v1.0.0';
-    const lastReadVersion = localStorage.getItem('silicon_wiki_read_version');
-    if (lastReadVersion === latestVersion) {
+    const dismissedVersion = localStorage.getItem('silicon_wiki_dismissed_version');
+    if (dismissedVersion !== latestVersion) {
+      // Auto-open notification on new update version!
+      setIsChangelogOpen(true);
+      setHasUnreadChangelog(true);
+    } else {
       setHasUnreadChangelog(false);
     }
   }, []);
 
+  const handleCloseChangelog = (dontShowAgain?: boolean) => {
+    const latestVersion = changelogList[0]?.version || 'v1.0.0';
+    if (dontShowAgain) {
+      localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
+      setHasUnreadChangelog(false);
+    }
+    setIsChangelogOpen(false);
+  };
+
   const handleMarkAllAsRead = () => {
     const latestVersion = changelogList[0]?.version || 'v1.0.0';
-    localStorage.setItem('silicon_wiki_read_version', latestVersion);
+    localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
     setHasUnreadChangelog(false);
   };
 
@@ -108,8 +121,9 @@ export default function App() {
           {/* Changelog & Announcements Modal */}
           <ChangelogModal
             isOpen={isChangelogOpen}
-            onClose={() => setIsChangelogOpen(false)}
+            onClose={handleCloseChangelog}
             onMarkAllAsRead={handleMarkAllAsRead}
+            latestVersion={changelogList[0]?.version}
           />
         </div>
       </LanguageProvider>
