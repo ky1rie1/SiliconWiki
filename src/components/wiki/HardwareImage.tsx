@@ -26,26 +26,111 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // Category Theme Colors & Accents
+  // Brand-Aware Category Theme Colors & Accents
   const getTheme = () => {
     switch (category) {
-      case 'cpu':
+      case 'cpu': {
+        const isIntel = brand.toUpperCase().includes('INTEL') || name.toUpperCase().includes('INTEL');
+        const isApple = brand.toUpperCase().includes('APPLE') || name.toUpperCase().includes('APPLE') || name.toUpperCase().includes('M4');
+        if (isIntel) {
+          return {
+            gradient: 'from-sky-500/15 via-blue-500/10 to-slate-200/40 dark:from-sky-500/10 dark:via-blue-950/80 dark:to-[#070b14]',
+            accent: 'text-sky-600 dark:text-sky-400',
+            border: 'border-sky-500/20',
+            badge: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
+            glow: 'rgba(2, 132, 199, 0.15)',
+          };
+        }
+        if (isApple) {
+          return {
+            gradient: 'from-zinc-400/15 via-slate-200/50 to-slate-200/40 dark:from-zinc-400/10 dark:via-zinc-900/80 dark:to-[#070b14]',
+            accent: 'text-zinc-600 dark:text-zinc-300',
+            border: 'border-zinc-500/20',
+            badge: 'bg-zinc-500/10 text-zinc-600 dark:text-zinc-300',
+            glow: 'rgba(161, 161, 170, 0.15)',
+          };
+        }
         return {
-          gradient: 'from-amber-500/15 via-slate-100/60 to-slate-200/40 dark:from-amber-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+          gradient: 'from-amber-500/15 via-orange-500/10 to-slate-200/40 dark:from-orange-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
           accent: 'text-amber-600 dark:text-amber-400',
           border: 'border-amber-500/20',
           badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
           glow: 'rgba(245, 158, 11, 0.15)',
         };
-      case 'gpu':
+      }
+      case 'gpu': {
+        const isAmd = brand.toUpperCase().includes('AMD') || name.toUpperCase().includes('RADEON') || name.toUpperCase().includes('RX');
+        const isIntel = brand.toUpperCase().includes('INTEL') || name.toUpperCase().includes('ARC');
+        if (isAmd) {
+          return {
+            gradient: 'from-rose-600/15 via-red-500/10 to-slate-200/40 dark:from-rose-600/10 dark:via-red-950/80 dark:to-[#070b14]',
+            accent: 'text-rose-600 dark:text-rose-400',
+            border: 'border-rose-500/20',
+            badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+            glow: 'rgba(225, 29, 72, 0.15)',
+          };
+        }
+        if (isIntel) {
+          return {
+            gradient: 'from-cyan-500/15 via-sky-500/10 to-slate-200/40 dark:from-cyan-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+            accent: 'text-cyan-600 dark:text-cyan-400',
+            border: 'border-cyan-500/20',
+            badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+            glow: 'rgba(6, 182, 212, 0.15)',
+          };
+        }
         return {
-          gradient: 'from-emerald-500/15 via-slate-100/60 to-slate-200/40 dark:from-emerald-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+          gradient: 'from-emerald-500/15 via-teal-500/10 to-slate-200/40 dark:from-emerald-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
           accent: 'text-emerald-600 dark:text-emerald-400',
           border: 'border-emerald-500/20',
           badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
           glow: 'rgba(16, 185, 129, 0.15)',
         };
-      case 'motherboard':
+      }
+      case 'motherboard': {
+        const upperBrand = brand.toUpperCase();
+        const upperName = name.toUpperCase();
+        const isRog = upperName.includes('ROG') || upperName.includes('STRIX') || upperName.includes('MAXIMUS');
+        const isTuf = upperName.includes('TUF');
+        const isAorus = upperBrand.includes('GIGABYTE') || upperName.includes('AORUS');
+        const isMsi = upperBrand.includes('MSI') || upperName.includes('MORTAR') || upperName.includes('TOMAHAWK') || upperName.includes('MAG');
+
+        if (isRog) {
+          return {
+            gradient: 'from-red-600/15 via-slate-100/60 to-slate-200/40 dark:from-red-600/10 dark:via-slate-900/80 dark:to-[#070b14]',
+            accent: 'text-red-600 dark:text-red-400',
+            border: 'border-red-500/20',
+            badge: 'bg-red-500/10 text-red-600 dark:text-red-400',
+            glow: 'rgba(239, 68, 68, 0.15)',
+          };
+        }
+        if (isTuf) {
+          return {
+            gradient: 'from-amber-500/15 via-yellow-500/10 to-slate-200/40 dark:from-amber-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+            accent: 'text-amber-600 dark:text-amber-400',
+            border: 'border-amber-500/20',
+            badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+            glow: 'rgba(245, 158, 11, 0.15)',
+          };
+        }
+        if (isAorus) {
+          return {
+            gradient: 'from-orange-500/15 via-amber-500/10 to-slate-200/40 dark:from-orange-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+            accent: 'text-orange-600 dark:text-orange-400',
+            border: 'border-orange-500/20',
+            badge: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+            glow: 'rgba(249, 115, 22, 0.15)',
+          };
+        }
+        if (isMsi) {
+          return {
+            gradient: 'from-rose-500/15 via-red-500/10 to-slate-200/40 dark:from-rose-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
+            accent: 'text-rose-600 dark:text-rose-400',
+            border: 'border-rose-500/20',
+            badge: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+            glow: 'rgba(244, 63, 94, 0.15)',
+          };
+        }
         return {
           gradient: 'from-indigo-500/15 via-slate-100/60 to-slate-200/40 dark:from-indigo-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
           accent: 'text-indigo-600 dark:text-indigo-400',
@@ -53,6 +138,7 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
           badge: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
           glow: 'rgba(99, 102, 241, 0.15)',
         };
+      }
       case 'ram':
         return {
           gradient: 'from-cyan-500/15 via-slate-100/60 to-slate-200/40 dark:from-cyan-500/10 dark:via-slate-900/80 dark:to-[#070b14]',
@@ -116,146 +202,541 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
 
   const shortLabel = getShortLabel();
 
-  // High-Precision Architectural Schematic SVG
-  const renderSchematicSvg = () => {
-    switch (category) {
-      case 'cpu': {
-        const isAmd = brand.toUpperCase().includes('AMD') || name.includes('Ryzen');
-        const is3D = name.includes('X3D');
-        return (
-          <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
-            {/* Silicon Substrate with golden contact bevels */}
-            <rect x="55" y="12" width="110" height="96" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="1.5" strokeDasharray="4 2" />
-            <rect x="57" y="14" width="106" height="92" rx="6" fill="#0f172a" />
+  // ==========================================
+  // CPU Vector Schematics
+  // ==========================================
 
-            {/* Integrated Heat Spreader (IHS) */}
-            <rect x="66" y="22" width="88" height="76" rx="5" fill="#334155" stroke="#94a3b8" strokeWidth="1.2" />
-            <rect x="74" y="30" width="72" height="60" rx="4" fill="#1e293b" />
+  // 1. Intel CPU: Elongated rectangular LGA1700/LGA1851 substrate and IHS, with Intel Blue accent, LGA gold pads, laser engraving
+  const renderIntelCpuSvg = () => {
+    const isUltra = name.includes('Ultra') || name.includes('285') || name.includes('265') || name.includes('245');
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* Elongated Rectangular LGA1700/LGA1851 Substrate */}
+        <rect x="68" y="10" width="84" height="100" rx="4" fill="#0b1329" stroke="#0284c7" strokeWidth="1.5" />
+        <rect x="70" y="12" width="80" height="96" rx="3" fill="#080e1e" />
 
-            {/* Pin 1 Golden Alignment Triangle */}
-            <polygon points="58,15 70,15 58,27" fill="#f59e0b" />
+        {/* LGA Alignment Key Notches */}
+        <rect x="67" y="55" width="2.5" height="10" fill="#080e1e" />
+        <rect x="150.5" y="55" width="2.5" height="10" fill="#080e1e" />
 
-            {/* 3D V-Cache Badge or Intel Hybrid Badge */}
-            {is3D ? (
-              <g>
-                <rect x="82" y="34" width="56" height="12" rx="2" fill="#ef4444" fillOpacity="0.8" />
-                <text x="110" y="43" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="bold" fontFamily="monospace">
-                  3D V-CACHE
-                </text>
-              </g>
-            ) : (
-              <g>
-                <rect x="82" y="34" width="56" height="12" rx="2" fill="#3b82f6" fillOpacity="0.8" />
-                <text x="110" y="43" textAnchor="middle" fill="#fff" fontSize="7" fontWeight="bold" fontFamily="monospace">
-                  {isAmd ? 'ZEN ARCH' : 'HYBRID CORE'}
-                </text>
-              </g>
-            )}
+        {/* Pin 1 Golden Alignment Triangle */}
+        <polygon points="70,12 80,12 70,22" fill="#f59e0b" />
 
-            {/* Laser Marking Text */}
-            <text x="110" y="60" textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="900" fontFamily="monospace">
-              {shortLabel}
+        {/* Corner Gold Test Pads */}
+        <rect x="143" y="14" width="4.5" height="4.5" rx="1" fill="#f59e0b" />
+        <rect x="72" y="101" width="4.5" height="4.5" rx="1" fill="#f59e0b" />
+        <rect x="143" y="101" width="4.5" height="4.5" rx="1" fill="#f59e0b" />
+
+        {/* LGA Independent Loading Mechanism (ILM) Retention Wings */}
+        <rect x="73" y="44" width="74" height="32" rx="2" fill="#334155" stroke="#94a3b8" strokeWidth="0.8" />
+
+        {/* Elongated Nickel-plated Integrated Heat Spreader (IHS) */}
+        <rect x="75" y="18" width="70" height="84" rx="4" fill="#334155" stroke="#94a3b8" strokeWidth="1.2" />
+        <rect x="79" y="22" width="62" height="76" rx="3" fill="#1e293b" />
+
+        {/* Intel Blue Accent Badge */}
+        <rect x="85" y="27" width="50" height="12" rx="2.5" fill="#0071c5" fillOpacity="0.9" />
+        <text x="110" y="35.5" textAnchor="middle" fill="#ffffff" fontSize="7" fontWeight="bold" fontFamily="monospace">
+          {isUltra ? 'intel. ULTRA' : 'intel. CORE'}
+        </text>
+
+        {/* Laser Engraved Model & Socket */}
+        <text x="110" y="54" textAnchor="middle" fill="#f8fafc" fontSize="10.5" fontWeight="900" fontFamily="monospace">
+          {shortLabel}
+        </text>
+        <text x="110" y="66" textAnchor="middle" fill="#38bdf8" fontSize="7" fontWeight="bold" fontFamily="monospace">
+          {isUltra ? 'LGA 1851' : 'LGA 1700'}
+        </text>
+        <text x="110" y="76" textAnchor="middle" fill="#94a3b8" fontSize="5.5" fontFamily="monospace">
+          HYBRID ARCHITECTURE
+        </text>
+
+        {/* Surface Mount Capacitors / LGA Contact Points */}
+        <rect x="87" y="84" width="6" height="3.5" rx="0.5" fill="#fbbf24" />
+        <rect x="96" y="84" width="6" height="3.5" rx="0.5" fill="#fbbf24" />
+        <rect x="105" y="84" width="6" height="3.5" rx="0.5" fill="#fbbf24" />
+        <rect x="114" y="84" width="6" height="3.5" rx="0.5" fill="#fbbf24" />
+        <rect x="123" y="84" width="6" height="3.5" rx="0.5" fill="#fbbf24" />
+
+        {/* Intel Cyan Circuit Traces */}
+        <line x1="15" y1="35" x2="68" y2="35" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="15" y1="60" x2="68" y2="60" stroke="#38bdf8" strokeWidth="1.5" strokeOpacity="0.8" />
+        <line x1="15" y1="85" x2="68" y2="85" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="152" y1="35" x2="205" y2="35" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="152" y1="60" x2="205" y2="60" stroke="#38bdf8" strokeWidth="1.5" strokeOpacity="0.8" />
+        <line x1="152" y1="85" x2="205" y2="85" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.4" />
+      </svg>
+    );
+  };
+
+  // 2. AMD CPU: AM5 octagonal cutout IHS, Ryzen Orange/Red theme, Zen architecture label, AM5 pins
+  const renderAmdCpuSvg = () => {
+    const is3D = name.includes('X3D');
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* Square AM5 Silicon Substrate */}
+        <rect x="58" y="10" width="104" height="100" rx="6" fill="#18181b" stroke="#ea580c" strokeWidth="1.5" />
+        <rect x="60" y="12" width="100" height="96" rx="5" fill="#0f1014" />
+
+        {/* Pin 1 Golden Alignment Triangle */}
+        <polygon points="61,13 72,13 61,24" fill="#f59e0b" />
+
+        {/* AM5 Distinctive Octagonal Cutout IHS (Spider-leg Heatspreader with 8 cutouts) */}
+        <path
+          d="M 84,20 H 92 V 28 H 100 V 20 H 120 V 28 H 128 V 20 H 136 V 36 H 128 V 46 H 136 V 74 H 128 V 84 H 136 V 100 H 128 V 92 H 120 V 100 H 100 V 92 H 92 V 100 H 84 V 84 H 92 V 74 H 84 V 46 H 92 V 36 H 84 Z"
+          fill="#334155"
+          stroke="#ea580c"
+          strokeWidth="1.2"
+        />
+
+        {/* Exposed Surface Mount Capacitors in the 8 Cutout Bays */}
+        <rect x="94" y="22" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="122" y="22" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="130" y="39" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="130" y="77" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="122" y="94" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="94" y="94" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="86" y="77" width="4" height="4" fill="#fbbf24" rx="0.5" />
+        <rect x="86" y="39" width="4" height="4" fill="#fbbf24" rx="0.5" />
+
+        {/* Central IHS Recessed Plate */}
+        <rect x="86" y="32" width="48" height="56" rx="3" fill="#1e293b" />
+
+        {/* 3D V-Cache Badge or Ryzen Orange Badge */}
+        {is3D ? (
+          <g>
+            <rect x="88" y="36" width="44" height="11" rx="2" fill="#ef4444" fillOpacity="0.9" />
+            <text x="110" y="44" textAnchor="middle" fill="#fff" fontSize="6.5" fontWeight="bold" fontFamily="monospace">
+              3D V-CACHE
             </text>
-            <text x="110" y="73" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="monospace">
-              {isAmd ? 'SOCKET AM5' : 'LGA 1851 / 1700'}
+          </g>
+        ) : (
+          <g>
+            <rect x="88" y="36" width="44" height="11" rx="2" fill="#ea580c" fillOpacity="0.9" />
+            <text x="110" y="44" textAnchor="middle" fill="#fff" fontSize="6.5" fontWeight="bold" fontFamily="monospace">
+              AMD RYZEN™
             </text>
+          </g>
+        )}
 
-            {/* Surface Mount Capacitors (SMD) */}
-            <rect x="80" y="78" width="8" height="4" fill="#fbbf24" rx="1" />
-            <rect x="92" y="78" width="8" height="4" fill="#fbbf24" rx="1" />
-            <rect x="104" y="78" width="8" height="4" fill="#fbbf24" rx="1" />
-            <rect x="116" y="78" width="8" height="4" fill="#fbbf24" rx="1" />
-            <rect x="128" y="78" width="8" height="4" fill="#fbbf24" rx="1" />
+        {/* Laser Engraved Model & Socket */}
+        <text x="110" y="59" textAnchor="middle" fill="#f8fafc" fontSize="11" fontWeight="900" fontFamily="monospace">
+          {shortLabel}
+        </text>
+        <text x="110" y="71" textAnchor="middle" fill="#fb923c" fontSize="7.5" fontWeight="bold" fontFamily="monospace">
+          SOCKET AM5
+        </text>
+        <text x="110" y="81" textAnchor="middle" fill="#94a3b8" fontSize="6" fontFamily="monospace">
+          ZEN ARCHITECTURE
+        </text>
 
-            {/* Circuit Traces Left & Right */}
-            <line x1="15" y1="35" x2="55" y2="35" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.5" />
-            <line x1="15" y1="60" x2="55" y2="60" stroke="#38bdf8" strokeWidth="1.5" strokeOpacity="0.8" />
-            <line x1="15" y1="85" x2="55" y2="85" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.5" />
-            <line x1="165" y1="35" x2="205" y2="35" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.5" />
-            <line x1="165" y1="60" x2="205" y2="60" stroke="#38bdf8" strokeWidth="1.5" strokeOpacity="0.8" />
-            <line x1="165" y1="85" x2="205" y2="85" stroke="#38bdf8" strokeWidth="1" strokeOpacity="0.5" />
-          </svg>
-        );
-      }
+        {/* Ryzen Circuit Traces */}
+        <line x1="15" y1="35" x2="58" y2="35" stroke="#ea580c" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="15" y1="60" x2="58" y2="60" stroke="#ea580c" strokeWidth="1.5" strokeOpacity="0.8" />
+        <line x1="15" y1="85" x2="58" y2="85" stroke="#ea580c" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="162" y1="35" x2="205" y2="35" stroke="#ea580c" strokeWidth="1" strokeOpacity="0.4" />
+        <line x1="162" y1="60" x2="205" y2="60" stroke="#ea580c" strokeWidth="1.5" strokeOpacity="0.8" />
+        <line x1="162" y1="85" x2="205" y2="85" stroke="#ea580c" strokeWidth="1" strokeOpacity="0.4" />
+      </svg>
+    );
+  };
 
-      case 'gpu': {
-        const isNvidia = brand.toUpperCase().includes('NVIDIA') || name.includes('RTX');
-        return (
-          <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
-            {/* GPU Metal Shroud */}
-            <rect x="20" y="20" width="180" height="80" rx="10" fill="#1e293b" stroke={isNvidia ? '#10b981' : '#f43f5e'} strokeWidth="1.5" />
-            {/* Cooling Fin Lines */}
-            {Array.from({ length: 22 }).map((_, i) => (
-              <line key={i} x1={28 + i * 7.5} y1="26" x2={28 + i * 7.5} y2="94" stroke="#334155" strokeWidth="1" />
-            ))}
+  // 3. Apple Silicon: Dark minimalist unibody aluminum chip with unified memory package
+  const renderAppleCpuSvg = () => {
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* Dark Minimalist Space Black Substrate */}
+        <rect x="42" y="14" width="136" height="92" rx="8" fill="#18181b" stroke="#71717a" strokeWidth="1.2" />
+        <rect x="44" y="16" width="132" height="88" rx="6" fill="#0c0d10" />
 
-            {/* Dual Axial Fans */}
-            <circle cx="70" cy="60" r="26" fill="#0f172a" stroke={isNvidia ? '#10b981' : '#f43f5e'} strokeWidth="1.5" />
-            <circle cx="70" cy="60" r="9" fill="#334155" />
-            <circle cx="150" cy="60" r="26" fill="#0f172a" stroke={isNvidia ? '#10b981' : '#f43f5e'} strokeWidth="1.5" />
-            <circle cx="150" cy="60" r="9" fill="#334155" />
+        {/* Center-Left: Main Apple Silicon SoC Die */}
+        <rect x="52" y="24" width="68" height="72" rx="5" fill="#24262d" stroke="#71717a" strokeWidth="1" />
 
-            {/* Fan Blades (styled paths) */}
-            <path d="M70,38 C80,47 80,53 70,60 C60,53 60,47 70,38 Z" fill={isNvidia ? '#10b981' : '#f43f5e'} fillOpacity="0.6" />
-            <path d="M70,82 C80,73 80,67 70,60 C60,67 60,73 70,82 Z" fill={isNvidia ? '#10b981' : '#f43f5e'} fillOpacity="0.6" />
-            <path d="M150,38 C160,47 160,53 150,60 C140,53 140,47 150,38 Z" fill={isNvidia ? '#10b981' : '#f43f5e'} fillOpacity="0.6" />
-            <path d="M150,82 C160,73 160,67 150,60 C140,67 140,73 150,82 Z" fill={isNvidia ? '#10b981' : '#f43f5e'} fillOpacity="0.6" />
+        {/* Apple Silhouette Logo */}
+        <path d="M 85 33 C 85.5 32 87 32 87.5 33 C 88 34 87.5 35 87 35 C 86.5 35 86 34 85 33 Z" fill="#e2e8f0" />
+        <path
+          d="M 81.5 40.5 C 81.5 37.8 83.2 36.5 85 36.5 C 86 36.5 86.8 37.1 87.4 37.1 C 88 37.1 88.8 36.5 89.8 36.5 C 91.5 36.5 92.8 37.8 92.8 40 C 92.8 43 90.8 46 89.2 46 C 88.4 46 87.9 45.4 87.1 45.4 C 86.3 45.4 85.7 46 85 46 C 83.2 46 81.5 43 81.5 40.5 Z"
+          fill="#e2e8f0"
+        />
 
-            {/* Center Model Plate */}
-            <rect x="98" y="48" width="24" height="24" rx="4" fill="#0f172a" stroke="#64748b" strokeWidth="1" />
-            <text x="110" y="63" textAnchor="middle" fill="#f8fafc" fontSize="7" fontWeight="bold" fontFamily="monospace">
-              {isNvidia ? 'RTX' : 'RDNA'}
+        {/* Apple Engraving */}
+        <text x="86" y="55" textAnchor="middle" fill="#f8fafc" fontSize="8" fontWeight="bold" fontFamily="monospace">
+          Apple Silicon
+        </text>
+        <text x="86" y="67" textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontWeight="900" fontFamily="monospace">
+          {shortLabel}
+        </text>
+        <text x="86" y="78" textAnchor="middle" fill="#a1a1aa" fontSize="6.5" fontFamily="monospace">
+          3nm UNIFIED ARCH
+        </text>
+
+        {/* Right: Dual Unified Memory Package Dies (UMA) */}
+        <rect x="126" y="26" width="44" height="32" rx="3" fill="#24262d" stroke="#52525b" strokeWidth="0.8" />
+        <text x="148" y="42" textAnchor="middle" fill="#f1f5f9" fontSize="7" fontWeight="bold" fontFamily="monospace">
+          LPDDR5X
+        </text>
+        <text x="148" y="51" textAnchor="middle" fill="#94a3b8" fontSize="5.5" fontFamily="monospace">
+          UNIFIED RAM
+        </text>
+
+        <rect x="126" y="62" width="44" height="32" rx="3" fill="#24262d" stroke="#52525b" strokeWidth="0.8" />
+        <text x="148" y="78" textAnchor="middle" fill="#38bdf8" fontSize="7" fontWeight="bold" fontFamily="monospace">
+          273 GB/s
+        </text>
+        <text x="148" y="87" textAnchor="middle" fill="#94a3b8" fontSize="5.5" fontFamily="monospace">
+          ULTRA-WIDE
+        </text>
+
+        {/* Gold High-Speed Interconnect Bus */}
+        <line x1="120" y1="36" x2="126" y2="36" stroke="#f59e0b" strokeWidth="1" />
+        <line x1="120" y1="42" x2="126" y2="42" stroke="#f59e0b" strokeWidth="1" />
+        <line x1="120" y1="48" x2="126" y2="48" stroke="#f59e0b" strokeWidth="1" />
+        <line x1="120" y1="72" x2="126" y2="72" stroke="#f59e0b" strokeWidth="1" />
+        <line x1="120" y1="78" x2="126" y2="78" stroke="#f59e0b" strokeWidth="1" />
+        <line x1="120" y1="84" x2="126" y2="84" stroke="#f59e0b" strokeWidth="1" />
+
+        {/* Minimalist Alignment Dots */}
+        <circle cx="48" cy="20" r="1.5" fill="#71717a" />
+        <circle cx="172" cy="20" r="1.5" fill="#71717a" />
+        <circle cx="48" cy="100" r="1.5" fill="#71717a" />
+        <circle cx="172" cy="100" r="1.5" fill="#71717a" />
+      </svg>
+    );
+  };
+
+  // ==========================================
+  // GPU Vector Schematics
+  // ==========================================
+
+  // 4. NVIDIA GPU: GeForce RTX dual/triple fan shroud with green accents and 12V-2x6 header
+  const renderNvidiaGpuSvg = () => {
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* GPU Titanium & Gunmetal Shroud */}
+        <rect x="18" y="16" width="184" height="86" rx="8" fill="#18181b" stroke="#334155" strokeWidth="1.5" />
+
+        {/* Cooling Fins Background */}
+        {Array.from({ length: 24 }).map((_, i) => (
+          <line key={i} x1={26 + i * 7.2} y1="22" x2={26 + i * 7.2} y2="96" stroke="#27272a" strokeWidth="1" />
+        ))}
+
+        {/* Angled Titanium Plates */}
+        <polygon points="26,20 80,20 90,32 26,32" fill="#27272a" stroke="#3f3f46" strokeWidth="0.8" />
+        <polygon points="130,86 194,86 194,98 140,98" fill="#27272a" stroke="#3f3f46" strokeWidth="0.8" />
+
+        {/* GeForce Signature Neon Green LED Accent Strip */}
+        <path d="M 28 24 L 160 24" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 28 24 L 160 24" stroke="#34d399" strokeWidth="1" strokeLinecap="round" />
+
+        {/* Triple Axial Fans */}
+        {/* Fan 1 */}
+        <circle cx="54" cy="59" r="23" fill="#09090b" stroke="#10b981" strokeWidth="1.2" strokeOpacity="0.6" />
+        <circle cx="54" cy="59" r="8" fill="#334155" />
+        <path d="M54,39 C62,47 62,53 54,59 C46,53 46,47 54,39 Z" fill="#10b981" fillOpacity="0.5" />
+        <path d="M54,79 C62,71 62,65 54,59 C46,65 46,71 54,79 Z" fill="#10b981" fillOpacity="0.5" />
+
+        {/* Fan 2 (Center) */}
+        <circle cx="110" cy="59" r="23" fill="#09090b" stroke="#10b981" strokeWidth="1.2" strokeOpacity="0.6" />
+        <circle cx="110" cy="59" r="8" fill="#334155" />
+        <path d="M110,39 C118,47 118,53 110,59 C102,53 102,47 110,39 Z" fill="#10b981" fillOpacity="0.5" />
+        <path d="M110,79 C118,71 118,65 110,59 C102,65 102,71 110,79 Z" fill="#10b981" fillOpacity="0.5" />
+
+        {/* Fan 3 */}
+        <circle cx="166" cy="59" r="23" fill="#09090b" stroke="#10b981" strokeWidth="1.2" strokeOpacity="0.6" />
+        <circle cx="166" cy="59" r="8" fill="#334155" />
+        <path d="M166,39 C174,47 174,53 166,59 C158,53 158,47 166,39 Z" fill="#10b981" fillOpacity="0.5" />
+        <path d="M166,79 C174,71 174,65 166,59 C158,65 158,71 166,79 Z" fill="#10b981" fillOpacity="0.5" />
+
+        {/* 12V-2x6 (12VHPWR) Native 16-Pin Power Header */}
+        <rect x="166" y="10" width="22" height="7" rx="1.5" fill="#09090b" stroke="#10b981" strokeWidth="1" />
+        <rect x="169" y="12" width="16" height="3" fill="#fbbf24" rx="0.5" />
+        <text x="177" y="9" textAnchor="middle" fill="#10b981" fontSize="5" fontWeight="bold" fontFamily="monospace">
+          12V-2x6
+        </text>
+
+        {/* GeForce RTX Center Badge */}
+        <rect x="94" y="20" width="32" height="10" rx="2" fill="#0f172a" stroke="#10b981" strokeWidth="0.8" />
+        <text x="110" y="27.5" textAnchor="middle" fill="#10b981" fontSize="5.5" fontWeight="bold" fontFamily="monospace">
+          GEFORCE RTX
+        </text>
+
+        {/* PCIe 5.0 Gold Connector */}
+        <rect x="50" y="102" width="115" height="7" rx="1" fill="#f59e0b" />
+
+        {/* Metal I/O Bracket */}
+        <rect x="12" y="12" width="6" height="94" rx="2" fill="#94a3b8" />
+      </svg>
+    );
+  };
+
+  // 5. AMD Radeon GPU: Radeon red/black shroud with RDNA 3 triple fan layout and dual 8-pin headers
+  const renderAmdRadeonGpuSvg = () => {
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* GPU Industrial Dark Shroud with Crimson Red Accent */}
+        <rect x="18" y="16" width="184" height="86" rx="8" fill="#18181b" stroke="#e11d48" strokeWidth="1.5" />
+
+        {/* Cooling Fins */}
+        {Array.from({ length: 24 }).map((_, i) => (
+          <line key={i} x1={26 + i * 7.2} y1="22" x2={26 + i * 7.2} y2="96" stroke="#27272a" strokeWidth="1" />
+        ))}
+
+        {/* Signature Radeon Crimson Red Accent Stripes */}
+        <path d="M 28 23 L 192 23" stroke="#e11d48" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 28 95 L 192 95" stroke="#e11d48" strokeWidth="2.5" strokeLinecap="round" />
+
+        {/* Triple RDNA 3 Axial Fans */}
+        {/* Fan 1 */}
+        <circle cx="54" cy="59" r="23" fill="#09090b" stroke="#e11d48" strokeWidth="1.2" strokeOpacity="0.5" />
+        <circle cx="54" cy="59" r="8" fill="#334155" />
+        <path d="M54,39 C62,47 62,53 54,59 C46,53 46,47 54,39 Z" fill="#e11d48" fillOpacity="0.5" />
+        <path d="M54,79 C62,71 62,65 54,59 C46,65 46,71 54,79 Z" fill="#e11d48" fillOpacity="0.5" />
+
+        {/* Fan 2 (Center with iconic Radeon 'R' emblem) */}
+        <circle cx="110" cy="59" r="23" fill="#09090b" stroke="#e11d48" strokeWidth="1.2" strokeOpacity="0.7" />
+        <circle cx="110" cy="59" r="9" fill="#262626" stroke="#e11d48" strokeWidth="1" />
+        <text x="110" y="62.5" textAnchor="middle" fill="#e11d48" fontSize="10" fontWeight="900" fontFamily="sans-serif">
+          R
+        </text>
+
+        {/* Fan 3 */}
+        <circle cx="166" cy="59" r="23" fill="#09090b" stroke="#e11d48" strokeWidth="1.2" strokeOpacity="0.5" />
+        <circle cx="166" cy="59" r="8" fill="#334155" />
+        <path d="M166,39 C174,47 174,53 166,59 C158,53 158,47 166,39 Z" fill="#e11d48" fillOpacity="0.5" />
+        <path d="M166,79 C174,71 174,65 166,59 C158,65 158,71 166,79 Z" fill="#e11d48" fillOpacity="0.5" />
+
+        {/* Dual 8-Pin Traditional PCIe Power Headers */}
+        <rect x="152" y="10" width="15" height="7" rx="1" fill="#09090b" stroke="#ef4444" strokeWidth="1" />
+        <rect x="171" y="10" width="15" height="7" rx="1" fill="#09090b" stroke="#ef4444" strokeWidth="1" />
+        <text x="169" y="8" textAnchor="middle" fill="#ef4444" fontSize="5" fontWeight="bold" fontFamily="monospace">
+          2x 8-PIN
+        </text>
+
+        {/* Radeon Center Top Badge */}
+        <rect x="94" y="20" width="32" height="10" rx="2" fill="#e11d48" />
+        <text x="110" y="27.5" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="900" fontFamily="sans-serif">
+          RADEON
+        </text>
+
+        {/* PCIe 4.0 Gold Connector */}
+        <rect x="50" y="102" width="115" height="7" rx="1" fill="#f59e0b" />
+
+        {/* Metal I/O Bracket */}
+        <rect x="12" y="12" width="6" height="94" rx="2" fill="#94a3b8" />
+      </svg>
+    );
+  };
+
+  // 6. Intel Arc GPU: Dual fan minimalist stealth design with Intel blue LED perimeter ring
+  const renderIntelArcGpuSvg = () => {
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* Stealth Arc Curved Body */}
+        <rect x="22" y="16" width="176" height="86" rx="12" fill="#0b1329" stroke="#0284c7" strokeWidth="1.5" />
+
+        {/* Continuous Arc Blue Glowing Perimeter Lightbar */}
+        <rect x="25" y="19" width="170" height="80" rx="9" fill="none" stroke="#38bdf8" strokeWidth="1.5" strokeOpacity="0.85" />
+
+        {/* Dual Large Low-Noise Fans */}
+        <circle cx="70" cy="59" r="26" fill="#060c1c" stroke="#0284c7" strokeWidth="1.2" />
+        <circle cx="70" cy="59" r="9" fill="#1e293b" />
+        <path d="M70,36 C79,46 79,52 70,59 C61,52 61,46 70,36 Z" fill="#38bdf8" fillOpacity="0.6" />
+        <path d="M70,82 C79,72 79,66 70,59 C61,66 61,72 70,82 Z" fill="#38bdf8" fillOpacity="0.6" />
+
+        <circle cx="150" cy="59" r="26" fill="#060c1c" stroke="#0284c7" strokeWidth="1.2" />
+        <circle cx="150" cy="59" r="9" fill="#1e293b" />
+        <path d="M150,36 C159,46 159,52 150,59 C141,52 141,46 150,36 Z" fill="#38bdf8" fillOpacity="0.6" />
+        <path d="M150,82 C159,72 159,66 150,59 C141,66 141,72 150,82 Z" fill="#38bdf8" fillOpacity="0.6" />
+
+        {/* Center Intel Arc Metal Badge */}
+        <rect x="98" y="48" width="24" height="22" rx="3" fill="#0284c7" />
+        <text x="110" y="57" textAnchor="middle" fill="#ffffff" fontSize="6.5" fontWeight="bold" fontFamily="monospace">
+          intel
+        </text>
+        <text x="110" y="65" textAnchor="middle" fill="#ffffff" fontSize="7" fontWeight="900" fontFamily="sans-serif">
+          ARC
+        </text>
+
+        {/* PCIe 5.0 Gold Connector */}
+        <rect x="52" y="102" width="112" height="7" rx="1" fill="#f59e0b" />
+
+        {/* Metal I/O Bracket */}
+        <rect x="16" y="12" width="6" height="94" rx="2" fill="#94a3b8" />
+      </svg>
+    );
+  };
+
+  // ==========================================
+  // Motherboard Vector Schematics (Brand-Tailored)
+  // ==========================================
+  const renderMotherboardSvg = () => {
+    const upperBrand = brand.toUpperCase();
+    const upperName = name.toUpperCase();
+    const isRog = upperName.includes('ROG') || upperName.includes('STRIX') || upperName.includes('MAXIMUS');
+    const isTuf = upperName.includes('TUF');
+    const isAorus = upperBrand.includes('GIGABYTE') || upperName.includes('AORUS');
+    const isMsi = upperBrand.includes('MSI') || upperName.includes('MORTAR') || upperName.includes('TOMAHAWK') || upperName.includes('MAG');
+
+    const getPcbBorderColor = () => {
+      if (isRog) return '#ef4444';
+      if (isTuf) return '#eab308';
+      if (isAorus) return '#f97316';
+      if (isMsi) return '#f43f5e';
+      return '#6366f1';
+    };
+
+    return (
+      <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
+        {/* ATX Mainboard PCB */}
+        <rect x="38" y="8" width="144" height="104" rx="6" fill="#0f172a" stroke={getPcbBorderColor()} strokeWidth="1.5" />
+
+        {/* CPU Socket with Metal Load Mechanism */}
+        <rect x="72" y="30" width="38" height="38" rx="3" fill="#1e293b" stroke="#94a3b8" strokeWidth="1" />
+        <circle cx="91" cy="49" r="8" fill="#334155" />
+        <line x1="72" y1="34" x2="68" y2="48" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* 4x DDR5 Memory Slots */}
+        <rect x="122" y="20" width="4" height="50" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
+        <rect x="129" y="20" width="4" height="50" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
+        <rect x="136" y="20" width="4" height="50" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
+        <rect x="143" y="20" width="4" height="50" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
+
+        {/* Reinforced PCIe 5.0 x16 Steel Armor Slot */}
+        <rect x="50" y="76" width="85" height="8" rx="1.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
+
+        {/* Secondary PCIe Slot */}
+        <rect x="50" y="96" width="65" height="6" rx="1" fill="#334155" />
+
+        {/* Brand-Specific VRM, Chipset, and M.2 Shielding */}
+        {isRog ? (
+          // ASUS ROG: Cyber red styling, diagonal cut, ROG Eye
+          <g>
+            <polygon points="44,16 68,16 68,64 44,64" fill="#1e293b" stroke="#ef4444" strokeWidth="1" />
+            <line x1="48" y1="22" x2="64" y2="38" stroke="#ef4444" strokeWidth="1.5" />
+            <line x1="48" y1="34" x2="64" y2="50" stroke="#ef4444" strokeWidth="1.5" />
+            <text x="56" y="58" textAnchor="middle" fill="#f87171" fontSize="5" fontWeight="bold" fontFamily="monospace">
+              ROG
             </text>
-
-            {/* PCIe 5.0 Golden Fingers */}
-            <rect x="55" y="101" width="100" height="7" rx="1" fill="#f59e0b" />
-
-            {/* Metal I/O Bracket */}
-            <rect x="14" y="14" width="6" height="92" rx="2" fill="#94a3b8" />
-
-            {/* 12V-2x6 Power Connector */}
-            <rect x="175" y="16" width="16" height="6" rx="1" fill="#0f172a" stroke="#fbbf24" strokeWidth="1" />
-          </svg>
-        );
-      }
-
-      case 'motherboard': {
-        return (
-          <svg viewBox="0 0 220 120" className="w-full h-full drop-shadow-sm select-none">
-            {/* ATX Mainboard PCB */}
-            <rect x="40" y="8" width="140" height="104" rx="6" fill="#0f172a" stroke="#6366f1" strokeWidth="1.5" />
-
-            {/* VRM Heatsink 1 (Top) */}
-            <rect x="75" y="14" width="40" height="14" rx="2" fill="#334155" stroke="#94a3b8" strokeWidth="1" />
-            {/* VRM Heatsink 2 (Left) */}
+            <rect x="72" y="12" width="44" height="14" rx="2" fill="#334155" stroke="#ef4444" strokeWidth="1" />
+            <rect x="136" y="78" width="36" height="30" rx="3" fill="#1e293b" stroke="#ef4444" strokeWidth="1.2" />
+            <polygon points="146,88 162,88 154,96" fill="#ef4444" />
+            <text x="154" y="103" textAnchor="middle" fill="#ffffff" fontSize="5.5" fontWeight="bold" fontFamily="monospace">
+              STRIX
+            </text>
+            <rect x="50" y="87" width="75" height="6" rx="1" fill="#1e293b" stroke="#ef4444" strokeWidth="0.8" />
+            <text x="87" y="92" textAnchor="middle" fill="#fca5a5" fontSize="4.5" fontFamily="monospace">
+              ROG M.2 ARMOR
+            </text>
+          </g>
+        ) : isTuf ? (
+          // ASUS TUF: Tactical yellow / military gray styling
+          <g>
+            <rect x="44" y="16" width="22" height="48" rx="2" fill="#334155" stroke="#eab308" strokeWidth="1" />
+            <line x1="48" y1="22" x2="62" y2="22" stroke="#eab308" strokeWidth="1.5" />
+            <line x1="48" y1="26" x2="62" y2="26" stroke="#eab308" strokeWidth="1.5" />
+            <text x="55" y="44" textAnchor="middle" fill="#fde047" fontSize="5" fontWeight="bold" fontFamily="monospace">
+              TUF
+            </text>
+            <text x="55" y="54" textAnchor="middle" fill="#cbd5e1" fontSize="4.5" fontFamily="monospace">
+              MIL-STD
+            </text>
+            <rect x="72" y="12" width="44" height="14" rx="2" fill="#334155" stroke="#eab308" strokeWidth="1" />
+            <rect x="136" y="78" width="36" height="30" rx="3" fill="#334155" stroke="#eab308" strokeWidth="1.2" />
+            <polygon points="146,86 162,86 154,94" fill="#eab308" />
+            <text x="154" y="103" textAnchor="middle" fill="#fef08a" fontSize="5.5" fontWeight="bold" fontFamily="monospace">
+              GAMING
+            </text>
+            <rect x="50" y="87" width="75" height="6" rx="1" fill="#1e293b" stroke="#eab308" strokeWidth="0.8" />
+            <text x="87" y="92" textAnchor="middle" fill="#fde047" fontSize="4.5" fontFamily="monospace">
+              TUF M.2 SHIELD
+            </text>
+          </g>
+        ) : isMsi ? (
+          // MSI MAG / Mortar / Tomahawk: Heavy steel armor & crimson dragon badge
+          <g>
+            <rect x="44" y="16" width="22" height="48" rx="2" fill="#1e293b" stroke="#f43f5e" strokeWidth="1" />
+            <text x="55" y="38" textAnchor="middle" fill="#fda4af" fontSize="5.5" fontWeight="900" fontFamily="monospace">
+              MAG
+            </text>
+            <text x="55" y="48" textAnchor="middle" fill="#cbd5e1" fontSize="4.5" fontFamily="monospace">
+              MORTAR
+            </text>
+            <rect x="46" y="54" width="18" height="4" fill="#475569" />
+            <rect x="72" y="12" width="44" height="14" rx="2" fill="#334155" stroke="#94a3b8" strokeWidth="1" />
+            <rect x="136" y="78" width="36" height="30" rx="3" fill="#1e293b" stroke="#f43f5e" strokeWidth="1.2" />
+            <text x="154" y="92" textAnchor="middle" fill="#ffffff" fontSize="6" fontWeight="bold" fontFamily="monospace">
+              MSI
+            </text>
+            <text x="154" y="102" textAnchor="middle" fill="#fda4af" fontSize="5" fontFamily="monospace">
+              ARSENAL
+            </text>
+            <rect x="50" y="87" width="75" height="6" rx="1" fill="#1e293b" stroke="#f43f5e" strokeWidth="0.8" />
+            <text x="87" y="92" textAnchor="middle" fill="#fda4af" fontSize="4.5" fontFamily="monospace">
+              M.2 SHIELD FROZR
+            </text>
+          </g>
+        ) : isAorus ? (
+          // Gigabyte Aorus: Falcon orange & metallic direct-touch armor
+          <g>
+            <rect x="44" y="16" width="22" height="48" rx="2" fill="#1e293b" stroke="#f97316" strokeWidth="1" />
+            <polygon points="48,22 62,22 55,32" fill="#f97316" />
+            <text x="55" y="44" textAnchor="middle" fill="#fed7aa" fontSize="5.5" fontWeight="900" fontFamily="monospace">
+              AORUS
+            </text>
+            <text x="55" y="54" textAnchor="middle" fill="#94a3b8" fontSize="4.5" fontFamily="monospace">
+              ELITE
+            </text>
+            <rect x="72" y="12" width="44" height="14" rx="2" fill="#334155" stroke="#f97316" strokeWidth="1" />
+            <rect x="136" y="78" width="36" height="30" rx="3" fill="#1e293b" stroke="#f97316" strokeWidth="1.2" />
+            <polygon points="146,86 162,86 154,94" fill="#f97316" />
+            <text x="154" y="103" textAnchor="middle" fill="#ffedd5" fontSize="5.5" fontWeight="bold" fontFamily="monospace">
+              FIGHT ON
+            </text>
+            <rect x="50" y="87" width="75" height="6" rx="1" fill="#1e293b" stroke="#f97316" strokeWidth="0.8" />
+            <text x="87" y="92" textAnchor="middle" fill="#fdba74" fontSize="4.5" fontFamily="monospace">
+              M.2 THERMAL GUARD
+            </text>
+          </g>
+        ) : (
+          // Standard / ASRock / Colorful Motherboard
+          <g>
             <rect x="48" y="18" width="18" height="44" rx="2" fill="#334155" stroke="#94a3b8" strokeWidth="1" />
-
-            {/* CPU Socket with Lever */}
-            <rect x="72" y="32" width="38" height="38" rx="3" fill="#1e293b" stroke="#e2e8f0" strokeWidth="1" />
-            <circle cx="91" cy="51" r="9" fill="#334155" />
-
-            {/* 4x DDR5 RAM Slots */}
-            <rect x="122" y="22" width="4" height="48" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
-            <rect x="130" y="22" width="4" height="48" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
-            <rect x="138" y="22" width="4" height="48" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
-            <rect x="146" y="22" width="4" height="48" rx="1" fill="#475569" stroke="#38bdf8" strokeWidth="0.8" />
-
-            {/* Reinforced PCIe 5.0 x16 Slot */}
-            <rect x="52" y="78" width="80" height="7" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="0.8" />
-            {/* M.2 Armor Shield */}
-            <rect x="52" y="89" width="75" height="12" rx="2" fill="#1e293b" stroke="#818cf8" strokeWidth="1" />
-            <text x="89" y="98" textAnchor="middle" fill="#a5b4fc" fontSize="6" fontFamily="monospace">
-              PCIe 5.0 M.2 SHIELD
-            </text>
-
-            {/* Chipset Heatsink */}
+            <rect x="75" y="14" width="40" height="14" rx="2" fill="#334155" stroke="#94a3b8" strokeWidth="1" />
             <rect x="138" y="78" width="34" height="28" rx="3" fill="#334155" stroke="#6366f1" strokeWidth="1.2" />
             <text x="155" y="94" textAnchor="middle" fill="#f8fafc" fontSize="7" fontWeight="bold" fontFamily="monospace">
               {shortLabel.slice(0, 5)}
             </text>
-          </svg>
-        );
+            <rect x="52" y="87" width="75" height="7" rx="2" fill="#1e293b" stroke="#818cf8" strokeWidth="1" />
+            <text x="89" y="93" textAnchor="middle" fill="#a5b4fc" fontSize="5.5" fontFamily="monospace">
+              PCIe 5.0 M.2 SHIELD
+            </text>
+          </g>
+        )}
+      </svg>
+    );
+  };
+
+  // High-Precision Architectural Schematic SVG Dispatcher
+  const renderSchematicSvg = () => {
+    switch (category) {
+      case 'cpu': {
+        const isIntel = brand.toUpperCase().includes('INTEL') || name.toUpperCase().includes('INTEL');
+        const isApple = brand.toUpperCase().includes('APPLE') || name.toUpperCase().includes('APPLE') || name.toUpperCase().includes('M4');
+        if (isApple) return renderAppleCpuSvg();
+        if (isIntel) return renderIntelCpuSvg();
+        return renderAmdCpuSvg();
       }
+
+      case 'gpu': {
+        const isAmd = brand.toUpperCase().includes('AMD') || name.toUpperCase().includes('RADEON') || name.toUpperCase().includes('RX');
+        const isIntel = brand.toUpperCase().includes('INTEL') || name.toUpperCase().includes('ARC');
+        if (isAmd) return renderAmdRadeonGpuSvg();
+        if (isIntel) return renderIntelArcGpuSvg();
+        return renderNvidiaGpuSvg();
+      }
+
+      case 'motherboard':
+        return renderMotherboardSvg();
 
       case 'ram': {
         return (

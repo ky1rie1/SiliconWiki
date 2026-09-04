@@ -107,6 +107,18 @@ const stepSpecsMap: Record<string, HardwareSpecDetail> = {
   },
 };
 
+const componentNameMap: Record<string, string> = {
+  cpu: 'CPU 处理器',
+  ram: '双通道内存',
+  ssd: 'M.2 NVMe 固态',
+  cooler: '风冷散热器',
+  motherboard: 'ATX 旗舰主板',
+  psu: '模组电源',
+  gpu: '独立显卡',
+  cables: '模组线缆与跳线',
+  case: '全景海景房机箱',
+};
+
 export const AssemblySimulator3D: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<PCScene3D | null>(null);
@@ -120,6 +132,19 @@ export const AssemblySimulator3D: React.FC = () => {
   const currentStep = assemblyStepsData[currentStepIndex];
   const stepSpec = stepSpecsMap[currentStep.componentKey];
 
+  const handleStepChange = (newIndex: number) => {
+    if (newIndex < 0 || newIndex >= assemblyStepsData.length) return;
+    setCurrentStepIndex(newIndex);
+    const step = assemblyStepsData[newIndex];
+    if (sceneRef.current) {
+      sceneRef.current.setStep(step.stepNumber, step.componentKey);
+      sceneRef.current.focusComponent(step.componentKey);
+    }
+  };
+
+  const handleStepChangeRef = useRef(handleStepChange);
+  handleStepChangeRef.current = handleStepChange;
+
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -128,13 +153,13 @@ export const AssemblySimulator3D: React.FC = () => {
     sceneRef.current = scene;
 
     // Set initial step
-    scene.setStep(assemblyStepsData[0].stepNumber);
+    scene.setStep(assemblyStepsData[0].stepNumber, assemblyStepsData[0].componentKey);
 
     // 3D Model click syncs to React state and updates right-hand panel
     scene.onComponentClick = (componentId: string) => {
       const targetIndex = assemblyStepsData.findIndex((s) => s.componentKey === componentId);
       if (targetIndex !== -1) {
-        handleStepChange(targetIndex);
+        handleStepChangeRef.current(targetIndex);
       }
     };
 
@@ -153,16 +178,6 @@ export const AssemblySimulator3D: React.FC = () => {
       sceneRef.current = null;
     };
   }, []);
-
-  const handleStepChange = (newIndex: number) => {
-    if (newIndex < 0 || newIndex >= assemblyStepsData.length) return;
-    setCurrentStepIndex(newIndex);
-    const step = assemblyStepsData[newIndex];
-    if (sceneRef.current) {
-      sceneRef.current.setStep(step.stepNumber);
-      sceneRef.current.focusComponent(step.componentKey);
-    }
-  };
 
   const handleToggleExplode = () => {
     const next = !isExploded;
@@ -189,9 +204,9 @@ export const AssemblySimulator3D: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Top Banner */}
-      <div className="rounded-3xl p-6 bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 border border-slate-700/60 dark:border-slate-800 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div className="space-y-1.5 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-500/10 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-500/20">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200 dark:border-blue-500/20">
             <Box className="w-3.5 h-3.5" />
             <span>三维实景装机工坊 · 仿真硬件结构</span>
           </div>
@@ -216,11 +231,11 @@ export const AssemblySimulator3D: React.FC = () => {
       {/* Main 3D Canvas + Step Instructions Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-slate-900/95 dark:bg-slate-950 border border-slate-700/60 dark:border-slate-800 shadow-2xl overflow-hidden relative group">
+        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-2xl overflow-hidden relative group transition-colors">
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10"
+            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10 bg-[radial-gradient(ellipse_at_50%_45%,_#f8fafc_0%,_#e2e8f0_55%,_#cbd5e1_100%)] dark:bg-[radial-gradient(ellipse_at_50%_45%,_#1e293b_0%,_#0f172a_60%,_#020617_100%)] overflow-hidden transition-colors"
           >
             {/* On-canvas Controls Overlay */}
             <div className="absolute top-4 left-4 z-20 flex items-center space-x-2">
@@ -228,8 +243,8 @@ export const AssemblySimulator3D: React.FC = () => {
                 onClick={handleToggleExplode}
                 className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer ${
                   isExploded
-                    ? 'bg-blue-600 text-white ring-2 ring-blue-400'
-                    : 'bg-slate-800/80 backdrop-blur-md text-slate-200 hover:bg-slate-700'
+                    ? 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-blue-500/20'
+                    : 'bg-white/90 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 shadow-xs'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -238,7 +253,7 @@ export const AssemblySimulator3D: React.FC = () => {
 
               <button
                 onClick={handleResetCamera}
-                className="p-2 rounded-xl bg-slate-800/80 backdrop-blur-md text-slate-300 hover:text-white hover:bg-slate-700 transition-colors shadow-md cursor-pointer"
+                className="p-2 rounded-xl bg-white/90 dark:bg-slate-800/80 backdrop-blur-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 transition-colors shadow-xs cursor-pointer"
                 title="重置视角"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -247,34 +262,34 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Hover Tooltip Overlay */}
             {hoveredComponentName && (
-              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-blue-500/40 text-blue-300 text-xs font-semibold backdrop-blur-md shadow-lg pointer-events-none animate-in fade-in duration-150 flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-blue-500/40 text-blue-700 dark:text-blue-300 text-xs font-semibold backdrop-blur-md shadow-lg pointer-events-none animate-in fade-in duration-150 flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse" />
                 <span>部件：{hoveredComponentName} (点击聚焦)</span>
               </div>
             )}
 
             {/* Hint in canvas bottom */}
-            <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-slate-400 bg-slate-900/70 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-slate-700/40">
+            <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-slate-600 dark:text-slate-400 bg-white/85 dark:bg-slate-900/70 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/40 shadow-xs">
               <span>🖱️ 按住鼠标左键 360° 旋转 · 滚轮缩放 · 点击硬件直接聚焦联动</span>
-              <span className="hidden sm:inline text-blue-400">专业防静电操作台环境</span>
+              <span className="hidden sm:inline text-blue-600 dark:text-blue-400 font-medium">专业防静电操作台环境</span>
             </div>
           </div>
 
           {/* Stepper & Progress Rail below Canvas */}
-          <div className="p-4 bg-slate-900 border-t border-slate-800 space-y-3">
+          <div className="p-4 bg-slate-50 dark:bg-slate-900/95 border-t border-slate-200 dark:border-slate-800 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
-                <Wrench className="w-4 h-4 text-blue-400" />
-                <span className="font-bold text-slate-200">
+                <Wrench className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="font-bold text-slate-800 dark:text-slate-200">
                   标准化装配工序
                 </span>
-                <span className="text-slate-400 hidden sm:inline">
+                <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">
                   · 当前步骤: {currentStep.title}
                 </span>
               </div>
-              <div className="text-xs text-slate-300 flex items-center space-x-1.5 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60 font-mono">
-                <span className="text-slate-400">进度:</span>
-                <span className="text-blue-400 font-bold">
+              <div className="text-xs text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 bg-white dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700/60 font-mono shadow-xs">
+                <span className="text-slate-500 dark:text-slate-400">进度:</span>
+                <span className="text-blue-600 dark:text-blue-400 font-bold">
                   {Math.round(((currentStepIndex + 1) / assemblyStepsData.length) * 100)}%
                 </span>
               </div>
@@ -282,7 +297,7 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Tactile Pipeline Rail */}
             <div className="relative pt-2 pb-1 px-3">
-              <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1.5 rounded-full bg-slate-800 pointer-events-none" />
+              <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 pointer-events-none" />
 
               <div
                 className="absolute top-1/2 left-6 -translate-y-1/2 h-1.5 rounded-full bg-blue-600 transition-all duration-500 pointer-events-none"
@@ -312,8 +327,8 @@ export const AssemblySimulator3D: React.FC = () => {
                           isCurrent
                             ? 'bg-blue-600 text-white ring-4 ring-blue-400/30 shadow-md shadow-blue-500/30'
                             : isPassed
-                            ? 'bg-slate-700 text-slate-200 border border-slate-600'
-                            : 'bg-slate-850 border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600'
+                            : 'bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
                         }`}
                       >
                         {s.stepNumber}
@@ -321,10 +336,10 @@ export const AssemblySimulator3D: React.FC = () => {
                       <span
                         className={`text-[10px] mt-1 font-medium hidden md:inline-block max-w-[65px] truncate transition-colors ${
                           isCurrent
-                            ? 'text-blue-400 font-bold'
+                            ? 'text-blue-600 dark:text-blue-400 font-bold'
                             : isPassed
-                            ? 'text-slate-300'
-                            : 'text-slate-500'
+                            ? 'text-slate-700 dark:text-slate-300'
+                            : 'text-slate-400 dark:text-slate-500'
                         }`}
                       >
                         {s.title.split(' ')[0]}
@@ -338,139 +353,152 @@ export const AssemblySimulator3D: React.FC = () => {
         </div>
 
         {/* Right: Step Detailed Guide Card (5 Cols) */}
-        <div className="lg:col-span-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm p-6 space-y-5">
-          {/* Step Header */}
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-                  STEP {currentStep.stepNumber} / {assemblyStepsData.length}
-                </span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-medium border border-emerald-200/50 dark:border-emerald-800/40">
-                  已同步 3D 视角
-                </span>
+        <div className="lg:col-span-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-md p-6 transition-colors">
+          <div key={currentStepIndex} className="space-y-5 animate-in fade-in slide-in-from-right-2 duration-300">
+            {/* Step Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="space-y-1.5 flex-1 pr-2">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                    STEP {currentStep.stepNumber} / {assemblyStepsData.length}
+                  </span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80 shadow-xs">
+                    ✨ 当前工序聚焦：{componentNameMap[currentStep.componentKey] || currentStep.title.split(' ')[0]}
+                  </span>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-medium border border-emerald-200/50 dark:border-emerald-800/40">
+                    已同步 3D 视角
+                  </span>
+                </div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                  {currentStep.title}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {currentStep.subtitle}
+                </p>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                {currentStep.title}
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {currentStep.subtitle}
-              </p>
+
+              {/* Prev / Next Step Buttons */}
+              <div className="flex items-center space-x-1.5 shrink-0">
+                <button
+                  onClick={() => handleStepChange(currentStepIndex - 1)}
+                  disabled={currentStepIndex === 0}
+                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  title="上一步"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleStepChange(currentStepIndex + 1)}
+                  disabled={currentStepIndex === assemblyStepsData.length - 1}
+                  className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white transition-colors cursor-pointer"
+                  title="下一步"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Prev / Next Step Buttons */}
-            <div className="flex items-center space-x-1.5 shrink-0">
+            {/* Step Summary Box (Crucial overview of current step) */}
+            <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 text-xs text-slate-700 dark:text-slate-200 flex items-start space-x-2.5 leading-relaxed">
+              <span className="shrink-0 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-bold mt-0.5 shadow-xs">
+                工序精要
+              </span>
+              <p className="font-medium text-slate-800 dark:text-slate-200">{currentStep.summary}</p>
+            </div>
+
+            {/* Interactive Simulate Action Button */}
+            <button
+              onClick={handleSimulateInstall}
+              disabled={isInstalling}
+              className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+            >
+              <Sparkles className={`w-4 h-4 ${isInstalling ? 'animate-spin' : ''}`} />
+              <span>{isInstalling ? '正在执行安装位移...' : '✨ 模拟执行本步骤安装动作'}</span>
+            </button>
+
+            {/* Hardware Craft & Specs Snapshot */}
+            {stepSpec && (
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <span className="flex items-center space-x-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>实时硬件规格与材质快照</span>
+                  </span>
+                  <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
+                    {stepSpec.highlightTip}
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-750 font-mono">
+                  {stepSpec.craft}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {stepSpec.specs.map((sp, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800 text-[11px] space-y-0.5"
+                    >
+                      <div className="text-slate-400 dark:text-slate-500 text-[10px]">{sp.label}</div>
+                      <div className="font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {sp.val}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actionable Instructions List */}
+            <div className="space-y-2.5">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                标准安装操作指引：
+              </div>
+              <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                {currentStep.instructions.map((ins, idx) => (
+                  <li key={idx} className="flex items-start space-x-2.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <span>{ins}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* High-risk Warning Box */}
+            {currentStep.criticalWarning && (
+              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 space-y-1.5">
+                <div className="flex items-center space-x-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>防呆防坑高危警示</span>
+                </div>
+                <p className="text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed">
+                  {currentStep.criticalWarning}
+                </p>
+              </div>
+            )}
+
+            {/* Debug / Self-check tip */}
+            {currentStep.debugCheck && (
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/60 dark:border-slate-800 text-xs flex items-start space-x-2 text-slate-700 dark:text-slate-300">
+                <HelpCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                <div>
+                  <strong className="text-slate-800 dark:text-slate-200">安装完成自检：</strong>
+                  <span>{currentStep.debugCheck}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Video timestamp shortcut button */}
+            <div className="pt-2">
               <button
-                onClick={() => handleStepChange(currentStepIndex - 1)}
-                disabled={currentStepIndex === 0}
-                className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-                title="上一步"
+                onClick={() => setIsBilibiliModalOpen(true)}
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-pink-50/70 dark:bg-pink-950/20 hover:bg-pink-100/80 dark:hover:bg-pink-900/30 border border-pink-200/80 dark:border-pink-900/40 text-pink-700 dark:text-pink-400 text-xs font-bold transition-all cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleStepChange(currentStepIndex + 1)}
-                disabled={currentStepIndex === assemblyStepsData.length - 1}
-                className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white transition-colors cursor-pointer"
-                title="下一步"
-              >
+                <div className="flex items-center space-x-2">
+                  <Tv className="w-4 h-4" />
+                  <span>查看此步骤对应 B 站实操精讲 ({currentStep.bilibiliTimestamp})</span>
+                </div>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
-          </div>
-
-          {/* Interactive Simulate Action Button */}
-          <button
-            onClick={handleSimulateInstall}
-            disabled={isInstalling}
-            className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
-          >
-            <Sparkles className={`w-4 h-4 ${isInstalling ? 'animate-spin' : ''}`} />
-            <span>{isInstalling ? '正在执行安装位移...' : '✨ 模拟执行本步骤安装动作'}</span>
-          </button>
-
-          {/* Hardware Craft & Specs Snapshot */}
-          {stepSpec && (
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
-                <span className="flex items-center space-x-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                  <span>实时硬件规格与材质快照</span>
-                </span>
-                <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
-                  {stepSpec.highlightTip}
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-600 dark:text-slate-300 bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-750 font-mono">
-                {stepSpec.craft}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {stepSpec.specs.map((sp, idx) => (
-                  <div
-                    key={idx}
-                    className="p-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/40 dark:border-slate-800 text-[11px] space-y-0.5"
-                  >
-                    <div className="text-slate-400 dark:text-slate-500 text-[10px]">{sp.label}</div>
-                    <div className="font-semibold text-slate-800 dark:text-slate-200 truncate">
-                      {sp.val}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Actionable Instructions List */}
-          <div className="space-y-2.5">
-            <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              标准安装操作指引：
-            </div>
-            <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-              {currentStep.instructions.map((ins, idx) => (
-                <li key={idx} className="flex items-start space-x-2.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 mt-0.5 shrink-0" />
-                  <span>{ins}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* High-risk Warning Box */}
-          {currentStep.criticalWarning && (
-            <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 space-y-1.5">
-              <div className="flex items-center space-x-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs">
-                <AlertTriangle className="w-4 h-4" />
-                <span>防呆防坑高危警示</span>
-              </div>
-              <p className="text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed">
-                {currentStep.criticalWarning}
-              </p>
-            </div>
-          )}
-
-          {/* Debug / Self-check tip */}
-          {currentStep.debugCheck && (
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/60 dark:border-slate-800 text-xs flex items-start space-x-2 text-slate-600 dark:text-slate-300">
-              <HelpCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-              <div>
-                <strong>安装完成自检：</strong>
-                <span>{currentStep.debugCheck}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Video timestamp shortcut button */}
-          <div className="pt-2">
-            <button
-              onClick={() => setIsBilibiliModalOpen(true)}
-              className="w-full flex items-center justify-between p-3 rounded-2xl bg-pink-50/60 dark:bg-pink-950/20 hover:bg-pink-100/80 border border-pink-200/80 dark:border-pink-900/40 text-pink-600 dark:text-pink-400 text-xs font-bold transition-all cursor-pointer"
-            >
-              <div className="flex items-center space-x-2">
-                <Tv className="w-4 h-4" />
-                <span>查看此步骤对应 B 站实操精讲 ({currentStep.bilibiliTimestamp})</span>
-              </div>
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </div>

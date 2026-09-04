@@ -88,8 +88,8 @@ export class PCScene3D {
     const ambientLight = new THREE.AmbientLight(0xf8fafc, 2.0);
     this.scene.add(ambientLight);
 
-    // 2. High-Precision Studio Key Light (4500K warm neutral white)
-    const keyLight = new THREE.DirectionalLight(0xfff8ed, 2.6);
+    // 2. High-Precision Studio Key Light (4200K warm neutral white)
+    const keyLight = new THREE.DirectionalLight(0xfff7ed, 2.8);
     keyLight.position.set(6, 12, 7);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 2048;
@@ -99,23 +99,28 @@ export class PCScene3D {
     keyLight.shadow.camera.far = 30;
     this.scene.add(keyLight);
 
-    // 3. Daylight Fill Light (6000K soft white to eliminate shadows)
-    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 1.5);
-    fillLight.position.set(-6, 6, 7);
+    // 3. Studio Daylight Fill Light (soft neutral fill to reveal component depths)
+    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 1.8);
+    fillLight.position.set(-6, 7, 7);
     this.scene.add(fillLight);
 
-    // 4. Clean Studio Rim Light (pure white silhouette enhancer)
-    const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    // 4. Warm Studio Rim Light (golden rim backlight for sharp silhouette)
+    const rimLight = new THREE.DirectionalLight(0xffeedb, 1.6);
     rimLight.position.set(0, 9, -7);
     this.scene.add(rimLight);
 
-    // 5. Desk-surface soft bounce
-    const bottomBounce = new THREE.DirectionalLight(0x94a3b8, 0.8);
-    bottomBounce.position.set(0, -5, 2);
+    // 5. Overhead Softbox Light (clean specular reflections on tops of components)
+    const topLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    topLight.position.set(0, 14, 0);
+    this.scene.add(topLight);
+
+    // 6. Desk-surface soft bounce
+    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.9);
+    bottomBounce.position.set(0, -4, 2);
     this.scene.add(bottomBounce);
 
-    // 6. Subtle internal hardware diagnostic glow (calibrated natural warm glow)
-    const internalGlow = new THREE.PointLight(0xe0f2fe, 1.0, 6);
+    // 7. Subtle internal hardware diagnostic glow (calibrated natural warm glow)
+    const internalGlow = new THREE.PointLight(0x38bdf8, 1.2, 7);
     internalGlow.position.set(0, 0.3, 0.3);
     this.scene.add(internalGlow);
   }
@@ -124,12 +129,14 @@ export class PCScene3D {
     const stageGroup = new THREE.Group();
     stageGroup.name = 'studio_stage';
 
-    // 1. Professional ESD Silicone Anti-Static Workmat (Matte Charcoal Slate)
+    // 1. Professional ESD Silicone Anti-Static Workmat (Satin finish with refined reflections)
     const matGeom = new THREE.BoxGeometry(9.0, 0.12, 6.4);
-    const matMaterial = new THREE.MeshStandardMaterial({
-      color: 0x18202c, // Professional ESD workbench slate
-      roughness: 0.88,
-      metalness: 0.1,
+    const matMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x1e293b, // Tech slate charcoal
+      roughness: 0.32, // Satin sheen for realistic studio reflections
+      metalness: 0.15,
+      clearcoat: 0.25, // Clearcoat surface finish mimicking ESD silicone/rubber coating
+      clearcoatRoughness: 0.35,
     });
     const workmat = new THREE.Mesh(matGeom, matMaterial);
     workmat.position.set(0, -2.25, 0);
@@ -140,8 +147,8 @@ export class PCScene3D {
     const rimGeom = new THREE.BoxGeometry(9.2, 0.08, 6.6);
     const rimMaterial = new THREE.MeshStandardMaterial({
       color: 0x0f172a,
-      roughness: 0.7,
-      metalness: 0.2,
+      roughness: 0.45,
+      metalness: 0.35,
     });
     const matRim = new THREE.Mesh(rimGeom, rimMaterial);
     matRim.position.set(0, -2.29, 0);
@@ -150,9 +157,9 @@ export class PCScene3D {
 
     // 3. Precision printed laser tick marks on mat borders
     const rulerMarkMat = new THREE.MeshBasicMaterial({
-      color: 0x475569, // Muted slate engraving
+      color: 0x64748b, // Clean legible slate engraving
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.65,
     });
 
     // Top and Bottom ruler lines
@@ -175,10 +182,11 @@ export class PCScene3D {
     }
 
     // 4. Side Magnetic Screw & Small Parts Organizer Trays
-    const trayMat = new THREE.MeshStandardMaterial({
+    const trayMat = new THREE.MeshPhysicalMaterial({
       color: 0x1e293b,
-      roughness: 0.6,
+      roughness: 0.38,
       metalness: 0.3,
+      clearcoat: 0.2,
     });
     for (let t = -1.8; t <= 1.8; t += 0.9) {
       const pocketGeom = new THREE.BoxGeometry(0.8, 0.04, 0.65);
@@ -190,7 +198,7 @@ export class PCScene3D {
 
     // 5. Soft floor ground shadow receiver beneath the desk
     const floorGeom = new THREE.PlaneGeometry(32, 32);
-    const floorMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+    const floorMat = new THREE.ShadowMaterial({ opacity: 0.28 });
     const floor = new THREE.Mesh(floorGeom, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.set(0, -2.35, 0);
@@ -313,8 +321,10 @@ export class PCScene3D {
     // Front & Side Panoramic Glass Panels (海景房无立柱双面玻璃)
     const glassSide = new THREE.Mesh(new THREE.BoxGeometry(4.2, 3.9, 0.06), glassMat);
     glassSide.position.set(0, 0, 1.25);
+    glassSide.userData.isGlass = true;
     const glassFront = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.9, 2.4), glassMat);
     glassFront.position.set(2.14, 0, 0.05);
+    glassFront.userData.isGlass = true;
     caseGroup.add(glassSide, glassFront);
 
     this.registerComponent({
@@ -938,6 +948,7 @@ export class PCScene3D {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let mouseDownPos = { x: 0, y: 0 };
+    let mouseDownTime = 0;
     let hasMoved = false;
 
     const findComponentAt = (clientX: number, clientY: number): ComponentMeshItem | null => {
@@ -962,8 +973,15 @@ export class PCScene3D {
         false
       );
       if (intersects.length > 0) {
-        const first = intersects[0].object;
-        const matched = candidates.find((c) => c.mesh === first);
+        // If the first intersection is glass, check if user clicked an internal hardware component behind the glass
+        let chosenObject = intersects[0].object;
+        if (chosenObject.userData.isGlass) {
+          const innerHit = intersects.find((hit) => !hit.object.userData.isGlass);
+          if (innerHit) {
+            chosenObject = innerHit.object;
+          }
+        }
+        const matched = candidates.find((c) => c.mesh === chosenObject);
         return matched ? matched.item : null;
       }
       return null;
@@ -973,16 +991,22 @@ export class PCScene3D {
     el.addEventListener('mousedown', (e) => {
       this.isDragging = true;
       hasMoved = false;
+      mouseDownTime = performance.now();
       mouseDownPos = { x: e.clientX, y: e.clientY };
       this.previousMousePosition = { x: e.clientX, y: e.clientY };
     });
 
     window.addEventListener('mouseup', (e) => {
-      if (this.isDragging && !hasMoved) {
-        // Was a crisp click without dragging
-        const hitItem = findComponentAt(e.clientX, e.clientY);
-        if (hitItem && this.onComponentClick) {
-          this.onComponentClick(hitItem.id);
+      if (this.isDragging) {
+        const dist = Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y);
+        const elapsed = performance.now() - mouseDownTime;
+        // Reliable click check: movement <= 14px or fast tap (<300ms and <=24px)
+        const isClick = !hasMoved || dist <= 14 || (elapsed < 300 && dist <= 24);
+        if (isClick) {
+          const hitItem = findComponentAt(e.clientX, e.clientY);
+          if (hitItem && this.onComponentClick) {
+            this.onComponentClick(hitItem.id);
+          }
         }
       }
       this.isDragging = false;
@@ -993,7 +1017,7 @@ export class PCScene3D {
         const deltaX = e.clientX - this.previousMousePosition.x;
         const deltaY = e.clientY - this.previousMousePosition.y;
 
-        if (Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y) > 4) {
+        if (Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y) > 14) {
           hasMoved = true;
         }
 
@@ -1030,11 +1054,13 @@ export class PCScene3D {
     );
 
     // Touch controls for mobile
+    let touchStartTime = 0;
     let touchStartDist = 0;
     el.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         this.isDragging = true;
         hasMoved = false;
+        touchStartTime = performance.now();
         mouseDownPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       } else if (e.touches.length === 2) {
@@ -1050,7 +1076,7 @@ export class PCScene3D {
         const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
         const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
 
-        if (Math.hypot(e.touches[0].clientX - mouseDownPos.x, e.touches[0].clientY - mouseDownPos.y) > 6) {
+        if (Math.hypot(e.touches[0].clientX - mouseDownPos.x, e.touches[0].clientY - mouseDownPos.y) > 16) {
           hasMoved = true;
         }
 
@@ -1075,11 +1101,16 @@ export class PCScene3D {
     });
 
     el.addEventListener('touchend', (e) => {
-      if (this.isDragging && !hasMoved && e.changedTouches.length > 0) {
+      if (this.isDragging && e.changedTouches.length > 0) {
         const touch = e.changedTouches[0];
-        const hitItem = findComponentAt(touch.clientX, touch.clientY);
-        if (hitItem && this.onComponentClick) {
-          this.onComponentClick(hitItem.id);
+        const dist = Math.hypot(touch.clientX - mouseDownPos.x, touch.clientY - mouseDownPos.y);
+        const elapsed = performance.now() - touchStartTime;
+        const isClick = !hasMoved || dist <= 16 || (elapsed < 350 && dist <= 26);
+        if (isClick) {
+          const hitItem = findComponentAt(touch.clientX, touch.clientY);
+          if (hitItem && this.onComponentClick) {
+            this.onComponentClick(hitItem.id);
+          }
         }
       }
       this.isDragging = false;
@@ -1104,7 +1135,7 @@ export class PCScene3D {
   // ==========================================
   // Public API
   // ==========================================
-  public setStep(step: number) {
+  public setStep(step: number, activeComponentKey?: string) {
     this.currentStep = step;
 
     // Component visibility and clean accent effect based on step
@@ -1113,13 +1144,13 @@ export class PCScene3D {
       item.group.visible = isVisible;
 
       // Clean, refined highlight for component of current step
-      const isCurrent = item.installedStep === step;
+      const isCurrent = activeComponentKey ? item.id === activeComponentKey : item.installedStep === step;
       item.group.traverse((child) => {
         if (child instanceof THREE.Mesh && child.material) {
           if (Array.isArray(child.material)) return;
           if (child.material instanceof THREE.MeshStandardMaterial) {
             child.material.emissive = new THREE.Color(isCurrent ? 0x0284c7 : 0x000000);
-            child.material.emissiveIntensity = isCurrent ? 0.25 : 0.0;
+            child.material.emissiveIntensity = isCurrent ? 0.3 : 0.0;
           }
         }
       });
@@ -1140,12 +1171,15 @@ export class PCScene3D {
     this.updateCameraPosition();
   }
 
-  public focusComponent(componentKey: string) {
+  public focusComponent(componentKey: string, flash: boolean = true) {
     const item = this.components.get(componentKey);
     if (item) {
       this.targetLookAt.copy(item.assembledPos);
       this.spherical.radius = 5.2;
       this.updateCameraPosition();
+      if (flash) {
+        this.flashComponentHighlight(item);
+      }
     }
   }
 
