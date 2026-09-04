@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Layers,
   Cpu,
@@ -10,21 +10,98 @@ import {
   Zap,
   Filter,
   Search,
+  Sparkles,
 } from 'lucide-react';
 import { hardwareList } from '../../data/hardware';
+import { glossaryTerms } from '../../data/glossary';
 import { HardwareCard } from './HardwareCard';
 import { LaptopSection } from './LaptopSection';
 import { HardwareDetailModal } from './HardwareDetailModal';
-import { HardwareCategory, HardwareItem } from '../../types';
+import { GlossaryPopoverModal } from '../common/GlossaryPopoverModal';
+import { HardwareCategory, HardwareItem, GlossaryTerm } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
-export const HardwareWiki: React.FC = () => {
+interface HardwareWikiProps {
+  onNavigateToGlossary?: () => void;
+}
+
+export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary }) => {
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'tdp'>('default');
   const [selectedDetailItem, setSelectedDetailItem] = useState<HardwareItem | null>(null);
+  const [selectedGlossaryTerm, setSelectedGlossaryTerm] = useState<GlossaryTerm | null>(null);
+  const [selectionTooltip, setSelectionTooltip] = useState<{
+    text: string;
+    term: GlossaryTerm;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Listen for user text selection to trigger term explanation card
+  useEffect(() => {
+    const handleMouseUp = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('.glossary-selection-pill') || target.closest('[role="dialog"]')) {
+        return;
+      }
+
+      const selection = window.getSelection();
+      const selectedText = selection?.toString().trim();
+
+      if (!selectedText || selectedText.length < 2 || selectedText.length > 30) {
+        setSelectionTooltip(null);
+        return;
+      }
+
+      const lower = selectedText.toLowerCase();
+      const matched = glossaryTerms.find((gt) => {
+        const idKey = gt.id.replace('term-', '').toLowerCase();
+        const mainTerm = gt.term.toLowerCase();
+        const aliasMatch = gt.alias?.some(
+          (a) => a.toLowerCase() === lower || (a.length >= 3 && lower.includes(a.toLowerCase()))
+        );
+        return lower === idKey || mainTerm.includes(lower) || aliasMatch;
+      });
+
+      if (matched) {
+        setSelectionTooltip({
+          text: selectedText,
+          term: matched,
+          x: Math.min(window.innerWidth - 220, Math.max(10, e.clientX - 60)),
+          y: Math.max(10, e.clientY - 45),
+        });
+      } else {
+        setSelectionTooltip(null);
+      }
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  const quickTerms = useMemo(() => {
+    const preferredIds = [
+      'term-3d-vcache',
+      'term-dlss-fsr',
+      'term-atx3-12v2x6',
+      'term-cudimm',
+      'term-tlc-qlc',
+      'term-vrm-phases',
+      'term-ram-timing-cl',
+      'term-dual-channel',
+      'term-peel-film-warning',
+      'term-vapor-chamber',
+      'term-slc-cache',
+      'term-wifi7-25g',
+      'term-screen-panel',
+    ];
+    return preferredIds
+      .map((id) => glossaryTerms.find((g) => g.id === id))
+      .filter((g): g is GlossaryTerm => !!g);
+  }, []);
 
   const categories: { id: HardwareCategory | 'all'; label: string; icon: React.ReactNode }[] = [
     { id: 'all', label: t('catAll'), icon: <Layers className="w-4 h-4" /> },
@@ -151,6 +228,29 @@ export const HardwareWiki: React.FC = () => {
             </div>
           </div>
 
+          {/* Quick Technical Term Shelf */}
+          <div className="flex items-center space-x-2 overflow-x-auto py-1 scrollbar-none">
+            <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0 mr-1 bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 rounded-xl border border-blue-200/60 dark:border-blue-900/60 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>核心技术宝典速查：</span>
+            </div>
+            {quickTerms.map((term) => (
+              <button
+                key={term.id}
+                onClick={() => setSelectedGlossaryTerm(term)}
+                className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-blue-400 dark:hover:border-cyan-600 hover:bg-blue-50/50 dark:hover:bg-slate-850 text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-cyan-400 whitespace-nowrap shadow-2xs transition-all"
+                title={`点击查看「${term.term}」详细技术名词解释`}
+              >
+                <span>{term.term.split(' ')[0]}</span>
+                {term.alias?.[0] && (
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    ({term.alias[0]})
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
           {/* Hardware Cards Grid */}
           {filteredItems.length === 0 ? (
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
@@ -165,6 +265,7 @@ export const HardwareWiki: React.FC = () => {
                   key={item.id}
                   item={item}
                   onOpenSpecs={(hardware) => setSelectedDetailItem(hardware)}
+                  onOpenTerm={(term) => setSelectedGlossaryTerm(term)}
                 />
               ))}
             </div>
@@ -172,11 +273,40 @@ export const HardwareWiki: React.FC = () => {
         </>
       )}
 
+      {/* Floating Selection Tooltip Badge */}
+      {selectionTooltip && (
+        <div
+          style={{ top: `${selectionTooltip.y}px`, left: `${selectionTooltip.x}px` }}
+          className="fixed z-40 glossary-selection-pill animate-in fade-in zoom-in-95 duration-150"
+        >
+          <button
+            onClick={() => {
+              setSelectedGlossaryTerm(selectionTooltip.term);
+              setSelectionTooltip(null);
+            }}
+            className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white text-xs font-bold shadow-xl shadow-blue-500/30 transition-transform active:scale-95 border border-white/20"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>解读「{selectionTooltip.term.term.split(' ')[0]}」</span>
+          </button>
+        </div>
+      )}
+
       {/* Hardware Deep Dive Inspection Modal */}
       {selectedDetailItem && (
         <HardwareDetailModal
           item={selectedDetailItem}
           onClose={() => setSelectedDetailItem(null)}
+        />
+      )}
+
+      {/* Interactive Glossary Term Popover Modal */}
+      {selectedGlossaryTerm && (
+        <GlossaryPopoverModal
+          term={selectedGlossaryTerm}
+          isOpen={!!selectedGlossaryTerm}
+          onClose={() => setSelectedGlossaryTerm(null)}
+          onNavigateToGlossary={onNavigateToGlossary}
         />
       )}
     </div>

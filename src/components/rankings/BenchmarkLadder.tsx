@@ -242,21 +242,41 @@ export const BenchmarkLadder: React.FC = () => {
                 </div>
               </div>
 
-              {/* Middle Relative Bar */}
+              {/* Middle Precision Machined Grooved Benchmark Gauge */}
               <div className="flex-1 mx-2 sm:mx-4">
-                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+                <div className="machined-groove-track h-4.5 sm:h-5 w-full rounded-lg overflow-hidden p-0.5 flex items-center relative">
+                  {/* Subtle Scale Divider Ticks */}
+                  <div className="absolute inset-0 pointer-events-none flex justify-between px-[25%] opacity-30">
+                    <div className="w-[1px] h-full bg-white/40" />
+                    <div className="w-[1px] h-full bg-white/40" />
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none flex justify-center opacity-40">
+                    <div className="w-[1px] h-full bg-cyan-400/50" />
+                  </div>
+
+                  {/* Luminous Fill Bar */}
                   <div
-                    className={`h-full rounded-full transition-all duration-700 ${
+                    className={`h-full rounded-md transition-all duration-700 relative overflow-hidden flex items-center justify-end pr-1 shadow-sm ${
                       item.brand === 'NVIDIA'
-                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-400'
+                        ? 'bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-400 shadow-emerald-500/30'
                         : item.brand === 'AMD'
-                        ? 'bg-gradient-to-r from-rose-600 to-rose-400'
+                        ? 'bg-gradient-to-r from-rose-700 via-rose-500 to-amber-400 shadow-rose-500/30'
                         : item.brand === 'Apple'
-                        ? 'bg-gradient-to-r from-slate-600 to-slate-400'
-                        : 'bg-gradient-to-r from-blue-600 to-cyan-400'
+                        ? 'bg-gradient-to-r from-slate-600 via-slate-400 to-zinc-200 shadow-slate-400/20'
+                        : 'bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-300 shadow-blue-500/30'
                     }`}
                     style={{ width: `${percentage}%` }}
-                  />
+                  >
+                    {/* Top Specular Line */}
+                    <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40" />
+                    {/* End Cursor Glowing Pip */}
+                    <div className="w-1.5 h-2.5 rounded-full bg-white shadow-[0_0_6px_#fff] shrink-0" />
+                  </div>
+
+                  {/* Micro Relative Scale Text overlay */}
+                  <span className="absolute right-2 text-[9px] font-mono text-white/40 group-hover:text-white/80 pointer-events-none transition-colors">
+                    {percentage}%
+                  </span>
                 </div>
               </div>
 

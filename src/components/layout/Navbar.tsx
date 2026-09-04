@@ -47,9 +47,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-3 z-50 w-full max-w-6xl mx-auto px-3 sm:px-6 transition-spring">
+    <header className="sticky top-3 z-50 w-full max-w-7xl mx-auto px-2 sm:px-4 md:px-6 transition-spring">
       {/* Floating Fluid Island Glass Pill */}
-      <div className="relative rounded-2xl sm:rounded-full bg-white/85 dark:bg-slate-950/80 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] px-3 sm:px-5 py-2 flex items-center justify-between transition-spring">
+      <div className="relative rounded-2xl sm:rounded-full bg-white/95 dark:bg-slate-950/85 backdrop-blur-2xl border border-slate-200/90 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] px-3 sm:px-4 md:px-5 py-2 flex items-center justify-between transition-spring gap-2">
         {/* Left: Brand Identity */}
         <div
           className="flex items-center space-x-2.5 cursor-pointer group select-none shrink-0"
@@ -64,25 +64,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white font-mono leading-none">
               Silicon<span className="text-blue-600 dark:text-cyan-400">Wiki</span>
             </span>
-            <span className="hidden sm:inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-medium tracking-wide">
+            <span className="hidden xl:inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-medium tracking-wide">
               <Sparkles className="w-2.5 h-2.5 text-amber-500" />
-              <span>{lang === 'zh' ? '芯知百科' : 'Encyclopedia'}</span>
+              <span>{lang === 'zh' ? '芯知百科' : 'Wiki'}</span>
             </span>
           </div>
         </div>
 
         {/* Center: Desktop Navigation Pills */}
-        <nav className="hidden md:flex items-center space-x-1 p-1 rounded-full bg-slate-100/70 dark:bg-white/5 border border-slate-200/50 dark:border-white/5">
+        <nav className="hidden md:flex items-center space-x-0.5 lg:space-x-1 p-1 rounded-full bg-slate-100/90 dark:bg-white/5 border border-slate-200/70 dark:border-white/5 overflow-x-auto scrollbar-none">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`relative flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-spring ${
+                className={`relative flex items-center space-x-1.5 px-2.5 lg:px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-spring ${
                   isActive
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 shadow-sm'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10'
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 dark:bg-white dark:text-slate-950'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/10'
                 }`}
               >
                 <span>{item.icon}</span>
@@ -98,13 +98,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right: Actions & Tools */}
-        <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+        <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
           {/* Live App Link Badge */}
           <a
             href="https://computer-wiki.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden lg:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-spring group"
+            className="hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-spring group"
             title={lang === 'zh' ? '在线体验部署站点 (computer-wiki.vercel.app)' : 'Online Live Demo (computer-wiki.vercel.app)'}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -115,11 +115,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Omnisearch Command Bar Button */}
           <button
             onClick={onOpenSearch}
-            className="flex items-center space-x-2 px-3 py-1.5 rounded-full border border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-blue-400 dark:hover:border-cyan-400 text-xs font-medium transition-spring"
+            className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-blue-400 dark:hover:border-cyan-400 text-xs font-medium transition-spring"
             title={lang === 'zh' ? '全局搜索 (快捷键: / 或 Ctrl+K)' : 'Omnisearch (Shortcut: / or Ctrl+K)'}
           >
             <Search className="w-3.5 h-3.5 text-blue-500 dark:text-cyan-400" />
-            <span className="hidden xl:inline text-slate-600 dark:text-slate-300 font-sans">{t('searchPlaceholder')}</span>
+            <span className="hidden 2xl:inline text-slate-600 dark:text-slate-300 font-sans">{t('searchPlaceholder')}</span>
             <kbd className="inline-flex items-center px-1.5 py-0.2 text-[10px] font-mono font-medium rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400">
               {t('searchShortcut')}
             </kbd>
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Language Switch */}
           <button
             onClick={toggleLang}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold transition-spring"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold transition-spring"
             title={lang === 'zh' ? 'Switch to English' : '切换为简体中文'}
           >
             <Languages className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />

@@ -142,22 +142,82 @@ export const AssemblySimulator3D: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Step Indicators below Canvas */}
-          <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-1 overflow-x-auto scrollbar-none">
-            {assemblyStepsData.map((s, idx) => (
-              <button
-                key={s.stepNumber}
-                onClick={() => handleStepChange(idx)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1 ${
-                  currentStepIndex === idx
-                    ? 'bg-blue-600 text-white font-bold shadow-xs'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                }`}
-              >
-                <span>{s.stepNumber}.</span>
-                <span className="hidden sm:inline">{s.title.split(' ')[0]}</span>
-              </button>
-            ))}
+          {/* Cyber Pipeline Stepper & Progress Rail below Canvas */}
+          <div className="p-4 bg-slate-950/95 border-t border-slate-800 space-y-3">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <span className="font-mono text-cyan-400 font-bold tracking-wider">
+                  CYBER 装机流水线
+                </span>
+                <span className="text-slate-400 hidden sm:inline">
+                  · 当前步骤: {currentStep.title}
+                </span>
+              </div>
+              <div className="font-mono text-xs text-slate-300 flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                <span className="text-slate-500">工序进度:</span>
+                <span className="text-cyan-400 font-bold">
+                  {Math.round(((currentStepIndex + 1) / assemblyStepsData.length) * 100)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Tactile Pipeline Groove Rail */}
+            <div className="relative pt-2 pb-1 px-3">
+              {/* Background Groove Rail */}
+              <div className="machined-groove-track absolute top-1/2 left-6 right-6 -translate-y-1/2 h-2 rounded-full pointer-events-none" />
+
+              {/* Active Illuminated Progress Fill */}
+              <div
+                className="absolute top-1/2 left-6 -translate-y-1/2 h-2 rounded-full bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-300 shadow-[0_0_12px_rgba(6,182,212,0.8)] transition-all duration-500 pointer-events-none"
+                style={{
+                  width: `calc(${
+                    (currentStepIndex / (assemblyStepsData.length - 1)) * 100
+                  }% * 0.88)`,
+                }}
+              />
+
+              {/* Step Node Pucks */}
+              <div className="relative z-10 flex items-center justify-between">
+                {assemblyStepsData.map((s, idx) => {
+                  const isCurrent = currentStepIndex === idx;
+                  const isPassed = currentStepIndex > idx;
+                  return (
+                    <button
+                      key={s.stepNumber}
+                      onClick={() => handleStepChange(idx)}
+                      className={`group/step relative flex flex-col items-center transition-all ${
+                        isCurrent ? 'scale-110 z-20' : 'hover:scale-105'
+                      }`}
+                      title={`${s.stepNumber}. ${s.title} - ${s.subtitle}`}
+                    >
+                      <div
+                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-black transition-all ${
+                          isCurrent
+                            ? 'bg-gradient-to-br from-cyan-400 to-blue-500 text-slate-950 ring-4 ring-cyan-400/30 shadow-[0_0_16px_rgba(6,182,212,0.9)]'
+                            : isPassed
+                            ? 'bg-blue-600 text-white shadow-xs border border-blue-400'
+                            : 'bg-slate-850 border border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+                        }`}
+                      >
+                        {s.stepNumber}
+                      </div>
+                      <span
+                        className={`text-[10px] mt-1 font-medium hidden md:inline-block max-w-[65px] truncate transition-colors ${
+                          isCurrent
+                            ? 'text-cyan-400 font-bold'
+                            : isPassed
+                            ? 'text-slate-300'
+                            : 'text-slate-500'
+                        }`}
+                      >
+                        {s.title.split(' ')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 

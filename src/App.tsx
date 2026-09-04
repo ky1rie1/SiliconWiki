@@ -72,7 +72,14 @@ export default function App() {
 
           {/* Main Content Area */}
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-            {activeTab === 'wiki' && <HardwareWiki />}
+            {activeTab === 'wiki' && (
+              <HardwareWiki
+                onNavigateToGlossary={() => {
+                  setActiveTab('glossary');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
+            )}
             {activeTab === 'rankings' && <BenchmarkLadder />}
             {activeTab === 'simulator3d' && <AssemblySimulator3D />}
             {activeTab === 'glossary' && <GlossaryView />}

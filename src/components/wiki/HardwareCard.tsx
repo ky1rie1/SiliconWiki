@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Zap,
   TrendingDown,
@@ -10,18 +10,38 @@ import {
   XCircle,
   ShoppingBag,
   Sparkles,
+  HelpCircle,
 } from 'lucide-react';
-import { HardwareItem } from '../../types';
+import { HardwareItem, GlossaryTerm } from '../../types';
+import { glossaryTerms } from '../../data/glossary';
 import { HardwareImage } from './HardwareImage';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface HardwareCardProps {
   item: HardwareItem;
   onOpenSpecs?: (item: HardwareItem) => void;
+  onOpenTerm?: (term: GlossaryTerm) => void;
 }
 
-export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs }) => {
+export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, onOpenTerm }) => {
   const { t } = useLanguage();
+
+  const matchedTerms = useMemo(() => {
+    const textCorpus = [
+      item.name,
+      item.architecture || '',
+      ...item.highlights,
+      ...Object.keys(item.specs),
+      ...Object.values(item.specs),
+    ].join(' ').toLowerCase();
+
+    return glossaryTerms.filter((gt) => {
+      const aliasMatch = gt.alias?.some((a) => a.length >= 2 && textCorpus.includes(a.toLowerCase()));
+      const termKeyword = gt.term.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+      const termMatch = termKeyword.length >= 3 && textCorpus.includes(termKeyword);
+      return aliasMatch || termMatch;
+    }).slice(0, 3);
+  }, [item]);
 
   const getTrendBadge = (trend: HardwareItem['priceTrend']) => {
     switch (trend) {
@@ -168,6 +188,31 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs })
             </div>
           )}
         </div>
+
+        {/* Clickable Glossary Term Badges */}
+        {matchedTerms.length > 0 && (
+          <div className="px-5 py-1.5 flex items-center space-x-1.5 flex-wrap gap-y-1">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono flex items-center space-x-0.5">
+              <Sparkles className="w-2.5 h-2.5 text-amber-500 inline mr-0.5" />
+              <span>名词速查:</span>
+            </span>
+            {matchedTerms.map((term) => (
+              <button
+                key={term.id}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenTerm?.(term);
+                }}
+                className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 transition-colors cursor-pointer"
+                title={`点击查看「${term.term}」详细技术名词解释`}
+              >
+                <span>{term.term.split(' ')[0]}</span>
+                <HelpCircle className="w-2.5 h-2.5 opacity-70" />
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Dedicated "View Full Benchmarks & Reviews" Button-in-Button */}
         <div className="px-5 pt-1">

@@ -181,7 +181,7 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
           {activeTab === 'benchmarks' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 space-y-1">
+                <div className="p-4 rounded-2xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 space-y-2">
                   <span className="text-[11px] font-bold text-blue-600 dark:text-cyan-400 uppercase tracking-wide">
                     大型 3A 游戏实测相对帧率
                   </span>
@@ -189,12 +189,21 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                     {benchmarks.gamingScore}
                     <span className="text-xs text-slate-400 ml-1 font-normal">分 (4060为100)</span>
                   </div>
+                  {/* Tactile Machined Gauge */}
+                  <div className="machined-groove-track h-3 rounded-md overflow-hidden p-0.5 relative">
+                    <div
+                      className="h-full rounded-sm bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-300 relative transition-all duration-700"
+                      style={{ width: `${Math.min(100, Math.max(10, Math.round(((benchmarks.gamingScore || 50) / 150) * 100)))}%` }}
+                    >
+                      <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40" />
+                    </div>
+                  </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     深度对齐极客湾真实 3A 游戏平均表现
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-900/50 space-y-1">
+                <div className="p-4 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-900/50 space-y-2">
                   <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
                     生产力与高负荷渲染
                   </span>
@@ -202,18 +211,36 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                     {benchmarks.productivityScore}
                     <span className="text-xs text-slate-400 ml-1 font-normal">分</span>
                   </div>
+                  {/* Tactile Machined Gauge */}
+                  <div className="machined-groove-track h-3 rounded-md overflow-hidden p-0.5 relative">
+                    <div
+                      className="h-full rounded-sm bg-gradient-to-r from-indigo-700 via-indigo-500 to-purple-300 relative transition-all duration-700"
+                      style={{ width: `${Math.min(100, Math.max(10, Math.round(((benchmarks.productivityScore || 50) / 150) * 100)))}%` }}
+                    >
+                      <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40" />
+                    </div>
+                  </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     剪辑、三维渲染与多核代码编译
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/50 space-y-1">
+                <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-900/50 space-y-2">
                   <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
                     每瓦性能比 (能效比)
                   </span>
                   <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-white">
                     {benchmarks.efficiencyScore}
                     <span className="text-xs text-slate-400 ml-1 font-normal">分</span>
+                  </div>
+                  {/* Tactile Machined Gauge */}
+                  <div className="machined-groove-track h-3 rounded-md overflow-hidden p-0.5 relative">
+                    <div
+                      className="h-full rounded-sm bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-300 relative transition-all duration-700"
+                      style={{ width: `${Math.min(100, Math.max(10, Math.round(((benchmarks.efficiencyScore || 50) / 110) * 100)))}%` }}
+                    >
+                      <div className="absolute inset-x-0 top-0 h-[1px] bg-white/40" />
+                    </div>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     相同功耗下输出的算力表现
@@ -229,15 +256,31 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   {benchmarks.timeSpyScore && (
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">3DMark TimeSpy 显卡得分</span>
-                      <span className="font-mono font-black text-blue-600 dark:text-cyan-400">{benchmarks.timeSpyScore} 分</span>
+                    <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">3DMark TimeSpy 显卡得分</span>
+                        <span className="font-mono font-black text-blue-600 dark:text-cyan-400">{benchmarks.timeSpyScore} 分</span>
+                      </div>
+                      <div className="machined-groove-track h-2 rounded-sm overflow-hidden p-0.5">
+                        <div
+                          className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-xs"
+                          style={{ width: `${Math.min(100, Math.max(10, (benchmarks.timeSpyScore / 48500) * 100))}%` }}
+                        />
+                      </div>
                     </div>
                   )}
                   {benchmarks.cinebenchMulti && (
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">Cinebench R23 多核跑分</span>
-                      <span className="font-mono font-black text-indigo-600 dark:text-indigo-400">{benchmarks.cinebenchMulti} pts</span>
+                    <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Cinebench R23 多核跑分</span>
+                        <span className="font-mono font-black text-indigo-600 dark:text-indigo-400">{benchmarks.cinebenchMulti} pts</span>
+                      </div>
+                      <div className="machined-groove-track h-2 rounded-sm overflow-hidden p-0.5">
+                        <div
+                          className="h-full bg-gradient-to-r from-indigo-600 to-purple-400 rounded-xs"
+                          style={{ width: `${Math.min(100, Math.max(10, (benchmarks.cinebenchMulti / 42000) * 100))}%` }}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>

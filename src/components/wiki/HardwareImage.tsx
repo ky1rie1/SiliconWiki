@@ -31,67 +31,67 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
     switch (category) {
       case 'cpu':
         return {
-          gradient: 'from-amber-500/10 via-blue-500/5 to-slate-900/40',
-          accent: 'text-amber-500',
+          gradient: 'from-amber-500/10 via-blue-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-amber-600 dark:text-amber-500',
           border: 'border-amber-500/20',
-          badge: 'bg-amber-500/10 text-amber-500 dark:text-amber-400',
+          badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
         };
       case 'gpu':
         return {
-          gradient: 'from-emerald-500/10 via-teal-500/5 to-slate-900/40',
-          accent: 'text-emerald-500',
+          gradient: 'from-emerald-500/10 via-teal-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-emerald-600 dark:text-emerald-500',
           border: 'border-emerald-500/20',
-          badge: 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400',
+          badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
         };
       case 'motherboard':
         return {
-          gradient: 'from-indigo-500/10 via-purple-500/5 to-slate-900/40',
-          accent: 'text-indigo-500',
+          gradient: 'from-indigo-500/10 via-purple-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-indigo-600 dark:text-indigo-500',
           border: 'border-indigo-500/20',
-          badge: 'bg-indigo-500/10 text-indigo-500 dark:text-indigo-400',
+          badge: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
         };
       case 'ram':
         return {
-          gradient: 'from-cyan-500/10 via-blue-500/5 to-slate-900/40',
-          accent: 'text-cyan-500',
+          gradient: 'from-cyan-500/10 via-blue-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-cyan-600 dark:text-cyan-500',
           border: 'border-cyan-500/20',
-          badge: 'bg-cyan-500/10 text-cyan-500 dark:text-cyan-400',
+          badge: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
         };
       case 'storage':
         return {
-          gradient: 'from-violet-500/10 via-fuchsia-500/5 to-slate-900/40',
-          accent: 'text-violet-500',
+          gradient: 'from-violet-500/10 via-fuchsia-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-violet-600 dark:text-violet-500',
           border: 'border-violet-500/20',
-          badge: 'bg-violet-500/10 text-violet-500 dark:text-violet-400',
+          badge: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
         };
       case 'psu':
         return {
-          gradient: 'from-yellow-500/10 via-amber-500/5 to-slate-900/40',
-          accent: 'text-yellow-500',
+          gradient: 'from-yellow-500/10 via-amber-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-yellow-600 dark:text-yellow-500',
           border: 'border-yellow-500/20',
-          badge: 'bg-yellow-500/10 text-yellow-500 dark:text-yellow-400',
+          badge: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
         };
       case 'cooler':
         return {
-          gradient: 'from-sky-500/10 via-cyan-500/5 to-slate-900/40',
-          accent: 'text-sky-500',
+          gradient: 'from-sky-500/10 via-cyan-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-sky-600 dark:text-sky-500',
           border: 'border-sky-500/20',
-          badge: 'bg-sky-500/10 text-sky-500 dark:text-sky-400',
+          badge: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
         };
       case 'case':
         return {
-          gradient: 'from-blue-500/10 via-slate-500/5 to-slate-900/40',
-          accent: 'text-blue-500',
+          gradient: 'from-blue-500/10 via-slate-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-blue-600 dark:text-blue-500',
           border: 'border-blue-500/20',
-          badge: 'bg-blue-500/10 text-blue-500 dark:text-blue-400',
+          badge: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
         };
       case 'laptop':
       default:
         return {
-          gradient: 'from-purple-500/10 via-indigo-500/5 to-slate-900/40',
-          accent: 'text-purple-500',
+          gradient: 'from-purple-500/10 via-indigo-500/5 to-slate-200/50 dark:to-slate-950/70',
+          accent: 'text-purple-600 dark:text-purple-500',
           border: 'border-purple-500/20',
-          badge: 'bg-purple-500/10 text-purple-500 dark:text-purple-400',
+          badge: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
         };
     }
   };
@@ -349,13 +349,13 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
   };
 
   return (
-    <div className={`relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br ${theme.gradient} bg-slate-900/90 flex items-center justify-center group/img`}>
+    <div className={`relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br ${theme.gradient} bg-slate-100 dark:bg-slate-925 flex items-center justify-center group/img`}>
       {/* Background Grid Pattern */}
       <div
-        className="absolute inset-0 opacity-15 dark:opacity-25"
+        className="absolute inset-0 opacity-10 dark:opacity-20"
         style={{
           backgroundImage:
-            'radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px)',
+            'radial-gradient(circle, rgba(148,163,184,0.4) 1px, transparent 1px)',
           backgroundSize: '16px 16px',
         }}
       />
@@ -373,7 +373,7 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
           loading="lazy"
           onLoad={() => setImgLoaded(true)}
           onError={() => setImgError(true)}
-          className={`absolute inset-0 w-full h-full object-cover mix-blend-screen dark:mix-blend-lighten opacity-80 group-hover/img:opacity-100 group-hover/img:scale-105 transition-all duration-500 ${
+          className={`absolute inset-0 w-full h-full object-cover opacity-85 dark:opacity-75 dark:mix-blend-lighten group-hover/img:opacity-100 group-hover/img:scale-105 transition-all duration-500 ${
             imgLoaded ? 'block' : 'hidden'
           }`}
         />
@@ -383,13 +383,13 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
       <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
 
       {/* Category Tag Watermark Badge */}
-      <div className="absolute top-3 left-3 flex items-center space-x-1.5 px-2.5 py-1 rounded-xl backdrop-blur-md bg-slate-950/70 border border-slate-700/60 text-[11px] font-semibold text-slate-200 shadow-sm pointer-events-none">
+      <div className="absolute top-3 left-3 flex items-center space-x-1.5 px-2.5 py-1 rounded-xl backdrop-blur-md bg-white/90 dark:bg-slate-950/75 border border-slate-200/90 dark:border-slate-700/60 text-[11px] font-semibold text-slate-800 dark:text-slate-200 shadow-xs pointer-events-none">
         <span className={theme.accent}>{getCategoryIcon()}</span>
         <span className="uppercase tracking-wider font-mono text-[10px]">{category}</span>
       </div>
 
       {/* Brand Watermark (Bottom Right) */}
-      <div className="absolute bottom-2 right-3 text-[11px] font-mono font-black text-slate-400/40 dark:text-slate-500/40 uppercase tracking-widest pointer-events-none select-none">
+      <div className="absolute bottom-2 right-3 text-[11px] font-mono font-black text-slate-400/50 dark:text-slate-500/40 uppercase tracking-widest pointer-events-none select-none">
         {brand}
       </div>
     </div>

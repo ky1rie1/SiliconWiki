@@ -368,7 +368,7 @@ export class PCScene3D {
       group: mbGroup,
       assembledPos: new THREE.Vector3(-0.25, 0.3, -0.85),
       explodedPos: new THREE.Vector3(-0.25, 0.3, -1.9),
-      installedStep: 5,
+      installedStep: 1,
     });
 
     // =========================================================
