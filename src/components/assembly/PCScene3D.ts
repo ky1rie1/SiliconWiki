@@ -572,41 +572,96 @@ export class PCScene3D {
     }
     coolerGroup.add(tower1, tower2);
 
-    // Front & Center 120mm Voxel Fans with Anti-Vibration Pads
+    // Front & Center 120mm High-Fidelity Voxel Fans with Aerodynamic Swept Sickle Blades
     const createCoolerFan = (zOffset: number) => {
       const fanRoot = new THREE.Group();
-      // Outer Fan Frame
-      fanRoot.add(this.createVoxel(0, 0.2, zOffset, 1.05, 1.05, 0.12, darkMetalMat));
 
-      // 4 Anti-Vibration Silicone Corner Pads
+      // 1. Circular intake cowling duct (Airflow funnel ring with open center)
+      const ductGeom = new THREE.CylinderGeometry(0.48, 0.50, 0.12, 32, 1, true);
+      const ductMesh = new THREE.Mesh(ductGeom, darkMetalMat);
+      ductMesh.rotation.x = Math.PI / 2;
+      ductMesh.position.set(0, 0.2, zOffset);
+      fanRoot.add(ductMesh);
+
+      // 2. Square structural perimeter frame (hollow airflow center)
+      fanRoot.add(this.createVoxel(0, 0.7, zOffset, 1.06, 0.08, 0.12, darkMetalMat));
+      fanRoot.add(this.createVoxel(0, -0.3, zOffset, 1.06, 0.08, 0.12, darkMetalMat));
+      fanRoot.add(this.createVoxel(-0.5, 0.2, zOffset, 0.08, 1.06, 0.12, darkMetalMat));
+      fanRoot.add(this.createVoxel(0.5, 0.2, zOffset, 0.08, 1.06, 0.12, darkMetalMat));
+
+      // 4 Anti-Vibration Silicone Corner Mounting Ears with Screw Recesses
       const corners = [
-        [-0.46, 0.66],
-        [0.46, 0.66],
-        [-0.46, -0.26],
-        [0.46, -0.26],
+        [-0.44, 0.64],
+        [0.44, 0.64],
+        [-0.44, -0.24],
+        [0.44, -0.24],
       ];
       corners.forEach(([cx, cy]) => {
-        fanRoot.add(this.createVoxel(cx, cy, zOffset, 0.12, 0.12, 0.14, pcbMat));
+        fanRoot.add(this.createVoxel(cx, cy, zOffset, 0.16, 0.16, 0.12, darkMetalMat));
+        fanRoot.add(this.createVoxel(cx, cy, zOffset, 0.12, 0.12, 0.13, pcbMat)); // silicone pad
+        fanRoot.add(this.createVoxel(cx, cy, zOffset + 0.062, 0.05, 0.05, 0.01, vrmArmorMat)); // screw hole
       });
 
-      // Spinning Blade Hub with Metallic Center Badge
-      const bladeHub = new THREE.Group();
-      bladeHub.position.set(0, 0.2, zOffset);
-      bladeHub.add(this.createVoxel(0, 0, 0, 0.22, 0.22, 0.14, darkMetalMat));
-      // Center silver metallic emblem ring
-      const emblem = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.15, 16), vrmArmorMat);
-      emblem.rotation.x = Math.PI / 2;
-      bladeHub.add(emblem);
-
-      // 7 Aerodynamic Voxel Blades
-      for (let b = 0; b < 7; b++) {
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.38, 0.04), vrmArmorMat);
-        blade.rotation.z = (b * Math.PI * 2) / 7;
-        blade.position.y = 0.22;
-        bladeHub.add(blade);
+      // 3. Rear Stator Support Struts (4 curved motor support ribs in X-pattern)
+      for (let s = 0; s < 4; s++) {
+        const angle = (s * Math.PI) / 2 + Math.PI / 4;
+        const strut = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.03, 0.02), darkMetalMat);
+        strut.rotation.z = angle;
+        strut.position.set(Math.cos(angle) * 0.22, 0.2 + Math.sin(angle) * 0.22, zOffset - 0.05);
+        fanRoot.add(strut);
       }
-      this.rotatingFanHubs.push(bladeHub);
-      fanRoot.add(bladeHub);
+
+      // 4. Subtle Inner ARGB Halo Ring
+      const haloGeom = new THREE.TorusGeometry(0.46, 0.015, 12, 36);
+      const haloRing = new THREE.Mesh(haloGeom, rgbCyanMat);
+      haloRing.position.set(0, 0.2, zOffset + 0.055);
+      fanRoot.add(haloRing);
+
+      // 5. Spinning Rotor Hub & 9 Aerodynamic Swept Sickle Blades
+      const rotorGroup = new THREE.Group();
+      rotorGroup.position.set(0, 0.2, zOffset);
+
+      // Central Motor Hub
+      const hubGeom = new THREE.CylinderGeometry(0.15, 0.15, 0.12, 24);
+      const hub = new THREE.Mesh(hubGeom, darkMetalMat);
+      hub.rotation.x = Math.PI / 2;
+      rotorGroup.add(hub);
+
+      // Silver Brushed Metallic Center Emblem
+      const emblem = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.13, 20), vrmArmorMat);
+      emblem.rotation.x = Math.PI / 2;
+      rotorGroup.add(emblem);
+
+      // 9 Swept Sickle Blades with Attack Pitch Angle
+      const bladeCount = 9;
+      for (let b = 0; b < bladeCount; b++) {
+        const bladePivot = new THREE.Group();
+        bladePivot.rotation.z = (b * Math.PI * 2) / bladeCount;
+
+        // Inner Blade Section (Angled at 25 degrees)
+        const innerBlade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.20, 0.02), vrmArmorMat);
+        innerBlade.position.set(0.02, 0.22, 0);
+        innerBlade.rotation.x = 0.42; // Pitch attack angle!
+        innerBlade.rotation.y = 0.12;
+        bladePivot.add(innerBlade);
+
+        // Swept Curved Tip Section (Curved backward)
+        const outerBlade = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.18, 0.018), vrmArmorMat);
+        outerBlade.position.set(0.055, 0.36, 0.015);
+        outerBlade.rotation.x = 0.35;
+        outerBlade.rotation.z = -0.26; // Curved sickle sweep!
+        bladePivot.add(outerBlade);
+
+        rotorGroup.add(bladePivot);
+      }
+
+      // Outer Interconnected Ring Link (Axial-tech / Uni-Fan connected ring)
+      const bladeRingGeom = new THREE.TorusGeometry(0.46, 0.012, 8, 36);
+      const bladeRing = new THREE.Mesh(bladeRingGeom, vrmArmorMat);
+      rotorGroup.add(bladeRing);
+
+      this.rotatingFanHubs.push(rotorGroup);
+      fanRoot.add(rotorGroup);
       return fanRoot;
     };
 
@@ -665,27 +720,47 @@ export class PCScene3D {
     // 3 Voxel Rotating Cooling Fans (Alternate Direction Ring Blade Fans)
     const fanPositions = [-0.75, 0, 0.75];
     fanPositions.forEach((posX, idx) => {
-      const fanAssembly = new THREE.Group();
-      fanAssembly.position.set(posX, 0, 0.23);
+      // Circular recessed fan intake funnel well
+      const cowlGeom = new THREE.CylinderGeometry(0.33, 0.35, 0.06, 28, 1, true);
+      const cowl = new THREE.Mesh(cowlGeom, darkMetalMat);
+      cowl.rotation.x = Math.PI / 2;
+      cowl.position.set(posX, 0, 0.22);
+      gpuGroup.add(cowl);
 
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16), darkMetalMat);
+      // Spinning Rotor Hub & Blades
+      const rotor = new THREE.Group();
+      rotor.position.set(posX, 0, 0.23);
+
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.06, 20), darkMetalMat);
       hub.rotation.x = Math.PI / 2;
-      fanAssembly.add(hub);
-      // Silver Metallic Center Inlay
-      const hubEmblem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.07, 12), vrmArmorMat);
-      hubEmblem.rotation.x = Math.PI / 2;
-      fanAssembly.add(hubEmblem);
+      rotor.add(hub);
 
-      // 9 Voxel Ring Blades
-      for (let b = 0; b < 9; b++) {
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.26, 0.02), darkMetalMat);
-        blade.rotation.z = (b * Math.PI * 2) / 9 + (idx % 2 === 1 ? 0.3 : 0);
-        blade.position.y = 0.15;
-        fanAssembly.add(blade);
+      // Center Silver Laser Emblem
+      const hubEmblem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.07, 16), vrmArmorMat);
+      hubEmblem.rotation.x = Math.PI / 2;
+      rotor.add(hubEmblem);
+
+      // 9 Swept Sickle Blades with Pitch Angle
+      const gpuBladeCount = 9;
+      for (let b = 0; b < gpuBladeCount; b++) {
+        const bladePivot = new THREE.Group();
+        bladePivot.rotation.z = (b * Math.PI * 2) / gpuBladeCount + (idx % 2 === 1 ? 0.35 : 0);
+
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.20, 0.018), darkMetalMat);
+        blade.position.set(0.02, 0.18, 0);
+        blade.rotation.x = 0.40; // Pitch attack angle!
+        blade.rotation.z = -0.22; // Aerodynamic swept curve!
+        bladePivot.add(blade);
+        rotor.add(bladePivot);
       }
 
-      this.rotatingFanHubs.push(fanAssembly);
-      gpuGroup.add(fanAssembly);
+      // Outer Connected Ring Link (Axial-tech / TORX 5.0)
+      const ringGeom = new THREE.TorusGeometry(0.31, 0.01, 8, 32);
+      const ring = new THREE.Mesh(ringGeom, darkMetalMat);
+      rotor.add(ring);
+
+      this.rotatingFanHubs.push(rotor);
+      gpuGroup.add(rotor);
     });
 
     this.registerComponent({

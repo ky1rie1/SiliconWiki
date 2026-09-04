@@ -78,7 +78,9 @@ export type GlossaryCategory =
   | 'storage'
   | 'motherboard'
   | 'cooling'
-  | 'psu';
+  | 'psu'
+  | 'ram'
+  | 'case';
 
 export interface GlossaryTerm {
   id: string;

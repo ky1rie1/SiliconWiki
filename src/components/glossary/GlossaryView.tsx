@@ -11,6 +11,8 @@ import {
   ShieldAlert,
   Lightbulb,
   Microscope,
+  Layers,
+  Box,
 } from 'lucide-react';
 import { glossaryTerms } from '../../data/glossary';
 import { GlossaryCategory } from '../../types';
@@ -28,6 +30,8 @@ export const GlossaryView: React.FC = () => {
     { id: 'storage', label: '固态存储篇', icon: <HardDrive className="w-4 h-4" /> },
     { id: 'cooling', label: '散热与安全篇', icon: <Flame className="w-4 h-4" /> },
     { id: 'psu', label: '电源电气篇', icon: <Zap className="w-4 h-4" /> },
+    { id: 'ram', label: '内存与时序篇', icon: <Layers className="w-4 h-4" /> },
+    { id: 'case', label: '机箱与风道篇', icon: <Box className="w-4 h-4" /> },
   ];
 
   const filteredTerms = useMemo(() => {

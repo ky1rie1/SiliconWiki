@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { CustomContentProvider } from './context/CustomContentContext';
+import { QuickTextEditorModal } from './components/admin/QuickTextEditorModal';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HardwareWiki } from './components/wiki/HardwareWiki';
@@ -70,62 +72,67 @@ export default function App() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white transition-colors duration-200">
-          {/* Global Navbar */}
-          <Navbar
-            activeTab={activeTab}
-            onTabChange={(tab) => {
-              setActiveTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onOpenSearch={() => setIsSearchOpen(true)}
-            onOpenChangelog={() => setIsChangelogOpen(true)}
-            hasUnreadChangelog={hasUnreadChangelog}
-          />
+        <CustomContentProvider>
+          <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white transition-colors duration-200">
+            {/* Global Navbar */}
+            <Navbar
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onOpenSearch={() => setIsSearchOpen(true)}
+              onOpenChangelog={() => setIsChangelogOpen(true)}
+              hasUnreadChangelog={hasUnreadChangelog}
+            />
 
-          {/* Main Content Area */}
-          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-            {activeTab === 'wiki' && (
-              <HardwareWiki
-                onNavigateToGlossary={() => {
-                  setActiveTab('glossary');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
-            )}
-            {activeTab === 'rankings' && <BenchmarkLadder />}
-            {activeTab === 'simulator3d' && <AssemblySimulator3D />}
-            {activeTab === 'glossary' && <GlossaryView />}
-            {activeTab === 'builds' && <BudgetBuilds />}
-          </main>
+            {/* Main Content Area */}
+            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+              {activeTab === 'wiki' && (
+                <HardwareWiki
+                  onNavigateToGlossary={() => {
+                    setActiveTab('glossary');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                />
+              )}
+              {activeTab === 'rankings' && <BenchmarkLadder />}
+              {activeTab === 'simulator3d' && <AssemblySimulator3D />}
+              {activeTab === 'glossary' && <GlossaryView />}
+              {activeTab === 'builds' && <BudgetBuilds />}
+            </main>
 
-          {/* Global Footer */}
-          <Footer
-            onTabChange={(tab) => {
-              setActiveTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onOpenChangelog={() => setIsChangelogOpen(true)}
-          />
+            {/* Global Footer */}
+            <Footer
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onOpenChangelog={() => setIsChangelogOpen(true)}
+            />
 
-          {/* Global Omnisearch Modal */}
-          <SearchModal
-            isOpen={isSearchOpen}
-            onClose={() => setIsSearchOpen(false)}
-            onNavigate={(tab) => {
-              setActiveTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
+            {/* Global Omnisearch Modal */}
+            <SearchModal
+              isOpen={isSearchOpen}
+              onClose={() => setIsSearchOpen(false)}
+              onNavigate={(tab) => {
+                setActiveTab(tab);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
 
-          {/* Changelog & Announcements Modal */}
-          <ChangelogModal
-            isOpen={isChangelogOpen}
-            onClose={handleCloseChangelog}
-            onMarkAllAsRead={handleMarkAllAsRead}
-            latestVersion={changelogList[0]?.version}
-          />
-        </div>
+            {/* Changelog & Announcements Modal */}
+            <ChangelogModal
+              isOpen={isChangelogOpen}
+              onClose={handleCloseChangelog}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              latestVersion={changelogList[0]?.version}
+            />
+
+            {/* Quick In-Browser Text Customizer System */}
+            <QuickTextEditorModal />
+          </div>
+        </CustomContentProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

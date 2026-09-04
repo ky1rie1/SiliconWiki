@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   Languages,
-  ExternalLink,
   Sparkles,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
@@ -99,19 +98,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Actions & Tools */}
         <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
-          {/* Live App Link Badge */}
-          <a
-            href="https://computer-wiki.vercel.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-spring group"
-            title={lang === 'zh' ? '在线体验部署站点 (computer-wiki.vercel.app)' : 'Online Live Demo (computer-wiki.vercel.app)'}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-mono text-[11px]">Live</span>
-            <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
-          </a>
-
           {/* Omnisearch Command Bar Button */}
           <button
             onClick={onOpenSearch}

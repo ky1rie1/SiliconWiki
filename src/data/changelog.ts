@@ -2,8 +2,40 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v1.5.0',
+    date: '2026-09-04',
+    title: '天梯排重修复、75+条全量硬核名词宝典、高精拟真3D风扇与站长文案速改系统',
+    tag: '最新发布',
+    updates: [
+      {
+        type: 'fix',
+        text: '修复天梯排行榜数据项重复与 3060Ti 重复问题：彻底解决 ID 碰撞与多余记录，排行动画与 PK 状态完全稳固。',
+      },
+      {
+        type: 'feature',
+        text: '上线「站长文案速改系统 (Content Customizer)」：支持在浏览器中直接检索、在屏编辑修改任意词条与文案，并一键本地持久化与导出代码补丁！',
+      },
+      {
+        type: 'feature',
+        text: '3D 装机室风扇全维度拟真重塑：告别简单立方体，升级为 9 镰刀流线导流曲面叶片、圆弧导流进风筒、定子后骨架、硅胶减震耳与中心拉丝金属徽标。',
+      },
+      {
+        type: 'data',
+        text: '名词宝典大扩充至 75+ 条硬核词典：全量收录九点涂硅脂法、防弯扣具、显卡啸叫机理、均热板VC、Gear 1/2分频、内存小参、PCB层数、DirectStorage、FDB轴承等。',
+      },
+      {
+        type: 'data',
+        text: '大幅扩充硬盘、内存、散热器、主板、电源、机箱与笔记本全品类数据库，补充热销主流型号。',
+      },
+      {
+        type: 'fix',
+        text: '导航栏视觉净化：移除冗余的 Live 徽章链接，导航体验更加纯粹清爽。',
+      },
+    ],
+  },
+  {
     version: 'v1.4.0',
-    date: '2025-03-04',
+    date: '2026-09-03',
     title: '全量硬件库扩充、42条硬核名词宝典、划词解释卡片与 CNC 机械跑分规',
     tag: '重大里程碑',
     updates: [
@@ -17,19 +49,15 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'data',
-        text: '名词宝典全面扩展至 42+ 条硬核词典：全品类覆盖 3D V-Cache、CUDIMM、DLSS 4、ATX 3.1、TLC/QLC 避坑、DrMOS 供电、双通道插槽法则、撕膜警告等。',
+        text: '名词宝典扩展至 42+ 条硬核词典：全品类覆盖 3D V-Cache、CUDIMM、DLSS 4、ATX 3.1、TLC/QLC 避坑、DrMOS 供电、双通道插槽法则等。',
       },
       {
         type: 'feature',
         text: '拉条组件全面高规格重构：天梯排行榜升级为 CNC 机械凹槽跑分规（Machined Groove Gauge），3D 装机室配备贯通式发光流水线能量导轨。',
       },
       {
-        type: 'data',
-        text: '全量补充近几代主流与高性价比硬件：新增 RTX 4070、RTX 3080 10G、RTX 3060Ti G6X、RX 7700XT、CUDIMM 8400、致态 TiPro7000 独立缓存版等。',
-      },
-      {
         type: 'fix',
-        text: '亮色与暗色模式深度色彩修正：彻底修复暗色模式下硬件卡片背景发浅发灰的问题，导航栏在英文模式下自动扩展自适应。',
+        text: '亮色与暗色模式深度色彩修正：彻底修复暗色模式下硬件卡片背景发浅发灰的问题。',
       },
       {
         type: 'feature',
@@ -39,7 +67,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.3.0',
-    date: '2025-02-28',
+    date: '2026-08-28',
     title: '硬件卡片高科技矢量蓝图、电商直达与 3D 体素模型升级',
     tag: '重大更新',
     updates: [
@@ -63,7 +91,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.2.0',
-    date: '2025-02-15',
+    date: '2026-08-15',
     title: '次世代硬件与极客湾天梯权威跑分全面同步',
     tag: '数据同步',
     updates: [
@@ -83,7 +111,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.1.0',
-    date: '2025-01-20',
+    date: '2026-07-20',
     title: 'Three.js 3D 实景装机室与 B 站保姆级视频精讲上线',
     tag: '核心功能',
     updates: [
@@ -103,7 +131,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.0.0',
-    date: '2024-10-18',
+    date: '2026-06-01',
     title: 'SiliconWiki 芯知百科正式上线',
     tag: '首次发布',
     updates: [
