@@ -198,19 +198,7 @@ export const glossaryTerms: GlossaryTerm[] = [
       '标准显卡插槽提供 PCIe x16 全通道。但如 RTX 4060 / 4060 Ti / RX 7600 等为了节约成本仅走 PCIe 4.0 x8。如果你用的是 B450 / B360 等 PCIe 3.0 老主板，显卡就会被迫降速运行在 PCIe 3.0 x8（带宽仅相当于 PCIe 4.0 的四分之一），在显存爆满时会引起严重掉帧。',
     buyingAdvice:
       '老电脑升级显卡时务必确认主板是否支持 PCIe 4.0；若为主板仅支持 PCIe 3.0，建议优先挑选原生 PCIe x16 的显卡型号。',
-    tags: ['避坑指南', '带宽陷阱', '老机升级'],
-  },
-  {
-    id: 'term-vapor-chamber',
-    term: '均热板 (VC 均温板) vs 热管直触',
-    alias: ['均热板', 'VC', '热管直触', '热管回流焊'],
-    category: 'gpu',
-    shortDesc: '高端显卡核心散热利器，扁平铜腔内液体相变蒸发，导热均匀度远超传统铜管。',
-    fullExplanation:
-      '传统热管直触容易在铜管接缝处产生空气微缝，接触不平整。而均温板（Vapor Chamber）是一个高真空金属扁平腔体，内部充有微量工质和毛细微结构，热源接触点瞬间沸腾蒸发，蒸汽扩散至冷端冷凝回流，把热量以二维平面极速铺开至整个鳍片群。',
-    buyingAdvice:
-      'TGP 超过 280W 的中高端显卡（如 4070Ti S / 4080S / 5080），选购配备镀镍均热板铜底的非公版卡散热和噪音表现明显更好。',
-    tags: ['显卡散热', '噪音控制', '做工用料'],
+    tags: ['显卡接口', 'PCIe带宽', '老电脑升级'],
   },
 
   // ========================================================
@@ -600,7 +588,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     id: 'term-vapor-chamber',
     term: '均热板 VC (Vapor Chamber) vs 热管直触 (DTH)',
     alias: ['均热板', 'VC均热板', '热管直触', 'DTH', '纯铜镀镍底座'],
-    category: 'gpu',
+    category: 'cooling',
     shortDesc: '均热板是二维扁平真空微沸腾相变腔体，能将 GPU 核心与周边显存热量瞬间拉平扩散至整个散热鳍片。',
     fullExplanation:
       '热管直触 (Direct Touch) 虽省成本，但热管之间存在微小缝隙，且热量仅能沿一维轴向传递，容易出现核心局部热点（Hotspot）；均热板（VC）内部为真空毛细网孔并灌注微量去离子纯水，受热沸腾蒸发迅速向整个二维平面均匀扩散冷凝，导热均匀度比纯铜块高数倍，极大压制热点温差。',

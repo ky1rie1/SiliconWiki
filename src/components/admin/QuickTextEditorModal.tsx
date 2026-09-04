@@ -12,6 +12,7 @@ import {
   FileCode,
   Sliders,
   HelpCircle,
+  Languages,
 } from 'lucide-react';
 import { useCustomContent } from '../../context/CustomContentContext';
 
@@ -62,11 +63,13 @@ export const QuickTextEditorModal: React.FC = () => {
     setSelectedTextForEdit,
     isEditorOpen,
     setIsEditorOpen,
+    autoTranslate,
   } = useCustomContent();
 
   const [activeTab, setActiveTab] = useState<'custom' | 'presets' | 'list' | 'export'>('custom');
   const [originalInput, setOriginalInput] = useState('');
   const [replacementInput, setReplacementInput] = useState('');
+  const [replacementEnInput, setReplacementEnInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [appliedNotice, setAppliedNotice] = useState(false);
 
@@ -74,10 +77,22 @@ export const QuickTextEditorModal: React.FC = () => {
   useEffect(() => {
     if (selectedTextForEdit) {
       setOriginalInput(selectedTextForEdit);
-      setReplacementInput(overrides[selectedTextForEdit] || '');
+      const existing = overrides[selectedTextForEdit];
+      const initialZh = typeof existing === 'string' ? existing : existing?.zh || '';
+      const initialEn = typeof existing === 'object' ? existing?.en : autoTranslate(initialZh);
+
+      setReplacementInput(initialZh);
+      setReplacementEnInput(initialEn || autoTranslate(selectedTextForEdit));
       setActiveTab('custom');
     }
-  }, [selectedTextForEdit, overrides]);
+  }, [selectedTextForEdit, overrides, autoTranslate]);
+
+  // Handle auto translation as user types Chinese
+  const handleZhChange = (val: string) => {
+    setReplacementInput(val);
+    const translated = autoTranslate(val);
+    setReplacementEnInput(translated);
+  };
 
   // Global shortcut to toggle editor (Alt + E) - only works when in Developer Mode
   useEffect(() => {
@@ -97,7 +112,7 @@ export const QuickTextEditorModal: React.FC = () => {
     e.preventDefault();
     if (!originalInput.trim()) return;
 
-    setOverride(originalInput.trim(), replacementInput);
+    setOverride(originalInput.trim(), replacementInput, replacementEnInput);
     setAppliedNotice(true);
     setTimeout(() => setAppliedNotice(false), 2500);
 
@@ -109,7 +124,7 @@ export const QuickTextEditorModal: React.FC = () => {
   };
 
   const handleCopyCode = () => {
-    const code = `// 站长文案自定义配置补丁 (Text Overrides Config)\nexport const customTextOverrides = ${JSON.stringify(overrides, null, 2)};\n`;
+    const code = `// 站长双语文案自定义配置补丁 (Bilingual Text Overrides Config)\nexport const customTextOverrides = ${JSON.stringify(overrides, null, 2)};\n`;
     navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -180,13 +195,13 @@ export const QuickTextEditorModal: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                    <span>站长文案速改系统</span>
+                    <span>站长双语文案速改系统</span>
                     <span className="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono">
                       开发者模式 (ky1rie1101)
                     </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    一键实时改写全站文案、点选视觉编辑，改动即时生效且自动留存
+                    改完中文自动同步生成英文版本 · 支持点选编辑与双语自适应
                   </p>
                 </div>
               </div>
@@ -224,8 +239,8 @@ export const QuickTextEditorModal: React.FC = () => {
                     : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
                 }`}
               >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>自定义替换</span>
+                <Languages className="w-3.5 h-3.5" />
+                <span>双语同步替换</span>
               </button>
 
               <button
@@ -275,7 +290,7 @@ export const QuickTextEditorModal: React.FC = () => {
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-blue-900 dark:text-blue-200 flex items-center space-x-1">
                         <MousePointerClick className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-                        <span>不想手动复制原文本？</span>
+                        <span>不想手动输入原文本？</span>
                       </div>
                       <p className="text-[11px] text-blue-700 dark:text-blue-300">
                         开启点选模式后，直接在网页上点击想要修改的文字即可自动选中！
@@ -296,13 +311,13 @@ export const QuickTextEditorModal: React.FC = () => {
                   <form onSubmit={handleApply} className="space-y-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        原文本 (在网页中显示的目标文本)
+                        原中文文本 (页面中当前显示的文本)
                       </label>
                       <textarea
                         rows={2}
                         value={originalInput}
                         onChange={(e) => setOriginalInput(e.target.value)}
-                        placeholder="例如：探索 PC 硬件的无限细节，或者输入任何想要替换的文字..."
+                        placeholder="例如：探索 PC 硬件的无限细节，或者输入任何想要替换的中文..."
                         className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono"
                         required
                       />
@@ -310,13 +325,40 @@ export const QuickTextEditorModal: React.FC = () => {
 
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        修改为 (新文本)
+                        🇨🇳 修改后的中文文本
                       </label>
                       <textarea
-                        rows={3}
+                        rows={2}
                         value={replacementInput}
-                        onChange={(e) => setReplacementInput(e.target.value)}
-                        placeholder="输入您希望展示的新文案..."
+                        onChange={(e) => handleZhChange(e.target.value)}
+                        placeholder="输入您希望展示的全新中文文案..."
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
+                          <span>🌐 自动匹配的英文版本 (Auto-matched English)</span>
+                          <span className="text-[10px] text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-200 dark:border-cyan-800/40 font-mono">
+                            自动适配双语
+                          </span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setReplacementEnInput(autoTranslate(replacementInput))}
+                          className="text-[11px] text-blue-600 dark:text-cyan-400 hover:underline flex items-center space-x-1"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>重新自动翻译</span>
+                        </button>
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={replacementEnInput}
+                        onChange={(e) => setReplacementEnInput(e.target.value)}
+                        placeholder="根据中文自动生成英文对应版本，您亦可随时手动润色..."
                         className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono"
                       />
                     </div>
@@ -326,7 +368,7 @@ export const QuickTextEditorModal: React.FC = () => {
                         {appliedNotice && (
                           <span className="text-emerald-500 dark:text-emerald-400 font-semibold flex items-center space-x-1 animate-in fade-in">
                             <Check className="w-3.5 h-3.5 inline" />
-                            <span>文案已即时生效并持久化存储！</span>
+                            <span>中英文案已即时同步生效并持久化存储！</span>
                           </span>
                         )}
                       </div>
@@ -336,6 +378,7 @@ export const QuickTextEditorModal: React.FC = () => {
                           onClick={() => {
                             setOriginalInput('');
                             setReplacementInput('');
+                            setReplacementEnInput('');
                           }}
                           className="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         >
@@ -346,7 +389,7 @@ export const QuickTextEditorModal: React.FC = () => {
                           className="flex items-center space-x-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>立即保存并应用</span>
+                          <span>立即保存并双语应用</span>
                         </button>
                       </div>
                     </div>
@@ -358,11 +401,12 @@ export const QuickTextEditorModal: React.FC = () => {
               {activeTab === 'presets' && (
                 <div className="space-y-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    这里收录了站点最常修改的品牌标题、Slogan 与板块说明，点击即可快速填入并重写：
+                    这里收录了站点最常修改的品牌标题、Slogan 与板块说明，改动中文后会自动同步匹配英文：
                   </p>
                   <div className="space-y-3">
                     {PRESET_TEXTS.map((preset, idx) => {
-                      const currentVal = overrides[preset.original] || '';
+                      const currentVal = overrides[preset.original];
+                      const currentZh = typeof currentVal === 'string' ? currentVal : currentVal?.zh || '';
                       return (
                         <div
                           key={idx}
@@ -370,9 +414,9 @@ export const QuickTextEditorModal: React.FC = () => {
                         >
                           <div className="flex items-center justify-between text-xs font-semibold text-slate-800 dark:text-slate-200">
                             <span>{preset.label}</span>
-                            {currentVal && (
+                            {currentZh && (
                               <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono bg-cyan-500/10 px-2 py-0.5 rounded-md">
-                                已自定义
+                                已自定义双语
                               </span>
                             )}
                           </div>
@@ -383,12 +427,12 @@ export const QuickTextEditorModal: React.FC = () => {
                           <div className="flex items-center space-x-2 pt-1">
                             <input
                               type="text"
-                              defaultValue={currentVal}
+                              defaultValue={currentZh}
                               placeholder={preset.placeholder}
                               onBlur={(e) => {
                                 const val = e.target.value.trim();
                                 if (val) {
-                                  setOverride(preset.original, val);
+                                  setOverride(preset.original, val, autoTranslate(val));
                                 } else {
                                   removeOverride(preset.original);
                                 }
@@ -399,12 +443,13 @@ export const QuickTextEditorModal: React.FC = () => {
                               type="button"
                               onClick={() => {
                                 setOriginalInput(preset.original);
-                                setReplacementInput(currentVal);
+                                setReplacementInput(currentZh);
+                                setReplacementEnInput(autoTranslate(currentZh));
                                 setActiveTab('custom');
                               }}
                               className="px-2.5 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-lg transition-colors shrink-0"
                             >
-                              高级编辑
+                              双语微调
                             </button>
                           </div>
                         </div>
@@ -449,41 +494,52 @@ export const QuickTextEditorModal: React.FC = () => {
                     </div>
                   ) : (
                     <div className="space-y-2.5 max-h-[50vh] overflow-y-auto">
-                      {overrideKeys.map((orig) => (
-                        <div
-                          key={orig}
-                          className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-start justify-between gap-3 text-xs"
-                        >
-                          <div className="space-y-1.5 flex-1 min-w-0">
-                            <div className="font-mono text-slate-500 dark:text-slate-400 break-words">
-                              <span className="text-rose-500 dark:text-rose-400 font-semibold">[原]</span> {orig}
+                      {overrideKeys.map((orig) => {
+                        const item = overrides[orig];
+                        const zh = typeof item === 'string' ? item : item?.zh || '';
+                        const en = typeof item === 'object' ? item?.en : '';
+                        return (
+                          <div
+                            key={orig}
+                            className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-start justify-between gap-3 text-xs"
+                          >
+                            <div className="space-y-1.5 flex-1 min-w-0">
+                              <div className="font-mono text-slate-500 dark:text-slate-400 break-words">
+                                <span className="text-rose-500 dark:text-rose-400 font-semibold">[原]</span> {orig}
+                              </div>
+                              <div className="font-mono text-emerald-600 dark:text-emerald-400 font-medium break-words">
+                                <span className="text-emerald-500 font-semibold">[中]</span> {zh}
+                              </div>
+                              {en && (
+                                <div className="font-mono text-cyan-600 dark:text-cyan-400 font-medium break-words text-[11px]">
+                                  <span className="text-cyan-500 font-semibold">[英]</span> {en}
+                                </div>
+                              )}
                             </div>
-                            <div className="font-mono text-emerald-600 dark:text-emerald-400 font-medium break-words">
-                              <span className="text-emerald-500 font-semibold">[新]</span> {overrides[orig]}
+                            <div className="flex items-center space-x-1 shrink-0">
+                              <button
+                                onClick={() => {
+                                  setOriginalInput(orig);
+                                  setReplacementInput(zh);
+                                  setReplacementEnInput(en);
+                                  setActiveTab('custom');
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors"
+                                title="再次修改"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => removeOverride(orig)}
+                                className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-500/10 transition-colors"
+                                title="删除此项并恢复默认"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-1 shrink-0">
-                            <button
-                              onClick={() => {
-                                setOriginalInput(orig);
-                                setReplacementInput(overrides[orig]);
-                                setActiveTab('custom');
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors"
-                              title="再次修改"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => removeOverride(orig)}
-                              className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-rose-500/10 transition-colors"
-                              title="删除此项并恢复默认"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -494,10 +550,10 @@ export const QuickTextEditorModal: React.FC = () => {
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                      将文案永久固化到代码库
+                      将双语文案永久固化到代码库
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      在浏览器中修改的内容保存在本机的 LocalStorage 中。如果您希望永久写入 GitHub 仓库，可以直接复制下方生成的 TypeScript 配置字典或告诉我，我为您直接写入项目：
+                      在浏览器中修改的内容保存在本机的 LocalStorage 中。如果您希望永久写入 GitHub 仓库，可以直接复制下方生成的双语 TypeScript 配置字典：
                     </p>
                   </div>
 
@@ -526,9 +582,9 @@ export const QuickTextEditorModal: React.FC = () => {
                   <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
                     <div className="font-semibold text-slate-800 dark:text-slate-200">💡 提示：</div>
                     <ul className="list-disc pl-4 space-y-0.5">
-                      <li>无论何时打开网站，只要此浏览器存储还在，您的自定义文案就会一直生效。</li>
+                      <li>无论何时打开网站，只要此浏览器存储还在，您的自定义双语文案就会一直生效。</li>
+                      <li>改动中文后，系统已全自动同步好对应的英文。当切换到 English 语言模式时，英文对应词自动展示！</li>
                       <li>随时按键盘快捷键 <kbd className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200 font-mono">Alt + E</kbd> 唤出此修改面板。</li>
-                      <li>开启“点选模式”即可像使用鼠标画笔一样，指哪改哪！</li>
                     </ul>
                   </div>
                 </div>

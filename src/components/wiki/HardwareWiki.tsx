@@ -83,25 +83,40 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
   }, []);
 
   const quickTerms = useMemo(() => {
-    const preferredIds = [
-      'term-3d-vcache',
-      'term-dlss-fsr',
-      'term-atx3-12v2x6',
-      'term-cudimm',
-      'term-tlc-qlc',
-      'term-vrm-phases',
-      'term-ram-timing-cl',
-      'term-dual-channel',
-      'term-peel-film-warning',
-      'term-vapor-chamber',
-      'term-slc-cache',
-      'term-wifi7-25g',
-      'term-screen-panel',
-    ];
-    return preferredIds
-      .map((id) => glossaryTerms.find((g) => g.id === id))
-      .filter((g): g is GlossaryTerm => !!g);
-  }, []);
+    if (selectedCategory === 'all') {
+      const preferredIds = [
+        'term-3d-vcache',
+        'term-dlss-fsr',
+        'term-atx3-12v2x6',
+        'term-cudimm',
+        'term-tlc-qlc',
+        'term-vrm-phases',
+        'term-ram-timing-cl',
+        'term-peel-film-warning',
+        'term-vapor-chamber',
+      ];
+      return preferredIds
+        .map((id) => glossaryTerms.find((g) => g.id === id))
+        .filter((g): g is GlossaryTerm => !!g);
+    }
+
+    // Map hardware category to glossary category
+    const catMap: Record<string, string> = {
+      cpu: 'cpu',
+      gpu: 'gpu',
+      motherboard: 'motherboard',
+      ram: 'ram',
+      storage: 'storage',
+      psu: 'psu',
+      cooler: 'cooling',
+      case: 'case',
+      laptop: 'display',
+    };
+
+    const targetGlossaryCat = catMap[selectedCategory] || selectedCategory;
+    const categoryTerms = glossaryTerms.filter((gt) => gt.category === targetGlossaryCat);
+    return categoryTerms.slice(0, 10);
+  }, [selectedCategory]);
 
   const categories: { id: HardwareCategory | 'all'; label: string; icon: React.ReactNode }[] = [
     { id: 'all', label: t('catAll'), icon: <Layers className="w-4 h-4" /> },

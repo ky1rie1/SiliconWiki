@@ -25,6 +25,20 @@ export class PCScene3D {
   private explosionProgress: number = 0; // 0 = assembled, 1 = exploded
   private currentStep: number = 1;
 
+  // Active step installation animation
+  private activeAnimation: {
+    item: ComponentMeshItem;
+    startPos: THREE.Vector3;
+    targetPos: THREE.Vector3;
+    startTime: number;
+    duration: number;
+    onComplete?: () => void;
+  } | null = null;
+
+  // Callbacks for external React component sync
+  public onComponentClick?: (componentId: string) => void;
+  public onComponentHover?: (componentName: string | null) => void;
+
   // Camera Orbit State
   private isDragging: boolean = false;
   private previousMousePosition = { x: 0, y: 0 };
@@ -70,96 +84,118 @@ export class PCScene3D {
   }
 
   private setupLighting() {
-    // Ambient light - boosted for crystal-clear component visibility
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
+    // 1. Soft neutral ambient light
+    const ambientLight = new THREE.AmbientLight(0xf8fafc, 2.0);
     this.scene.add(ambientLight);
 
-    // Key Light: High-angle direct warm-white illumination
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.8);
-    dirLight1.position.set(6, 12, 7);
-    dirLight1.castShadow = true;
-    dirLight1.shadow.mapSize.width = 2048;
-    dirLight1.shadow.mapSize.height = 2048;
-    dirLight1.shadow.bias = -0.0005;
-    this.scene.add(dirLight1);
+    // 2. High-Precision Studio Key Light (4500K warm neutral white)
+    const keyLight = new THREE.DirectionalLight(0xfff8ed, 2.6);
+    keyLight.position.set(6, 12, 7);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.bias = -0.0004;
+    keyLight.shadow.camera.near = 1;
+    keyLight.shadow.camera.far = 30;
+    this.scene.add(keyLight);
 
-    // Fill Light: Soft frontal illumination to eliminate deep chassis shadows
-    const fillLight = new THREE.DirectionalLight(0xf0f9ff, 1.8);
-    fillLight.position.set(-6, 5, 7);
+    // 3. Daylight Fill Light (6000K soft white to eliminate shadows)
+    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 1.5);
+    fillLight.position.set(-6, 6, 7);
     this.scene.add(fillLight);
 
-    // Rim / Back Light: Cool cyan edge accent separator
-    const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.4);
-    rimLight.position.set(0, 8, -7);
+    // 4. Clean Studio Rim Light (pure white silhouette enhancer)
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    rimLight.position.set(0, 9, -7);
     this.scene.add(rimLight);
 
-    // Low bounce light to illuminate motherboard underside and PSU shroud
-    const bottomBounce = new THREE.DirectionalLight(0x94a3b8, 1.0);
-    bottomBounce.position.set(0, -6, 2);
+    // 5. Desk-surface soft bounce
+    const bottomBounce = new THREE.DirectionalLight(0x94a3b8, 0.8);
+    bottomBounce.position.set(0, -5, 2);
     this.scene.add(bottomBounce);
 
-    // Internal vibrant RGB components
-    const internalRgb = new THREE.PointLight(0x06b6d4, 2.8, 8);
-    internalRgb.position.set(0, 0.4, 0.4);
-    this.scene.add(internalRgb);
-
-    const magentaAccent = new THREE.PointLight(0xec4899, 2.0, 7);
-    magentaAccent.position.set(-0.5, 1.0, 0.2);
-    this.scene.add(magentaAccent);
+    // 6. Subtle internal hardware diagnostic glow (calibrated natural warm glow)
+    const internalGlow = new THREE.PointLight(0xe0f2fe, 1.0, 6);
+    internalGlow.position.set(0, 0.3, 0.3);
+    this.scene.add(internalGlow);
   }
 
   private buildStudioStage() {
     const stageGroup = new THREE.Group();
     stageGroup.name = 'studio_stage';
 
-    // 1. Sleek metallic pedestal platform
-    const platformGeom = new THREE.CylinderGeometry(4.6, 5.0, 0.22, 64);
-    const platformMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b, // Slate 800 metallic brushed finish
-      roughness: 0.4,
-      metalness: 0.65,
+    // 1. Professional ESD Silicone Anti-Static Workmat (Matte Charcoal Slate)
+    const matGeom = new THREE.BoxGeometry(9.0, 0.12, 6.4);
+    const matMaterial = new THREE.MeshStandardMaterial({
+      color: 0x18202c, // Professional ESD workbench slate
+      roughness: 0.88,
+      metalness: 0.1,
     });
-    const platform = new THREE.Mesh(platformGeom, platformMat);
-    platform.position.set(0, -2.26, 0);
-    platform.receiveShadow = true;
-    stageGroup.add(platform);
+    const workmat = new THREE.Mesh(matGeom, matMaterial);
+    workmat.position.set(0, -2.25, 0);
+    workmat.receiveShadow = true;
+    stageGroup.add(workmat);
 
-    // 2. Glowing perimeter ring (Chiseled Cyber Neon Ring)
-    const ringGeom = new THREE.TorusGeometry(4.62, 0.035, 16, 64);
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8, // Sky-blue / cyan emissive glow
+    // 2. Subtle beveled outer rim on the workmat
+    const rimGeom = new THREE.BoxGeometry(9.2, 0.08, 6.6);
+    const rimMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      roughness: 0.7,
+      metalness: 0.2,
     });
-    const neonRing = new THREE.Mesh(ringGeom, ringMat);
-    neonRing.rotation.x = Math.PI / 2;
-    neonRing.position.set(0, -2.14, 0);
-    stageGroup.add(neonRing);
+    const matRim = new THREE.Mesh(rimGeom, rimMaterial);
+    matRim.position.set(0, -2.29, 0);
+    matRim.receiveShadow = true;
+    stageGroup.add(matRim);
 
-    // 3. Inner concentric measurement circle
-    const innerRingGeom = new THREE.TorusGeometry(3.0, 0.015, 16, 64);
-    const innerRingMat = new THREE.MeshBasicMaterial({
-      color: 0x0284c7, // Slightly deeper blue
+    // 3. Precision printed laser tick marks on mat borders
+    const rulerMarkMat = new THREE.MeshBasicMaterial({
+      color: 0x475569, // Muted slate engraving
       transparent: true,
-      opacity: 0.7,
+      opacity: 0.5,
     });
-    const innerNeonRing = new THREE.Mesh(innerRingGeom, innerRingMat);
-    innerNeonRing.rotation.x = Math.PI / 2;
-    innerNeonRing.position.set(0, -2.14, 0);
-    stageGroup.add(innerNeonRing);
 
-    // 4. Subtle radial alignment tick marks on the platform
-    for (let i = 0; i < 12; i++) {
-      const angle = (i * Math.PI) / 6;
-      const tickGeom = new THREE.BoxGeometry(0.3, 0.005, 0.02);
-      const tickMat = new THREE.MeshBasicMaterial({
-        color: 0x64748b,
-        transparent: true,
-        opacity: 0.5,
-      });
-      const tick = new THREE.Mesh(tickGeom, tickMat);
-      tick.position.set(Math.cos(angle) * 3.8, -2.14, Math.sin(angle) * 3.8);
-      tick.rotation.y = -angle;
+    // Top and Bottom ruler lines
+    const rulerLongGeom = new THREE.BoxGeometry(7.8, 0.005, 0.02);
+    const rulerTop = new THREE.Mesh(rulerLongGeom, rulerMarkMat);
+    rulerTop.position.set(0, -2.18, -2.75);
+    const rulerBottom = new THREE.Mesh(rulerLongGeom, rulerMarkMat);
+    rulerBottom.position.set(0, -2.18, 2.75);
+    stageGroup.add(rulerTop, rulerBottom);
+
+    // Ruler tick marks along top edge
+    for (let r = -3.6; r <= 3.6; r += 0.4) {
+      const isMajor = Math.abs(r % 1.2) < 0.05;
+      const tick = new THREE.Mesh(
+        new THREE.BoxGeometry(0.015, 0.005, isMajor ? 0.14 : 0.07),
+        rulerMarkMat
+      );
+      tick.position.set(r, -2.18, -2.75);
       stageGroup.add(tick);
     }
+
+    // 4. Side Magnetic Screw & Small Parts Organizer Trays
+    const trayMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.6,
+      metalness: 0.3,
+    });
+    for (let t = -1.8; t <= 1.8; t += 0.9) {
+      const pocketGeom = new THREE.BoxGeometry(0.8, 0.04, 0.65);
+      const pocket = new THREE.Mesh(pocketGeom, trayMat);
+      pocket.position.set(3.9, -2.18, t);
+      pocket.receiveShadow = true;
+      stageGroup.add(pocket);
+    }
+
+    // 5. Soft floor ground shadow receiver beneath the desk
+    const floorGeom = new THREE.PlaneGeometry(32, 32);
+    const floorMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+    const floor = new THREE.Mesh(floorGeom, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(0, -2.35, 0);
+    floor.receiveShadow = true;
+    stageGroup.add(floor);
 
     this.scene.add(stageGroup);
   }
@@ -899,30 +935,87 @@ export class PCScene3D {
 
   private setupControls() {
     const el = this.renderer.domElement;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let mouseDownPos = { x: 0, y: 0 };
+    let hasMoved = false;
+
+    const findComponentAt = (clientX: number, clientY: number): ComponentMeshItem | null => {
+      const rect = el.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, this.camera);
+
+      // Collect all visible meshes in registered components
+      const candidates: { mesh: THREE.Mesh; item: ComponentMeshItem }[] = [];
+      this.components.forEach((item) => {
+        if (!item.group.visible) return;
+        item.group.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            candidates.push({ mesh: child, item });
+          }
+        });
+      });
+
+      const intersects = raycaster.intersectObjects(
+        candidates.map((c) => c.mesh),
+        false
+      );
+      if (intersects.length > 0) {
+        const first = intersects[0].object;
+        const matched = candidates.find((c) => c.mesh === first);
+        return matched ? matched.item : null;
+      }
+      return null;
+    };
 
     // Mouse Controls
     el.addEventListener('mousedown', (e) => {
       this.isDragging = true;
+      hasMoved = false;
+      mouseDownPos = { x: e.clientX, y: e.clientY };
       this.previousMousePosition = { x: e.clientX, y: e.clientY };
     });
 
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', (e) => {
+      if (this.isDragging && !hasMoved) {
+        // Was a crisp click without dragging
+        const hitItem = findComponentAt(e.clientX, e.clientY);
+        if (hitItem && this.onComponentClick) {
+          this.onComponentClick(hitItem.id);
+        }
+      }
       this.isDragging = false;
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (!this.isDragging) return;
-      const deltaX = e.clientX - this.previousMousePosition.x;
-      const deltaY = e.clientY - this.previousMousePosition.y;
+      if (this.isDragging) {
+        const deltaX = e.clientX - this.previousMousePosition.x;
+        const deltaY = e.clientY - this.previousMousePosition.y;
 
-      this.spherical.theta -= deltaX * 0.008;
-      this.spherical.phi = Math.max(
-        0.2,
-        Math.min(Math.PI - 0.2, this.spherical.phi - deltaY * 0.008)
-      );
+        if (Math.hypot(e.clientX - mouseDownPos.x, e.clientY - mouseDownPos.y) > 4) {
+          hasMoved = true;
+        }
 
-      this.updateCameraPosition();
-      this.previousMousePosition = { x: e.clientX, y: e.clientY };
+        this.spherical.theta -= deltaX * 0.008;
+        this.spherical.phi = Math.max(
+          0.2,
+          Math.min(Math.PI - 0.2, this.spherical.phi - deltaY * 0.008)
+        );
+
+        this.updateCameraPosition();
+        this.previousMousePosition = { x: e.clientX, y: e.clientY };
+      } else {
+        // Subtle hover inspection
+        const hit = findComponentAt(e.clientX, e.clientY);
+        if (hit) {
+          el.style.cursor = 'pointer';
+          this.onComponentHover?.(hit.name);
+        } else {
+          el.style.cursor = 'grab';
+          this.onComponentHover?.(null);
+        }
+      }
     });
 
     // Zoom via Wheel
@@ -941,6 +1034,8 @@ export class PCScene3D {
     el.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) {
         this.isDragging = true;
+        hasMoved = false;
+        mouseDownPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
       } else if (e.touches.length === 2) {
         touchStartDist = Math.hypot(
@@ -954,6 +1049,10 @@ export class PCScene3D {
       if (e.touches.length === 1 && this.isDragging) {
         const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
         const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+
+        if (Math.hypot(e.touches[0].clientX - mouseDownPos.x, e.touches[0].clientY - mouseDownPos.y) > 6) {
+          hasMoved = true;
+        }
 
         this.spherical.theta -= deltaX * 0.008;
         this.spherical.phi = Math.max(
@@ -975,7 +1074,14 @@ export class PCScene3D {
       }
     });
 
-    el.addEventListener('touchend', () => {
+    el.addEventListener('touchend', (e) => {
+      if (this.isDragging && !hasMoved && e.changedTouches.length > 0) {
+        const touch = e.changedTouches[0];
+        const hitItem = findComponentAt(touch.clientX, touch.clientY);
+        if (hitItem && this.onComponentClick) {
+          this.onComponentClick(hitItem.id);
+        }
+      }
       this.isDragging = false;
     });
   }
@@ -1001,19 +1107,19 @@ export class PCScene3D {
   public setStep(step: number) {
     this.currentStep = step;
 
-    // Component visibility and ghost effect based on step
+    // Component visibility and clean accent effect based on step
     this.components.forEach((item) => {
       const isVisible = item.installedStep <= step;
       item.group.visible = isVisible;
 
-      // Highlight the component of current step
+      // Clean, refined highlight for component of current step
       const isCurrent = item.installedStep === step;
       item.group.traverse((child) => {
         if (child instanceof THREE.Mesh && child.material) {
           if (Array.isArray(child.material)) return;
           if (child.material instanceof THREE.MeshStandardMaterial) {
-            child.material.emissive = new THREE.Color(isCurrent ? 0x06b6d4 : 0x000000);
-            child.material.emissiveIntensity = isCurrent ? 0.35 : 0.0;
+            child.material.emissive = new THREE.Color(isCurrent ? 0x0284c7 : 0x000000);
+            child.material.emissiveIntensity = isCurrent ? 0.25 : 0.0;
           }
         }
       });
@@ -1043,6 +1149,55 @@ export class PCScene3D {
     }
   }
 
+  public animateInstallStep(step: number, onComplete?: () => void) {
+    let targetItem: ComponentMeshItem | undefined;
+    this.components.forEach((item) => {
+      if (item.installedStep === step) {
+        targetItem = item;
+      }
+    });
+
+    if (!targetItem) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    targetItem.group.visible = true;
+    const elevatedPos = targetItem.assembledPos.clone().add(new THREE.Vector3(0, 1.4, 0.3));
+    targetItem.group.position.copy(elevatedPos);
+
+    this.activeAnimation = {
+      item: targetItem,
+      startPos: elevatedPos,
+      targetPos: targetItem.assembledPos.clone(),
+      startTime: performance.now(),
+      duration: 650,
+      onComplete: () => {
+        this.flashComponentHighlight(targetItem!);
+        if (onComplete) onComplete();
+      },
+    };
+  }
+
+  private flashComponentHighlight(item: ComponentMeshItem) {
+    item.group.traverse((child) => {
+      if (
+        child instanceof THREE.Mesh &&
+        child.material &&
+        child.material instanceof THREE.MeshStandardMaterial
+      ) {
+        const origEmissive = child.material.emissive.clone();
+        const origIntensity = child.material.emissiveIntensity;
+        child.material.emissive.set(0x10b981); // Emerald green fit confirmation
+        child.material.emissiveIntensity = 0.6;
+        setTimeout(() => {
+          child.material.emissive.copy(origEmissive);
+          child.material.emissiveIntensity = origIntensity;
+        }, 450);
+      }
+    });
+  }
+
   public handleResize() {
     if (!this.container) return;
     const width = this.container.clientWidth;
@@ -1057,19 +1212,37 @@ export class PCScene3D {
   private animate() {
     this.animId = requestAnimationFrame(this.animate);
 
-    // 1. Smoothly interpolate explosion
-    const targetProgress = this.isExploded ? 1.0 : 0.0;
-    this.explosionProgress += (targetProgress - this.explosionProgress) * 0.08;
-
-    this.components.forEach((item) => {
-      item.group.position.lerpVectors(
-        item.assembledPos,
-        item.explodedPos,
-        this.explosionProgress
+    // 1. Smoothly interpolate installation animation if active
+    if (this.activeAnimation) {
+      const elapsed = performance.now() - this.activeAnimation.startTime;
+      const t = Math.min(1.0, elapsed / this.activeAnimation.duration);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
+      this.activeAnimation.item.group.position.lerpVectors(
+        this.activeAnimation.startPos,
+        this.activeAnimation.targetPos,
+        ease
       );
-    });
+      if (t >= 1.0) {
+        const cb = this.activeAnimation.onComplete;
+        this.activeAnimation = null;
+        if (cb) cb();
+      }
+    } else {
+      // 2. Smoothly interpolate explosion
+      const targetProgress = this.isExploded ? 1.0 : 0.0;
+      this.explosionProgress += (targetProgress - this.explosionProgress) * 0.08;
 
-    // 2. Rotate all voxel fan blade assemblies continuously in real-time
+      this.components.forEach((item) => {
+        item.group.position.lerpVectors(
+          item.assembledPos,
+          item.explodedPos,
+          this.explosionProgress
+        );
+      });
+    }
+
+    // 3. Rotate all voxel fan blade assemblies continuously in real-time
     for (const fan of this.rotatingFanHubs) {
       fan.rotation.z += 0.045;
     }

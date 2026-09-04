@@ -56,7 +56,7 @@ export interface BenchmarkItem {
   name: string;
   type: 'cpu' | 'gpu';
   platform: 'desktop' | 'laptop';
-  brand: 'Intel' | 'AMD' | 'NVIDIA' | 'Apple';
+  brand: 'Intel' | 'AMD' | 'NVIDIA' | 'Apple' | 'Qualcomm';
   scores: {
     gamingScore: number; // 相对 100% 归一化分
     productivityScore: number;

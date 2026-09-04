@@ -1,11 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { autoTranslateHardwareZhToEn } from '../utils/translator';
+import { translations } from '../i18n/translations';
+
+export interface BilingualOverride {
+  zh: string;
+  en: string;
+}
 
 interface CustomContentContextType {
   isDevMode: boolean;
   unlockDevMode: () => void;
   lockDevMode: () => void;
-  overrides: Record<string, string>;
-  setOverride: (original: string, replacement: string) => void;
+  overrides: Record<string, BilingualOverride>;
+  setOverride: (original: string, zhReplacement: string, enReplacement?: string) => void;
   removeOverride: (original: string) => void;
   clearAllOverrides: () => void;
   isVisualEditMode: boolean;
@@ -14,6 +21,7 @@ interface CustomContentContextType {
   setSelectedTextForEdit: (text: string | null) => void;
   isEditorOpen: boolean;
   setIsEditorOpen: (open: boolean) => void;
+  autoTranslate: (zh: string) => string;
 }
 
 const STORAGE_KEY = 'silicon_wiki_text_overrides';
@@ -60,10 +68,24 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const [overrides, setOverrides] = useState<Record<string, string>>(() => {
+  const [overrides, setOverrides] = useState<Record<string, BilingualOverride>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : {};
+      if (!stored) return {};
+      const parsed = JSON.parse(stored);
+      // Migrate simple string values to BilingualOverride
+      const migrated: Record<string, BilingualOverride> = {};
+      Object.entries(parsed).forEach(([k, v]) => {
+        if (typeof v === 'string') {
+          migrated[k] = { zh: v, en: autoTranslateHardwareZhToEn(v) };
+        } else if (v && typeof v === 'object') {
+          migrated[k] = {
+            zh: (v as any).zh || '',
+            en: (v as any).en || autoTranslateHardwareZhToEn((v as any).zh || ''),
+          };
+        }
+      });
+      return migrated;
     } catch {
       return {};
     }
@@ -80,7 +102,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   const rafIdRef = useRef<number | null>(null);
 
   // Save overrides to localStorage
-  const saveOverrides = useCallback((newOverrides: Record<string, string>) => {
+  const saveOverrides = useCallback((newOverrides: Record<string, BilingualOverride>) => {
     setOverrides(newOverrides);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newOverrides));
@@ -90,11 +112,19 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const setOverride = useCallback(
-    (original: string, replacement: string) => {
+    (original: string, zhReplacement: string, enReplacement?: string) => {
       if (!original || original.trim() === '') return;
+      const key = original.trim();
+      const matchedEn = enReplacement && enReplacement.trim() !== ''
+        ? enReplacement.trim()
+        : autoTranslateHardwareZhToEn(zhReplacement);
+
       saveOverrides({
         ...overrides,
-        [original.trim()]: replacement,
+        [key]: {
+          zh: zhReplacement,
+          en: matchedEn,
+        },
       });
     },
     [overrides, saveOverrides]
@@ -113,11 +143,37 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     saveOverrides({});
   }, [saveOverrides]);
 
-  // Robust Text and Attribute Replacement Engine
+  // Robust Text and Attribute Replacement Engine with Active Language Awareness
   const applyOverridesToNode = useCallback(
     (rootNode: Node) => {
       const keys = Object.keys(overrides);
       if (keys.length === 0) return;
+
+      const currentLang = (localStorage.getItem('silicon_wiki_lang') as 'zh' | 'en') || 'zh';
+
+      // Build active replacement dictionary
+      const activeDict: Record<string, string> = {};
+      keys.forEach((origZh) => {
+        const item = overrides[origZh];
+        if (!item) return;
+
+        // In Chinese mode, replace original Chinese with new Chinese
+        activeDict[origZh] = currentLang === 'zh' ? item.zh : item.en;
+
+        // If in English mode, check if origZh has an English equivalent in translations.ts
+        if (currentLang === 'en') {
+          const zhMap = translations.zh as Record<string, string>;
+          const enMap = translations.en as Record<string, string>;
+          for (const k of Object.keys(zhMap)) {
+            if (zhMap[k] === origZh && enMap[k]) {
+              activeDict[enMap[k]] = item.en;
+            }
+          }
+        }
+      });
+
+      const activeKeys = Object.keys(activeDict);
+      if (activeKeys.length === 0) return;
 
       // 1. Scan and replace within individual Text nodes
       const walker = document.createTreeWalker(
@@ -156,9 +212,9 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         let newText = original;
-        for (const key of keys) {
+        for (const key of activeKeys) {
           if (newText.includes(key)) {
-            newText = newText.split(key).join(overrides[key]);
+            newText = newText.split(key).join(activeDict[key]);
           }
         }
 
@@ -193,9 +249,9 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
           if (!origVal) return;
 
           let newVal = origVal;
-          for (const key of keys) {
+          for (const key of activeKeys) {
             if (newVal.includes(key)) {
-              newVal = newVal.split(key).join(overrides[key]);
+              newVal = newVal.split(key).join(activeDict[key]);
             }
           }
           if (el.getAttribute(attr) !== newVal) {
@@ -205,14 +261,13 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       // 3. Container Element direct text fallback (for elements with mixed inline tags)
-      for (const key of keys) {
-        // Find leaf containers whose text matches the key
+      for (const key of activeKeys) {
         const potentialContainers = document.querySelectorAll('h1, h2, h3, h4, h5, p, span, button, a, label, li');
         potentialContainers.forEach((el) => {
           if (el.closest('[data-no-text-override]')) return;
           if (el.children.length === 0 && el.textContent?.trim() === key) {
-            if (el.textContent !== overrides[key]) {
-              el.textContent = overrides[key];
+            if (el.textContent !== activeDict[key]) {
+              el.textContent = activeDict[key];
             }
           }
         });
@@ -221,7 +276,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     [overrides]
   );
 
-  // Trigger replacement on overrides change and on DOM mutations
+  // Trigger replacement on overrides change, DOM mutations, and storage (language) changes
   useEffect(() => {
     if (Object.keys(overrides).length === 0) return;
 
@@ -254,9 +309,12 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       attributeFilter: ['placeholder', 'title'],
     });
 
+    window.addEventListener('storage', runReplace);
+
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       observer.disconnect();
+      window.removeEventListener('storage', runReplace);
     };
   }, [overrides, applyOverridesToNode]);
 
@@ -267,7 +325,6 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     let currentHovered: HTMLElement | null = null;
 
     const getInnermostTextTarget = (el: HTMLElement): HTMLElement => {
-      // Drill down to the most specific text container element
       let current = el;
       while (
         current.children.length === 1 &&
@@ -311,7 +368,6 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       e.preventDefault();
       e.stopPropagation();
 
-      // Check if user has highlighted text with mouse cursor
       const selectedRangeText = window.getSelection()?.toString().trim();
       if (selectedRangeText && selectedRangeText.length > 0) {
         setSelectedTextForEdit(selectedRangeText);
@@ -320,7 +376,6 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       const inner = getInnermostTextTarget(target);
-      // Clean extracted text
       const text = inner.innerText?.trim() || inner.textContent?.trim() || '';
       if (text) {
         setSelectedTextForEdit(text);
@@ -367,6 +422,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
         setSelectedTextForEdit,
         isEditorOpen,
         setIsEditorOpen,
+        autoTranslate: autoTranslateHardwareZhToEn,
       }}
     >
       {children}
