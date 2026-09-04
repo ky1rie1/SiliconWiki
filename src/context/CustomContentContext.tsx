@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { autoTranslateHardwareZhToEn } from '../utils/translator';
 import { translations } from '../i18n/translations';
+import { defaultTextOverrides } from '../data/defaultTextOverrides';
 
 export interface BilingualOverride {
   zh: string;
@@ -71,23 +72,24 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   const [overrides, setOverrides] = useState<Record<string, BilingualOverride>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return {};
-      const parsed = JSON.parse(stored);
-      // Migrate simple string values to BilingualOverride
       const migrated: Record<string, BilingualOverride> = {};
-      Object.entries(parsed).forEach(([k, v]) => {
-        if (typeof v === 'string') {
-          migrated[k] = { zh: v, en: autoTranslateHardwareZhToEn(v) };
-        } else if (v && typeof v === 'object') {
-          migrated[k] = {
-            zh: (v as any).zh || '',
-            en: (v as any).en || autoTranslateHardwareZhToEn((v as any).zh || ''),
-          };
-        }
-      });
-      return migrated;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Migrate simple string values to BilingualOverride
+        Object.entries(parsed).forEach(([k, v]) => {
+          if (typeof v === 'string') {
+            migrated[k] = { zh: v, en: autoTranslateHardwareZhToEn(v) };
+          } else if (v && typeof v === 'object') {
+            migrated[k] = {
+              zh: (v as any).zh || '',
+              en: (v as any).en || autoTranslateHardwareZhToEn((v as any).zh || ''),
+            };
+          }
+        });
+      }
+      return { ...defaultTextOverrides, ...migrated };
     } catch {
-      return {};
+      return { ...defaultTextOverrides };
     }
   });
 
@@ -140,7 +142,12 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const clearAllOverrides = useCallback(() => {
-    saveOverrides({});
+    saveOverrides({ ...defaultTextOverrides });
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear text overrides', e);
+    }
   }, [saveOverrides]);
 
   // Robust Text and Attribute Replacement Engine with Active Language Awareness

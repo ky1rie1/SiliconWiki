@@ -2,10 +2,34 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v1.6.0',
+    date: '2026-09-04',
+    title: '硬件全动态筛选器、微架构高精工程展台、开发者特权记忆与中关村在线 (ZOL) 数据库联动',
+    tag: '最新发布',
+    updates: [
+      {
+        type: 'feature',
+        text: '全动态品牌与规格筛选体系：彻底解决品类品牌错乱（主板/内存/散热器筛选为0或串品类）的问题，切换品类自动复位对应真实品牌池，并新增 ZOL 级细分规格（AM5/LGA1851、显存容量、板型、DDR5/4、PCIe 5.0等）。',
+      },
+      {
+        type: 'feature',
+        text: '硬件视觉呈现与微架构工程展台：重构 HardwareImage 组件，移除导致暗色模式照片发浅反色的图层，针对各品类芯片、显卡风扇、主板VRM、水冷冷头等动态渲染高精矢量微架构工程蓝图。',
+      },
+      {
+        type: 'feature',
+        text: '开发者特权永久记忆与代码库固化：激活后本地永久保持，导航栏顶部常驻「文案速改」快捷入口；支持一键生成并复制 defaultTextOverrides.ts 完整代码文件，新增 JSON 补丁导入功能。',
+      },
+      {
+        type: 'data',
+        text: '全面接轨中关村在线 (diy.zol.com.cn) 硬件全参数规范：硬件详情页深度覆盖插槽封装、制造工艺、基础/加速频率、供电相数、通道拆分等维度，并提供一键直达 ZOL 拆解与天梯原站。',
+      },
+    ],
+  },
+  {
     version: 'v1.5.0',
     date: '2026-09-04',
     title: '天梯排重修复、75+条全量硬核名词宝典、高精拟真3D风扇与站长文案速改系统',
-    tag: '最新发布',
+    tag: '重大更新',
     updates: [
       {
         type: 'fix',

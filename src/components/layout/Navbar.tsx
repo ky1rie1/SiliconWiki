@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useCustomContent } from '../../context/CustomContentContext';
 import { ActiveTab } from '../../types';
 
 interface NavbarProps {
@@ -35,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { theme, toggleTheme } = useTheme();
   const { lang, toggleLang, t } = useLanguage();
+  const { isDevMode, setIsEditorOpen } = useCustomContent();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
@@ -110,6 +112,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t('searchShortcut')}
             </kbd>
           </button>
+
+          {/* Persistent Developer Mode Quick Editor Launcher */}
+          {isDevMode && (
+            <button
+              onClick={() => setIsEditorOpen(true)}
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-white text-xs font-bold shadow-md shadow-amber-500/20 active:scale-95 transition-spring"
+              title={lang === 'zh' ? '👑 开发者特权已激活：点击呼出文案速改与配置补丁' : '👑 Dev Mode Active: Open Quick Text Editor'}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-100 animate-pulse" />
+              <span className="hidden sm:inline">{lang === 'zh' ? '文案速改' : 'Edit Text'}</span>
+            </button>
+          )}
 
           {/* Language Switch */}
           <button
@@ -189,6 +203,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+
+          {isDevMode && (
+            <button
+              onClick={() => {
+                setIsEditorOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-rose-500 text-white shadow-sm transition-spring mt-2"
+            >
+              <div className="flex items-center space-x-2.5">
+                <Sparkles className="w-4 h-4 text-amber-200" />
+                <span>{lang === 'zh' ? '👑 开发者特权：文案速改' : '👑 Dev: Quick Text Editor'}</span>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-black/20 text-amber-100 font-mono">Alt+E</span>
+            </button>
+          )}
         </div>
       )}
     </header>

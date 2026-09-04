@@ -46,7 +46,7 @@ export interface HardwareItem {
   reviewLinks?: {
     title: string;
     url: string;
-    platform: 'bilibili' | 'geekerwan' | 'techpowerup' | 'official' | 'other';
+    platform: 'bilibili' | 'geekerwan' | 'techpowerup' | 'official' | 'zol' | 'other';
   }[];
   pairingAdvice?: string;
 }

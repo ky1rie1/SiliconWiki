@@ -64,6 +64,11 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
     ? item.reviewLinks
     : [
         {
+          title: `中关村在线 ZOL · ${item.name} 详细技术参数、行情与拆解`,
+          url: `https://detail.zol.com.cn/index.php?c=SearchList&keyword=${encodeURIComponent(item.name)}`,
+          platform: 'zol' as const,
+        },
+        {
           title: `极客湾 Geekerwan · ${item.name} 首发实测与能效深度解析`,
           url: `https://search.bilibili.com/all?keyword=${encodeURIComponent('极客湾 ' + item.name)}`,
           platform: 'geekerwan' as const,
@@ -388,6 +393,22 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
           {/* TAB 3: 全套技术规格 */}
           {activeTab === 'specs' && (
             <div className="space-y-6">
+              {/* Specs Header with ZOL link */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/60 dark:border-slate-800 text-xs">
+                <span className="text-slate-600 dark:text-slate-300 font-medium">
+                  全套核心技术参数 (全面深度参考中关村在线 diy.zol.com.cn 数据库标准)
+                </span>
+                <a
+                  href={`https://detail.zol.com.cn/index.php?c=SearchList&keyword=${encodeURIComponent(item.name)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-cyan-400 hover:underline flex items-center space-x-1 shrink-0"
+                >
+                  <span>在 ZOL 查看完整拆解库</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+
               {/* Specs Table */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {Object.entries(item.specs).map(([k, v]) => (
@@ -464,8 +485,26 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                     className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/70 dark:border-slate-800 hover:border-blue-500 dark:hover:border-cyan-400 hover:shadow-md transition-all flex items-start justify-between group text-xs"
                   >
                     <div className="space-y-1.5 pr-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-cyan-300">
-                        {link.platform}
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase ${
+                          link.platform === 'zol'
+                            ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-800'
+                            : link.platform === 'geekerwan'
+                            ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300'
+                            : link.platform === 'bilibili'
+                            ? 'bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300'
+                            : 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-cyan-300'
+                        }`}
+                      >
+                        {link.platform === 'zol'
+                          ? 'ZOL 中关村在线'
+                          : link.platform === 'geekerwan'
+                          ? '极客湾评测'
+                          : link.platform === 'bilibili'
+                          ? 'B站装机实测'
+                          : link.platform === 'techpowerup'
+                          ? 'TechPowerUp'
+                          : link.platform}
                       </span>
                       <h5 className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors leading-snug">
                         {link.title}

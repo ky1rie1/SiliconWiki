@@ -71,6 +71,9 @@ export const QuickTextEditorModal: React.FC = () => {
   const [replacementInput, setReplacementInput] = useState('');
   const [replacementEnInput, setReplacementEnInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedTs, setCopiedTs] = useState(false);
+  const [importJsonInput, setImportJsonInput] = useState('');
+  const [importMsg, setImportMsg] = useState('');
   const [appliedNotice, setAppliedNotice] = useState(false);
 
   // Sync selected text from visual click into inputs
@@ -128,6 +131,50 @@ export const QuickTextEditorModal: React.FC = () => {
     navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyFullTsFile = () => {
+    const tsCode = `export interface BilingualOverride {
+  zh: string;
+  en: string;
+}
+
+/**
+ * 芯知百科 (SiliconWiki) 官方默认文案与站长双语配置字典
+ * 提交并永久固化至 GitHub 仓库，全平台、所有设备与 Vercel 部署即时生效。
+ */
+export const defaultTextOverrides: Record<string, BilingualOverride> = ${JSON.stringify(overrides, null, 2)};
+`;
+    navigator.clipboard.writeText(tsCode);
+    setCopiedTs(true);
+    setTimeout(() => setCopiedTs(false), 2000);
+  };
+
+  const handleImportJson = () => {
+    if (!importJsonInput.trim()) return;
+    try {
+      const parsed = JSON.parse(importJsonInput.trim());
+      let count = 0;
+      Object.entries(parsed).forEach(([key, val]) => {
+        if (typeof val === 'string') {
+          setOverride(key, val, autoTranslate(val));
+          count++;
+        } else if (val && typeof val === 'object') {
+          const zh = (val as any).zh || '';
+          const en = (val as any).en || autoTranslate(zh);
+          if (zh) {
+            setOverride(key, zh, en);
+            count++;
+          }
+        }
+      });
+      setImportMsg(`成功导入 ${count} 条配置补丁并即刻生效！`);
+      setImportJsonInput('');
+      setTimeout(() => setImportMsg(''), 3000);
+    } catch {
+      setImportMsg('解析失败：请确保粘贴的是合法的 JSON 格式字符串');
+      setTimeout(() => setImportMsg(''), 3500);
+    }
   };
 
   const overrideKeys = Object.keys(overrides);
@@ -196,12 +243,13 @@ export const QuickTextEditorModal: React.FC = () => {
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                     <span>站长双语文案速改系统</span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono">
-                      开发者模式 (ky1rie1101)
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold flex items-center space-x-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      <span>特权已永久记忆</span>
                     </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    改完中文自动同步生成英文版本 · 支持点选编辑与双语自适应
+                    改完中文自动同步生成英文版本 · 刷新或新窗口访问自动保持特权
                   </p>
                 </div>
               </div>
@@ -545,46 +593,101 @@ export const QuickTextEditorModal: React.FC = () => {
                 </div>
               )}
 
-              {/* Tab 4: Export Code Patch */}
+              {/* Tab 4: Export & Import Code Patch */}
               {activeTab === 'export' && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="space-y-1">
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                      将双语文案永久固化到代码库
+                      将双语文案永久固化到代码库 (GitHub 同步)
                     </h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                      在浏览器中修改的内容保存在本机的 LocalStorage 中。如果您希望永久写入 GitHub 仓库，可以直接复制下方生成的双语 TypeScript 配置字典：
+                      在浏览器中修改的内容已通过本地存储永久记忆。若要提交并部署至 GitHub 与 Vercel，可一键复制下方配置并提交：
                     </p>
                   </div>
 
                   <div className="relative">
-                    <pre className="p-3.5 rounded-xl bg-slate-950 text-slate-200 text-[11px] font-mono overflow-x-auto max-h-[35vh] border border-slate-800">
+                    <pre className="p-3.5 rounded-xl bg-slate-950 text-slate-200 text-[11px] font-mono overflow-x-auto max-h-[25vh] border border-slate-800">
                       {JSON.stringify(overrides, null, 2)}
                     </pre>
-                    <button
-                      onClick={handleCopyCode}
-                      className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-md flex items-center space-x-1 transition-all"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>已复制配置</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          <span>一键复制 JSON 补丁</span>
-                        </>
+                    <div className="absolute top-2.5 right-2.5 flex items-center space-x-1.5">
+                      <button
+                        onClick={handleCopyCode}
+                        className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold shadow-md flex items-center space-x-1 transition-all border border-slate-700"
+                        title="复制 JSON 字典"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>已复制 JSON</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>复制 JSON</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleCopyFullTsFile}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-md flex items-center space-x-1 transition-all"
+                        title="一键生成 defaultTextOverrides.ts 完整文件源码"
+                      >
+                        {copiedTs ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-200" />
+                            <span>已复制 TS 源码</span>
+                          </>
+                        ) : (
+                          <>
+                            <FileCode className="w-3.5 h-3.5" />
+                            <span>复制 TS 代码文件</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Import JSON Patch Box */}
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                        <Sliders className="w-3.5 h-3.5 text-blue-500" />
+                        <span>导入 JSON 文案补丁</span>
+                      </span>
+                      {importMsg && (
+                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${
+                          importMsg.includes('成功') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                        }`}>
+                          {importMsg}
+                        </span>
                       )}
-                    </button>
+                    </div>
+                    <textarea
+                      value={importJsonInput}
+                      onChange={(e) => setImportJsonInput(e.target.value)}
+                      placeholder='在此粘贴 JSON 配置，如：{"旧文案": "新文案"}'
+                      rows={2}
+                      className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleImportJson}
+                        disabled={!importJsonInput.trim()}
+                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center space-x-1 transition-all"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>立即合并导入</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
-                    <div className="font-semibold text-slate-800 dark:text-slate-200">💡 提示：</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">💡 记忆与同步说明：</div>
                     <ul className="list-disc pl-4 space-y-0.5">
-                      <li>无论何时打开网站，只要此浏览器存储还在，您的自定义双语文案就会一直生效。</li>
-                      <li>改动中文后，系统已全自动同步好对应的英文。当切换到 English 语言模式时，英文对应词自动展示！</li>
-                      <li>随时按键盘快捷键 <kbd className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-slate-800 dark:text-slate-200 font-mono">Alt + E</kbd> 唤出此修改面板。</li>
+                      <li><strong>永久记忆已开启</strong>：开发者特权已保存在本地，下次刷新或直接访问时，无需在搜索栏重新输入指令。</li>
+                      <li><strong>顶部常驻入口</strong>：导航栏右侧常驻「文案速改」快捷按钮，随时点击均可弹出此面板。</li>
+                      <li><strong>双语自动同步</strong>：改动中文文案后，切换为英文时自动显示对应译文。</li>
                     </ul>
                   </div>
                 </div>
