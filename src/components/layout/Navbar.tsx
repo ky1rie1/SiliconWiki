@@ -11,7 +11,6 @@ import {
   Moon,
   Menu,
   X,
-  Sparkles,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { ActiveTab } from '../../types';
