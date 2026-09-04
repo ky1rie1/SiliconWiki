@@ -18,11 +18,12 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
           {/* Col 1: Brand & Philosophy */}
           <div className="md:col-span-1 space-y-3">
             <div className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-lg bg-black p-0.5 ring-1 ring-[#F7D84A]/35 shadow-sm shrink-0 flex items-center justify-center">
-                <svg viewBox="0 0 64 64" className="w-full h-full" fill="none">
-                  <rect x="2" y="2" width="60" height="60" rx="7" fill="#000000" stroke="#F7D84A" strokeWidth="1.5" strokeOpacity="0.4" />
-                  <rect x="9" y="9" width="46" height="46" rx="13" fill="none" stroke="#F7D84A" strokeWidth="3" strokeLinejoin="round" />
-                  <rect x="22" y="22" width="20" height="20" rx="2.5" fill="#F7D84A" />
+              <div className="w-7 h-7 rounded-lg shadow-sm shrink-0 overflow-hidden">
+                <svg viewBox="0 0 512 512" className="w-full h-full" fill="none">
+                  <rect width="512" height="512" rx="112" fill="#F7D84A" />
+                  <rect x="92" y="92" width="328" height="328" rx="36" fill="#09090b" />
+                  <rect x="120" y="120" width="272" height="272" rx="76" fill="none" stroke="#F7D84A" strokeWidth="11" />
+                  <rect x="190" y="190" width="132" height="132" rx="14" fill="#F7D84A" />
                 </svg>
               </div>
               <span className="text-base font-black tracking-tight text-slate-900 dark:text-white font-mono">

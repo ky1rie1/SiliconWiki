@@ -57,16 +57,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           onClick={() => onTabChange('wiki')}
         >
           {/* Iconic Chip Mark */}
-          <div className="relative w-8 h-8 rounded-xl bg-black p-1 ring-1 ring-[#F7D84A]/30 shadow-md shadow-[#F7D84A]/10 group-hover:scale-105 group-hover:shadow-[#F7D84A]/25 group-hover:ring-[#F7D84A]/60 group-active:scale-95 transition-spring shrink-0 flex items-center justify-center">
-            <svg viewBox="0 0 64 64" className="w-full h-full" fill="none">
-              {/* Outer squircle substrate */}
-              <rect x="2" y="2" width="60" height="60" rx="7" fill="#000000" stroke="#F7D84A" strokeWidth="1.5" strokeOpacity="0.3" />
-              {/* Gold circuit ring */}
-              <rect x="9" y="9" width="46" height="46" rx="13" fill="none" stroke="#F7D84A" strokeWidth="3" strokeLinejoin="round" />
-              {/* Central silicon die */}
-              <rect x="22" y="22" width="20" height="20" rx="2.5" fill="#F7D84A" />
+          <div className="relative w-8 h-8 rounded-xl shadow-md shadow-[#F7D84A]/20 group-hover:scale-105 group-hover:shadow-[#F7D84A]/40 group-active:scale-95 transition-spring shrink-0 overflow-hidden">
+            <svg viewBox="0 0 512 512" className="w-full h-full" fill="none">
+              <rect width="512" height="512" rx="112" fill="#F7D84A" />
+              <rect x="92" y="92" width="328" height="328" rx="36" fill="#09090b" />
+              <rect x="120" y="120" width="272" height="272" rx="76" fill="none" stroke="#F7D84A" strokeWidth="11" />
+              <rect x="190" y="190" width="132" height="132" rx="14" fill="#F7D84A" />
             </svg>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#F7D84A] ring-2 ring-white dark:ring-slate-950 shadow-[0_0_8px_#F7D84A] animate-pulse" />
           </div>
 
           <div className="flex items-center space-x-2">

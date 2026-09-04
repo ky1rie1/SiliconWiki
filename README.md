@@ -1,32 +1,32 @@
 <div align="center">
+  <br />
+  <a href="https://computer-wiki.vercel.app/" target="_blank">
+    <img src="public/logo-icon.svg" alt="SiliconWiki Logo" width="110" height="110" />
+  </a>
 
-<br />
+  <h1>SiliconWiki · 芯知</h1>
 
-<img src="public/logo.svg" alt="SiliconWiki Logo" width="460" />
+  <p>
+    <b>现代化计算机硬件全景百科 · 归一化能效天梯榜 · 3D 实景装机互动模拟</b>
+    <br />
+    <i>The Definitive Computer Hardware Knowledge Base & Interactive 3D PC Assembly Studio</i>
+  </p>
 
-<br />
-<br />
+  <p>
+    <a href="https://computer-wiki.vercel.app/"><img src="https://img.shields.io/badge/Live_Demo-computer--wiki.vercel.app-F7D84A?style=flat-square&logo=vercel&logoColor=black" alt="Live Demo" /></a>
+    <img src="https://img.shields.io/badge/React-18.3-61dafb?style=flat-square&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Three.js-3D_WebGL-black?style=flat-square&logo=three.js&logoColor=F7D84A" alt="Three.js" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/License-MIT-emerald?style=flat-square" alt="License" />
+  </p>
 
-# SiliconWiki · 芯知硬件百科
-
-**The Definitive Hardware Knowledge Base & Interactive 3D PC Assembly Studio**  
-现代化全功能计算机硬件全景百科 · 权威归一化能效天梯榜 · Three.js 3D 实景装机互动模拟室
-
-<br />
-
-[![Silicon Gold Brand](https://img.shields.io/badge/Brand-Silicon%20Gold%20%23F7D84A-09090b?style=for-the-badge&logoColor=F7D84A&labelColor=09090b)](https://computer-wiki.vercel.app/)
-[![Live Demo](https://img.shields.io/badge/Online%20Demo-computer--wiki.vercel.app-F7D84A?style=for-the-badge&logo=vercel&logoColor=black&labelColor=09090b)](https://computer-wiki.vercel.app/)
-[![3D WebGL Studio](https://img.shields.io/badge/3D%20Studio-Three.js%20WebGL-09090b?style=for-the-badge&logo=three.js&logoColor=F7D84A)](https://threejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-09090b?style=for-the-badge&logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Design-Tailwind%20CSS-09090b?style=for-the-badge&logo=tailwindcss&logoColor=38bdf8)](https://tailwindcss.com/)
-[![License MIT](https://img.shields.io/badge/License-MIT-09090b?style=for-the-badge&logoColor=F7D84A)](LICENSE)
-
-<br />
-
-[🌐 English](#english) &nbsp;•&nbsp; [🇨🇳 简体中文](#简体中文) &nbsp;•&nbsp; [🚀 在线体验 Live Demo](https://computer-wiki.vercel.app/)
-
-<br />
-
+  <p>
+    <a href="https://computer-wiki.vercel.app/"><b>🚀 在线体验 (Live Demo)</b></a> &nbsp;•&nbsp;
+    <a href="#-简体中文">简体中文</a> &nbsp;•&nbsp;
+    <a href="#-english">English</a>
+  </p>
+  <br />
 </div>
 
 ---
