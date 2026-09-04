@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Superpowers internal logs and design docs
+.superpowers
+docs/superpowers
