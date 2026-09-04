@@ -25,8 +25,8 @@ interface CustomContentContextType {
   autoTranslate: (zh: string) => string;
 }
 
-const STORAGE_KEY = 'silicon_wiki_text_overrides';
-const DEV_MODE_KEY = 'silicon_wiki_dev_mode';
+const STORAGE_KEY = '_sw_diag_cfg';
+const DEV_MODE_KEY = '_sw_diag_state';
 
 const CustomContentContext = createContext<CustomContentContextType | undefined>(undefined);
 
@@ -39,10 +39,13 @@ export const useCustomContent = () => {
 };
 
 export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Developer Mode is hidden by default. Triggered by typing 'ky1rie1101' in search.
+  // Internal diagnostics and calibration state
   const [isDevMode, setIsDevMode] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(DEV_MODE_KEY) === 'true';
+      return (
+        localStorage.getItem(DEV_MODE_KEY) === 'true' ||
+        localStorage.getItem('silicon_wiki_dev_mode') === 'true'
+      );
     } catch {
       return false;
     }
@@ -53,7 +56,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       localStorage.setItem(DEV_MODE_KEY, 'true');
     } catch (e) {
-      console.warn('Failed to save dev mode', e);
+      console.warn('Failed to save state', e);
     }
     setIsEditorOpen(true);
   }, []);
@@ -64,14 +67,17 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsVisualEditMode(false);
     try {
       localStorage.removeItem(DEV_MODE_KEY);
+      localStorage.removeItem('silicon_wiki_dev_mode');
     } catch (e) {
-      console.warn('Failed to clear dev mode', e);
+      console.warn('Failed to clear state', e);
     }
   }, []);
 
   const [overrides, setOverrides] = useState<Record<string, BilingualOverride>>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored =
+        localStorage.getItem(STORAGE_KEY) ||
+        localStorage.getItem('silicon_wiki_text_overrides');
       const migrated: Record<string, BilingualOverride> = {};
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -145,6 +151,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     saveOverrides({ ...defaultTextOverrides });
     try {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('silicon_wiki_text_overrides');
     } catch (e) {
       console.warn('Failed to clear text overrides', e);
     }

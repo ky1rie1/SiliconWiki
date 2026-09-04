@@ -6,7 +6,7 @@ export interface BilingualOverride {
 /**
  * 芯知百科 (SiliconWiki) 官方默认文案与站长双语配置字典
  * 提交并永久固化至 GitHub 仓库，全平台、所有设备与 Vercel 部署即时生效。
- * 用户在开发者模式中进行的任何新增改动均会与此字典自动合并。
+ * 用户在系统校准工作台中进行的任何新增改动均会与此字典自动合并。
  */
 export const defaultTextOverrides: Record<string, BilingualOverride> = {
   'SiliconWiki | 芯知硬件百科': {

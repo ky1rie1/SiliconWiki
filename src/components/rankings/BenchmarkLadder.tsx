@@ -15,8 +15,10 @@ import {
 import { cpuRankings, gpuRankings } from '../../data/rankings';
 import { BenchmarkItem } from '../../types';
 import { HardwarePKModal } from './HardwarePKModal';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const BenchmarkLadder: React.FC = () => {
+  const { t, lang } = useLanguage();
   const [hardwareType, setHardwareType] = useState<'cpu' | 'gpu'>('gpu');
   const [scoreMode, setScoreMode] = useState<'gaming' | 'productivity' | 'efficiency'>('gaming');
   const [includeLaptop, setIncludeLaptop] = useState<boolean>(true);
@@ -54,7 +56,7 @@ export const BenchmarkLadder: React.FC = () => {
       setSelectedForPK(selectedForPK.filter((i) => i !== id));
     } else {
       if (selectedForPK.length >= 3) {
-        alert('PK 对比台最多支持同时比对 3 款硬件！');
+        alert(t('pkLimitAlert'));
         return;
       }
       setSelectedForPK([...selectedForPK, id]);
@@ -66,20 +68,18 @@ export const BenchmarkLadder: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Top Banner with Geekerwan Attribution */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-blue-950/40 via-indigo-950/20 to-slate-900 border border-blue-200/50 dark:border-blue-800/40 backdrop-blur-xl relative overflow-hidden">
+      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl transition-colors">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-cyan-400 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>多维性能天梯排行榜</span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
+              <Sparkles className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
+              <span>{t('rankHeroBadge')}</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-              标准归一化战力天梯 · 拒绝盲目跑分
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
+              {t('rankHeroTitle')}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              数据深度整合<strong>极客湾（Geekerwan / socpk.com）</strong>
-              实测能效比体系与 UL 3DMark TimeSpy 基准。以经典甜点卡 RTX 4060 桌面版作为 100%
-              基准标尺，直观洞悉性能差距。
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              {t('rankHeroDesc')}
             </p>
           </div>
 
@@ -88,18 +88,18 @@ export const BenchmarkLadder: React.FC = () => {
               href="https://socpk.com/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-500/25 transition-all"
+              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-bold shadow-sm transition-all cursor-pointer"
             >
-              <span>极客湾官方天梯直达</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <span>{t('btnGeekerwan')}</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#F7D84A] dark:text-[#d4990d]" />
             </a>
             <a
               href="https://www.techpowerup.com/gpu-specs/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-all"
+              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-zinc-800 dark:text-zinc-200 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition-all cursor-pointer"
             >
-              <span>TechPowerUp 数据库</span>
+              <span>{t('btnTechPowerUp')}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -107,53 +107,53 @@ export const BenchmarkLadder: React.FC = () => {
       </div>
 
       {/* Control Tabs & Filters */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm">
         {/* Hardware Switch (CPU vs GPU) */}
-        <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/80">
+        <div className="flex items-center p-1 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80">
           <button
             onClick={() => {
               setHardwareType('gpu');
               setSelectedForPK([]);
             }}
-            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               hardwareType === 'gpu'
-                ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-cyan-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
-            <Tv className="w-4 h-4" />
-            <span>显卡 GPU 天梯</span>
+            <Tv className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A]" />
+            <span>{t('tabGpuRank')}</span>
           </button>
           <button
             onClick={() => {
               setHardwareType('cpu');
               setSelectedForPK([]);
             }}
-            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
               hardwareType === 'cpu'
-                ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-cyan-400 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
             }`}
           >
-            <Cpu className="w-4 h-4" />
-            <span>处理器 CPU 天梯</span>
+            <Cpu className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A]" />
+            <span>{t('tabCpuRank')}</span>
           </button>
         </div>
 
         {/* Score Dimension Switch */}
         <div className="flex items-center space-x-1.5 overflow-x-auto">
           {[
-            { id: 'gaming', label: '大型 3A 游戏表现', icon: <Gamepad2 className="w-3.5 h-3.5" /> },
-            { id: 'productivity', label: '生产力 / 渲染剪辑', icon: <Layers className="w-3.5 h-3.5" /> },
-            { id: 'efficiency', label: '每瓦能效比', icon: <Zap className="w-3.5 h-3.5 text-amber-500" /> },
+            { id: 'gaming', label: t('modeGaming'), icon: <Gamepad2 className="w-3.5 h-3.5" /> },
+            { id: 'productivity', label: t('modeProductivity'), icon: <Layers className="w-3.5 h-3.5" /> },
+            { id: 'efficiency', label: t('modeEfficiency'), icon: <Zap className="w-3.5 h-3.5 text-amber-500" /> },
           ].map((mode) => (
             <button
               key={mode.id}
               onClick={() => setScoreMode(mode.id as any)}
-              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 scoreMode === mode.id
-                  ? 'bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-cyan-400 border border-blue-200 dark:border-blue-900'
-                  : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100'
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                  : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
               }`}
             >
               {mode.icon}
@@ -164,16 +164,16 @@ export const BenchmarkLadder: React.FC = () => {
 
         {/* Laptop Switch & Search Filter */}
         <div className="flex items-center space-x-3">
-          <label className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">
+          <label className="flex items-center space-x-2 text-xs text-zinc-600 dark:text-zinc-300 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={includeLaptop}
               onChange={(e) => setIncludeLaptop(e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+              className="rounded text-zinc-900 focus:ring-zinc-900 w-4 h-4"
             />
             <span className="flex items-center space-x-1">
-              <Laptop className="w-3.5 h-3.5 text-slate-400" />
-              <span>包含移动笔记本芯片</span>
+              <Laptop className="w-3.5 h-3.5 text-zinc-400" />
+              <span>{t('includeLaptopChips')}</span>
             </span>
           </label>
 
@@ -181,20 +181,20 @@ export const BenchmarkLadder: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="过滤型号..."
-            className="w-32 sm:w-40 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+            placeholder={t('filterModel')}
+            className="w-32 sm:w-40 px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-850 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-400"
           />
         </div>
       </div>
 
       {/* Ladder Chart Bars */}
-      <div className="space-y-3 bg-white dark:bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 text-xs text-slate-400 dark:text-slate-500">
-          <span>排名 / 芯片型号</span>
+      <div className="space-y-3 bg-white dark:bg-[#09090b] rounded-3xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800 text-xs text-zinc-400 dark:text-zinc-500">
+          <span>{t('rankColRank')}</span>
           <div className="flex items-center space-x-6">
-            <span>功耗</span>
-            <span className="w-24 text-right">综合战力指标</span>
-            <span className="w-16 text-center">PK 对比</span>
+            <span>{t('rankColPower')}</span>
+            <span className="w-24 text-right">{t('rankColScore')}</span>
+            <span className="w-16 text-center">{t('rankColPk')}</span>
           </div>
         </div>
 
@@ -208,8 +208,8 @@ export const BenchmarkLadder: React.FC = () => {
               key={item.id}
               className={`group flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-2xl transition-all border ${
                 isSelected
-                  ? 'bg-blue-50/60 dark:bg-blue-950/40 border-blue-400 dark:border-cyan-500/80 shadow-md'
-                  : 'hover:bg-slate-50 dark:hover:bg-slate-850/60 border-transparent hover:border-slate-200 dark:hover:border-slate-800'
+                  ? 'bg-zinc-100 dark:bg-zinc-850/80 border-[#F7D84A] dark:border-[#F7D84A]/80 shadow-md'
+                  : 'hover:bg-zinc-50 dark:hover:bg-zinc-850/60 border-transparent hover:border-zinc-200 dark:hover:border-zinc-800'
               }`}
             >
               {/* Left Title & Platform */}
@@ -217,12 +217,12 @@ export const BenchmarkLadder: React.FC = () => {
                 <span
                   className={`w-6 h-6 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold ${
                     index === 0
-                      ? 'bg-amber-400 text-slate-950 shadow-sm'
+                      ? 'bg-[#F7D84A] text-zinc-950 shadow-xs'
                       : index === 1
-                      ? 'bg-slate-300 text-slate-900'
+                      ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white'
                       : index === 2
-                      ? 'bg-amber-700/60 text-white'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
+                      ? 'bg-amber-600/80 text-white'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
                   }`}
                 >
                   {index + 1}
@@ -230,12 +230,12 @@ export const BenchmarkLadder: React.FC = () => {
 
                 <div className="min-w-0">
                   <div className="flex items-center space-x-1.5 flex-wrap">
-                    <span className="font-bold text-sm text-slate-900 dark:text-white truncate">
+                    <span className="font-bold text-sm text-zinc-900 dark:text-white truncate">
                       {item.name}
                     </span>
                     {item.platform === 'laptop' && (
-                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/60 shrink-0">
-                        笔记本
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                        {lang === 'en' ? 'Laptop' : '笔记本'}
                       </span>
                     )}
                   </div>
@@ -244,26 +244,26 @@ export const BenchmarkLadder: React.FC = () => {
 
               {/* Middle Precision Machined Grooved Benchmark Gauge */}
               <div className="flex-1 mx-2 sm:mx-4">
-                <div className="machined-groove-track h-4.5 sm:h-5 w-full rounded-lg overflow-hidden p-0.5 flex items-center relative">
+                <div className="machined-groove-track h-4.5 sm:h-5 w-full rounded-lg overflow-hidden p-0.5 flex items-center relative bg-zinc-200 dark:bg-zinc-850">
                   {/* Subtle Scale Divider Ticks */}
                   <div className="absolute inset-0 pointer-events-none flex justify-between px-[25%] opacity-30">
                     <div className="w-[1px] h-full bg-white/40" />
                     <div className="w-[1px] h-full bg-white/40" />
                   </div>
                   <div className="absolute inset-0 pointer-events-none flex justify-center opacity-40">
-                    <div className="w-[1px] h-full bg-cyan-400/50" />
+                    <div className="w-[1px] h-full bg-zinc-400/50" />
                   </div>
 
                   {/* Luminous Fill Bar */}
                   <div
-                    className={`h-full rounded-md transition-all duration-700 relative overflow-hidden flex items-center justify-end pr-1 shadow-sm ${
+                    className={`h-full rounded-md transition-all duration-700 relative overflow-hidden flex items-center justify-end pr-1 shadow-xs ${
                       item.brand === 'NVIDIA'
-                        ? 'bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-400 shadow-emerald-500/30'
+                        ? 'bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-400 shadow-emerald-500/20'
                         : item.brand === 'AMD'
-                        ? 'bg-gradient-to-r from-rose-700 via-rose-500 to-amber-400 shadow-rose-500/30'
+                        ? 'bg-gradient-to-r from-rose-700 via-rose-500 to-amber-400 shadow-rose-500/20'
                         : item.brand === 'Apple'
                         ? 'bg-gradient-to-r from-slate-600 via-slate-400 to-zinc-200 shadow-slate-400/20'
-                        : 'bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-300 shadow-blue-500/30'
+                        : 'bg-gradient-to-r from-blue-700 via-blue-500 to-cyan-300 shadow-blue-500/20'
                     }`}
                     style={{ width: `${percentage}%` }}
                   >
@@ -274,7 +274,7 @@ export const BenchmarkLadder: React.FC = () => {
                   </div>
 
                   {/* Micro Relative Scale Text overlay */}
-                  <span className="absolute right-2 text-[9px] font-mono text-white/40 group-hover:text-white/80 pointer-events-none transition-colors">
+                  <span className="absolute right-2 text-[9px] font-mono text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white pointer-events-none transition-colors">
                     {percentage}%
                   </span>
                 </div>
@@ -282,35 +282,35 @@ export const BenchmarkLadder: React.FC = () => {
 
               {/* Right Metrics & PK button */}
               <div className="flex items-center justify-between sm:justify-end space-x-4 shrink-0">
-                <span className="text-xs font-mono text-slate-400 dark:text-slate-500 flex items-center">
+                <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500 flex items-center">
                   <Zap className="w-3 h-3 text-amber-500 mr-0.5" />
                   {item.tdpWatts}W
                 </span>
 
                 <div className="w-24 text-right">
-                  <span className="text-sm font-black font-mono text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors">
+                  <span className="text-sm font-black font-mono text-zinc-900 dark:text-white group-hover:text-[#F7D84A] dark:group-hover:text-[#F7D84A] transition-colors">
                     {score}
                   </span>
-                  <span className="text-[10px] text-slate-400 ml-1">分</span>
+                  <span className="text-[10px] text-zinc-400 ml-1">{t('scoreUnitPts')}</span>
                 </div>
 
                 <button
                   onClick={() => togglePKSelection(item.id)}
-                  className={`w-20 flex items-center justify-center space-x-1 py-1 px-2 rounded-xl text-xs font-medium transition-all ${
+                  className={`w-20 flex items-center justify-center space-x-1 py-1 px-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-600'
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }`}
                 >
                   {isSelected ? (
                     <>
                       <CheckSquare className="w-3 h-3" />
-                      <span>已加入</span>
+                      <span>{t('btnAddedToPk')}</span>
                     </>
                   ) : (
                     <>
                       <Square className="w-3 h-3" />
-                      <span>对比</span>
+                      <span>{t('btnAddToPk')}</span>
                     </>
                   )}
                 </button>
@@ -322,24 +322,24 @@ export const BenchmarkLadder: React.FC = () => {
 
       {/* Floating Bottom Dock for Selected PK */}
       {selectedForPK.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-slate-900/95 text-white shadow-2xl border border-slate-700 dark:border-cyan-700/60 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-zinc-900/95 dark:bg-[#09090b]/95 text-white shadow-2xl border border-zinc-700 dark:border-zinc-800 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
           <div className="flex items-center space-x-2 text-xs sm:text-sm font-semibold">
-            <Swords className="w-4 h-4 text-cyan-400" />
-            <span>已选择 {selectedForPK.length} 款硬件待比拼</span>
+            <Swords className="w-4 h-4 text-[#F7D84A]" />
+            <span>{t('pkDockTitle', { count: selectedForPK.length })}</span>
           </div>
 
           <button
             onClick={() => setIsPKModalOpen(true)}
-            className="px-4 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-500 shadow-md transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-[#F7D84A] text-zinc-950 font-bold text-xs hover:bg-[#e5a912] shadow-sm transition-colors cursor-pointer"
           >
-            开启横向 PK 对决
+            {t('btnOpenPk')}
           </button>
 
           <button
             onClick={() => setSelectedForPK([])}
-            className="text-xs text-slate-400 hover:text-white transition-colors"
+            className="text-xs text-zinc-400 hover:text-white transition-colors cursor-pointer"
           >
-            清空
+            {t('btnClearPk')}
           </button>
         </div>
       )}

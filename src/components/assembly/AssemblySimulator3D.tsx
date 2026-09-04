@@ -14,112 +14,19 @@ import {
   Wrench,
 } from 'lucide-react';
 import { assemblyStepsData } from '../../data/assemblySteps';
+import {
+  stepSpecsMapZh,
+  stepSpecsMapEn,
+  componentNameMapZh,
+  componentNameMapEn,
+  stepTranslationsEn,
+} from '../../data/assemblyTranslationsEn';
 import { PCScene3D } from './PCScene3D';
 import { BilibiliGuidesModal } from './BilibiliGuidesModal';
-
-interface HardwareSpecDetail {
-  craft: string;
-  specs: { label: string; val: string }[];
-  highlightTip: string;
-}
-
-const stepSpecsMap: Record<string, HardwareSpecDetail> = {
-  cpu: {
-    craft: 'TSMC N4P 先进制程 · 镀镍紫铜 IHS 均热顶盖 · 金色防呆三角对位标',
-    specs: [
-      { label: '插槽封装', val: 'LGA1700 / AM5 (1718 Pin)' },
-      { label: '热设计功耗', val: '120W - 253W 动态功耗' },
-      { label: '操作关键', val: '认准金色三角，切勿触碰底座针脚' },
-    ],
-    highlightTip: '金手指标记与插槽缺口严密对齐，零压力自由落座',
-  },
-  ram: {
-    craft: '10层服务器级 PCB · 原厂海力士 A-die 颗粒 · 阳极氧化厚重铝马甲',
-    specs: [
-      { label: '技术规范', val: 'DDR5 6000MHz CL30 双通道' },
-      { label: '插槽推荐', val: '优先插入第 2 槽与第 4 槽 (A2/B2)' },
-      { label: '超频支持', val: '支持 Intel XMP 3.0 & AMD EXPO' },
-    ],
-    highlightTip: '两端听到“咔哒”锁定声，卡扣自动回弹咬紧',
-  },
-  ssd: {
-    craft: 'PCIe 4.0 x4 NVMe 2.0 · 3D TLC 高速颗粒 · 独立高速 DRAM 物理缓存',
-    specs: [
-      { label: '传输速度', val: '读取 7400 MB/s · 写入 6500 MB/s' },
-      { label: '固定形式', val: 'M.2 2280 规格 · 免工具旋转卡扣 / 螺丝' },
-      { label: '散热提醒', val: '主板金属散热马甲背后蓝色导热垫膜必撕！' },
-    ],
-    highlightTip: '30°~45° 倾斜入槽到底，向下轻压旋紧固定',
-  },
-  cooler: {
-    craft: '双塔穿 FIN 工艺 · 6x 6mm 逆重力烧结纯铜热管 · FDB 液压静音轴承风扇',
-    specs: [
-      { label: '解热能力', val: '最高压制 260W TDP 核心发热' },
-      { label: '风扇规格', val: '120mm PWM 温控静音扇 (800-1850RPM)' },
-      { label: '供电接口', val: '主板 CPU_FAN 4-Pin 专用排针' },
-    ],
-    highlightTip: '铜底撕膜后点涂黄豆粒硅脂，对角线交替旋紧螺丝',
-  },
-  motherboard: {
-    craft: '标准 ATX 版型 · 16+1+2 相 90A 旗舰供电 · 8层 2oz 加厚铜箔 PCB',
-    specs: [
-      { label: '扩展插槽', val: 'PCIe 5.0 x16 金属加固槽 + 4x M.2' },
-      { label: '后置 I/O', val: '一体化预装金属挡板 + Wi-Fi 7 天线接口' },
-      { label: '机箱对位', val: '主板 9 孔螺丝位，必须与机箱铜柱一一对应' },
-    ],
-    highlightTip: '主板斜向滑入机箱卡稳 I/O 挡板，严防多余铜柱短路',
-  },
-  psu: {
-    craft: 'ATX 3.0 规范 · 80 PLUS 金牌全模组 · 105°C 日系全固态/电解电容',
-    specs: [
-      { label: '额定功率', val: '850W 纯净单路 12V 稳压输出' },
-      { label: '新显卡线', val: '原生 PCIe 5.0 12V-2x6 600W 接口' },
-      { label: '风道方向', val: '风扇朝下对准机箱底面防尘网进风' },
-    ],
-    highlightTip: '装箱前先插好线缆，CPU 8Pin 与 PCIe 8Pin 绝不可插反',
-  },
-  gpu: {
-    craft: 'Ada / RDNA3 旗舰核心 · 3x 逆向环形导流风扇 · 金属穿透散热背板',
-    specs: [
-      { label: '视频输出', val: '3x DP 2.1 + 1x HDMI 2.1 高刷接口' },
-      { label: '槽位规格', val: '2.5 槽加厚散热体 · 双金属挡片牢靠固定' },
-      { label: '供电注意事项', val: '16-Pin 接口必须垂直完全插到底零缝隙' },
-    ],
-    highlightTip: '推入 PCIe 槽发出咔哒锁死，机箱挡片螺丝紧固防下垂',
-  },
-  cables: {
-    craft: '高密度编织蛇皮网 · 镀金端子触点 · 附赠高刚性透明工程理线梳',
-    specs: [
-      { label: '开机核心', val: 'POWER SW 双针 (插 JFP1 无正负极)' },
-      { label: '高速传输', val: '前置 USB 3.0 19-Pin (防呆缺口严防断针)' },
-      { label: '音频走线', val: 'HD AUDIO 9-Pin 防呆插座 (防呆缺一针)' },
-    ],
-    highlightTip: '分束梳理顺直走背线，扎带固定提升机箱内部风道效能',
-  },
-  case: {
-    craft: '270° 无立柱海景房 · 4mm 超白钢化防爆玻璃 · 独立下置电源仓分舱',
-    specs: [
-      { label: '点亮自检', val: '观察主板 CPU->DRAM->VGA->BOOT 4颗灯' },
-      { label: '视频接线', val: '视频线务必插在独显后置接口，严禁插主板' },
-      { label: '首开进系统', val: '狂按 Del 进 BIOS 开启 XMP / EXPO 内存加速' },
-    ],
-    highlightTip: '通电自检全绿即大功告成，享受首次点亮主机的仪式感！',
-  },
-};
-
-const componentNameMap: Record<string, string> = {
-  cpu: 'CPU 处理器',
-  ram: '双通道内存',
-  ssd: 'M.2 NVMe 固态',
-  cooler: '风冷散热器',
-  motherboard: 'ATX 旗舰主板',
-  psu: '模组电源',
-  gpu: '独立显卡',
-  cables: '模组线缆与跳线',
-  case: '全景海景房机箱',
-};
+import { useLanguage } from '../../context/LanguageContext';
 
 export const AssemblySimulator3D: React.FC = () => {
+  const { t, lang } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<PCScene3D | null>(null);
 
@@ -129,7 +36,20 @@ export const AssemblySimulator3D: React.FC = () => {
   const [isInstalling, setIsInstalling] = useState(false);
   const [hoveredComponentName, setHoveredComponentName] = useState<string | null>(null);
 
-  const currentStep = assemblyStepsData[currentStepIndex];
+  const rawStep = assemblyStepsData[currentStepIndex];
+  const stepTranslation = lang === 'en' ? stepTranslationsEn[rawStep.stepNumber] : undefined;
+  const currentStep = {
+    ...rawStep,
+    title: stepTranslation?.title || rawStep.title,
+    subtitle: stepTranslation?.subtitle || rawStep.subtitle,
+    summary: stepTranslation?.summary || rawStep.summary,
+    instructions: stepTranslation?.instructions || rawStep.instructions,
+    criticalWarning: stepTranslation?.criticalWarning ?? rawStep.criticalWarning,
+    debugCheck: stepTranslation?.debugCheck ?? rawStep.debugCheck,
+  };
+
+  const stepSpecsMap = lang === 'en' ? stepSpecsMapEn : stepSpecsMapZh;
+  const componentNameMap = lang === 'en' ? componentNameMapEn : componentNameMapZh;
   const stepSpec = stepSpecsMap[currentStep.componentKey];
 
   const handleStepChange = (newIndex: number) => {
@@ -203,62 +123,62 @@ export const AssemblySimulator3D: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Top Banner */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-indigo-50/80 via-blue-50/40 to-white dark:from-indigo-950/40 dark:via-blue-950/20 dark:to-slate-900 border border-blue-200/50 dark:border-blue-800/40 backdrop-blur-xl relative overflow-hidden shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
+      {/* Top Banner with Vercel minimalist high-contrast design */}
+      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
         {/* Ambient lighting decorative accents */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#F7D84A]/10 dark:bg-[#F7D84A]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="space-y-2 max-w-2xl relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-cyan-300 text-xs font-semibold border border-blue-200/60 dark:border-blue-500/30">
-            <Box className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
-            <span>三维实景装机工坊 · 仿真硬件结构</span>
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
+            <Box className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
+            <span>{t('assemblyHeroBadge')}</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            全三维分步实景拼装 · 零门槛掌握装机逻辑
+          <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
+            {t('assemblyHeroTitle')}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            点击画布硬件可直接联动右侧工序说明。支持 360° 无死角旋转、部件对位仿真、防呆防坑要点，附 B 站实操精讲直达。
+          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            {t('assemblyHeroDesc')}
           </p>
         </div>
 
         {/* Video Tutorial Launcher Button */}
         <button
           onClick={() => setIsBilibiliModalOpen(true)}
-          className="relative z-10 flex items-center space-x-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white text-xs sm:text-sm font-bold shadow-lg shadow-pink-500/25 border border-pink-400/20 active:scale-95 transition-all shrink-0 cursor-pointer"
+          className="relative z-10 flex items-center space-x-2 px-5 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-xs sm:text-sm font-bold shadow-sm border border-zinc-700 dark:border-zinc-300 active:scale-95 transition-all shrink-0 cursor-pointer"
         >
-          <Tv className="w-4 h-4" />
-          <span>📺 B站保姆级视频精选</span>
+          <Tv className="w-4 h-4 text-[#F7D84A] dark:text-[#d4990d]" />
+          <span>{t('btnBilibiliGuides')}</span>
         </button>
       </div>
 
       {/* Main 3D Canvas + Step Instructions Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-2xl overflow-hidden relative group transition-colors">
+        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-2xl overflow-hidden relative group transition-colors">
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10 bg-[radial-gradient(ellipse_at_50%_45%,_#f8fafc_0%,_#e2e8f0_55%,_#cbd5e1_100%)] dark:bg-[radial-gradient(ellipse_at_50%_45%,_#1e293b_0%,_#0f172a_60%,_#020617_100%)] overflow-hidden transition-colors"
+            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10 bg-[radial-gradient(ellipse_at_50%_45%,_#fafafa_0%,_#f4f4f5_55%,_#e4e4e7_100%)] dark:bg-[radial-gradient(ellipse_at_50%_45%,_#18181b_0%,_#09090b_60%,_#000000_100%)] overflow-hidden transition-colors"
           >
             {/* On-canvas Controls Overlay */}
             <div className="absolute top-4 left-4 z-20 flex items-center space-x-2">
               <button
                 onClick={handleToggleExplode}
-                className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer ${
+                className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
                   isExploded
-                    ? 'bg-blue-600 text-white ring-2 ring-blue-400 shadow-blue-500/20'
-                    : 'bg-white/90 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 shadow-xs'
+                    ? 'bg-[#F7D84A] text-zinc-950 ring-2 ring-[#F7D84A]/50 font-bold'
+                    : 'bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
-                <span>{isExploded ? '合体复原主机' : '一键爆炸拆解透视'}</span>
+                <span>{isExploded ? t('btnExplodeRestore') : t('btnExplodeToggle')}</span>
               </button>
 
               <button
                 onClick={handleResetCamera}
-                className="p-2 rounded-xl bg-white/90 dark:bg-slate-800/80 backdrop-blur-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 transition-colors shadow-xs cursor-pointer"
-                title="重置视角"
+                className="p-2 rounded-xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-colors shadow-xs cursor-pointer"
+                title={t('btnResetView')}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -266,34 +186,36 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Hover Tooltip Overlay */}
             {hoveredComponentName && (
-              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/90 border border-blue-500/40 text-blue-700 dark:text-blue-300 text-xs font-semibold backdrop-blur-md shadow-lg pointer-events-none animate-in fade-in duration-150 flex items-center space-x-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 animate-pulse" />
-                <span>部件：{hoveredComponentName} (点击聚焦)</span>
+              <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold backdrop-blur-md shadow-lg pointer-events-none animate-in fade-in duration-150 flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#F7D84A] animate-pulse" />
+                <span>{t('componentLabel', { name: hoveredComponentName })}</span>
               </div>
             )}
 
             {/* Hint in canvas bottom */}
-            <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-slate-600 dark:text-slate-400 bg-white/85 dark:bg-slate-900/70 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/40 shadow-xs">
-              <span>🖱️ 按住鼠标左键 360° 旋转 · 滚轮缩放 · 点击硬件直接聚焦联动</span>
-              <span className="hidden sm:inline text-blue-600 dark:text-blue-400 font-medium">专业防静电操作台环境</span>
+            <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-zinc-600 dark:text-zinc-400 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
+              <span>{t('cameraHintFull')}</span>
+              <span className="hidden sm:inline text-zinc-800 dark:text-zinc-200 font-medium">
+                {t('cleanWorkbench')}
+              </span>
             </div>
           </div>
 
           {/* Stepper & Progress Rail below Canvas */}
-          <div className="p-4 bg-slate-50 dark:bg-slate-900/95 border-t border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="p-4 bg-zinc-50 dark:bg-[#09090b] border-t border-zinc-200 dark:border-zinc-800 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
-                <Wrench className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="font-bold text-slate-800 dark:text-slate-200">
-                  标准化装配工序
+                <Wrench className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A]" />
+                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                  {t('standardizedAssemblySteps')}
                 </span>
-                <span className="text-slate-500 dark:text-slate-400 hidden sm:inline">
-                  · 当前步骤: {currentStep.title}
+                <span className="text-zinc-500 dark:text-zinc-400 hidden sm:inline">
+                  · {t('currentStepLabel')} {currentStep.title}
                 </span>
               </div>
-              <div className="text-xs text-slate-700 dark:text-slate-300 flex items-center space-x-1.5 bg-white dark:bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700/60 font-mono shadow-xs">
-                <span className="text-slate-500 dark:text-slate-400">进度:</span>
-                <span className="text-blue-600 dark:text-blue-400 font-bold">
+              <div className="text-xs text-zinc-700 dark:text-zinc-300 flex items-center space-x-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-200 dark:border-zinc-800 font-mono shadow-xs">
+                <span className="text-zinc-500 dark:text-zinc-400">{t('progressLabel')}</span>
+                <span className="text-zinc-900 dark:text-[#F7D84A] font-bold">
                   {Math.round(((currentStepIndex + 1) / assemblyStepsData.length) * 100)}%
                 </span>
               </div>
@@ -301,10 +223,10 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Tactile Pipeline Rail */}
             <div className="relative pt-2 pb-1 px-3">
-              <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 pointer-events-none" />
+              <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 pointer-events-none" />
 
               <div
-                className="absolute top-1/2 left-6 -translate-y-1/2 h-1.5 rounded-full bg-blue-600 transition-all duration-500 pointer-events-none"
+                className="absolute top-1/2 left-6 -translate-y-1/2 h-1.5 rounded-full bg-zinc-900 dark:bg-[#F7D84A] transition-all duration-500 pointer-events-none"
                 style={{
                   width: `calc(${
                     (currentStepIndex / (assemblyStepsData.length - 1)) * 100
@@ -317,6 +239,9 @@ export const AssemblySimulator3D: React.FC = () => {
                 {assemblyStepsData.map((s, idx) => {
                   const isCurrent = currentStepIndex === idx;
                   const isPassed = currentStepIndex > idx;
+                  const localizedStep = lang === 'en' ? stepTranslationsEn[s.stepNumber] : undefined;
+                  const displayTitle = localizedStep?.title || s.title;
+
                   return (
                     <button
                       key={s.stepNumber}
@@ -324,15 +249,15 @@ export const AssemblySimulator3D: React.FC = () => {
                       className={`group/step relative flex flex-col items-center transition-all cursor-pointer ${
                         isCurrent ? 'scale-110 z-20' : 'hover:scale-105'
                       }`}
-                      title={`${s.stepNumber}. ${s.title} - ${s.subtitle}`}
+                      title={`${s.stepNumber}. ${displayTitle}`}
                     >
                       <div
                         className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all ${
                           isCurrent
-                            ? 'bg-blue-600 text-white ring-4 ring-blue-400/30 shadow-md shadow-blue-500/30'
+                            ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 ring-4 ring-[#F7D84A]/50 shadow-sm'
                             : isPassed
-                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600'
-                            : 'bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-700 dark:hover:text-slate-200'
+                            ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700'
+                            : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200'
                         }`}
                       >
                         {s.stepNumber}
@@ -340,13 +265,13 @@ export const AssemblySimulator3D: React.FC = () => {
                       <span
                         className={`text-[10px] mt-1 font-medium hidden md:inline-block max-w-[65px] truncate transition-colors ${
                           isCurrent
-                            ? 'text-blue-600 dark:text-blue-400 font-bold'
+                            ? 'text-zinc-900 dark:text-[#F7D84A] font-bold'
                             : isPassed
-                            ? 'text-slate-700 dark:text-slate-300'
-                            : 'text-slate-400 dark:text-slate-500'
+                            ? 'text-zinc-700 dark:text-zinc-300'
+                            : 'text-zinc-400 dark:text-zinc-500'
                         }`}
                       >
-                        {s.title.split(' ')[0]}
+                        {displayTitle.split(' ')[0]}
                       </span>
                     </button>
                   );
@@ -357,26 +282,26 @@ export const AssemblySimulator3D: React.FC = () => {
         </div>
 
         {/* Right: Step Detailed Guide Card (5 Cols) */}
-        <div className="lg:col-span-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-md p-6 transition-colors">
+        <div className="lg:col-span-5 rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-md p-6 transition-colors">
           <div key={currentStepIndex} className="space-y-5 animate-in fade-in slide-in-from-right-2 duration-300">
             {/* Step Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <div className="space-y-1.5 flex-1 pr-2">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-                    STEP {currentStep.stepNumber} / {assemblyStepsData.length}
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 font-mono">
+                    {t('stepTitle', { current: currentStep.stepNumber, total: assemblyStepsData.length })}
                   </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80 shadow-xs">
-                    ✨ 当前工序聚焦：{componentNameMap[currentStep.componentKey] || currentStep.title.split(' ')[0]}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F7D84A]/10 text-zinc-900 dark:text-[#F7D84A] border border-[#F7D84A]/30 shadow-xs">
+                    {t('currentStepFocus')}{componentNameMap[currentStep.componentKey] || currentStep.title.split(' ')[0]}
                   </span>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full font-medium border border-emerald-200/50 dark:border-emerald-800/40">
-                    已同步 3D 视角
+                    {t('synced3DView')}
                   </span>
                 </div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                <h3 className="text-lg font-black text-zinc-900 dark:text-white">
                   {currentStep.title}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   {currentStep.subtitle}
                 </p>
               </div>
@@ -386,16 +311,16 @@ export const AssemblySimulator3D: React.FC = () => {
                 <button
                   onClick={() => handleStepChange(currentStepIndex - 1)}
                   disabled={currentStepIndex === 0}
-                  className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
-                  title="上一步"
+                  className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
+                  title={t('btnPrevStep')}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => handleStepChange(currentStepIndex + 1)}
                   disabled={currentStepIndex === assemblyStepsData.length - 1}
-                  className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white transition-colors cursor-pointer"
-                  title="下一步"
+                  className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 disabled:opacity-30 text-white dark:text-zinc-900 transition-colors cursor-pointer"
+                  title={t('btnNextStep')}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -403,46 +328,46 @@ export const AssemblySimulator3D: React.FC = () => {
             </div>
 
             {/* Step Summary Box (Crucial overview of current step) */}
-            <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 text-xs text-slate-700 dark:text-slate-200 flex items-start space-x-2.5 leading-relaxed">
-              <span className="shrink-0 px-2 py-0.5 rounded-md bg-blue-600 text-white text-[10px] font-bold mt-0.5 shadow-xs">
-                工序精要
+            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-700 dark:text-zinc-200 flex items-start space-x-2.5 leading-relaxed">
+              <span className="shrink-0 px-2 py-0.5 rounded-md bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 text-[10px] font-bold mt-0.5 shadow-xs">
+                {t('stepSummaryBadge')}
               </span>
-              <p className="font-medium text-slate-800 dark:text-slate-200">{currentStep.summary}</p>
+              <p className="font-medium text-zinc-800 dark:text-zinc-200">{currentStep.summary}</p>
             </div>
 
             {/* Interactive Simulate Action Button */}
             <button
               onClick={handleSimulateInstall}
               disabled={isInstalling}
-              className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+              className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 disabled:opacity-50 text-white dark:text-zinc-950 text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
             >
-              <Sparkles className={`w-4 h-4 ${isInstalling ? 'animate-spin' : ''}`} />
-              <span>{isInstalling ? '正在执行安装位移...' : '✨ 模拟执行本步骤安装动作'}</span>
+              <Sparkles className={`w-4 h-4 text-[#F7D84A] dark:text-[#d4990d] ${isInstalling ? 'animate-spin' : ''}`} />
+              <span>{isInstalling ? t('simulatingInstallBtn') : t('simulateInstallBtn')}</span>
             </button>
 
             {/* Hardware Craft & Specs Snapshot */}
             {stepSpec && (
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/80 dark:border-slate-800 space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-800 dark:text-zinc-200">
                   <span className="flex items-center space-x-1.5">
-                    <Cpu className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    <span>实时硬件规格与材质快照</span>
+                    <Cpu className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
+                    <span>{t('hardwareCraftSnapshot')}</span>
                   </span>
-                  <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
+                  <span className="text-[10px] font-normal text-zinc-500 dark:text-zinc-400">
                     {stepSpec.highlightTip}
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/80 p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-750 font-mono">
+                <div className="text-[11px] text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 font-mono">
                   {stepSpec.craft}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {stepSpec.specs.map((sp, idx) => (
                     <div
                       key={idx}
-                      className="p-2 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200/60 dark:border-slate-800 text-[11px] space-y-0.5"
+                      className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] space-y-0.5"
                     >
-                      <div className="text-slate-400 dark:text-slate-500 text-[10px]">{sp.label}</div>
-                      <div className="font-semibold text-slate-800 dark:text-slate-200 truncate">
+                      <div className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sp.label}</div>
+                      <div className="font-semibold text-zinc-800 dark:text-zinc-200 truncate">
                         {sp.val}
                       </div>
                     </div>
@@ -453,13 +378,13 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Actionable Instructions List */}
             <div className="space-y-2.5">
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                标准安装操作指引：
+              <div className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                {t('guideTitle')}
               </div>
-              <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+              <ul className="space-y-2 text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">
                 {currentStep.instructions.map((ins, idx) => (
                   <li key={idx} className="flex items-start space-x-2.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400 mt-0.5 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-zinc-900 dark:text-[#F7D84A] mt-0.5 shrink-0" />
                     <span>{ins}</span>
                   </li>
                 ))}
@@ -468,10 +393,10 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* High-risk Warning Box */}
             {currentStep.criticalWarning && (
-              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 space-y-1.5">
                 <div className="flex items-center space-x-1.5 text-amber-700 dark:text-amber-400 font-bold text-xs">
                   <AlertTriangle className="w-4 h-4" />
-                  <span>防呆防坑高危警示</span>
+                  <span>{t('warningTitle')}</span>
                 </div>
                 <p className="text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed">
                   {currentStep.criticalWarning}
@@ -481,10 +406,10 @@ export const AssemblySimulator3D: React.FC = () => {
 
             {/* Debug / Self-check tip */}
             {currentStep.debugCheck && (
-              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850/60 border border-slate-200/60 dark:border-slate-800 text-xs flex items-start space-x-2 text-slate-700 dark:text-slate-300">
+              <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-xs flex items-start space-x-2 text-zinc-700 dark:text-zinc-300">
                 <HelpCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
                 <div>
-                  <strong className="text-slate-800 dark:text-slate-200">安装完成自检：</strong>
+                  <strong className="text-zinc-800 dark:text-zinc-200 mr-1">{t('debugTitle')}</strong>
                   <span>{currentStep.debugCheck}</span>
                 </div>
               </div>
@@ -494,11 +419,11 @@ export const AssemblySimulator3D: React.FC = () => {
             <div className="pt-2">
               <button
                 onClick={() => setIsBilibiliModalOpen(true)}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-pink-50/70 dark:bg-pink-950/20 hover:bg-pink-100/80 dark:hover:bg-pink-900/30 border border-pink-200/80 dark:border-pink-900/40 text-pink-700 dark:text-pink-400 text-xs font-bold transition-all cursor-pointer"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/80 hover:bg-zinc-100 dark:hover:bg-zinc-850 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all cursor-pointer"
               >
                 <div className="flex items-center space-x-2">
-                  <Tv className="w-4 h-4" />
-                  <span>查看此步骤对应 B 站实操精讲 ({currentStep.bilibiliTimestamp})</span>
+                  <Tv className="w-4 h-4 text-[#F7D84A]" />
+                  <span>{t('btnViewVideoStep', { time: currentStep.bilibiliTimestamp || '' })}</span>
                 </div>
                 <ChevronRight className="w-4 h-4" />
               </button>

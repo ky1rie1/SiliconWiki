@@ -4,7 +4,7 @@ export const changelogList: ChangelogItem[] = [
   {
     version: 'v1.6.0',
     date: '2026-09-04',
-    title: '硬件全动态筛选器、微架构高精工程展台、开发者特权记忆与中关村在线 (ZOL) 数据库联动',
+    title: '硬件全动态筛选器、微架构高精工程展台、系统诊断与内容校准记忆与中关村在线 (ZOL) 数据库联动',
     tag: '最新发布',
     updates: [
       {
@@ -17,7 +17,7 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'feature',
-        text: '开发者特权永久记忆与代码库固化：激活后本地永久保持，导航栏顶部常驻「文案速改」快捷入口；支持一键生成并复制 defaultTextOverrides.ts 完整代码文件，新增 JSON 补丁导入功能。',
+        text: '系统诊断与内容校准工作台记忆与代码库固化：激活后本地永久保持，导航栏顶部常驻「内容校准」快捷入口；支持一键生成并复制 defaultTextOverrides.ts 完整代码文件，新增 JSON 补丁导入功能。',
       },
       {
         type: 'data',

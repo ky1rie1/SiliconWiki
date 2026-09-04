@@ -24,7 +24,7 @@ interface HardwareCardProps {
 }
 
 export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, onOpenTerm }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const matchedTerms = useMemo(() => {
     const textCorpus = [
@@ -49,28 +49,28 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
         return (
           <span className="inline-flex items-center space-x-1 text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-medium">
             <TrendingDown className="w-3 h-3" />
-            <span>近期微跌 · 性价比高</span>
+            <span>{lang === 'en' ? 'Recent Drop · Value' : '近期微跌 · 性价比高'}</span>
           </span>
         );
       case 'up':
         return (
           <span className="inline-flex items-center space-x-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-medium">
             <TrendingUp className="w-3 h-3" />
-            <span>略有上涨</span>
+            <span>{lang === 'en' ? 'Slightly Up' : '略有上涨'}</span>
           </span>
         );
       case 'warning':
         return (
           <span className="inline-flex items-center space-x-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 font-medium">
             <AlertTriangle className="w-3 h-3" />
-            <span>溢价明显 / 紧俏</span>
+            <span>{lang === 'en' ? 'Premium / Low Stock' : '溢价明显 / 紧俏'}</span>
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center space-x-1 text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
             <Minus className="w-3 h-3" />
-            <span>行情平稳</span>
+            <span>{lang === 'en' ? 'Stable Price' : '行情平稳'}</span>
           </span>
         );
     }
@@ -117,7 +117,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                 {item.brand}
               </span>
               <span className="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
-                {item.releaseYear} 年
+                {item.releaseYear}{lang === 'en' ? '' : ' 年'}
               </span>
               {item.badge && (
                 <span className="text-xs px-2 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-xs">
@@ -128,7 +128,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
             <div className="flex items-center space-x-1 text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>{item.tdpWatts > 0 ? `${item.tdpWatts}W` : '标准功耗'}</span>
+              <span>{item.tdpWatts > 0 ? `${item.tdpWatts}W` : (lang === 'en' ? 'Standard TDP' : '标准功耗')}</span>
             </div>
           </div>
 
@@ -199,7 +199,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
             <>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono flex items-center space-x-0.5">
                 <Sparkles className="w-2.5 h-2.5 text-amber-500 inline mr-0.5" />
-                <span>名词速查:</span>
+                <span>{lang === 'en' ? 'Tech Terms:' : '名词速查:'}</span>
               </span>
               {matchedTerms.map((term) => (
                 <button
@@ -210,7 +210,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                     onOpenTerm?.(term);
                   }}
                   className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 transition-colors cursor-pointer"
-                  title={`点击查看「${term.term}」详细技术名词解释`}
+                  title={lang === 'en' ? `View technical explanation for "${term.term}"` : `点击查看「${term.term}」详细技术名词解释`}
                 >
                   <span>{term.term.split(' ')[0]}</span>
                   <HelpCircle className="w-2.5 h-2.5 opacity-70" />
@@ -232,7 +232,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
           >
             <span className="flex items-center space-x-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>查看深度评测、跑分与价格走势</span>
+              <span>{lang === 'en' ? 'View Benchmarks, Reviews & Price Trends' : '查看深度评测、跑分与价格走势'}</span>
             </span>
             <span className="w-6 h-6 rounded-full bg-white dark:bg-slate-800 shadow-2xs flex items-center justify-center group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform">
               <ExternalLink className="w-3 h-3 text-slate-500 dark:text-slate-300" />
@@ -245,7 +245,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
           <div className="flex items-baseline justify-between mb-3">
             <div>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 block uppercase">
-                官方指导价 (MSRP)
+                {t('msrpLabel')}
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500 line-through">
                 ￥{item.msrpRmb}
@@ -254,7 +254,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
             <div className="text-right">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 block uppercase">
-                近期参考成交均价
+                {t('marketPriceLabel')}
               </span>
               <div className="text-base font-extrabold text-blue-600 dark:text-cyan-400 font-mono">
                 ￥{item.marketPriceRange[0]} ~ ￥{item.marketPriceRange[1]}
@@ -279,7 +279,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 text-[11px] font-medium transition-colors"
-              title="直达京东自营搜索最新现货报价 (须登录)"
+              title={lang === 'en' ? 'Search JD.com for live price (Login Req.)' : '直达京东自营搜索最新现货报价 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />
               <span className="truncate">{t('shopJd')}</span>
@@ -292,7 +292,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-600 dark:text-amber-400 text-[11px] font-medium transition-colors"
-              title="直达淘宝百亿补贴精选现货搜索 (须登录)"
+              title={lang === 'en' ? 'Search Taobao for live price (Login Req.)' : '直达淘宝百亿补贴精选现货搜索 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />
               <span className="truncate">{t('shopTb')}</span>
@@ -307,7 +307,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-orange-600/10 hover:bg-orange-600/20 text-orange-600 dark:text-orange-400 text-[11px] font-medium transition-colors"
-              title="直达拼多多百亿补贴搜索 (须登录)"
+              title={lang === 'en' ? 'Search PDD for live price (Login Req.)' : '直达拼多多百亿补贴搜索 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />
               <span className="truncate">{t('shopPdd')}</span>
