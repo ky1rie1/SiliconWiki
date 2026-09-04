@@ -50,6 +50,8 @@ const PRESET_TEXTS = [
 
 export const QuickTextEditorModal: React.FC = () => {
   const {
+    isDevMode,
+    lockDevMode,
     overrides,
     setOverride,
     removeOverride,
@@ -77,17 +79,19 @@ export const QuickTextEditorModal: React.FC = () => {
     }
   }, [selectedTextForEdit, overrides]);
 
-  // Global shortcut to toggle editor (Alt + E)
+  // Global shortcut to toggle editor (Alt + E) - only works when in Developer Mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        setIsEditorOpen(!isEditorOpen);
+        if (isDevMode) {
+          e.preventDefault();
+          setIsEditorOpen(!isEditorOpen);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isEditorOpen, setIsEditorOpen]);
+  }, [isDevMode, isEditorOpen, setIsEditorOpen]);
 
   const handleApply = (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,22 +146,24 @@ export const QuickTextEditorModal: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Bottom Action Trigger */}
-      <div data-no-text-override="true" className="fixed bottom-5 right-5 z-[90] flex items-center space-x-2">
-        <button
-          onClick={() => setIsEditorOpen(true)}
-          title="文案速改系统 (快捷键: Alt + E)"
-          className="group relative flex items-center space-x-2 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 dark:from-blue-600 dark:to-cyan-600 text-white shadow-xl hover:shadow-2xl border border-white/15 dark:border-cyan-400/30 hover:scale-105 active:scale-95 transition-all duration-200"
-        >
-          <Edit3 className="w-4 h-4 text-cyan-300 group-hover:rotate-12 transition-transform" />
-          <span className="text-xs font-semibold tracking-tight hidden sm:inline">文案速改</span>
-          {overridesCount > 0 && (
-            <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[11px] font-bold bg-amber-500 text-slate-950 rounded-full">
-              {overridesCount}
-            </span>
-          )}
-        </button>
-      </div>
+      {/* Floating Bottom Action Trigger (Only visible in Developer Mode) */}
+      {isDevMode && (
+        <div data-no-text-override="true" className="fixed bottom-5 right-5 z-[90] flex items-center space-x-2">
+          <button
+            onClick={() => setIsEditorOpen(true)}
+            title="开发者文案速改工作台 (快捷键: Alt + E)"
+            className="group relative flex items-center space-x-2 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 dark:from-blue-600 dark:to-cyan-600 text-white shadow-xl hover:shadow-2xl border border-white/15 dark:border-cyan-400/30 hover:scale-105 active:scale-95 transition-all duration-200"
+          >
+            <Edit3 className="w-4 h-4 text-cyan-300 group-hover:rotate-12 transition-transform" />
+            <span className="text-xs font-semibold tracking-tight hidden sm:inline">开发者文案速改</span>
+            {overridesCount > 0 && (
+              <span className="flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[11px] font-bold bg-amber-500 text-slate-950 rounded-full">
+                {overridesCount}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Main Quick Text Editor Modal */}
       {isEditorOpen && (
@@ -176,7 +182,7 @@ export const QuickTextEditorModal: React.FC = () => {
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                     <span>站长文案速改系统</span>
                     <span className="text-[11px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono">
-                      v1.5 Live
+                      开发者模式 (ky1rie1101)
                     </span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -184,15 +190,28 @@ export const QuickTextEditorModal: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setIsEditorOpen(false);
-                  setSelectedTextForEdit(null);
-                }}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    lockDevMode();
+                    setSelectedTextForEdit(null);
+                  }}
+                  className="px-2.5 py-1 text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg border border-rose-200/60 dark:border-rose-900/60 transition-colors"
+                  title="锁定并退出开发者模式"
+                >
+                  退出开发者模式
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditorOpen(false);
+                    setSelectedTextForEdit(null);
+                  }}
+                  className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Navigation Tabs */}

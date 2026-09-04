@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
 interface CustomContentContextType {
+  isDevMode: boolean;
+  unlockDevMode: () => void;
+  lockDevMode: () => void;
   overrides: Record<string, string>;
   setOverride: (original: string, replacement: string) => void;
   removeOverride: (original: string) => void;
@@ -14,6 +17,7 @@ interface CustomContentContextType {
 }
 
 const STORAGE_KEY = 'silicon_wiki_text_overrides';
+const DEV_MODE_KEY = 'silicon_wiki_dev_mode';
 
 const CustomContentContext = createContext<CustomContentContextType | undefined>(undefined);
 
@@ -26,6 +30,36 @@ export const useCustomContent = () => {
 };
 
 export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Developer Mode is hidden by default. Triggered by typing 'ky1rie1101' in search.
+  const [isDevMode, setIsDevMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(DEV_MODE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const unlockDevMode = useCallback(() => {
+    setIsDevMode(true);
+    try {
+      localStorage.setItem(DEV_MODE_KEY, 'true');
+    } catch (e) {
+      console.warn('Failed to save dev mode', e);
+    }
+    setIsEditorOpen(true);
+  }, []);
+
+  const lockDevMode = useCallback(() => {
+    setIsDevMode(false);
+    setIsEditorOpen(false);
+    setIsVisualEditMode(false);
+    try {
+      localStorage.removeItem(DEV_MODE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear dev mode', e);
+    }
+  }, []);
+
   const [overrides, setOverrides] = useState<Record<string, string>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -41,7 +75,9 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // WeakMap to track original node values so replacements can be safely applied/reverted
   const originalTextMap = useRef<WeakMap<Node, string>>(new WeakMap());
+  const originalAttrMap = useRef<WeakMap<Element, Record<string, string>>>(new WeakMap());
   const isReplacingRef = useRef(false);
+  const rafIdRef = useRef<number | null>(null);
 
   // Save overrides to localStorage
   const saveOverrides = useCallback((newOverrides: Record<string, string>) => {
@@ -77,12 +113,13 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     saveOverrides({});
   }, [saveOverrides]);
 
-  // DOM Text Replacement Engine
+  // Robust Text and Attribute Replacement Engine
   const applyOverridesToNode = useCallback(
     (rootNode: Node) => {
       const keys = Object.keys(overrides);
       if (keys.length === 0) return;
 
+      // 1. Scan and replace within individual Text nodes
       const walker = document.createTreeWalker(
         rootNode,
         NodeFilter.SHOW_TEXT,
@@ -91,12 +128,10 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
             const parent = node.parentElement;
             if (!parent) return NodeFilter.FILTER_REJECT;
 
-            // Skip script, style, input, textarea, code blocks, and editor modal itself
             const tagName = parent.tagName.toLowerCase();
             if (
               tagName === 'script' ||
               tagName === 'style' ||
-              tagName === 'input' ||
               tagName === 'textarea' ||
               tagName === 'noscript'
             ) {
@@ -133,6 +168,55 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
         currentNode = walker.nextNode();
       }
+
+      // 2. Scan and replace in element attributes (placeholder, title, aria-label)
+      const attrElements = document.querySelectorAll(
+        '[placeholder]:not([data-no-text-override] *), [title]:not([data-no-text-override] *), [aria-label]:not([data-no-text-override] *)'
+      );
+
+      attrElements.forEach((el) => {
+        if (el.closest('[data-no-text-override]')) return;
+
+        let originalAttrs = originalAttrMap.current.get(el);
+        if (!originalAttrs) {
+          originalAttrs = {
+            placeholder: el.getAttribute('placeholder') || '',
+            title: el.getAttribute('title') || '',
+            ariaLabel: el.getAttribute('aria-label') || '',
+          };
+          originalAttrMap.current.set(el, originalAttrs);
+        }
+
+        ['placeholder', 'title', 'aria-label'].forEach((attr) => {
+          const origVal =
+            attr === 'aria-label' ? originalAttrs!.ariaLabel : originalAttrs![attr];
+          if (!origVal) return;
+
+          let newVal = origVal;
+          for (const key of keys) {
+            if (newVal.includes(key)) {
+              newVal = newVal.split(key).join(overrides[key]);
+            }
+          }
+          if (el.getAttribute(attr) !== newVal) {
+            el.setAttribute(attr, newVal);
+          }
+        });
+      });
+
+      // 3. Container Element direct text fallback (for elements with mixed inline tags)
+      for (const key of keys) {
+        // Find leaf containers whose text matches the key
+        const potentialContainers = document.querySelectorAll('h1, h2, h3, h4, h5, p, span, button, a, label, li');
+        potentialContainers.forEach((el) => {
+          if (el.closest('[data-no-text-override]')) return;
+          if (el.children.length === 0 && el.textContent?.trim() === key) {
+            if (el.textContent !== overrides[key]) {
+              el.textContent = overrides[key];
+            }
+          }
+        });
+      }
     },
     [overrides]
   );
@@ -153,17 +237,25 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
     runReplace();
 
+    const scheduleReplace = () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = requestAnimationFrame(runReplace);
+    };
+
     const observer = new MutationObserver(() => {
-      runReplace();
+      scheduleReplace();
     });
 
     observer.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true,
+      attributes: true,
+      attributeFilter: ['placeholder', 'title'],
     });
 
     return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       observer.disconnect();
     };
   }, [overrides, applyOverridesToNode]);
@@ -174,19 +266,34 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
     let currentHovered: HTMLElement | null = null;
 
+    const getInnermostTextTarget = (el: HTMLElement): HTMLElement => {
+      // Drill down to the most specific text container element
+      let current = el;
+      while (
+        current.children.length === 1 &&
+        current.firstElementChild instanceof HTMLElement &&
+        current.firstElementChild.innerText?.trim() === current.innerText?.trim()
+      ) {
+        current = current.firstElementChild;
+      }
+      return current;
+    };
+
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target || target.closest('[data-no-text-override]')) return;
 
-      if (currentHovered && currentHovered !== target) {
+      const inner = getInnermostTextTarget(target);
+
+      if (currentHovered && currentHovered !== inner) {
         currentHovered.style.outline = '';
         currentHovered.style.cursor = '';
       }
 
-      currentHovered = target;
-      target.style.outline = '2px dashed #3b82f6';
-      target.style.outlineOffset = '2px';
-      target.style.cursor = 'crosshair';
+      currentHovered = inner;
+      inner.style.outline = '2px dashed #3b82f6';
+      inner.style.outlineOffset = '2px';
+      inner.style.cursor = 'crosshair';
     };
 
     const handleMouseOut = (e: MouseEvent) => {
@@ -204,7 +311,17 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       e.preventDefault();
       e.stopPropagation();
 
-      const text = target.innerText?.trim() || target.textContent?.trim() || '';
+      // Check if user has highlighted text with mouse cursor
+      const selectedRangeText = window.getSelection()?.toString().trim();
+      if (selectedRangeText && selectedRangeText.length > 0) {
+        setSelectedTextForEdit(selectedRangeText);
+        setIsEditorOpen(true);
+        return;
+      }
+
+      const inner = getInnermostTextTarget(target);
+      // Clean extracted text
+      const text = inner.innerText?.trim() || inner.textContent?.trim() || '';
       if (text) {
         setSelectedTextForEdit(text);
         setIsEditorOpen(true);
@@ -237,6 +354,9 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <CustomContentContext.Provider
       value={{
+        isDevMode,
+        unlockDevMode,
+        lockDevMode,
         overrides,
         setOverride,
         removeOverride,

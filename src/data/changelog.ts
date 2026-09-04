@@ -35,7 +35,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.4.0',
-    date: '2026-09-03',
+    date: '2026-09-04',
     title: '全量硬件库扩充、42条硬核名词宝典、划词解释卡片与 CNC 机械跑分规',
     tag: '重大里程碑',
     updates: [
@@ -67,7 +67,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.3.0',
-    date: '2026-08-28',
+    date: '2026-09-04',
     title: '硬件卡片高科技矢量蓝图、电商直达与 3D 体素模型升级',
     tag: '重大更新',
     updates: [
@@ -91,7 +91,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.2.0',
-    date: '2026-08-15',
+    date: '2026-09-04',
     title: '次世代硬件与极客湾天梯权威跑分全面同步',
     tag: '数据同步',
     updates: [
@@ -111,7 +111,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.1.0',
-    date: '2026-07-20',
+    date: '2026-09-04',
     title: 'Three.js 3D 实景装机室与 B 站保姆级视频精讲上线',
     tag: '核心功能',
     updates: [
@@ -131,7 +131,7 @@ export const changelogList: ChangelogItem[] = [
   },
   {
     version: 'v1.0.0',
-    date: '2026-06-01',
+    date: '2026-09-04',
     title: 'SiliconWiki 芯知百科正式上线',
     tag: '首次发布',
     updates: [

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Cpu, ExternalLink, Heart, ShieldAlert, BookOpen, Edit3 } from 'lucide-react';
+import { Cpu, ExternalLink, Heart, ShieldAlert, BookOpen } from 'lucide-react';
 import { ActiveTab } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
-import { useCustomContent } from '../../context/CustomContentContext';
 
 interface FooterProps {
   onTabChange: (tab: ActiveTab) => void;
@@ -11,7 +10,6 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) => {
   const { lang, t } = useLanguage();
-  const { setIsEditorOpen } = useCustomContent();
 
   return (
     <footer className="w-full border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/50 transition-colors mt-auto py-12">
@@ -163,14 +161,6 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                 className="inline-flex items-center space-x-1 text-blue-600 dark:text-cyan-400 hover:underline block"
               >
                 <span>{lang === 'zh' ? '查看版本更新日志与公告' : 'View Version Changelog'}</span>
-              </button>
-              <button
-                onClick={() => setIsEditorOpen(true)}
-                className="inline-flex items-center space-x-1 text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-cyan-400 transition-colors pt-1 block"
-                title="快捷键: Alt + E"
-              >
-                <Edit3 className="w-3 h-3 text-cyan-500 inline" />
-                <span>{lang === 'zh' ? '站长文案速改 (Alt+E)' : 'Content Customizer (Alt+E)'}</span>
               </button>
             </div>
           </div>

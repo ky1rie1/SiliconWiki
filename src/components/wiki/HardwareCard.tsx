@@ -92,10 +92,10 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
   };
 
   return (
-    <div className="double-bezel-outer group/card hover:scale-[1.01] transition-spring">
+    <div className="double-bezel-outer h-full flex flex-col group/card hover:scale-[1.01] transition-spring">
       <div
         onClick={() => onOpenSpecs?.(item)}
-        className="double-bezel-inner flex flex-col justify-between overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/5"
+        className="double-bezel-inner h-full flex flex-col flex-1 overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/5"
       >
         {/* Product Image & Blueprint Schematic Banner */}
         <HardwareImage
@@ -106,7 +106,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
         />
 
         {/* Top Header */}
-        <div className="p-5 pb-3">
+        <div className="p-5 pb-2">
           <div className="flex items-start justify-between gap-3 mb-2.5">
             <div className="flex items-center space-x-2 flex-wrap gap-y-1">
               <span
@@ -132,32 +132,36 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
             </div>
           </div>
 
-          {/* Title & Architecture */}
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover/card:text-blue-600 dark:group-hover/card:text-cyan-400 transition-colors">
-            {item.name}
-          </h3>
-          {item.architecture && (
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">
-              {item.architecture}
-            </p>
-          )}
+          {/* Title & Architecture (Standardized min-h for perfect vertical alignment) */}
+          <div className="min-h-[3.25rem] flex flex-col justify-center">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover/card:text-blue-600 dark:group-hover/card:text-cyan-400 transition-colors line-clamp-2">
+              {item.name}
+            </h3>
+            {item.architecture ? (
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono truncate">
+                {item.architecture}
+              </p>
+            ) : (
+              <div className="h-4" />
+            )}
+          </div>
         </div>
 
-        {/* Highlights */}
+        {/* Highlights (Standardized min-h) */}
         <div className="px-5 py-2">
-          <div className="space-y-1.5 bg-slate-50/80 dark:bg-slate-850/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60">
+          <div className="space-y-1.5 bg-slate-50/80 dark:bg-slate-850/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 min-h-[5.5rem] flex flex-col justify-center">
             {item.highlights.slice(0, 3).map((hl, idx) => (
               <div key={idx} className="flex items-start space-x-2 text-xs text-slate-700 dark:text-slate-300">
                 <span className="text-blue-500 dark:text-cyan-400 font-bold mt-0.5">•</span>
-                <span className="leading-snug">{hl}</span>
+                <span className="leading-snug line-clamp-1">{hl}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Specifications Table */}
+        {/* Specifications Table (Standardized min-h) */}
         <div className="px-5 py-2">
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs border-t border-b border-slate-100 dark:border-slate-800/80 py-2.5">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs border-t border-b border-slate-100 dark:border-slate-800/80 py-2.5 min-h-[4.75rem] content-center">
             {Object.entries(item.specs)
               .slice(0, 6)
               .map(([k, v]) => (
@@ -173,8 +177,8 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
           </div>
         </div>
 
-        {/* Pros & Cons */}
-        <div className="px-5 py-2 space-y-1 text-xs">
+        {/* Pros & Cons (Standardized min-h) */}
+        <div className="px-5 py-1.5 space-y-1 text-xs min-h-[2.75rem] flex flex-col justify-center">
           {item.pros[0] && (
             <div className="flex items-start space-x-1.5 text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0" />
@@ -190,32 +194,34 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
         </div>
 
         {/* Clickable Glossary Term Badges */}
-        {matchedTerms.length > 0 && (
-          <div className="px-5 py-1.5 flex items-center space-x-1.5 flex-wrap gap-y-1">
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono flex items-center space-x-0.5">
-              <Sparkles className="w-2.5 h-2.5 text-amber-500 inline mr-0.5" />
-              <span>名词速查:</span>
-            </span>
-            {matchedTerms.map((term) => (
-              <button
-                key={term.id}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenTerm?.(term);
-                }}
-                className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 transition-colors cursor-pointer"
-                title={`点击查看「${term.term}」详细技术名词解释`}
-              >
-                <span>{term.term.split(' ')[0]}</span>
-                <HelpCircle className="w-2.5 h-2.5 opacity-70" />
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="px-5 py-1.5 min-h-[2.2rem] flex items-center space-x-1.5 flex-wrap gap-y-1">
+          {matchedTerms.length > 0 && (
+            <>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono flex items-center space-x-0.5">
+                <Sparkles className="w-2.5 h-2.5 text-amber-500 inline mr-0.5" />
+                <span>名词速查:</span>
+              </span>
+              {matchedTerms.map((term) => (
+                <button
+                  key={term.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenTerm?.(term);
+                  }}
+                  className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 transition-colors cursor-pointer"
+                  title={`点击查看「${term.term}」详细技术名词解释`}
+                >
+                  <span>{term.term.split(' ')[0]}</span>
+                  <HelpCircle className="w-2.5 h-2.5 opacity-70" />
+                </button>
+              ))}
+            </>
+          )}
+        </div>
 
         {/* Dedicated "View Full Benchmarks & Reviews" Button-in-Button */}
-        <div className="px-5 pt-1">
+        <div className="px-5 pt-1 pb-2">
           <button
             type="button"
             onClick={(e) => {
@@ -234,8 +240,8 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
           </button>
         </div>
 
-        {/* Price & E-commerce Direct Search Bar */}
-        <div className="p-5 pt-3 mt-2 bg-slate-50/50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800/70">
+        {/* Price & E-commerce Direct Search Bar (mt-auto pinned to card bottom) */}
+        <div className="p-5 pt-3 mt-auto bg-slate-50/50 dark:bg-slate-950/40 border-t border-slate-100 dark:border-slate-800/70">
           <div className="flex items-baseline justify-between mb-3">
             <div>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 block uppercase">

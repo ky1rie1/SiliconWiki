@@ -16,12 +16,13 @@ import { glossaryTerms } from '../../data/glossary';
 import { assemblyStepsData } from '../../data/assemblySteps';
 import { recommendedBuilds } from '../../data/builds';
 import { ActiveTab } from '../../types';
+import { useCustomContent } from '../../context/CustomContentContext';
 
 interface SearchResultItem {
   id: string;
   title: string;
   subtitle: string;
-  category: '硬件型号' | '性能天梯' | '名词术语' | '装机步骤' | '推荐配置';
+  category: '硬件型号' | '性能天梯' | '名词术语' | '装机步骤' | '推荐配置' | '开发者模式';
   targetTab: ActiveTab;
   badge?: string;
 }
@@ -37,6 +38,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onClose,
   onNavigate,
 }) => {
+  const { unlockDevMode } = useCustomContent();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,6 +69,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   // Aggregated Search Results
   const results = useMemo<SearchResultItem[]>(() => {
     const q = query.trim().toLowerCase();
+
+    // Hidden Developer Secret: ky1rie1101 unlocks full webmaster developer mode
+    if (q === 'ky1rie1101') {
+      return [
+        {
+          id: 'dev-mode-secret',
+          title: '🔓 开启开发者调试与文案速改工作台',
+          subtitle: '暗号验证通过！按 Enter 或点击即可立即进入开发者工作台',
+          category: '开发者模式',
+          targetTab: 'wiki',
+          badge: '站长特权',
+        },
+      ];
+    }
+
     if (!q) {
       // Return hot suggestions when empty
       return [
@@ -220,6 +237,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   }, [query]);
 
   const handleSelect = (item: SearchResultItem) => {
+    if (item.id === 'dev-mode-secret' || query.trim().toLowerCase() === 'ky1rie1101') {
+      unlockDevMode();
+      onClose();
+      return;
+    }
     onNavigate(item.targetTab);
     onClose();
   };
@@ -233,6 +255,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       setSelectedIndex((prev) => (prev - 1 + results.length) % Math.max(1, results.length));
     } else if (e.key === 'Enter') {
       e.preventDefault();
+      if (query.trim().toLowerCase() === 'ky1rie1101') {
+        unlockDevMode();
+        onClose();
+        return;
+      }
       if (results[selectedIndex]) {
         handleSelect(results[selectedIndex]);
       }
@@ -251,6 +278,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         return <Box className="w-4 h-4 text-cyan-500" />;
       case '推荐配置':
         return <DollarSign className="w-4 h-4 text-emerald-500" />;
+      case '开发者模式':
+        return <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />;
     }
   };
 
