@@ -1,6 +1,7 @@
 import React from 'react';
-import { Cpu, ExternalLink, Heart, ShieldAlert, Sparkles } from 'lucide-react';
+import { Cpu, ExternalLink, Heart, ShieldAlert, BookOpen } from 'lucide-react';
 import { ActiveTab } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface FooterProps {
   onTabChange: (tab: ActiveTab) => void;
@@ -8,6 +9,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) => {
+  const { lang, t } = useLanguage();
+
   return (
     <footer className="w-full border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/50 transition-colors mt-auto py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,11 +22,11 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                 <Cpu className="w-4 h-4" />
               </div>
               <span className="text-base font-bold tracking-tight text-slate-900 dark:text-white font-mono">
-                SiliconWiki 芯知
+                {t('brandName')}
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-              致力于打造纯净、专业、免维护的计算机软硬件知识与三维装机实景互动全书。让每一个热爱数码与 DIY 的人都能轻松看懂硬件。
+              {t('brandDesc')}
             </p>
             <div className="pt-1 text-[11px] text-slate-400 dark:text-slate-500 flex items-center space-x-1">
               <span>Crafted with</span>
@@ -35,7 +38,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
           {/* Col 2: Navigation Links */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-              核心功能板块
+              {t('footerCoreModules')}
             </h4>
             <ul className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li>
@@ -43,7 +46,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   onClick={() => onTabChange('wiki')}
                   className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
                 >
-                  🖥️ 硬件全景百科（台式机/笔记本）
+                  🖥️ {t('navWiki')}
                 </button>
               </li>
               <li>
@@ -51,7 +54,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   onClick={() => onTabChange('rankings')}
                   className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
                 >
-                  📊 性能天梯榜与 PK 横向比拼台
+                  📊 {t('navRankings')}
                 </button>
               </li>
               <li>
@@ -59,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   onClick={() => onTabChange('simulator3d')}
                   className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
                 >
-                  🛠️ Three.js 3D 实景装机与爆炸拆解
+                  🛠️ {t('nav3D')}
                 </button>
               </li>
               <li>
@@ -67,7 +70,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   onClick={() => onTabChange('glossary')}
                   className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
                 >
-                  📖 硬件名词大白话通俗宝典
+                  📖 {t('navGlossary')}
                 </button>
               </li>
               <li>
@@ -75,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
                   onClick={() => onTabChange('builds')}
                   className="hover:text-blue-600 dark:hover:text-cyan-400 transition-colors"
                 >
-                  💰 3000~25000元预算精选配置单
+                  💰 {t('navBuilds')}
                 </button>
               </li>
             </ul>
@@ -84,7 +87,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
           {/* Col 3: Data Sources & Attribution */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-              数据致敬与权威溯源
+              {t('footerDataSources')}
             </h4>
             <ul className="space-y-2 text-xs text-slate-500 dark:text-slate-400">
               <li>
@@ -137,21 +140,27 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
           {/* Col 4: Platform & Updates */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200 mb-3">
-              部署与日志
+              {t('footerPlatform')}
             </h4>
             <div className="space-y-3 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center space-x-1.5 text-emerald-600 dark:text-emerald-400">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span className="font-medium">100% 静态免服架构 · 支持 Vercel 免费部署</span>
+              <div className="flex items-center space-x-1.5 text-blue-600 dark:text-cyan-400">
+                <BookOpen className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {lang === 'zh'
+                    ? '开放互动的计算机硬件知识维基'
+                    : 'Open & Interactive Hardware Wiki'}
+                </span>
               </div>
               <p>
-                已配置永久有效的自营语义搜索锚点，彻底避免商品详情页下架 404 失效。
+                {lang === 'zh'
+                  ? '配备智能电商搜索与实时跑分追踪，告别链接失效与过时数据。'
+                  : 'Equipped with live e-commerce search anchors and verified benchmark ladders.'}
               </p>
               <button
                 onClick={onOpenChangelog}
                 className="inline-flex items-center space-x-1 text-blue-600 dark:text-cyan-400 hover:underline"
               >
-                <span>查看版本更新日志与公告</span>
+                <span>{lang === 'zh' ? '查看版本更新日志与公告' : 'View Version Changelog'}</span>
               </button>
             </div>
           </div>
@@ -161,11 +170,9 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange, onOpenChangelog }) 
         <div className="pt-6 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 gap-2">
           <div className="flex items-center space-x-1.5">
             <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-            <span>
-              免责声明：硬件市场行情因批次与促销可能存在小幅浮动，跑分供选购参考，实际以官方实机实测为准。
-            </span>
+            <span>{t('footerDisclaimer')}</span>
           </div>
-          <div>© {new Date().getFullYear()} SiliconWiki. Open for everyone.</div>
+          <div>© {new Date().getFullYear()} SiliconWiki. All rights reserved.</div>
         </div>
       </div>
     </footer>

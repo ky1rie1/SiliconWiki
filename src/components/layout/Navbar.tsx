@@ -11,8 +11,10 @@ import {
   Moon,
   Menu,
   X,
+  Languages,
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ActiveTab } from '../../types';
 
 interface NavbarProps {
@@ -31,14 +33,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   hasUnreadChangelog,
 }) => {
   const { theme, toggleTheme } = useTheme();
+  const { lang, toggleLang, t } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'wiki', label: '硬件百科', icon: <Cpu className="w-4 h-4" /> },
-    { id: 'rankings', label: '性能天梯', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'simulator3d', label: '3D 实景装机', icon: <Box className="w-4 h-4" />, badge: '3D' },
-    { id: 'glossary', label: '名词宝典', icon: <BookOpen className="w-4 h-4" /> },
-    { id: 'builds', label: '预算配置', icon: <DollarSign className="w-4 h-4" /> },
+    { id: 'wiki', label: t('navWiki'), icon: <Cpu className="w-4 h-4" /> },
+    { id: 'rankings', label: t('navRankings'), icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'simulator3d', label: t('nav3D'), icon: <Box className="w-4 h-4" />, badge: '3D' },
+    { id: 'glossary', label: t('navGlossary'), icon: <BookOpen className="w-4 h-4" /> },
+    { id: 'builds', label: t('navBuilds'), icon: <DollarSign className="w-4 h-4" /> },
   ];
 
   return (
@@ -60,11 +63,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   Silicon<span className="text-blue-600 dark:text-cyan-400">Wiki</span>
                 </span>
                 <span className="text-xs px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-cyan-300 font-medium">
-                  芯知
+                  {lang === 'zh' ? '芯知' : 'Wiki'}
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 hidden sm:block">
-                电脑硬件百科 & 3D 交互装机全书
+                {t('brandTagline')}
               </p>
             </div>
           </div>
@@ -95,26 +98,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Right Action Icons: Search, Changelog, Theme, Mobile Toggle */}
+          {/* Right Action Icons: Search, Language, Changelog, Theme, Mobile Toggle */}
           <div className="flex items-center space-x-2">
             {/* Omnisearch Command Bar Button */}
             <button
               onClick={onOpenSearch}
               className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 text-xs font-medium transition-all"
-              title="全局搜索 (快捷键: / 或 Ctrl+K)"
+              title={lang === 'zh' ? '全局搜索 (快捷键: / 或 Ctrl+K)' : 'Omnisearch (Shortcut: / or Ctrl+K)'}
             >
               <Search className="w-3.5 h-3.5 text-blue-500" />
-              <span className="hidden sm:inline">全站搜索...</span>
+              <span className="hidden sm:inline">{t('searchPlaceholder')}</span>
               <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-medium rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 shadow-2xs">
-                Ctrl K
+                {t('searchShortcut')}
               </kbd>
+            </button>
+
+            {/* Language Switch Toggle Button */}
+            <button
+              onClick={toggleLang}
+              className="flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors"
+              title={lang === 'zh' ? 'Switch to English' : '切换为简体中文'}
+            >
+              <Languages className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
+              <span className="font-mono text-[11px]">{lang === 'zh' ? 'EN' : '中'}</span>
             </button>
 
             {/* Changelog / Announcement Button */}
             <button
               onClick={onOpenChangelog}
               className="relative p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-300 transition-colors"
-              title="版本更新公告与日志"
+              title={lang === 'zh' ? '版本更新公告与日志' : 'Version Changelog & Announcements'}
             >
               <Bell className="w-4 h-4" />
               {hasUnreadChangelog && (
@@ -129,7 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-300 transition-colors"
-              title={theme === 'dark' ? '切换为浅色明亮模式' : '切换为极客深色模式'}
+              title={t('toggleTheme')}
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400 hover:rotate-45 transition-transform" />

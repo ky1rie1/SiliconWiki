@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HardwareWiki } from './components/wiki/HardwareWiki';
@@ -55,54 +56,56 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white transition-colors duration-200">
-        {/* Global Navbar */}
-        <Navbar
-          activeTab={activeTab}
-          onTabChange={(tab) => {
-            setActiveTab(tab);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          onOpenSearch={() => setIsSearchOpen(true)}
-          onOpenChangelog={() => setIsChangelogOpen(true)}
-          hasUnreadChangelog={hasUnreadChangelog}
-        />
+      <LanguageProvider>
+        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-blue-500 selection:text-white transition-colors duration-200">
+          {/* Global Navbar */}
+          <Navbar
+            activeTab={activeTab}
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenSearch={() => setIsSearchOpen(true)}
+            onOpenChangelog={() => setIsChangelogOpen(true)}
+            hasUnreadChangelog={hasUnreadChangelog}
+          />
 
-        {/* Main Content Area */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          {activeTab === 'wiki' && <HardwareWiki />}
-          {activeTab === 'rankings' && <BenchmarkLadder />}
-          {activeTab === 'simulator3d' && <AssemblySimulator3D />}
-          {activeTab === 'glossary' && <GlossaryView />}
-          {activeTab === 'builds' && <BudgetBuilds />}
-        </main>
+          {/* Main Content Area */}
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            {activeTab === 'wiki' && <HardwareWiki />}
+            {activeTab === 'rankings' && <BenchmarkLadder />}
+            {activeTab === 'simulator3d' && <AssemblySimulator3D />}
+            {activeTab === 'glossary' && <GlossaryView />}
+            {activeTab === 'builds' && <BudgetBuilds />}
+          </main>
 
-        {/* Global Footer */}
-        <Footer
-          onTabChange={(tab) => {
-            setActiveTab(tab);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          onOpenChangelog={() => setIsChangelogOpen(true)}
-        />
+          {/* Global Footer */}
+          <Footer
+            onTabChange={(tab) => {
+              setActiveTab(tab);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onOpenChangelog={() => setIsChangelogOpen(true)}
+          />
 
-        {/* Global Omnisearch Modal */}
-        <SearchModal
-          isOpen={isSearchOpen}
-          onClose={() => setIsSearchOpen(false)}
-          onNavigate={(tab) => {
-            setActiveTab(tab);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-        />
+          {/* Global Omnisearch Modal */}
+          <SearchModal
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onNavigate={(tab) => {
+              setActiveTab(tab);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
 
-        {/* Changelog & Announcements Modal */}
-        <ChangelogModal
-          isOpen={isChangelogOpen}
-          onClose={() => setIsChangelogOpen(false)}
-          onMarkAllAsRead={handleMarkAllAsRead}
-        />
-      </div>
+          {/* Changelog & Announcements Modal */}
+          <ChangelogModal
+            isOpen={isChangelogOpen}
+            onClose={() => setIsChangelogOpen(false)}
+            onMarkAllAsRead={handleMarkAllAsRead}
+          />
+        </div>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

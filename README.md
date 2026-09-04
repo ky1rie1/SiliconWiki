@@ -1,125 +1,181 @@
-# SiliconWiki（芯知硬件百科）
+# SiliconWiki 芯知
 
-> **现代化全功能计算机硬件百科与 Three.js 3D 实景装机互动指南**  
-> 纯静态免后端架构 · 支持一键 100% 免费部署上线至 Vercel 并绑定自定义独立域名
+<div align="center">
 
----
+**The Definitive Computer Hardware Encyclopedia & Interactive 3D PC Assembly Guide**
 
-## 🌟 核心功能特性
+[English](#english) | [简体中文](#简体中文)
 
-### 1. 🖥️ 硬件全景百科与笔记本专区
-* **台式机核心硬件全覆盖**：深入科普 CPU、显卡 GPU、主板、内存 RAM、高速固态 SSD、电源 PSU、散热器 Cooler、机箱 Chassis 的做工用料、电气规范与选购要点。
-* **移动端/笔记本专项**：
-  * **同名不同芯解密**：揭开移动版 RTX 4060/4090 与桌面版的物理规格与流处理器差异。
-  * **功耗墙机制**：解析残血 45W 与满血 140W TGP 的性能断层。
-  * **屏幕面板四大金刚**：OLED vs Mini-LED vs Fast-IPS、100% DCI-P3 色域、PWM 高频调光防频闪。
-  * **散热模具**：VC 均热板与液金散热注意事项。
-* **防失效实时电商搜索**：针对每个型号，动态生成精准指向**京东自营、淘宝百亿补贴、拼多多**的官方语义聚合搜索通道，彻底杜绝单品详情页随时间下架或 404 失效的痛点。
+[![React](https://img.shields.io/badge/React-19-61dafb.svg?style=flat&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
+[![Three.js](https://img.shields.io/badge/Three.js-WebGL-black.svg?style=flat&logo=three.js)](https://threejs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](LICENSE)
 
-### 2. 📊 多维性能天梯排行榜与 PK 比拼台
-* **权威基准对齐**：深度对齐**极客湾（Geekerwan / socpk.com）**能效比与实测游戏基准，以及 3DMark TimeSpy 理论分。
-* **多维度指标切换**：支持「大型 3A 游戏帧率」、「多核生产力渲染剪辑」、「每瓦能效比」三大维度自由排序。
-* **移动与桌面联合对比**：支持一键开关「显示移动笔记本芯片」，直观查看笔记本芯片相当于台式机什么水准。
-* **硬件横向 PK 对决台**：可任选 2~3 款硬件并排比拼，生成相对百分比柱状图与智能选购建议。
-* **权威溯源直达**：每个型号右侧附带直达极客湾天梯原站与 TechPowerUp 官方芯片数据库的外链。
-
-### 3. 🛠️ Three.js 3D 实景虚拟装机室
-* **WebGL 高精度三维主机**：程序化构建海景房机箱、主板、CPU、双通道内存、M.2 固态、散热器、显卡、电源与线缆，高保真 PBR 物理材质渲染。
-* **360° 自由掌控**：鼠标拖拽 360° 旋转、平移、滚轮缩放；手机平板触控手势完全适配。
-* **9 大标准分步装机流程**：从 CPU 安装防呆、内存双通道、M.2 安装到机箱跳线图解与首次通电 Debug 灯自检。
-* **💥 一键全机爆炸拆解透视 (Exploded View)**：内部所有硬件在三维空间中向四周平滑展开悬浮，整机结构一目了然！再次点击平滑复原。
-* **高危防呆防坑警示**：深度标红**“散热器与固态马甲底座撕膜警告”**、AM5 针脚保护等新手易翻车点。
-* **📺 B站保姆级实操视频接入**：精选硬件茶社、极客湾、装机猿等全网超千万播放的高分视频教程，每个步骤一键直达对应实操时间轴。
-
-### 4. 📖 硬件名词术语宝典与全站智能气泡
-* **人话词典**：覆盖 IPC、3D V-Cache、大小核调度、显存位宽、DLSS/FSR 帧生成、XMP/EXPO、内存时序 CL、双通道、NVMe PCIe 4.0/5.0、TLC/QLC 颗粒避坑、ATX 3.1 12V-2x6 防烧规范等。
-* **三段式科普**：一句话大白话解释 + 底层物理技术原理 + 选购避坑指南。
-* **全站智能气泡 (Smart Tooltips)**：全站在出现专业术语时自动带有虚线下划线，鼠标悬浮或轻触立即弹出迷你卡片，无需跳出页面。
-
-### 5. 💰 3000~25000元预算配置单
-* 涵盖 3500 元（网游电竞学生党）、5500 元（2K 甜点全能）、8500 元（2K 高刷 3A 主力）、15000 元（4K 纯血游戏神装）、25000 元+（终极发烧机皇）。
-* 完整配件清单 BOM、规格要点、参考均价、装机搭配避坑理由与一键复制整机配置文本。
-
-### 6. 🔍 深度全局智能搜索系统
-* 全局快捷键 `Ctrl + K`、`Cmd + K` 或 `/` 随叫随到。
-* 跨硬件型号、天梯跑分、名词术语、装机步骤、推荐配置五大维度聚合索引。
-* 支持拼音模糊与缩写匹配（如输入 `4070s`、`98x3d`、`xmp`、`zj` 或 `装机`）。
-
-### 7. 📢 更新公告与版本日志
-* 记录每一次版本上线、硬件数据库同步（已收录 2024~2026 最新 RTX 50/40 系、Ryzen 9000、酷睿全系）及价格动态。
-* 顶部导航铃铛带未读动态小红点，本地记忆已读状态。
-
-### 8. ☀️/🌙 极客暗黑与纯净明亮双主题
-* 一键在深邃极客暗黑（Dark Tech）与高对比纯净工程白皮书（Clean White）之间无缝切换，本地持久化记忆。
+</div>
 
 ---
 
-## 🛠️ 本地运行与调试
+<a name="english"></a>
 
-本项目基于 Node.js 18+ 环境：
+## 🌐 English
+
+### Overview
+
+**SiliconWiki** is an open-source, interactive web encyclopedia and virtual PC building companion designed for computer hardware enthusiasts, gamers, students, and DIY builders. 
+
+Combining comprehensive architectural technical data, normalized benchmark tier lists, real-time e-commerce price discovery anchors, and an interactive **WebGL-powered 3D assembly simulator**, SiliconWiki makes exploring and understanding modern computer hardware intuitive, enjoyable, and accessible.
+
+The website supports **real-time Bilingual Switching (English / 简体中文)** and **Dark Tech / Clean White theme toggling**.
+
+---
+
+### ✨ Key Features
+
+#### 1. 🖥️ Comprehensive Hardware Encyclopedia & Laptop Guide
+* **Desktop Core Hardware**: Full breakdowns of Desktop CPUs, Graphics Cards (GPUs), Motherboards (VRM phases & chipsets), DDR4/DDR5 RAM, PCIe 4.0/5.0 NVMe SSDs, ATX 3.1 PSUs, Air/Liquid Coolers, and Panoramic Chassis Cases.
+* **Specialized Laptop Section**:
+  * **Architecture Discrepancies**: Demystifying mobile vs. desktop chips (e.g. why RTX 4090 Laptop uses desktop 4080 AD103 silicon).
+  * **TGP Power Envelopes**: Visualizing performance drops between 45W constrained models and 140W full-power gaming laptops.
+  * **Display Panel Deep Dive**: Fast-IPS vs. OLED vs. Mini-LED, 100% DCI-P3 color gamuts, and high-frequency PWM eye-care dimming.
+  * **Thermal Solutions**: Vapor Chamber (VC) engineering and liquid metal handling precautions.
+* **Resilient E-Commerce Search Anchors**: Dynamic semantic search queries linking directly to official verified listings (JD, Taobao, Pinduoduo) to permanently eliminate broken single-SKU 404 links.
+
+#### 2. 📊 Multi-Dimensional Benchmark Ladder & PK Showdown
+* **Authoritative Testing Standard**: Normalized benchmark scores directly aligned with **Geekerwan (socpk.com)** real-world gaming/power-efficiency methodologies and UL 3DMark TimeSpy.
+* **Three Dimension Switches**: Sort instantly by **3A Gaming FPS**, **Multi-Core Productivity**, or **Performance-Per-Watt Efficiency**.
+* **Mobile & Desktop Unified View**: Toggle mobile laptop chips on/off to compare portable performance against desktop rigs side-by-side.
+* **Interactive PK Comparison Tool**: Select any 2~3 hardware chips to inspect side-by-side specifications, benchmark differentials, and tailored purchasing verdicts.
+* **Direct Source Links**: 1-click jump to official Geekerwan benchmark pages and TechPowerUp GPU database entries.
+
+#### 3. 🛠️ Interactive Three.js 3D Virtual PC Building Simulator
+* **High-Fidelity 3D WebGL Host**: Procedurally modeled chassis, motherboard, CPU, dual-channel RAM, M.2 SSD, dual-tower cooler, graphics card, PSU, and modular cables rendered with PBR physical materials.
+* **360° Orbit & Zoom Inspection**: Full mouse drag rotation, scroll zoom, and touch gesture support.
+* **9-Step Guided Assembly**: Step-by-step installation instructions covering CPU socket alignment, RAM dual-channel priority, M.2 screw mounting, front-panel I/O wiring, and Debug LED diagnostics.
+* **💥 1-Click Exploded View (透视图)**: Smoothly explodes all internal components outward in 3D space to reveal the layered structure of a modern PC.
+* **Critical Safety Warnings**: Highlighting high-frequency beginner mistakes, including **peeling the protective film from heatsink and SSD thermal pads** before installation.
+* **📺 Video Masterclass Integration**: Curated timestamps linking directly to multi-million view Bilibili PC building masterclasses.
+
+#### 4. 📖 Hardware Terminology Glossary & Smart Tooltips
+* **Plain-English Dictionary**: Clear explanations for complex jargon—IPC, 3D V-Cache, P/E Hybrid Cores, VRAM Bus Width, DLSS/FSR Frame Generation, XMP/EXPO, CAS Latency (CL), TLC vs. QLC NAND, ATX 3.1 12V-2x6 connectors, and more.
+* **Three-Tier Explanations**: (1) In Plain English + (2) Underlying Architecture + (3) Buying Advice.
+* **Global Smart Tooltips**: Technical keywords throughout the wiki feature dotted underlines that display popup explanation cards on hover or tap.
+
+#### 5. 💰 Curated Budget Build Guides
+* **From 3,000 to 25,000+ RMB**: Covering budget esports, 1080P/2K sweet-spot rigs, 2K high-refresh competitive rigs, 4K ray-tracing champions, and flagship workstations.
+* **Complete Bill of Materials (BOM)**: Component models, key specifications, reference pricing, pairing rationale, and 1-click clipboard copy.
+
+#### 6. 🔍 Omnisearch Command Palette (`Ctrl + K`)
+* Instant global spotlight search triggered via `Ctrl + K`, `Cmd + K`, or `/`.
+* Aggregated fuzzy search across hardware specs, benchmark ladders, glossary terms, assembly steps, and build guides.
+* Supports abbreviations and pinyin shortcuts (e.g. `4070s`, `98x3d`, `xmp`).
+
+#### 7. 🌓 Dual Theme & Bilingual Localization
+* Smooth switching between **Dark Tech** and **Clean White** themes with localStorage persistence.
+* Instant toggle between **English** and **简体中文** in the top navigation bar.
+
+---
+
+### 💻 Quick Local Setup
 
 ```bash
-# 1. 克隆或进入项目目录
-cd "c:\Users\ROG\Desktop\Coding Lessons\programs\computer_wiki"
+# Clone the repository
+git clone https://github.com/ky1rie1/computer_wiki.git
+cd computer_wiki
 
-# 2. 安装项目依赖
+# Install dependencies
 npm install
 
-# 3. 启动本地开发热重载服务器
+# Start local development server
 npm run dev
 
-# 4. 构建生产环境纯静态产物 (输出至 dist/)
+# Build production static bundle (dist/)
 npm run build
 ```
 
 ---
 
-## 🚀 免费部署到您的个人域名（Vercel 保姆级教程）
+<a name="简体中文"></a>
 
-由于本项目采用纯静态单页架构，**终身不需要购买云服务器、不需要购买数据库、不需要支付 SSL 证书费用**！
+## 🇨🇳 简体中文
 
-### 方式一：Vercel 免费部署（强烈推荐，2 分钟上线）
+### 项目简介
 
-1. **将代码推送到 GitHub**：
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: initial release of SiliconWiki"
-   # 在 GitHub 创建一个新仓库后执行：
-   git remote add origin https://github.com/您的用户名/您的仓库名.git
-   git branch -M main
-   git push -u origin main
-   ```
+**SiliconWiki（芯知硬件百科）** 是一个为电脑硬件爱好者、装机新手与数码选购人群打造的现代化交互式硬件知识百科与 3D 装机互动平台。
 
-2. **在 Vercel 导入项目**：
-   * 打开 [https://vercel.com](https://vercel.com)，使用 GitHub 账号直接登录。
-   * 点击右上角 **"Add New..." -> "Project"**。
-   * 在列表中找到您的 `computer_wiki` 仓库，点击 **"Import"**。
-   * Framework Preset 保持默认识别的 **Vite**，点击底部的 **"Deploy"**。
-   * 大约 30 秒后，Vercel 就会完成构建并给您分配一个专属的二级域名（如 `silicon-wiki.vercel.app`）。
+项目融合了深入浅出的底层架构技术科普、权威标准归一化性能天梯榜、永不失效的电商实时行情比价，以及基于 **Three.js WebGL 的三维实景装机互动模拟室**，旨在打破硬件信息壁垒，让每一位玩家与装机者都能轻松看懂硬件、零成本体验动手装机的乐趣。
 
-3. **绑定您自己的独立域名**：
-   * 在 Vercel 项目主页进入 **Settings -> Domains**。
-   * 在输入框中输入您拥有的域名（如 `wiki.yourdomain.com` 或 `yourdomain.com`），点击 **Add**。
-   * Vercel 会给出一条 DNS 解析提示（通常为一条指向 `cname.vercel-dns.com` 的 CNAME 记录，或者一条 A 记录）。
-   * 打开您的域名服务商后台（阿里云、腾讯云、Cloudflare、Namecheap 等），添加该条 DNS 解析。
-   * 解析生效后，Vercel 会自动为您申请并部署免费的 HTTPS SSL 证书，网站即刻正式上线！
-   * **后续福利**：以后您只要在本地修改代码或更新硬件数据推送到 GitHub，Vercel 会全自动重新编译部署上线，全程 0 人工干预！
+网站全面支持 **中英文双语自由切换（English / 简体中文）** 与 **极客暗黑 / 纯净明亮双主题**。
 
 ---
 
-### 方式二：Cloudflare Pages 免费部署（全球顶级 CDN）
+### ✨ 核心功能模块
 
-1. 打开 [Cloudflare 仪表盘](https://dash.cloudflare.com/)，点击左侧 **Workers & Pages -> Pages**。
-2. 点击 **Connect to Git**，选中本仓库。
-3. 构建设置：构建命令填写 `npm run build`，输出目录填写 `dist`。
-4. 点击 **Save and Deploy**，完成后在 **Custom Domains** 中一键绑定您的 Cloudflare 托管域名即可。
+#### 1. 🖥️ 硬件全景百科与笔记本专区
+* **台式机全套核心配件**：全面科普 CPU、显卡 GPU、主板（供电相数与芯片组）、内存 RAM、高速固态 SSD、电源 PSU、散热系统、海景房机箱的做工用料与选购避坑指南。
+* **笔记本移动端专项全解**：
+  * **同名不同芯**：解析移动版与桌面版芯片的流处理器与核心架构断层。
+  * **功耗墙机制**：解析残血 45W 与满血 140W TGP 性能释放差异。
+  * **屏幕面板四大金刚**：Fast-IPS、OLED 与 Mini-LED 对比，DCI-P3 广色域与高频 PWM 调光护眼科普。
+  * **散热模具**：均热板（VC）物理相变循环原理与液金导热维护注意事项。
+* **“永不下架”电商实时搜索**：针对每个具体型号，生成直达京东自营、淘宝百亿补贴、拼多多的官方语义聚合搜索通道，彻底解决具体单品链接随时间失效 404 的问题。
+
+#### 2. 📊 多维性能天梯排行榜与 PK 比拼台
+* **权威基准对齐**：深度对齐**极客湾（socpk.com）**实测能效比体系与 UL 3DMark TimeSpy 理论基准。以 RTX 4060 桌面版作为 100% 基准标尺。
+* **三大战力维度**：支持「大型 3A 游戏帧率表现」、「多核生产力渲染剪辑」、「每瓦能效比」随时切换排序。
+* **移动与桌面联合对比**：一键开关「显示移动笔记本芯片」，直观查看笔记本芯片相当于台式机什么水平。
+* **硬件横向 PK 对决台**：任选 2~3 款硬件并排比拼，生成柱状图跑分差距百分比与智能选购建议。
+* **权威溯源直达**：每个型号右侧附带直达极客湾天梯原站与 TechPowerUp 官方芯片数据库的外链。
+
+#### 3. 🛠️ Three.js 3D 实景虚拟装机室
+* **高精度三维 WebGL 主机**：程序化建模海景房机箱（双面玻璃透视）、ATX 主板、CPU、双通道内存、M.2 固态、散热器、显卡、电源与线缆，高保真 PBR 物理光泽。
+* **360° 自由掌控**：鼠标拖拽 360° 旋转、平移、滚轮缩放；移动端触控完全兼容。
+* **9 大标准分步装机流程**：从 CPU 安装防呆三角、内存 2/4 槽双通道、M.2 安装到机箱跳线图解与 Debug 四灯自检。
+* **💥 一键全机爆炸拆解透视 (Exploded View)**：内部硬件向四周平滑展开悬浮，整机立体结构一目了然！
+* **高危防呆防坑提示**：显眼标红**“散热器与固态马甲底座撕膜警告”**、AM5 针脚保护。
+* **📺 B站保姆级实操视频接入**：精选硬件茶社（1500万+播放）、极客湾、装机猿等全网高分保姆级视频，各步骤直达实操时间轴。
+
+#### 4. 📖 硬件名词术语宝典与全站智能气泡
+* **人话词典**：涵盖 IPC、3D V-Cache、大小核调度、显存位宽、DLSS/FSR 帧生成、XMP/EXPO、时序 CL、双通道、NVMe PCIe 4.0/5.0、TLC vs QLC 颗粒避坑、ATX 3.1 12V-2x6 防烧规范等。
+* **三段式通俗排版**：一句话大白话 + 底层物理技术原理 + 选购避坑指南。
+* **全站智能气泡 (Smart Tooltips)**：参数表遇专业术语带有虚线下划线，鼠标轻触即弹出浮层卡片，无需跳出当前页面。
+
+#### 5. 💰 3000~25000元预算配置单
+* 涵盖 3500 元（学生网游）、5500 元（2K 甜点）、8500 元（2K 高刷主力）、15000 元（4K 纯血游戏神装）、25000 元+（终极发烧机皇）。
+* 完整配件清单 BOM 明细、规格要点、参考均价、装机搭配避坑理由与一键复制整机配置文本。
+
+#### 6. 🔍 全局智能搜索系统 (`Ctrl + K`)
+* 全局快捷键 `Ctrl + K`、`Cmd + K` 或 `/` 秒开。
+* 跨硬件型号、天梯、名词、装机步骤、推荐配置五大分类聚合检索，支持拼音与缩写匹配（如 `4070s`、`98x3d`、`xmp`、`装机`）。
+
+#### 7. 🌓 双主题与中英双语国际化
+* 深邃暗黑（Dark Tech）与高对比纯净工程白皮书（Clean White）一键平滑切换，本地持久化保存。
+* 顶部导航栏一键切换简体中文与 English。
 
 ---
 
-## 📄 开源与数据致敬
+### 💻 本地运行
 
-- 天梯榜能效比与实测基准致敬：[极客湾 Geekerwan (socpk.com)](https://socpk.com/)
-- 显卡芯片数据库致敬：[TechPowerUp GPU Database](https://www.techpowerup.com/gpu-specs/)
+```bash
+# 克隆仓库
+git clone https://github.com/ky1rie1/computer_wiki.git
+cd computer_wiki
+
+# 安装依赖
+npm install
+
+# 本地热重载启动
+npm run dev
+
+# 生产环境静态打包
+npm run build
+```
+
+---
+
+### 📄 开源与数据致敬
+
+- 天梯榜实测数据致敬：[极客湾 Geekerwan (socpk.com)](https://socpk.com/)
+- 芯片数据库致敬：[TechPowerUp GPU Database](https://www.techpowerup.com/gpu-specs/)
 - 理论基准测试：[UL 3DMark](https://www.3dmark.com/)
 - 芯片技术白皮书：[Intel ARK](https://ark.intel.com/) & [AMD Documentation](https://www.amd.com/)

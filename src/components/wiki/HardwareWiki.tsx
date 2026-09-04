@@ -15,24 +15,26 @@ import { hardwareList } from '../../data/hardware';
 import { HardwareCard } from './HardwareCard';
 import { LaptopSection } from './LaptopSection';
 import { HardwareCategory } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
 
 export const HardwareWiki: React.FC = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'tdp'>('default');
 
   const categories: { id: HardwareCategory | 'all'; label: string; icon: React.ReactNode }[] = [
-    { id: 'all', label: '全配件一览', icon: <Layers className="w-4 h-4" /> },
-    { id: 'cpu', label: '中央处理器 CPU', icon: <Cpu className="w-4 h-4" /> },
-    { id: 'gpu', label: '图形显卡 GPU', icon: <Tv className="w-4 h-4" /> },
-    { id: 'laptop', label: '💻 笔记本专区', icon: <Laptop className="w-4 h-4" /> },
-    { id: 'motherboard', label: '主板 Motherboard', icon: <Zap className="w-4 h-4" /> },
-    { id: 'ram', label: '内存 RAM', icon: <Zap className="w-4 h-4" /> },
-    { id: 'storage', label: '高速固态 SSD', icon: <HardDrive className="w-4 h-4" /> },
-    { id: 'psu', label: '电源 PSU', icon: <Zap className="w-4 h-4" /> },
-    { id: 'cooler', label: '散热系统 Cooler', icon: <Flame className="w-4 h-4" /> },
-    { id: 'case', label: '机箱 Chassis', icon: <Box className="w-4 h-4" /> },
+    { id: 'all', label: t('catAll'), icon: <Layers className="w-4 h-4" /> },
+    { id: 'cpu', label: t('catCpu'), icon: <Cpu className="w-4 h-4" /> },
+    { id: 'gpu', label: t('catGpu'), icon: <Tv className="w-4 h-4" /> },
+    { id: 'laptop', label: t('catLaptop'), icon: <Laptop className="w-4 h-4" /> },
+    { id: 'motherboard', label: t('catMotherboard'), icon: <Zap className="w-4 h-4" /> },
+    { id: 'ram', label: t('catRam'), icon: <Zap className="w-4 h-4" /> },
+    { id: 'storage', label: t('catStorage'), icon: <HardDrive className="w-4 h-4" /> },
+    { id: 'psu', label: t('catPsu'), icon: <Zap className="w-4 h-4" /> },
+    { id: 'cooler', label: t('catCooler'), icon: <Flame className="w-4 h-4" /> },
+    { id: 'case', label: t('catCase'), icon: <Box className="w-4 h-4" /> },
   ];
 
   const brands = ['all', 'Intel', 'AMD', 'NVIDIA', 'Apple'];
@@ -115,7 +117,7 @@ export const HardwareWiki: React.FC = () => {
             <div className="flex items-center space-x-1.5 overflow-x-auto">
               <span className="text-xs text-slate-400 dark:text-slate-500 mr-1 flex items-center">
                 <Filter className="w-3.5 h-3.5 mr-1" />
-                品牌:
+                {t('brandFilter')}
               </span>
               {brands.map((b) => (
                 <button
@@ -127,7 +129,7 @@ export const HardwareWiki: React.FC = () => {
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                   }`}
                 >
-                  {b === 'all' ? '全部' : b}
+                  {b === 'all' ? t('allBrands') : b}
                 </button>
               ))}
             </div>
@@ -139,10 +141,10 @@ export const HardwareWiki: React.FC = () => {
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 focus:outline-none"
               >
-                <option value="default">默认推荐排序</option>
-                <option value="price-asc">参考价从低到高</option>
-                <option value="price-desc">参考价从高到低</option>
-                <option value="tdp">功耗从大到小</option>
+                <option value="default">{t('sortDefault')}</option>
+                <option value="price-asc">{t('sortPriceAsc')}</option>
+                <option value="price-desc">{t('sortPriceDesc')}</option>
+                <option value="tdp">{t('sortTdp')}</option>
               </select>
             </div>
           </div>
