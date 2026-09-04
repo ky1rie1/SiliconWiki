@@ -14,7 +14,11 @@ export default {
           500: '#3b82f6',
           600: '#2563eb',
           700: '#1d4ed8',
-        }
+        },
+        slate: {
+          850: '#151f32',
+          950: '#030712',
+        },
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],

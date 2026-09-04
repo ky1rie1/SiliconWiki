@@ -40,9 +40,9 @@ export const translations = {
     sortTdp: '功耗从大到小',
     msrpLabel: '官方指导价 (MSRP)',
     marketPriceLabel: '近期参考均价',
-    shopJd: '京东自营',
-    shopTb: '淘宝特惠',
-    shopPdd: '拼多多',
+    shopJd: '京东自营 (须登录)',
+    shopTb: '淘宝百亿补贴 (须登录)',
+    shopPdd: '拼多多 (须登录)',
     tdpUnits: 'W',
 
     // Laptop
@@ -163,9 +163,9 @@ export const translations = {
     sortTdp: 'TDP Power Draw',
     msrpLabel: 'MSRP Guide Price',
     marketPriceLabel: 'Market Average Price',
-    shopJd: 'JD Official',
-    shopTb: 'Taobao Deals',
-    shopPdd: 'Pinduoduo',
+    shopJd: 'JD.com (Login Req.)',
+    shopTb: 'Taobao (Login Req.)',
+    shopPdd: 'PDD (Login Req.)',
     tdpUnits: 'W',
 
     // Laptop

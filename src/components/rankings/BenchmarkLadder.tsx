@@ -302,22 +302,22 @@ export const BenchmarkLadder: React.FC = () => {
 
       {/* Floating Bottom Dock for Selected PK */}
       {selectedForPK.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 shadow-2xl border border-slate-700 dark:border-slate-300 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-slate-900/95 text-white shadow-2xl border border-slate-700 dark:border-cyan-700/60 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
           <div className="flex items-center space-x-2 text-xs sm:text-sm font-semibold">
-            <Swords className="w-4 h-4 text-cyan-400 dark:text-blue-600" />
+            <Swords className="w-4 h-4 text-cyan-400" />
             <span>已选择 {selectedForPK.length} 款硬件待比拼</span>
           </div>
 
           <button
             onClick={() => setIsPKModalOpen(true)}
-            className="px-4 py-1.5 rounded-xl bg-blue-600 dark:bg-blue-600 text-white font-bold text-xs hover:bg-blue-500 shadow-md transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-500 shadow-md transition-colors"
           >
             开启横向 PK 对决
           </button>
 
           <button
             onClick={() => setSelectedForPK([])}
-            className="text-xs text-slate-400 hover:text-white dark:hover:text-slate-900 transition-colors"
+            className="text-xs text-slate-400 hover:text-white transition-colors"
           >
             清空
           </button>

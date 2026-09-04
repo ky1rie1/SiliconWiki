@@ -4,8 +4,11 @@
 
 **The Definitive Computer Hardware Encyclopedia & Interactive 3D PC Assembly Guide**
 
+🚀 **[SiliconWiki | 芯知硬件百科 - 现代化全功能硬件知识与 3D 装机互动应用 (Online Live Demo)](https://computer-wiki.vercel.app/)**
+
 [English](#english) | [简体中文](#简体中文)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-computer--wiki.vercel.app-22c55e.svg?style=flat&logo=vercel)](https://computer-wiki.vercel.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg?style=flat&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Three.js](https://img.shields.io/badge/Three.js-WebGL-black.svg?style=flat&logo=three.js)](https://threejs.org/)
@@ -102,6 +105,8 @@ npm run build
 ### 项目简介
 
 **SiliconWiki（芯知硬件百科）** 是一个为电脑硬件爱好者、装机新手与数码选购人群打造的现代化交互式硬件知识百科与 3D 装机互动平台。
+
+🌐 **在线体验地址**：[https://computer-wiki.vercel.app/](https://computer-wiki.vercel.app/)
 
 项目融合了深入浅出的底层架构技术科普、权威标准归一化性能天梯榜、永不失效的电商实时行情比价，以及基于 **Three.js WebGL 的三维实景装机互动模拟室**，旨在打破硬件信息壁垒，让每一位玩家与装机者都能轻松看懂硬件、零成本体验动手装机的乐趣。
 

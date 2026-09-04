@@ -11,6 +11,8 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { HardwareItem } from '../../types';
+import { HardwareImage } from './HardwareImage';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface HardwareCardProps {
   item: HardwareItem;
@@ -18,6 +20,7 @@ interface HardwareCardProps {
 }
 
 export const HardwareCard: React.FC<HardwareCardProps> = ({ item }) => {
+  const { t } = useLanguage();
   const getTrendBadge = (trend: HardwareItem['priceTrend']) => {
     switch (trend) {
       case 'down':
@@ -68,6 +71,14 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item }) => {
 
   return (
     <div className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 hover:border-blue-400 dark:hover:border-cyan-700/60 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+      {/* Product Image & Blueprint Schematic Banner */}
+      <HardwareImage
+        category={item.category}
+        name={item.name}
+        brand={item.brand}
+        imageUrl={item.imageUrl}
+      />
+
       {/* Top Header */}
       <div className="p-5 pb-3">
         <div className="flex items-start justify-between gap-3 mb-2.5">
@@ -189,24 +200,24 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item }) => {
             href={`https://search.jd.com/Search?keyword=${encodeURIComponent(item.jdSearchQuery)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 text-xs font-medium transition-colors"
-            title="直达京东自营搜索最新现货报价"
+            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 text-[11px] font-medium transition-colors"
+            title="直达京东自营搜索最新现货报价 (须登录)"
           >
-            <ShoppingBag className="w-3 h-3" />
-            <span>京东自营</span>
-            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+            <ShoppingBag className="w-3 h-3 shrink-0" />
+            <span className="truncate">{t('shopJd')}</span>
+            <ExternalLink className="w-2.5 h-2.5 opacity-60 shrink-0" />
           </a>
 
           <a
             href={`https://s.taobao.com/search?q=${encodeURIComponent(item.tbSearchQuery)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-600 dark:text-amber-400 text-xs font-medium transition-colors"
-            title="直达淘宝百亿补贴精选现货搜索"
+            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-600 dark:text-amber-400 text-[11px] font-medium transition-colors"
+            title="直达淘宝百亿补贴精选现货搜索 (须登录)"
           >
-            <ShoppingBag className="w-3 h-3" />
-            <span>淘宝特惠</span>
-            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+            <ShoppingBag className="w-3 h-3 shrink-0" />
+            <span className="truncate">{t('shopTb')}</span>
+            <ExternalLink className="w-2.5 h-2.5 opacity-60 shrink-0" />
           </a>
 
           <a
@@ -215,12 +226,12 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item }) => {
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-orange-600/10 hover:bg-orange-600/20 text-orange-600 dark:text-orange-400 text-xs font-medium transition-colors"
-            title="直达拼多多百亿补贴搜索"
+            className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-orange-600/10 hover:bg-orange-600/20 text-orange-600 dark:text-orange-400 text-[11px] font-medium transition-colors"
+            title="直达拼多多百亿补贴搜索 (须登录)"
           >
-            <ShoppingBag className="w-3 h-3" />
-            <span>拼多多</span>
-            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+            <ShoppingBag className="w-3 h-3 shrink-0" />
+            <span className="truncate">{t('shopPdd')}</span>
+            <ExternalLink className="w-2.5 h-2.5 opacity-60 shrink-0" />
           </a>
         </div>
       </div>

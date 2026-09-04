@@ -2,6 +2,34 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v1.3.0',
+    date: '2026-09-04',
+    title: '海量全硬件数据库、高精体素 3D 虚拟装机与视觉系统升级',
+    tag: '重大里程碑',
+    updates: [
+      {
+        type: 'data',
+        text: '全硬件数据库海量扩充：囊括 Intel 12/13/14 代与 Core Ultra 200S、AMD 5000/7000/9000/X3D 全系、RTX 40/30 系列全栈、RX 7000/6000 系列及移动端主流整机。',
+      },
+      {
+        type: 'feature',
+        text: '硬件百科卡片全新上线产品专属实物与高科技芯片微架构电路矢量展示区，告别无图空白感。',
+      },
+      {
+        type: 'feature',
+        text: '3D 虚拟装机室全面重构升级为「高精细度体素（Voxel）机械艺术建模」：逼真还原 VRM 供电散热鳍片、电容阵列、双通道内存卡扣与微型旋转体素散热风扇。',
+      },
+      {
+        type: 'feature',
+        text: '全站电商直达搜索按钮统一附带「(须登录)」提示，提升跳转体验与指引清晰度。',
+      },
+      {
+        type: 'fix',
+        text: '全站暗黑模式深度色彩与对比度优化：修正底色层级与悬浮卡片显示，全面提升夜间阅读舒适度。',
+      },
+    ],
+  },
+  {
     version: 'v1.2.0',
     date: '2026-08-28',
     title: '次世代硬件与极客湾天梯权威跑分全面同步',

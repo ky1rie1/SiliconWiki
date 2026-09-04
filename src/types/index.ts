@@ -15,7 +15,7 @@ export interface HardwareItem {
   id: string;
   name: string;
   category: HardwareCategory;
-  brand: 'Intel' | 'AMD' | 'NVIDIA' | 'Apple' | 'Other';
+  brand: string;
   series: string;
   architecture?: string;
   releaseYear: number;

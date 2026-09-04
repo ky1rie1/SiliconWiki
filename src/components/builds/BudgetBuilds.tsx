@@ -181,7 +181,7 @@ export const BudgetBuilds: React.FC = () => {
                             className="inline-flex items-center space-x-1 py-1 px-2.5 rounded-lg bg-red-50 dark:bg-red-950/50 hover:bg-red-100 text-red-600 dark:text-red-400 font-medium text-[11px] transition-colors"
                           >
                             <ShoppingBag className="w-3 h-3" />
-                            <span>京东现货</span>
+                            <span>京东现货 (须登录)</span>
                             <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                           </a>
                         </td>
