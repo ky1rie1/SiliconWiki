@@ -100,11 +100,17 @@ export const AssemblySimulator3D: React.FC = () => {
       {/* Main 3D Canvas + Step Instructions Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden relative group">
+        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-gradient-to-b from-slate-900 via-[#0e1726] to-[#0a0f1d] border border-slate-700/80 dark:border-slate-800 shadow-2xl overflow-hidden relative group">
+          {/* Ambient Studio Lighting Glow Backdrop */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(56,189,248,0.18),transparent_65%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(99,102,241,0.12),transparent_50%)] pointer-events-none" />
+          {/* Subtle Cyber Grid Floor Markings */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#38bdf806_1px,transparent_1px),linear-gradient(to_bottom,#38bdf806_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="w-full h-[380px] sm:h-[480px] cursor-grab active:cursor-grabbing relative"
+            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10"
           >
             {/* On-canvas Controls Overlay */}
             <div className="absolute top-4 left-4 z-20 flex items-center space-x-2">

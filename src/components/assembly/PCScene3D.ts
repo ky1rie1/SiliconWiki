@@ -55,37 +55,113 @@ export class PCScene3D {
     // 4. Lights
     this.setupLighting();
 
-    // 5. Build High-Precision Voxel Hardware Models
+    // 5. Studio Stage Platform
+    this.buildStudioStage();
+
+    // 6. Build High-Precision Voxel Hardware Models
     this.buildVoxelPCModels();
 
-    // 6. Event listeners
+    // 7. Event listeners
     this.setupControls();
 
-    // 7. Render Loop
+    // 8. Render Loop
     this.animate = this.animate.bind(this);
     this.animate();
   }
 
   private setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    // Ambient light - boosted for crystal-clear component visibility
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
     this.scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
-    dirLight1.position.set(6, 10, 6);
+    // Key Light: High-angle direct warm-white illumination
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.8);
+    dirLight1.position.set(6, 12, 7);
     dirLight1.castShadow = true;
+    dirLight1.shadow.mapSize.width = 2048;
+    dirLight1.shadow.mapSize.height = 2048;
+    dirLight1.shadow.bias = -0.0005;
     this.scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.4); // Cool cyan accent
-    dirLight2.position.set(-6, -2, -4);
-    this.scene.add(dirLight2);
+    // Fill Light: Soft frontal illumination to eliminate deep chassis shadows
+    const fillLight = new THREE.DirectionalLight(0xf0f9ff, 1.8);
+    fillLight.position.set(-6, 5, 7);
+    this.scene.add(fillLight);
 
-    const internalRgb = new THREE.PointLight(0x06b6d4, 2.0, 7);
+    // Rim / Back Light: Cool cyan edge accent separator
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 2.4);
+    rimLight.position.set(0, 8, -7);
+    this.scene.add(rimLight);
+
+    // Low bounce light to illuminate motherboard underside and PSU shroud
+    const bottomBounce = new THREE.DirectionalLight(0x94a3b8, 1.0);
+    bottomBounce.position.set(0, -6, 2);
+    this.scene.add(bottomBounce);
+
+    // Internal vibrant RGB components
+    const internalRgb = new THREE.PointLight(0x06b6d4, 2.8, 8);
     internalRgb.position.set(0, 0.4, 0.4);
     this.scene.add(internalRgb);
 
-    const magentaAccent = new THREE.PointLight(0xec4899, 1.5, 6);
+    const magentaAccent = new THREE.PointLight(0xec4899, 2.0, 7);
     magentaAccent.position.set(-0.5, 1.0, 0.2);
     this.scene.add(magentaAccent);
+  }
+
+  private buildStudioStage() {
+    const stageGroup = new THREE.Group();
+    stageGroup.name = 'studio_stage';
+
+    // 1. Sleek metallic pedestal platform
+    const platformGeom = new THREE.CylinderGeometry(4.6, 5.0, 0.22, 64);
+    const platformMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b, // Slate 800 metallic brushed finish
+      roughness: 0.4,
+      metalness: 0.65,
+    });
+    const platform = new THREE.Mesh(platformGeom, platformMat);
+    platform.position.set(0, -2.26, 0);
+    platform.receiveShadow = true;
+    stageGroup.add(platform);
+
+    // 2. Glowing perimeter ring (Chiseled Cyber Neon Ring)
+    const ringGeom = new THREE.TorusGeometry(4.62, 0.035, 16, 64);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8, // Sky-blue / cyan emissive glow
+    });
+    const neonRing = new THREE.Mesh(ringGeom, ringMat);
+    neonRing.rotation.x = Math.PI / 2;
+    neonRing.position.set(0, -2.14, 0);
+    stageGroup.add(neonRing);
+
+    // 3. Inner concentric measurement circle
+    const innerRingGeom = new THREE.TorusGeometry(3.0, 0.015, 16, 64);
+    const innerRingMat = new THREE.MeshBasicMaterial({
+      color: 0x0284c7, // Slightly deeper blue
+      transparent: true,
+      opacity: 0.7,
+    });
+    const innerNeonRing = new THREE.Mesh(innerRingGeom, innerRingMat);
+    innerNeonRing.rotation.x = Math.PI / 2;
+    innerNeonRing.position.set(0, -2.14, 0);
+    stageGroup.add(innerNeonRing);
+
+    // 4. Subtle radial alignment tick marks on the platform
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * Math.PI) / 6;
+      const tickGeom = new THREE.BoxGeometry(0.3, 0.005, 0.02);
+      const tickMat = new THREE.MeshBasicMaterial({
+        color: 0x64748b,
+        transparent: true,
+        opacity: 0.5,
+      });
+      const tick = new THREE.Mesh(tickGeom, tickMat);
+      tick.position.set(Math.cos(angle) * 3.8, -2.14, Math.sin(angle) * 3.8);
+      tick.rotation.y = -angle;
+      stageGroup.add(tick);
+    }
+
+    this.scene.add(stageGroup);
   }
 
   // ==========================================

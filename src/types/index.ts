@@ -34,6 +34,21 @@ export interface HardwareItem {
   pddSearchQuery: string;
   imageUrl?: string;
   isLaptop?: boolean;
+  priceHistory?: { date: string; price: number }[];
+  benchmarks?: {
+    gamingScore?: number;
+    productivityScore?: number;
+    efficiencyScore?: number;
+    timeSpyScore?: number;
+    cinebenchMulti?: number;
+    cinebenchSingle?: number;
+  };
+  reviewLinks?: {
+    title: string;
+    url: string;
+    platform: 'bilibili' | 'geekerwan' | 'techpowerup' | 'official' | 'other';
+  }[];
+  pairingAdvice?: string;
 }
 
 export interface BenchmarkItem {

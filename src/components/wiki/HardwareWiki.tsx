@@ -14,7 +14,8 @@ import {
 import { hardwareList } from '../../data/hardware';
 import { HardwareCard } from './HardwareCard';
 import { LaptopSection } from './LaptopSection';
-import { HardwareCategory } from '../../types';
+import { HardwareDetailModal } from './HardwareDetailModal';
+import { HardwareCategory, HardwareItem } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
 export const HardwareWiki: React.FC = () => {
@@ -23,6 +24,7 @@ export const HardwareWiki: React.FC = () => {
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'tdp'>('default');
+  const [selectedDetailItem, setSelectedDetailItem] = useState<HardwareItem | null>(null);
 
   const categories: { id: HardwareCategory | 'all'; label: string; icon: React.ReactNode }[] = [
     { id: 'all', label: t('catAll'), icon: <Layers className="w-4 h-4" /> },
@@ -159,11 +161,23 @@ export const HardwareWiki: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item) => (
-                <HardwareCard key={item.id} item={item} />
+                <HardwareCard
+                  key={item.id}
+                  item={item}
+                  onOpenSpecs={(hardware) => setSelectedDetailItem(hardware)}
+                />
               ))}
             </div>
           )}
         </>
+      )}
+
+      {/* Hardware Deep Dive Inspection Modal */}
+      {selectedDetailItem && (
+        <HardwareDetailModal
+          item={selectedDetailItem}
+          onClose={() => setSelectedDetailItem(null)}
+        />
       )}
     </div>
   );
