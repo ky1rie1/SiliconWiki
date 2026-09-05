@@ -70,12 +70,20 @@ export const BenchmarkLadder: React.FC = () => {
   const getActiveDimensionDescription = () => {
     if (scoreMode === 'productivity') return t('ladderDimProductivity');
     if (scoreMode === 'efficiency') return t('ladderDimEfficiency');
+    if (hardwareType === 'cpu') {
+      return lang === 'en'
+        ? '3A Gaming Performance (Normalized to Mainstream Core i5 / Ryzen 5 as 100 pts Baseline)'
+        : '3A 游戏性能排行 (以主流游戏处理器 (Core i5 / Ryzen 5) 为 100 分基准标尺)';
+    }
     return t('ladderDimGaming');
   };
 
-  const getScoreDimensionLabel = () => {
+  const getScoreDimensionLabel = (item: BenchmarkItem) => {
     if (scoreMode === 'productivity') return t('ladderScoreLabelProductivity');
     if (scoreMode === 'efficiency') return t('ladderScoreLabelEfficiency');
+    if (hardwareType === 'gpu' && item.id === 'rank-gpu-4060') {
+      return lang === 'en' ? 'Baseline: 100%' : '基准: 100%';
+    }
     return t('ladderScoreLabelGaming');
   };
 
@@ -215,6 +223,18 @@ export const BenchmarkLadder: React.FC = () => {
         </div>
       </div>
 
+      {/* Efficiency Disclaimer Banner */}
+      {scoreMode === 'efficiency' && (
+        <div className="flex items-start space-x-3 p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs sm:text-sm leading-relaxed shadow-xs">
+          <span className="shrink-0 text-base select-none">⚠️</span>
+          <div>
+            {lang === 'en'
+              ? '⚠️ Performance-per-Watt efficiency reflects performance output per watt (mobile and low-power architectures naturally hold an advantage), rather than absolute maximum performance. To compare raw performance, please switch to [3A Gaming Performance] or [Multi-Core Productivity].'
+              : '⚠️ 每瓦能效比反映的是每瓦性能产出（移动端与低功耗架构天然占优），并非纯粹绝对性能极限。如需对比纯战力，请切换至【3A 游戏性能】或【多核生产力】。'}
+          </div>
+        </div>
+      )}
+
       {/* Ladder Chart Bars */}
       <div className="space-y-4 bg-white dark:bg-[#09090b] rounded-3xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
         {/* Context Indicator & Brand Color Legend */}
@@ -348,11 +368,6 @@ export const BenchmarkLadder: React.FC = () => {
                     {/* End Cursor Glowing Pip */}
                     <div className="w-1.5 h-2.5 rounded-full bg-white shadow-[0_0_6px_#fff] shrink-0" />
                   </div>
-
-                  {/* Micro Relative Scale Text overlay */}
-                  <span className="absolute right-2 text-[9px] font-mono text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white pointer-events-none transition-colors">
-                    {percentage}%
-                  </span>
                 </div>
               </div>
 
@@ -365,12 +380,14 @@ export const BenchmarkLadder: React.FC = () => {
 
                 <div className="w-28 sm:w-36 text-right shrink-0">
                   <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight truncate">
-                    {getScoreDimensionLabel()}
+                    {getScoreDimensionLabel(item)}
                   </div>
                   <div className="text-sm font-black font-mono text-zinc-900 dark:text-white group-hover:text-[#d4990d] dark:group-hover:text-[#F7D84A] transition-colors leading-tight">
                     {score}{' '}
                     <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-                      pts
+                      {scoreMode === 'efficiency'
+                        ? (lang === 'en' ? 'pts (Per-Watt)' : 'pts (每瓦效能)')
+                        : 'pts'}
                     </span>
                   </div>
                 </div>

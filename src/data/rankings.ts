@@ -3,12 +3,12 @@ import { BenchmarkItem } from '../types';
 export const cpuRankings: BenchmarkItem[] = [
   {
     "id": "rank-cpu-9800x3d",
-    "name": "AMD Ryzen 7 9800X3D (桌面级 3D V-Cache 游戏之王)",
+    "name": "AMD Ryzen 7 9800X3D (桌面级 3D V-Cache 游戏旗舰)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "AMD",
     "scores": {
-      "gamingScore": 124,
+      "gamingScore": 125,
       "productivityScore": 110,
       "efficiencyScore": 145,
       "cinebenchR23Multi": 23800,
@@ -24,7 +24,7 @@ export const cpuRankings: BenchmarkItem[] = [
     "platform": "desktop",
     "brand": "AMD",
     "scores": {
-      "gamingScore": 114,
+      "gamingScore": 110,
       "productivityScore": 165,
       "efficiencyScore": 130,
       "cinebenchR23Multi": 43500,
@@ -40,7 +40,7 @@ export const cpuRankings: BenchmarkItem[] = [
     "platform": "desktop",
     "brand": "AMD",
     "scores": {
-      "gamingScore": 112,
+      "gamingScore": 109,
       "productivityScore": 142,
       "efficiencyScore": 132,
       "cinebenchR23Multi": 34200,
@@ -152,7 +152,7 @@ export const cpuRankings: BenchmarkItem[] = [
     "platform": "desktop",
     "brand": "Intel",
     "scores": {
-      "gamingScore": 113,
+      "gamingScore": 112,
       "productivityScore": 152,
       "efficiencyScore": 76,
       "cinebenchR23Multi": 41600,
@@ -168,7 +168,7 @@ export const cpuRankings: BenchmarkItem[] = [
     "platform": "desktop",
     "brand": "Intel",
     "scores": {
-      "gamingScore": 110,
+      "gamingScore": 108,
       "productivityScore": 135,
       "efficiencyScore": 82,
       "cinebenchR23Multi": 34800,
@@ -211,7 +211,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-14100f",
-    "name": "Intel Core i3-14100 / 14100F (桌面级 4C/8T 入门网游神U)",
+    "name": "Intel Core i3-14100 / 14100F (桌面级 4C/8T 入门网游处理器)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "Intel",
@@ -243,7 +243,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-7950x",
-    "name": "AMD Ryzen 9 7950X (桌面级 16C/32T 生产力神机)",
+    "name": "AMD Ryzen 9 7950X (桌面级 16C/32T 高效生产力旗舰)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "AMD",
@@ -291,12 +291,12 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-7800x3d",
-    "name": "AMD Ryzen 7 7800X3D (桌面级 8C/16T 上代全网封神机)",
+    "name": "AMD Ryzen 7 7800X3D (桌面级 8C/16T 上代经典游戏标杆)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "AMD",
     "scores": {
-      "gamingScore": 112,
+      "gamingScore": 118,
       "productivityScore": 92,
       "efficiencyScore": 142,
       "cinebenchR23Multi": 18600,
@@ -371,7 +371,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-7500f",
-    "name": "AMD Ryzen 5 7500F (桌面级 千元最强无核显神U)",
+    "name": "AMD Ryzen 5 7500F (桌面级 千元高性价比无核显处理器)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "AMD",
@@ -531,7 +531,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-12400f",
-    "name": "Intel Core i5-12400 / 12400F (桌面级 6C/12T 纯大核百搭神U)",
+    "name": "Intel Core i5-12400 / 12400F (桌面级 6C/12T 纯大核主流推荐处理器)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "Intel",
@@ -547,7 +547,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-12100f",
-    "name": "Intel Core i3-12100 / 12100F (桌面级 4C/8T 入门战神)",
+    "name": "Intel Core i3-12100 / 12100F (桌面级 4C/8T 入门标杆)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "Intel",
@@ -659,7 +659,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-5600",
-    "name": "AMD Ryzen 5 5600 (AM4 6C/12T 500元级钉子户神U)",
+    "name": "AMD Ryzen 5 5600 (AM4 6C/12T 500元级高性价比处理器)",
     "type": "cpu",
     "platform": "desktop",
     "brand": "AMD",
@@ -995,7 +995,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-7840hs",
-    "name": "AMD Ryzen 7 7840HS (移动端 8C/16T 780M核显神机)",
+    "name": "AMD Ryzen 7 7840HS (移动端 8C/16T 780M强效核显)",
     "type": "cpu",
     "platform": "laptop",
     "brand": "AMD",
@@ -1027,7 +1027,7 @@ export const cpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-cpu-m4-pro",
-    "name": "Apple M4 Pro (14-Core 强大单核与能效霸主)",
+    "name": "Apple M4 Pro (14-Core 强大单核与能效标杆)",
     "type": "cpu",
     "platform": "laptop",
     "brand": "Apple",
@@ -1206,7 +1206,7 @@ export const cpuRankings: BenchmarkItem[] = [
 export const gpuRankings: BenchmarkItem[] = [
   {
     "id": "rank-gpu-5090",
-    "name": "NVIDIA GeForce RTX 5090 32GB (Blackwell 旗舰新卡皇)",
+    "name": "NVIDIA GeForce RTX 5090 32GB (Blackwell 顶级旗舰显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -1238,7 +1238,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-4090",
-    "name": "NVIDIA GeForce RTX 4090 24GB (桌面级卡皇 24GB GDDR6X)",
+    "name": "NVIDIA GeForce RTX 4090 24GB (桌面级旗舰显卡 24GB GDDR6X)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -1350,7 +1350,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-4060ti-16g",
-    "name": "NVIDIA GeForce RTX 4060 Ti 16GB (大显存 AI绘画/三维渲染神卡)",
+    "name": "NVIDIA GeForce RTX 4060 Ti 16GB (大显存 AI绘画/三维渲染推荐显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -1446,7 +1446,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-7800-xt",
-    "name": "AMD Radeon RX 7800 XT 16GB (桌面级 2K性价比光栅王者)",
+    "name": "AMD Radeon RX 7800 XT 16GB (桌面级 2K性价比光栅标杆)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "AMD",
@@ -1510,7 +1510,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-3090ti",
-    "name": "NVIDIA GeForce RTX 3090 Ti 24GB (安培架构终极卡皇)",
+    "name": "NVIDIA GeForce RTX 3090 Ti 24GB (安培架构顶级旗舰显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -1526,7 +1526,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-3090",
-    "name": "NVIDIA GeForce RTX 3090 24GB (前代 24GB 生产力神卡)",
+    "name": "NVIDIA GeForce RTX 3090 24GB (前代 24GB 生产力标杆显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -1734,7 +1734,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-6800-xt",
-    "name": "AMD Radeon RX 6800 XT 16GB (前代最强 2K 性价比老神卡)",
+    "name": "AMD Radeon RX 6800 XT 16GB (前代 2K 高性价比经典显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "AMD",
@@ -1958,7 +1958,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-2080ti",
-    "name": "NVIDIA GeForce RTX 2080 Ti 11GB (图灵卡皇 11GB显存)",
+    "name": "NVIDIA GeForce RTX 2080 Ti 11GB (图灵架构旗舰显卡 11GB显存)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -2070,7 +2070,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-1080ti",
-    "name": "NVIDIA GeForce GTX 1080 Ti 11GB (帕斯卡神话 卡皇永不为奴)",
+    "name": "NVIDIA GeForce GTX 1080 Ti 11GB (帕斯卡架构旗舰 历久弥坚)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -2102,7 +2102,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-1060-6g",
-    "name": "NVIDIA GeForce GTX 1060 6GB (Steam 霸榜数年的国民神卡)",
+    "name": "NVIDIA GeForce GTX 1060 6GB (Steam 长期主流榜首经典显卡)",
     "type": "gpu",
     "platform": "desktop",
     "brand": "NVIDIA",
@@ -2118,7 +2118,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-4090-mobile",
-    "name": "NVIDIA RTX 4090 Laptop 16GB (满血 175W 移动端卡皇)",
+    "name": "NVIDIA RTX 4090 Laptop 16GB (满血 175W 移动端顶级显卡)",
     "type": "gpu",
     "platform": "laptop",
     "brand": "NVIDIA",
@@ -2166,7 +2166,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-4060-mobile",
-    "name": "NVIDIA RTX 4060 Laptop 8GB (满血 140W 游戏本最强国民神卡)",
+    "name": "NVIDIA RTX 4060 Laptop 8GB (满血 140W 游戏本主流推荐显卡)",
     "type": "gpu",
     "platform": "laptop",
     "brand": "NVIDIA",
@@ -2262,7 +2262,7 @@ export const gpuRankings: BenchmarkItem[] = [
   },
   {
     "id": "rank-gpu-rad-890m",
-    "name": "AMD Radeon 890M (RDNA 3.5 移动核显天花板 相当于GTX 1650)",
+    "name": "AMD Radeon 890M (RDNA 3.5 移动核显顶级标杆 相当于GTX 1650)",
     "type": "gpu",
     "platform": "laptop",
     "brand": "AMD",

@@ -79,10 +79,22 @@ describe('Benchmark Ladder Global Rank & Absolute Ranking Logic', () => {
     expect(effList[0].id).not.toBe('rank-gpu-5090');
   });
 
-  it('assigns Ryzen 7 9800X3D as #1 in CPU gaming mode', () => {
+  it('assigns Ryzen 7 9800X3D as #1 and 7800X3D as #2 in CPU gaming mode', () => {
     const list = computeRankedList(cpuRankings, 'gaming', true, '');
     expect(list[0].id).toBe('rank-cpu-9800x3d');
     expect(list[0].globalRank).toBe(1);
-    expect(list[0].scores.gamingScore).toBe(124);
+    expect(list[0].scores.gamingScore).toBe(125);
+
+    // 7800X3D is solid #2 in gaming, beating 9950X and 14900K
+    expect(list[1].id).toBe('rank-cpu-7800x3d');
+    expect(list[1].globalRank).toBe(2);
+    expect(list[1].scores.gamingScore).toBe(118);
+
+    const r9_9950x = list.find((i) => i.id === 'rank-cpu-9950x');
+    const i9_14900k = list.find((i) => i.id === 'rank-cpu-14900k');
+    expect(r9_9950x?.scores.gamingScore).toBe(110);
+    expect(i9_14900k?.scores.gamingScore).toBe(112);
+    expect(list[1].scores.gamingScore).toBeGreaterThan(r9_9950x!.scores.gamingScore);
+    expect(list[1].scores.gamingScore).toBeGreaterThan(i9_14900k!.scores.gamingScore);
   });
 });

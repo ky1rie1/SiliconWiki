@@ -39,6 +39,33 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { isDevMode, setIsEditorOpen } = useCustomContent();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [hasUnread, setHasUnread] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('_sw_last_seen_changelog_ver') !== 'v2.4.0';
+    } catch {
+      return true;
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      const isUnread = localStorage.getItem('_sw_last_seen_changelog_ver') !== 'v2.4.0';
+      setHasUnread(isUnread);
+    } catch {
+      // fallback
+    }
+  }, [hasUnreadChangelog]);
+
+  const handleOpenChangelog = () => {
+    try {
+      localStorage.setItem('_sw_last_seen_changelog_ver', 'v2.4.0');
+    } catch {
+      // ignore
+    }
+    setHasUnread(false);
+    onOpenChangelog();
+  };
+
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'wiki', label: t('navWiki'), icon: <Cpu className="w-3.5 h-3.5" /> },
     { id: 'rankings', label: t('navRankings'), icon: <BarChart3 className="w-3.5 h-3.5" /> },
@@ -145,17 +172,23 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Changelog / Announcement Button */}
           <button
-            onClick={onOpenChangelog}
-            className="relative p-2 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/50 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
-            title={lang === 'zh' ? '版本更新公告与日志' : 'Version Changelog & Announcements'}
+            onClick={handleOpenChangelog}
+            className="relative flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/50 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer group"
+            title="更新公告 / Changelog"
+            aria-label="更新公告 / Changelog"
           >
-            <Bell className="w-3.5 h-3.5" />
-            {hasUnreadChangelog && (
-              <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
-              </span>
-            )}
+            <div className="relative flex items-center justify-center">
+              <Bell className="w-3.5 h-3.5 group-hover:text-[#F7D84A] transition-colors" />
+              {hasUnread && (
+                <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F7D84A] opacity-80" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F7D84A] shadow-[0_0_6px_#F7D84A]" />
+                </span>
+              )}
+            </div>
+            <span className="hidden xl:inline text-xs font-semibold text-slate-700 dark:text-slate-200">
+              {lang === 'zh' ? '更新公告' : 'Changelog'}
+            </span>
           </button>
 
           {/* Dark / Light Theme Toggle */}
@@ -211,6 +244,26 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             );
           })}
+
+          {/* Mobile Changelog Button */}
+          <button
+            onClick={() => {
+              handleOpenChangelog();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+          >
+            <div className="flex items-center space-x-2.5">
+              <Bell className="w-4 h-4 text-[#F7D84A]" />
+              <span>{lang === 'zh' ? '更新公告 / Changelog' : 'Changelog / Updates'}</span>
+            </div>
+            {hasUnread && (
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F7D84A] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F7D84A]" />
+              </span>
+            )}
+          </button>
 
           {isDevMode && (
             <button

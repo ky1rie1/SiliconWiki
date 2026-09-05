@@ -87,7 +87,7 @@ export const translations = {
     // Rankings
     rankHeroTitle: '标准归一化战力天梯 · 权威能效与游戏实测',
     rankHeroDesc:
-      '数据深度整合极客湾（socpk.com）实测能效比体系与 UL 3DMark TimeSpy 基准。以 RTX 4060 桌面版作为 100% 基准标尺。',
+      '数据深度整合极客湾（socpk.com）实测能效比体系与 UL 3DMark TimeSpy 基准。以 RTX 4060 桌面版为 100 分基准标尺。',
     rankHeroBadge: '多维性能天梯排行榜',
     btnGeekerwan: '极客湾官方天梯直达',
     btnTechPowerUp: 'TechPowerUp 数据库',
@@ -121,12 +121,13 @@ export const translations = {
     ladderBrandAmd: 'AMD 架构',
     ladderBrandIntel: 'Intel 架构',
     ladderBrandApple: 'Apple Silicon',
-    ladderDimGaming: '3A 游戏性能排行 (以 RTX 4060 桌面版为 100% 基准)',
+    ladderDimGaming: '3A 游戏性能排行 (以 RTX 4060 桌面版为 100 分基准标尺)',
+    ladderDimGamingCpu: '3A 游戏性能排行 (以主流游戏处理器 (Core i5 / Ryzen 5) 为 100 分基准标尺)',
     ladderDimProductivity: '生产力多核渲染排行 (基于 Blender / V-Ray / Premiere 实测)',
     ladderDimEfficiency: '每瓦能效比排行 (高能效 / 移动端芯片位居前列)',
-    ladderScoreLabelGaming: '游戏战力',
+    ladderScoreLabelGaming: '战力得分',
     ladderScoreLabelProductivity: '生产力',
-    ladderScoreLabelEfficiency: '能效得分',
+    ladderScoreLabelEfficiency: '每瓦效能',
 
     // 3D Assembly
     assemblyHeroTitle: '全三维分步实景拼装 · 零成本体验装机手感',
@@ -367,7 +368,7 @@ export const translations = {
     // Rankings
     rankHeroTitle: 'Normalized Benchmark Tier Lists · Real-World Game & Efficiency Testing',
     rankHeroDesc:
-      'Directly aligned with Geekerwan (socpk.com) real-world energy efficiency metrics and UL 3DMark TimeSpy scores. Normalized to RTX 4060 Desktop as 100% baseline.',
+      'Directly aligned with Geekerwan (socpk.com) real-world energy efficiency metrics and UL 3DMark TimeSpy scores. Normalized to RTX 4060 Desktop as 100 pts baseline.',
     rankHeroBadge: 'Multi-Dimensional Benchmark Tier',
     btnGeekerwan: 'Geekerwan Official Ladder',
     btnTechPowerUp: 'TechPowerUp GPU Specs',
@@ -401,12 +402,13 @@ export const translations = {
     ladderBrandAmd: 'AMD Arch',
     ladderBrandIntel: 'Intel Arch',
     ladderBrandApple: 'Apple Silicon',
-    ladderDimGaming: '3A Gaming Performance (Normalized to RTX 4060 Desktop as 100% Baseline)',
+    ladderDimGaming: '3A Gaming Performance (Normalized to RTX 4060 Desktop as 100 pts Baseline)',
+    ladderDimGamingCpu: '3A Gaming Performance (Normalized to Mainstream Core i5 / Ryzen 5 as 100 pts Baseline)',
     ladderDimProductivity: 'Productivity Multi-Core Rendering (Based on Blender / V-Ray / Premiere)',
     ladderDimEfficiency: 'Performance-per-Watt Efficiency (High Efficiency & Mobile Chips Lead)',
-    ladderScoreLabelGaming: 'Gaming Power',
+    ladderScoreLabelGaming: 'Gaming Score',
     ladderScoreLabelProductivity: 'Productivity',
-    ladderScoreLabelEfficiency: 'Efficiency Score',
+    ladderScoreLabelEfficiency: 'Per-Watt Score',
 
     // 3D Assembly
     assemblyHeroTitle: 'Interactive 3D Virtual PC Building Simulator',

@@ -7,6 +7,7 @@ import {
   Layers,
   Zap,
   TrendingUp,
+  Gauge,
 } from 'lucide-react';
 import { changelogList } from '../../data/changelog';
 import { useLanguage } from '../../context/LanguageContext';
@@ -28,7 +29,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
   const [dontShowAgain, setDontShowAgain] = React.useState(true);
   if (!isOpen) return null;
 
-  const getTypeBadge = (type: 'feature' | 'data' | 'price' | 'fix') => {
+  const getTypeBadge = (type: 'feature' | 'data' | 'price' | 'fix' | 'perf') => {
     switch (type) {
       case 'feature':
         return (
@@ -41,21 +42,28 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
         return (
           <span className="inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
             <Layers className="w-2.5 h-2.5" />
-            <span>{lang === 'en' ? 'Benchmarks' : '硬件跑分'}</span>
+            <span>{lang === 'en' ? 'Benchmarks' : '数据校准'}</span>
           </span>
         );
       case 'price':
         return (
           <span className="inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 font-semibold shrink-0">
             <TrendingUp className="w-2.5 h-2.5" />
-            <span>{lang === 'en' ? 'Pricing' : '行情微调'}</span>
+            <span>{lang === 'en' ? 'Pricing' : '配置行情'}</span>
           </span>
         );
       case 'fix':
         return (
           <span className="inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 font-semibold shrink-0">
             <Zap className="w-2.5 h-2.5" />
-            <span>{lang === 'en' ? 'Refinement' : '优化体验'}</span>
+            <span>{lang === 'en' ? 'Refinement' : '体验净化'}</span>
+          </span>
+        );
+      case 'perf':
+        return (
+          <span className="inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/80 text-cyan-600 dark:text-cyan-400 font-semibold shrink-0">
+            <Gauge className="w-2.5 h-2.5" />
+            <span>{lang === 'en' ? 'Performance' : '性能优化'}</span>
           </span>
         );
     }
@@ -168,7 +176,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
               }}
               className="px-5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-bold text-xs shadow-xs transition-all cursor-pointer"
             >
-              {lang === 'en' ? 'Got it' : '我知道了'}
+              {lang === 'en' ? 'Got it / Close' : '我知道了 / 关闭'}
             </button>
           </div>
         </div>

@@ -2,10 +2,38 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v2.4.0',
+    date: '2026-09-05',
+    title: '3D装机光影矫正、天梯榜基准标尺重构、2026预算配置升级、客观工程文风净化与用户反馈系统上线',
+    tag: '最新发布',
+    updates: [
+      {
+        type: 'feature',
+        text: '3D装机真实光影与演进优化：引入 ACES Filmic 色调映射，解决阶段性发白过曝问题，调整全景玻璃面板工序至最终封盖，分离材质实例。',
+      },
+      {
+        type: 'data',
+        text: '天梯排行榜基准逻辑校准：移除容易引起歧义的进度条百分比重叠字，统一以 4060 / 主流 CPU 为标尺，7800X3D 游戏战力校准，增加能效比排行专项说明。',
+      },
+      {
+        type: 'price',
+        text: '2026 预算配置全面焕新：重新核对各价位硬件搭配与实时市价，确保总价精准无误差。',
+      },
+      {
+        type: 'fix',
+        text: '全站文风工程化净化：全面剥离浮夸营销词汇，回归客观克制的中立技术描述。',
+      },
+      {
+        type: 'feature',
+        text: '上线右下角轻量反馈系统：支持提交 Bug、数据更新建议，内置后台反馈汇总看板。',
+      },
+    ],
+  },
+  {
     version: 'v1.6.0',
     date: '2026-09-04',
     title: '硬件全动态筛选器、微架构高精工程展台、系统诊断与内容校准记忆与中关村在线 (ZOL) 数据库联动',
-    tag: '最新发布',
+    tag: '重大更新',
     updates: [
       {
         type: 'feature',
@@ -121,7 +149,7 @@ export const changelogList: ChangelogItem[] = [
     updates: [
       {
         type: 'data',
-        text: '全量同步 AMD Ryzen 7 9800X3D（第二代下置 3D 缓存神U）与 RTX 50 系列顶级卡皇的实测能效与跑分。',
+        text: '全量同步 AMD Ryzen 7 9800X3D（第二代下置 3D 缓存旗舰）与 RTX 50 系列顶级旗舰显卡的实测能效与跑分。',
       },
       {
         type: 'feature',

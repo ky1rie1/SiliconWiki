@@ -24,6 +24,7 @@ export class PCScene3D {
   private isExploded: boolean = false;
   private explosionProgress: number = 0; // 0 = assembled, 1 = exploded
   private currentStep: number = 1;
+  private activeComponentKey?: string;
 
   // Active step installation animation
   private activeAnimation: {
@@ -64,6 +65,8 @@ export class PCScene3D {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.0;
     container.appendChild(this.renderer.domElement);
 
     // 4. Lights
@@ -85,11 +88,11 @@ export class PCScene3D {
 
   private setupLighting() {
     // 1. Soft neutral ambient light
-    const ambientLight = new THREE.AmbientLight(0xf8fafc, 2.0);
+    const ambientLight = new THREE.AmbientLight(0xf8fafc, 0.75);
     this.scene.add(ambientLight);
 
     // 2. High-Precision Studio Key Light (4200K warm neutral white)
-    const keyLight = new THREE.DirectionalLight(0xfff7ed, 2.8);
+    const keyLight = new THREE.DirectionalLight(0xfff7ed, 1.6);
     keyLight.position.set(6, 12, 7);
     keyLight.castShadow = true;
     keyLight.shadow.mapSize.width = 2048;
@@ -100,27 +103,27 @@ export class PCScene3D {
     this.scene.add(keyLight);
 
     // 3. Studio Daylight Fill Light (soft neutral fill to reveal component depths)
-    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 1.8);
+    const fillLight = new THREE.DirectionalLight(0xf1f5f9, 0.9);
     fillLight.position.set(-6, 7, 7);
     this.scene.add(fillLight);
 
     // 4. Warm Studio Rim Light (golden rim backlight for sharp silhouette)
-    const rimLight = new THREE.DirectionalLight(0xffeedb, 1.6);
+    const rimLight = new THREE.DirectionalLight(0xffeedb, 0.8);
     rimLight.position.set(0, 9, -7);
     this.scene.add(rimLight);
 
     // 5. Overhead Softbox Light (clean specular reflections on tops of components)
-    const topLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.6);
     topLight.position.set(0, 14, 0);
     this.scene.add(topLight);
 
     // 6. Desk-surface soft bounce
-    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.9);
+    const bottomBounce = new THREE.DirectionalLight(0xe2e8f0, 0.3);
     bottomBounce.position.set(0, -4, 2);
     this.scene.add(bottomBounce);
 
     // 7. Subtle internal hardware diagnostic glow (calibrated natural warm glow)
-    const internalGlow = new THREE.PointLight(0x38bdf8, 1.2, 7);
+    const internalGlow = new THREE.PointLight(0x38bdf8, 0.6, 7);
     internalGlow.position.set(0, 0.3, 0.3);
     this.scene.add(internalGlow);
   }
@@ -273,12 +276,12 @@ export class PCScene3D {
     });
 
     const glassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xe0f2fe,
+      color: 0xf8fafc,
       transparent: true,
-      opacity: 0.22,
-      roughness: 0.05,
-      transmission: 0.92,
-      thickness: 0.1,
+      opacity: 0.08,
+      roughness: 0.02,
+      transmission: 0.98,
+      thickness: 0.05,
     });
 
     const rgbCyanMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
@@ -287,7 +290,7 @@ export class PCScene3D {
     const debugLedGreen = new THREE.MeshBasicMaterial({ color: 0x22c55e });
 
     // =========================================================
-    // 1. CHASSIS CASE (侧透海景房机箱 - 体素框架与透视玻璃)
+    // 1. CHASSIS CASE (侧透海景房机箱架构 - 开放式座舱)
     // =========================================================
     const caseGroup = new THREE.Group();
     // Bottom panel with ventilation voxel array
@@ -318,18 +321,15 @@ export class PCScene3D {
     ioPanel.add(this.createVoxel(1.5, 2.19, 1.0, 0.08, 0.02, 0.1, rgbCyanMat)); // USB 3.0
     caseGroup.add(ioPanel);
 
-    // Front & Side Panoramic Glass Panels (海景房无立柱双面玻璃)
-    const glassSide = new THREE.Mesh(new THREE.BoxGeometry(4.2, 3.9, 0.06), glassMat);
-    glassSide.position.set(0, 0, 1.25);
-    glassSide.userData.isGlass = true;
+    // Front Panoramic Glass (海景房无立柱前置透明玻璃)
     const glassFront = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.9, 2.4), glassMat);
     glassFront.position.set(2.14, 0, 0.05);
     glassFront.userData.isGlass = true;
-    caseGroup.add(glassSide, glassFront);
+    caseGroup.add(glassFront);
 
     this.registerComponent({
       id: 'case',
-      name: '侧透海景房机箱 (无立柱全景透视)',
+      name: '侧透海景房机箱架构 (开放式座舱)',
       group: caseGroup,
       assembledPos: new THREE.Vector3(0, 0, 0),
       explodedPos: new THREE.Vector3(0, 0, -0.7),
@@ -935,11 +935,56 @@ export class PCScene3D {
       explodedPos: new THREE.Vector3(0, -0.8, 0.4),
       installedStep: 8,
     });
+
+    // =========================================================
+    // 10. SIDE PANORAMIC GLASS PANEL (机箱全景侧透玻璃与整机点亮)
+    // =========================================================
+    const sideGlassGroup = new THREE.Group();
+    const glassSide = new THREE.Mesh(new THREE.BoxGeometry(4.2, 3.9, 0.06), glassMat);
+    glassSide.position.set(0, 0, 0);
+    glassSide.userData.isGlass = true;
+    sideGlassGroup.add(glassSide);
+
+    // Subtle magnetic metal retention borders and handle latch
+    const glassFrameMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      roughness: 0.35,
+      metalness: 0.7,
+    });
+    // Top magnetic strip
+    sideGlassGroup.add(this.createVoxel(0, 1.94, 0.01, 4.2, 0.06, 0.07, glassFrameMat));
+    // Bottom sliding rail
+    sideGlassGroup.add(this.createVoxel(0, -1.94, 0.01, 4.2, 0.06, 0.07, glassFrameMat));
+    // Quick-release grab tab
+    sideGlassGroup.add(this.createVoxel(1.95, 1.7, 0.05, 0.14, 0.18, 0.04, glassFrameMat));
+
+    this.registerComponent({
+      id: 'case-glass',
+      name: '侧透全景钢化玻璃侧板 (磁吸闭合)',
+      group: sideGlassGroup,
+      assembledPos: new THREE.Vector3(0, 0, 1.25),
+      explodedPos: new THREE.Vector3(0, 0, 2.2),
+      installedStep: 9,
+    });
   }
 
   private registerComponent(item: ComponentMeshItem) {
     this.components.set(item.id, item);
     item.group.position.copy(item.assembledPos);
+
+    // Deep clone materials per component to ensure complete isolation across parts
+    item.group.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (!Array.isArray(child.material)) {
+          child.material = child.material.clone();
+          if (child.material instanceof THREE.MeshStandardMaterial) {
+            child.material.userData.baseRoughness = child.material.roughness;
+            child.material.userData.baseMetalness = child.material.metalness;
+          }
+        }
+      }
+    });
+
     this.scene.add(item.group);
   }
 
@@ -1137,6 +1182,7 @@ export class PCScene3D {
   // ==========================================
   public setStep(step: number, activeComponentKey?: string) {
     this.currentStep = step;
+    this.activeComponentKey = activeComponentKey;
 
     // Component visibility and clean accent effect based on step
     this.components.forEach((item) => {
@@ -1144,13 +1190,19 @@ export class PCScene3D {
       item.group.visible = isVisible;
 
       // Clean, refined highlight for component of current step
-      const isCurrent = activeComponentKey ? item.id === activeComponentKey : item.installedStep === step;
+      const isCurrent = activeComponentKey
+        ? item.id === activeComponentKey ||
+          (activeComponentKey === 'case' && item.id === 'case-glass') ||
+          (activeComponentKey === 'case-glass' && item.id === 'case') ||
+          (activeComponentKey === 'motherboard' && step === 5 && item.id === 'case')
+        : item.installedStep === step;
+
       item.group.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.material) {
+        if (child instanceof THREE.Mesh && child.material && !child.userData.isGlass) {
           if (Array.isArray(child.material)) return;
           if (child.material instanceof THREE.MeshStandardMaterial) {
-            child.material.emissive = new THREE.Color(isCurrent ? 0x0284c7 : 0x000000);
-            child.material.emissiveIntensity = isCurrent ? 0.3 : 0.0;
+            child.material.emissive.set(isCurrent ? 0x0284c7 : 0x000000);
+            child.material.emissiveIntensity = isCurrent ? 0.25 : 0.0;
           }
         }
       });
@@ -1172,10 +1224,14 @@ export class PCScene3D {
   }
 
   public focusComponent(componentKey: string, flash: boolean = true) {
-    const item = this.components.get(componentKey);
+    const item =
+      this.components.get(componentKey) ||
+      (componentKey === 'case' ? this.components.get('case-glass') : undefined) ||
+      (componentKey === 'case-glass' ? this.components.get('case') : undefined);
     if (item) {
       this.targetLookAt.copy(item.assembledPos);
-      this.spherical.radius = 5.2;
+      this.spherical.radius =
+        componentKey === 'case' || componentKey === 'case-glass' ? 7.5 : 5.2;
       this.updateCameraPosition();
       if (flash) {
         this.flashComponentHighlight(item);
@@ -1197,7 +1253,11 @@ export class PCScene3D {
     }
 
     targetItem.group.visible = true;
-    const elevatedPos = targetItem.assembledPos.clone().add(new THREE.Vector3(0, 1.4, 0.3));
+    const offset =
+      targetItem.id === 'case-glass'
+        ? new THREE.Vector3(0, 0.4, 1.4)
+        : new THREE.Vector3(0, 1.4, 0.3);
+    const elevatedPos = targetItem.assembledPos.clone().add(offset);
     targetItem.group.position.copy(elevatedPos);
 
     this.activeAnimation = {
@@ -1218,21 +1278,30 @@ export class PCScene3D {
       if (
         child instanceof THREE.Mesh &&
         child.material &&
-        child.material instanceof THREE.MeshStandardMaterial
+        child.material instanceof THREE.MeshStandardMaterial &&
+        !child.userData.isGlass
       ) {
-        const origEmissive = child.material.emissive.clone();
-        const origIntensity = child.material.emissiveIntensity;
-        const origRoughness = child.material.roughness;
+        const mat = child.material;
+        const baseRoughness =
+          typeof mat.userData.baseRoughness === 'number'
+            ? mat.userData.baseRoughness
+            : mat.roughness;
 
-        // Natural studio specular reflection pulse (neutral warm white sheen, no green tint)
-        child.material.emissive.set(0xffffff);
-        child.material.emissiveIntensity = 0.25;
-        child.material.roughness = Math.max(0.08, origRoughness * 0.4);
+        // Controlled specular flash (clean tech cyan sheen, no permanent white washout)
+        mat.emissive.set(0x0284c7);
+        mat.emissiveIntensity = 0.35;
+        mat.roughness = Math.max(0.08, baseRoughness * 0.5);
 
         setTimeout(() => {
-          child.material.emissive.copy(origEmissive);
-          child.material.emissiveIntensity = origIntensity;
-          child.material.roughness = origRoughness;
+          const isCurrent =
+            item.id === this.activeComponentKey ||
+            (this.activeComponentKey === 'case' && item.id === 'case-glass') ||
+            (this.activeComponentKey === 'case-glass' && item.id === 'case') ||
+            item.installedStep === this.currentStep;
+
+          mat.emissive.set(isCurrent ? 0x0284c7 : 0x000000);
+          mat.emissiveIntensity = isCurrent ? 0.25 : 0.0;
+          mat.roughness = baseRoughness;
         }, 450);
       }
     });

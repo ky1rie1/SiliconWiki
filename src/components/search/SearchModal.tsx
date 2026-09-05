@@ -102,7 +102,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         {
           id: 'sug-1',
           title: 'AMD Ryzen 7 9800X3D',
-          subtitle: lang === 'en' ? 'Next-Gen Gaming King · 2nd-Gen 3D V-Cache' : '新一代游戏之王 · 第二代 3D V-Cache',
+          subtitle: lang === 'en' ? 'Next-Gen Gaming Flagship · 2nd-Gen 3D V-Cache' : '新一代游戏旗舰 · 第二代 3D V-Cache',
           category: lang === 'en' ? 'Hardware' : '硬件型号',
           targetTab: 'wiki',
           badge: lang === 'en' ? 'Hot' : '热门',
@@ -139,7 +139,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         },
         {
           id: 'sug-6',
-          title: lang === 'en' ? '¥5500 Tier: 1080P/2K Sweet Spot Rig' : '5500元档：1080P/2K 主流全能甜点神机',
+          title: lang === 'en' ? '¥5500 Tier: 1080P/2K Sweet Spot Rig' : '5500元档：1080P/2K 主流全能甜点配置',
           subtitle: lang === 'en' ? '7500F + RTX 4060 + 32G DDR5 Spec Sheet' : '7500F + RTX 4060 + 32G D5 配置清单',
           category: lang === 'en' ? 'Builds' : '推荐配置',
           targetTab: 'builds',

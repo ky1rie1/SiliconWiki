@@ -344,7 +344,7 @@ export const ramList: HardwareItem[] = [
       '工作电压': '1.40V',
     },
     highlights: [
-      '超跑流线双色高精铝合金马甲，做工质感业界天花板',
+      '超跑流线双色高精铝合金马甲，做工质感达行业高标准',
       '芝奇皇家戟/幻锋戟经典无暇均匀流光导光条',
       '精选特挑原厂海力士颗粒，高频稳定性极为出众',
     ],
@@ -354,7 +354,7 @@ export const ramList: HardwareItem[] = [
     msrpRmb: 1299,
     marketPriceRange: [999, 1149],
     priceTrend: 'stable',
-    trendText: '旗舰装机高端颜值天花板',
+    trendText: '旗舰装机高端颜值标杆',
     badge: '旗舰奢华流光',
     jdSearchQuery: '芝奇 幻锋戟 DDR5 6800 32G',
     tbSearchQuery: '芝奇 幻锋戟 6800 32G',

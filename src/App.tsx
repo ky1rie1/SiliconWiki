@@ -12,6 +12,7 @@ import { GlossaryView } from './components/glossary/GlossaryView';
 import { BudgetBuilds } from './components/builds/BudgetBuilds';
 import { SearchModal } from './components/search/SearchModal';
 import { ChangelogModal } from './components/changelog/ChangelogModal';
+import { FeedbackFloatingButton } from './components/feedback/FeedbackFloatingButton';
 import { ActiveTab } from './types';
 import { changelogList } from './data/changelog';
 
@@ -107,13 +108,11 @@ export default function App() {
     };
   }, []);
 
-  // Check if current version announcement was already dismissed by user
+  // Check if current version announcement was already dismissed or seen by user
   useEffect(() => {
-    const latestVersion = changelogList[0]?.version || 'v1.0.0';
-    const dismissedVersion = localStorage.getItem('silicon_wiki_dismissed_version');
-    if (dismissedVersion !== latestVersion) {
-      // Auto-open notification on new update version!
-      setIsChangelogOpen(true);
+    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    const seenVersion = localStorage.getItem('_sw_last_seen_changelog_ver');
+    if (seenVersion !== latestVersion) {
       setHasUnreadChangelog(true);
     } else {
       setHasUnreadChangelog(false);
@@ -121,16 +120,18 @@ export default function App() {
   }, []);
 
   const handleCloseChangelog = (dontShowAgain?: boolean) => {
-    const latestVersion = changelogList[0]?.version || 'v1.0.0';
+    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
     if (dontShowAgain) {
       localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
-      setHasUnreadChangelog(false);
     }
+    setHasUnreadChangelog(false);
     setIsChangelogOpen(false);
   };
 
   const handleMarkAllAsRead = () => {
-    const latestVersion = changelogList[0]?.version || 'v1.0.0';
+    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
     localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
     setHasUnreadChangelog(false);
   };
@@ -202,6 +203,9 @@ export default function App() {
               onMarkAllAsRead={handleMarkAllAsRead}
               latestVersion={changelogList[0]?.version}
             />
+
+            {/* Floating User Feedback Ball & System */}
+            <FeedbackFloatingButton />
 
             {/* Quick In-Browser Text Customizer System */}
             <QuickTextEditorModal />

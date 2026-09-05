@@ -20,7 +20,7 @@ export const bilibiliVideos: BilibiliVideo[] = [
     danmaku: '12万+ 弹幕',
     duration: '42:18',
     description:
-      '全网公认封神的装机实操教科书。视频全景特写镜头、多机位慢动作演示，从 CPU 安装防呆、内存双通道、散热器撕膜、机箱铜柱固定到最让新手头疼的跳线连接，每一秒都干货满满。',
+      '全网公认标杆级的装机实操教科书。视频全景特写镜头、多机位慢动作演示，从 CPU 安装防呆、内存双通道、散热器撕膜、机箱铜柱固定到最让新手头疼的跳线连接，每一秒都干货满满。',
     tags: ['保姆级教程', '零基础必看', '全网最高赞', '多机位特写'],
     url: 'https://www.bilibili.com/video/BV1eW411w7pn',
     isRecommend: true,

@@ -141,7 +141,7 @@ export interface ChangelogItem {
   title: string;
   tag?: string;
   updates: {
-    type: 'feature' | 'data' | 'price' | 'fix';
+    type: 'feature' | 'data' | 'price' | 'fix' | 'perf';
     text: string;
   }[];
 }
@@ -152,3 +152,14 @@ export type ActiveTab =
   | 'simulator3d'
   | 'glossary'
   | 'builds';
+
+export interface FeedbackItem {
+  id: string;
+  type: 'bug' | 'data' | 'feature' | 'other';
+  target?: string;
+  content: string;
+  contact?: string;
+  createdAt: string;
+  status: 'pending' | 'resolved';
+}
+

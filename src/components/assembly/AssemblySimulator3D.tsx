@@ -77,7 +77,11 @@ export const AssemblySimulator3D: React.FC = () => {
 
     // 3D Model click syncs to React state and updates right-hand panel
     scene.onComponentClick = (componentId: string) => {
-      const targetIndex = assemblyStepsData.findIndex((s) => s.componentKey === componentId);
+      const targetIndex = assemblyStepsData.findIndex(
+        (s) =>
+          s.componentKey === componentId ||
+          (componentId === 'case-glass' && (s.componentKey === 'case' || s.stepNumber === 9))
+      );
       if (targetIndex !== -1) {
         handleStepChangeRef.current(targetIndex);
       }

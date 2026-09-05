@@ -322,7 +322,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               { id: 'all', label: lang === 'en' ? 'All Tiers' : '全部定位', matcher: () => true },
               {
                 id: 'x3d',
-                label: lang === 'en' ? '3D V-Cache Gaming' : '3D V-Cache 游戏神U',
+                label: lang === 'en' ? '3D V-Cache Gaming' : '3D V-Cache 热门游戏处理器',
                 matcher: (i) =>
                   i.name.includes('X3D') ||
                   i.highlights.some((h) => h.includes('3D V-Cache')) ||
@@ -1264,11 +1264,10 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
               },
               {
                 id: 'flagship',
-                label: lang === 'en' ? 'Flagship Benchmark' : '旗舰机皇标杆',
+                label: lang === 'en' ? 'Flagship Benchmark' : '顶级旗舰标杆',
                 matcher: (i) =>
                   i.marketPriceRange[0] >= 3000 ||
-                  (i.badge || '').includes('旗舰') ||
-                  (i.badge || '').includes('机皇'),
+                  (i.badge || '').includes('旗舰'),
               },
               {
                 id: 'value',

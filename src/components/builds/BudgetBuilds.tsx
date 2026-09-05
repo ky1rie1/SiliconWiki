@@ -18,11 +18,11 @@ export const BudgetBuilds: React.FC = () => {
 
   const tiers = [
     { id: 'all', label: lang === 'en' ? 'All Price Tiers' : '全部价位段' },
-    { id: '3500元档', label: lang === 'en' ? '¥3500 Entry Esports' : '3500元 入门网游' },
+    { id: '3500元档', label: lang === 'en' ? '¥3500 Entry Esports' : '3500元 入门配置' },
     { id: '5500元档', label: lang === 'en' ? '¥5500 2K Sweet Spot' : '5500元 2K甜点' },
     { id: '8500元档', label: lang === 'en' ? '¥8500 High-FPS Powerhouse' : '8500元 高刷主力' },
-    { id: '15000元档', label: lang === 'en' ? '¥15000 4K Ultra Gaming' : '1.5万元 4K电竞' },
-    { id: '25000元档', label: lang === 'en' ? '¥25000+ Flagship Crown' : '2.5万+ 旗舰机皇' },
+    { id: '13000元档', label: lang === 'en' ? '¥13000 4K Esports & Pro' : '1.3万元 4K电竞生产力' },
+    { id: '25000元档+', label: lang === 'en' ? '¥25000+ Ultimate Flagship' : '2.5万+ 顶级发烧配置' },
   ];
 
   const getLocalizedPartType = (type: string) => {

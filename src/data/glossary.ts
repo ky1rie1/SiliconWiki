@@ -369,7 +369,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     term: '原厂 3D TLC vs QLC (闪存颗粒防坑秘籍)',
     alias: ['TLC', 'QLC', '黑片', '白片', '大号U盘', '擦写寿命'],
     category: 'storage',
-    shortDesc: 'TLC 每个单元存储 3bit 数据，寿命与缓外速度碾压 4bit 的 QLC 颗粒。',
+    shortDesc: 'TLC 每个单元存储 3bit 数据，寿命与缓外速度显著优于 4bit 的 QLC 颗粒。',
     fullExplanation:
       'TLC (Triple-Level Cell) 擦写寿命约 1000~3000 次，缓外写入速度快；QLC (Quad-Level Cell) 写入寿命仅约 300~500 次，且当大文件写满模拟 SLC 缓存后，缓外真实写入速度甚至会断崖式暴跌到 50MB/s（比机械硬盘还慢）。',
     buyingAdvice:
@@ -677,8 +677,8 @@ export const glossaryTerms: GlossaryTerm[] = [
     fullExplanation:
       '显卡搭载两颗独立的 SPI Flash 芯片。OC / Performance 档位风扇启停阈值更低、风速更高，核心温度低 5°C；Quiet 档位放宽温度上限，风扇转速压低 500 RPM，带来极致安静体验。此外，在刷 BIOS 失败黑屏时，拨到另一个 BIOS 即可安全救砖开机。',
     buyingAdvice:
-      '追求书房静音的玩家，可关机后将显卡顶部小拨钮拨至【Q-Mode (Quiet)】；救砖玩家更视其为绝杀保险。',
-    tags: ['显卡功能', '静音调校', '救砖神器'],
+      '追求书房静音的玩家，可关机后将显卡顶部小拨钮拨至【Q-Mode (Quiet)】；救砖玩家更视其为安全冗余保障。',
+    tags: ['显卡功能', '静音调校', '双BIOS安全冗余'],
   },
   {
     id: 'term-ram-gear-mode',
@@ -711,7 +711,7 @@ export const glossaryTerms: GlossaryTerm[] = [
     category: 'ram',
     shortDesc: 'DRAM 硅晶圆原厂颗粒代号，决定了这根内存能超频到的电压耐受度、频率上限与极小时序。',
     fullExplanation:
-      '在 DDR5 时代，【海力士 A-die】和【新 M-die (3Gb/24GB单条)】是绝对霸主，能耐受 1.45V+ 高电压，能轻松超至 7200~8400MHz 且 tRFC 能压到极低；三星与镁光早期 DDR5 颗粒体质较差，难以突破 6000MHz 且时序松垮。在老 DDR4 时代，【三星 B-die】凭借强悍的耐压平跑 CL14 封神。',
+      '在 DDR5 时代，【海力士 A-die】和【新 M-die (3Gb/24GB单条)】是主流超频标杆，能耐受 1.45V+ 高电压，能轻松超至 7200~8400MHz 且 tRFC 能压到极低；三星与镁光早期 DDR5 颗粒体质较差，难以突破 6000MHz 且时序松垮。在老 DDR4 时代，【三星 B-die】凭借强悍的耐压平跑 CL14 广受认可。',
     buyingAdvice:
       '选购 DDR5 内存时，无论买哪个品牌（光威、金百达、芝奇、宏碁），商品详情或颗粒参数必须认准【海力士 A-die 原厂颗粒】！',
     tags: ['颗粒体质', 'DDR5推荐', '必看真经'],

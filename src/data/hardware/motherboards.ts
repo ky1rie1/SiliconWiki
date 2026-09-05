@@ -195,7 +195,7 @@ export const motherboardList: HardwareItem[] = [
     reviewLinks: [
       { title: '硬件茶社 华擎 B650M-HDV 妖板全面实测：百元带 7800X3D？', url: 'https://www.bilibili.com/video/BV1eW411w7pn', platform: 'bilibili', author: '硬件茶社', summary: '双内存槽电气性能拔群，平民高性价比首选' },
     ],
-    pairingAdvice: '预算 4000~6000 元游戏神机首选底板，搭配锐龙 7500F 性价比绝伦。',
+    pairingAdvice: '预算 4000~6000 元游戏推荐配置首选底板，搭配锐龙 7500F 性价比优秀。',
   },
   {
     id: 'mb-asus-rog-strix-b650a-wifi',
@@ -212,7 +212,7 @@ export const motherboardList: HardwareItem[] = [
       '网络连接': 'Intel 2.5G + Wi-Fi 6E',
     },
     highlights: ['纯白海景房主机颜值门面', 'ROG 专属雪武姬主题定制 BIOS', '声效 SupremeFX ALC4080'],
-    pros: ['颜值天花板，与白色显卡、白色海景房机箱浑然一体', 'ATX 大板走线舒展'],
+    pros: ['颜值出众，与白色显卡、白色海景房机箱浑然一体', 'ATX 大板走线舒展'],
     cons: ['价格有一定品牌外观溢价'],
     tdpWatts: 30,
     msrpRmb: 1899,

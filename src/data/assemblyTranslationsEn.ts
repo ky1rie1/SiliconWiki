@@ -86,6 +86,15 @@ export const stepSpecsMapZh: Record<string, HardwareSpecDetail> = {
     ],
     highlightTip: '通电自检全绿即大功告成，享受首次点亮主机的仪式感！',
   },
+  'case-glass': {
+    craft: '270° 无立柱全景钢化超透玻璃 · 4mm 超白透光 · 磁吸/防脱落卡扣导轨',
+    specs: [
+      { label: '侧板材质', val: '4mm 高透光钢化防爆玻璃 (超白透光)' },
+      { label: '固定方式', val: '底部滑轨定位槽 + 顶部强磁吸合扣' },
+      { label: '安装技巧', val: '对准下底槽向前平推入位，严防硬砸' },
+    ],
+    highlightTip: '闭合全景玻璃侧板，整机组装完成，开启通电自检！',
+  },
 };
 
 export const stepSpecsMapEn: Record<string, HardwareSpecDetail> = {
@@ -170,6 +179,15 @@ export const stepSpecsMapEn: Record<string, HardwareSpecDetail> = {
     ],
     highlightTip: 'All debug LEDs off means success — enjoy your pristine custom rig!',
   },
+  'case-glass': {
+    craft: '270° Pillarless Panoramic Ultra-Clear Tempered Glass · 4mm Crystal Transparency · Magnetic Latch Rails',
+    specs: [
+      { label: 'Panel Material', val: '4mm High-Transmission Shatterproof Tempered Glass' },
+      { label: 'Mounting Mechanism', val: 'Bottom Slide-in Groove + Top Magnetic Quick-Release' },
+      { label: 'Assembly Technique', val: 'Seat into bottom groove first, then push flush to lock' },
+    ],
+    highlightTip: 'Latch the side panoramic glass to complete the build and begin POST check!',
+  },
 };
 
 export const componentNameMapZh: Record<string, string> = {
@@ -181,7 +199,8 @@ export const componentNameMapZh: Record<string, string> = {
   psu: '模组电源',
   gpu: '独立显卡',
   cables: '模组线缆与跳线',
-  case: '全景海景房机箱',
+  case: '全景机箱侧板',
+  'case-glass': '全景侧透玻璃',
 };
 
 export const componentNameMapEn: Record<string, string> = {
@@ -193,7 +212,8 @@ export const componentNameMapEn: Record<string, string> = {
   psu: 'Modular Power Supply (PSU)',
   gpu: 'Discrete Graphics Card (GPU)',
   cables: 'Modular Cables & Front Panel Headers',
-  case: 'Panoramic PC Chassis (Case)',
+  case: 'Panoramic Glass Panel & Case',
+  'case-glass': 'Panoramic Tempered Glass',
 };
 
 export const stepTranslationsEn: Record<
@@ -342,20 +362,21 @@ export const stepTranslationsEn: Record<
       'POWER SW is plugged onto correct power pins; USB 3.0 and HD Audio cables are securely seated.',
   },
   9: {
-    title: 'First Power-On & Motherboard POST Self-Test',
-    subtitle: 'Display Cable into GPU! · Watch 4 Debug LEDs · Enable XMP in BIOS',
+    title: 'Side Panoramic Glass Panel & Final Power-On Self-Test',
+    subtitle: 'Slide & Lock Tempered Glass · Observe Debug LEDs · BIOS XMP Setup',
     summary:
-      'Connect power cord, turn on PSU rocker switch, press power button, observe Debug LEDs, and enter BIOS to enable XMP/EXPO.',
+      'Slide and lock the ultra-clear panoramic glass panel, connect power cord, turn on PSU switch, observe Debug LEDs, and enter BIOS to enable XMP/EXPO.',
     instructions: [
+      'Slide the panoramic tempered glass side panel into the chassis bottom retaining groove and engage the magnetic top latch.',
       'CARDINAL RULE: Plug your monitor HDMI/DP cable directly into the DISCRETE GPU REAR PORTS, NEVER into the motherboard IO!',
       'Flip the physical power toggle switch on the back of the PSU to the "I" (ON) position; press the chassis power button.',
-      'Watch the 4 diagnostic Debug LEDs through the glass (CPU -> DRAM -> VGA -> BOOT). All 4 lights turning off signifies a successful clean POST!',
+      'Watch the 4 diagnostic Debug LEDs through the crystal-clear glass (CPU -> DRAM -> VGA -> BOOT). All 4 lights turning off signifies a successful clean POST!',
       'When monitor turns on with the motherboard brand logo, rapidly tap Delete or F2 to enter BIOS setup.',
       'Locate the XMP or EXPO toggle in BIOS EZ Mode, set to Profile 1 (Enabled), press F10 to save & reboot, and prepare Windows installation!',
     ],
     criticalWarning:
       'On first boot, DDR5 platforms run "Memory Training" — the DRAM amber LED may stay lit and screen remains black for 1 to 2 minutes. Do NOT panic or pull the plug!',
     debugCheck:
-      'All 4 Debug LEDs extinguish after POST; display boots cleanly into BIOS; RAM runs at rated high speed.',
+      'Panoramic glass panel securely seated; all 4 Debug LEDs extinguish after POST; display boots cleanly into BIOS; RAM runs at rated high speed.',
   },
 };
