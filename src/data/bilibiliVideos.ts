@@ -22,7 +22,7 @@ export const bilibiliVideos: BilibiliVideo[] = [
     description:
       '全网公认封神的装机实操教科书。视频全景特写镜头、多机位慢动作演示，从 CPU 安装防呆、内存双通道、散热器撕膜、机箱铜柱固定到最让新手头疼的跳线连接，每一秒都干货满满。',
     tags: ['保姆级教程', '零基础必看', '全网最高赞', '多机位特写'],
-    url: 'https://search.bilibili.com/all?keyword=硬件茶社+装机教程+保姆级',
+    url: 'https://www.bilibili.com/video/BV1eW411w7pn',
     isRecommend: true,
   },
   {
@@ -35,7 +35,7 @@ export const bilibiliVideos: BilibiliVideo[] = [
     description:
       '极客湾官方出品，从软硬件底层原理切入，不仅教你怎么插零件，更告诉你为什么这么设计、不同硬件规格的真实性能差异与避坑秘籍。',
     tags: ['极客湾权威', '底层逻辑', '装机避坑', '硬件搭配'],
-    url: 'https://search.bilibili.com/all?keyword=极客湾+装机教程',
+    url: 'https://www.bilibili.com/video/BV1wA411b7q7',
     isRecommend: true,
   },
   {
@@ -48,7 +48,7 @@ export const bilibiliVideos: BilibiliVideo[] = [
     description:
       '风趣幽默的大白话装机教学，重点强调各种防呆口防反手感、螺丝力度以及海景房机箱风道优化与背线整理技巧。',
     tags: ['幽默通俗', '理线技巧', '背插主板', '风道实操'],
-    url: 'https://search.bilibili.com/all?keyword=装机猿+装机教程',
+    url: 'https://www.bilibili.com/video/BV1b54y1V7y4',
   },
   {
     id: 'bv-tiaoxian-jumpers',
@@ -60,7 +60,7 @@ export const bilibiliVideos: BilibiliVideo[] = [
     description:
       '专门针对装机新手最害怕的 POWER SW、RESET、HDD LED 跳线连接制作的微距教学，带超大图解丝印对比，一秒学会。',
     tags: ['跳线专题', '短视频秒懂', 'POWER SW', '前置面板'],
-    url: 'https://search.bilibili.com/all?keyword=主板跳线连接+保姆级+搞机',
+    url: 'https://www.bilibili.com/video/BV1b441197UX',
   },
   {
     id: 'bv-bios-win11',
@@ -72,6 +72,6 @@ export const bilibiliVideos: BilibiliVideo[] = [
     description:
       '硬件拼好之后的下半场！手把手带你使用微软官方 MediaCreationTool 制作纯净无捆绑的 Win11 安装 U 盘，并在 BIOS 中一键开启 XMP/EXPO 与 TPM 2.0。',
     tags: ['系统安装', 'BIOS设置', '开启XMP', '纯净系统'],
-    url: 'https://search.bilibili.com/all?keyword=装机后系统安装+BIOS设置+XMP',
+    url: 'https://www.bilibili.com/video/BV1ya411c7A2',
   },
 ];

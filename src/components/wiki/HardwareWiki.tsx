@@ -1460,18 +1460,18 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id)}
-              className={`group flex items-center space-x-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+              className={`group flex items-center space-x-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap shadow-xs transition-all duration-200 ease-fluid active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                 isSelected
                   ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-md ring-2 ring-[#F7D84A] scale-[1.02]'
-                  : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/40 dark:hover:border-[#F7D84A]/40 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white'
+                  : 'bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/60 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-900 dark:hover:text-white hover:-translate-y-0.5 hover:shadow-xs'
               }`}
             >
-              <span className={isSelected ? 'text-[#F7D84A] dark:text-amber-500' : 'text-slate-500 dark:text-slate-400 group-hover:text-[#F7D84A]'}>
+              <span className={`transition-transform duration-200 ease-fluid group-hover:scale-110 ${isSelected ? 'text-[#F7D84A] dark:text-amber-500' : 'text-slate-500 dark:text-slate-400 group-hover:text-[#F7D84A]'}`}>
                 {cat.icon}
               </span>
               <span>{cat.label}</span>
               <span
-                className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono font-medium transition-colors ${
+                className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono font-medium transition-colors duration-200 ${
                   isSelected
                     ? 'bg-[#F7D84A]/20 dark:bg-black/10 text-[#F7D84A] dark:text-slate-900 font-bold'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
@@ -1501,7 +1501,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('searchPlaceholderHardware') || (lang === 'en' ? 'Search model, brand, architecture or codename (e.g. 9800X3D, RTX 4070)...' : '搜索硬件型号、品牌、架构或代号（如 9800X3D, RTX 4070, 重炮手）...')}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F7D84A] focus:border-[#F7D84A] transition-all duration-200 ease-fluid"
                 />
                 {searchQuery && (
                   <button
@@ -1522,7 +1522,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                    className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F7D84A] focus:border-[#F7D84A] hover:border-[#F7D84A]/50 transition-all duration-200 ease-fluid font-medium cursor-pointer"
                   >
                     <option value="default">{t('sortDefault') || (lang === 'en' ? 'Default Recommended' : '默认推荐')}</option>
                     <option value="price-asc">{t('sortPriceAsc') || (lang === 'en' ? 'Price: Low to High' : '价格：从低到高')}</option>
@@ -1536,10 +1536,10 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   <button
                     type="button"
                     onClick={() => handleViewModeChange('grid')}
-                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.97] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                       viewMode === 'grid'
-                        ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white'
+                        ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs ring-1 ring-black/5 dark:ring-white/10 scale-[1.02]'
+                        : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white hover:-translate-y-0.5'
                     }`}
                     title={t('viewCard')}
                   >
@@ -1550,10 +1550,10 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   <button
                     type="button"
                     onClick={() => handleViewModeChange('table')}
-                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.97] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                       viewMode === 'table'
-                        ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white'
+                        ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs ring-1 ring-black/5 dark:ring-white/10 scale-[1.02]'
+                        : 'text-slate-500 hover:text-slate-900 dark:text-neutral-400 dark:hover:text-white hover:-translate-y-0.5'
                     }`}
                     title={t('viewTable')}
                   >
@@ -1577,10 +1577,10 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                     <button
                       key={b.name}
                       onClick={() => handleBrandClick(b.name)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap active:scale-[0.98] transition-all duration-200 ease-fluid flex items-center space-x-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                         isBrandActive
                           ? 'bg-blue-600 dark:bg-cyan-500 text-white shadow-xs scale-[1.02]'
-                          : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-750'
+                          : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-750 hover:-translate-y-0.5 hover:border-[#F7D84A]/40'
                       }`}
                     >
                       <span>{b.label}</span>
@@ -1630,12 +1630,12 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                                       : '当前品牌下无此规格硬件，点击将自动切换至「全部品牌」查看')
                                   : undefined
                               }
-                              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all flex items-center space-x-1.5 cursor-pointer ${
+                              className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap active:scale-[0.98] transition-all duration-200 ease-fluid flex items-center space-x-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                                 isOptionActive
                                   ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold shadow-xs scale-[1.02]'
                                   : isZeroUnderBrand
                                   ? 'bg-slate-50/70 dark:bg-slate-850/50 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 border border-dashed border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                  : 'bg-slate-50 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/70 dark:border-slate-700/60'
+                                  : 'bg-slate-50 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:-translate-y-0.5 border border-slate-200/70 dark:border-slate-700/60 hover:border-[#F7D84A]/40'
                               }`}
                             >
                               <span>{opt.label}</span>

@@ -92,10 +92,10 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
   };
 
   return (
-    <div className="double-bezel-outer h-full flex flex-col group/card hover:scale-[1.01] transition-spring">
+    <div className="double-bezel-outer h-full flex flex-col group/card hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-cyan-950/20 transition-all duration-200 ease-fluid">
       <div
         onClick={() => onOpenSpecs?.(item)}
-        className="double-bezel-inner h-full flex flex-col flex-1 overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/5"
+        className="double-bezel-inner h-full flex flex-col flex-1 overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/5 group-hover/card:border-[#F7D84A]/40 dark:group-hover/card:border-[#F7D84A]/30 transition-colors duration-200"
       >
         {/* Product Image & Blueprint Schematic Banner */}
         <HardwareImage
@@ -209,7 +209,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                     e.stopPropagation();
                     onOpenTerm?.(term);
                   }}
-                  className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 transition-colors cursor-pointer"
+                  className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-blue-50/80 hover:bg-blue-100 dark:bg-cyan-950/40 dark:hover:bg-cyan-900/60 text-blue-600 dark:text-cyan-400 text-[10px] font-medium border border-blue-200/50 dark:border-cyan-800/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
                   title={lang === 'en' ? `View technical explanation for "${term.term}"` : `点击查看「${term.term}」详细技术名词解释`}
                 >
                   <span>{term.term.split(' ')[0]}</span>
@@ -228,7 +228,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               e.stopPropagation();
               onOpenSpecs?.(item);
             }}
-            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-cyan-950/40 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 text-xs font-semibold transition-spring group/btn border border-transparent hover:border-blue-200 dark:hover:border-cyan-800/60"
+            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-cyan-950/40 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-cyan-400 text-xs font-semibold hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid group/btn border border-transparent hover:border-[#F7D84A]/40 dark:hover:border-[#F7D84A]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
           >
             <span className="flex items-center space-x-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -278,7 +278,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 text-[11px] font-medium transition-colors"
+              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 text-[11px] font-medium hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
               title={lang === 'en' ? 'Search JD.com for live price (Login Req.)' : '直达京东自营搜索最新现货报价 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />
@@ -291,7 +291,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-600 dark:text-amber-400 text-[11px] font-medium transition-colors"
+              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-600 dark:text-amber-400 text-[11px] font-medium hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
               title={lang === 'en' ? 'Search Taobao for live price (Login Req.)' : '直达淘宝百亿补贴精选现货搜索 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />
@@ -306,7 +306,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-orange-600/10 hover:bg-orange-600/20 text-orange-600 dark:text-orange-400 text-[11px] font-medium transition-colors"
+              className="flex items-center justify-center space-x-1 py-1.5 px-2 rounded-xl bg-orange-600/10 hover:bg-orange-600/20 text-orange-600 dark:text-orange-400 text-[11px] font-medium hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
               title={lang === 'en' ? 'Search PDD for live price (Login Req.)' : '直达拼多多百亿补贴搜索 (须登录)'}
             >
               <ShoppingBag className="w-3 h-3 shrink-0" />

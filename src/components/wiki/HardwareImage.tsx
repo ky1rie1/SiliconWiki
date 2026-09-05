@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { HardwareCategory } from '../../types';
 import {
   Cpu,
@@ -21,11 +21,7 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
   category,
   name,
   brand,
-  imageUrl,
 }) => {
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
-
   // Brand-Aware Category Theme Colors & Accents
   const getTheme = () => {
     switch (category) {
@@ -966,49 +962,58 @@ export const HardwareImage: React.FC<HardwareImageProps> = ({
     <div
       className={`relative w-full h-44 sm:h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br ${theme.gradient} bg-slate-100 dark:bg-[#070b14] flex items-center justify-center group/img select-none`}
     >
-      {/* Background Engineering Blueprint Grid */}
+      {/* Silicon Wafer Die Grid Pattern */}
       <div
-        className="absolute inset-0 opacity-15 dark:opacity-25 pointer-events-none"
+        className="absolute inset-0 opacity-20 dark:opacity-25 pointer-events-none"
         style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(148,163,184,0.35) 1px, transparent 1px)',
-          backgroundSize: '16px 16px',
+          backgroundImage: `
+            linear-gradient(to right, rgba(148, 163, 184, 0.25) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(148, 163, 184, 0.25) 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px',
         }}
       />
 
-      {/* Vector Hardware Blueprint Schematic Stage */}
-      <div className="absolute inset-0 flex items-center justify-center p-3 pointer-events-none transition-transform duration-500 group-hover/img:scale-105">
+      {/* Micro-Die Wafer Dot Matrix Overlay */}
+      <div
+        className="absolute inset-0 opacity-15 dark:opacity-20 pointer-events-none"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(148, 163, 184, 0.4) 1px, transparent 1px)',
+          backgroundSize: '8px 8px',
+        }}
+      />
+
+      {/* Brand-Accurate Central Silicon Die Ambient Glow */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-75 transition-opacity duration-300 group-hover/img:opacity-80"
+        style={{
+          background: `radial-gradient(circle 90px at center, ${theme.glow} 0%, transparent 75%)`,
+        }}
+      />
+
+      {/* Engineering CAD Alignment Crosshair Marks (Corner Accents) */}
+      <div className="absolute top-2.5 right-3 flex items-center space-x-1 font-mono text-[9px] text-slate-400/50 dark:text-slate-500/40 uppercase tracking-widest pointer-events-none select-none">
+        <span className="text-amber-500/60 dark:text-[#F7D84A]/60">⌖</span>
+        <span>DIE // SCHEMATIC</span>
+      </div>
+
+      {/* Pure Vector Hardware Blueprint Schematic Stage (Centerpiece) */}
+      <div className="relative z-10 w-full h-full flex items-center justify-center p-3 pointer-events-none transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/img:scale-[1.04]">
         {renderSchematicSvg()}
       </div>
 
-      {/* Product Photography Backdrop (Clean overlay without destructive mix-blend) */}
-      {imageUrl && !imgError && (
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
-          <img
-            src={imageUrl}
-            alt={name}
-            loading="lazy"
-            onLoad={() => setImgLoaded(true)}
-            onError={() => setImgError(true)}
-            className={`w-full h-full object-cover transition-all duration-700 group-hover/img:scale-105 ${
-              imgLoaded ? 'opacity-25 dark:opacity-20 contrast-110' : 'opacity-0'
-            }`}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent dark:from-slate-900 dark:via-slate-900/40 dark:to-transparent" />
-        </div>
-      )}
-
       {/* Bottom Subtle Gradient Fade into content card */}
-      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none z-10" />
 
       {/* Category Tag Watermark Badge (Top-Left) */}
-      <div className="absolute top-3 left-3 flex items-center space-x-1.5 px-2.5 py-1 rounded-xl backdrop-blur-md bg-white/90 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-700/60 text-[11px] font-semibold text-slate-800 dark:text-slate-200 shadow-xs pointer-events-none">
+      <div className="absolute top-3 left-3 z-20 flex items-center space-x-1.5 px-2.5 py-1 rounded-xl backdrop-blur-md bg-white/90 dark:bg-slate-950/80 border border-slate-200/90 dark:border-slate-700/60 text-[11px] font-semibold text-slate-800 dark:text-slate-200 shadow-xs pointer-events-none">
         <span className={theme.accent}>{getCategoryIcon()}</span>
         <span className="uppercase tracking-wider font-mono text-[10px]">{category}</span>
       </div>
 
       {/* Brand & Model Watermark (Bottom-Right) */}
-      <div className="absolute bottom-2 right-3 text-[11px] font-mono font-black text-slate-400/60 dark:text-slate-500/50 uppercase tracking-widest pointer-events-none select-none">
+      <div className="absolute bottom-2 right-3 z-20 text-[11px] font-mono font-black text-slate-400/70 dark:text-slate-500/60 uppercase tracking-widest pointer-events-none select-none">
         {brand}
       </div>
     </div>

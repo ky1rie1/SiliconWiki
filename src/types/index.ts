@@ -43,10 +43,19 @@ export interface HardwareItem {
     cinebenchMulti?: number;
     cinebenchSingle?: number;
   };
+  docsLinks?: {
+    title: string;
+    url: string;
+    platform: 'official' | 'intel-ark' | 'amd' | 'nvidia' | 'zol' | 'techpowerup' | 'asus' | 'msi' | 'asrock' | 'gigabyte' | 'other';
+    description?: string;
+  }[];
   reviewLinks?: {
     title: string;
     url: string;
     platform: 'bilibili' | 'geekerwan' | 'techpowerup' | 'official' | 'zol' | 'other';
+    author?: string;
+    summary?: string;
+    bvId?: string;
   }[];
   pairingAdvice?: string;
 }

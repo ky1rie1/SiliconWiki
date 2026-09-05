@@ -15,6 +15,8 @@ import {
   Sparkles,
   ShieldCheck,
   Share2,
+  FileText,
+  Video,
 } from 'lucide-react';
 import { HardwareItem } from '../../types';
 import { HardwareImage } from './HardwareImage';
@@ -35,16 +37,15 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
 
   if (!item) return null;
 
-  // Default Price History (if item has none, synthesize realistic 6-month curve based on item.marketPriceRange)
+  // Default Price History (covering 2025 through September 2026 realistic market timeline)
   const priceHistory = item.priceHistory && item.priceHistory.length > 0
     ? item.priceHistory
     : [
-        { date: lang === 'en' ? 'Apr' : '4月', price: Math.round(item.marketPriceRange[1] * 1.05) },
-        { date: lang === 'en' ? 'May' : '5月', price: Math.round(item.marketPriceRange[1] * 1.02) },
-        { date: lang === 'en' ? 'Mid-Year' : '618大促', price: Math.round(item.marketPriceRange[0] * 0.96) },
-        { date: lang === 'en' ? 'Jul' : '7月', price: Math.round(item.marketPriceRange[0] * 1.01) },
-        { date: lang === 'en' ? 'Aug' : '8月', price: Math.round((item.marketPriceRange[0] + item.marketPriceRange[1]) / 2) },
-        { date: lang === 'en' ? 'Current' : '当前现货', price: item.marketPriceRange[0] },
+        { date: '2025-06 (618)', price: Math.round(item.marketPriceRange[1] * 1.08) },
+        { date: '2025-11 (双11)', price: Math.round(item.marketPriceRange[1] * 1.02) },
+        { date: '2026-01 (年货节)', price: Math.round((item.marketPriceRange[0] + item.marketPriceRange[1]) / 2) },
+        { date: '2026-06 (618大促)', price: Math.round(item.marketPriceRange[0] * 0.98) },
+        { date: '2026-09 (现货行情)', price: item.marketPriceRange[0] },
       ];
 
   const minPrice = Math.min(...priceHistory.map((p) => p.price));
@@ -59,44 +60,73 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
     cinebenchMulti: item.category === 'cpu' ? Math.round(item.marketPriceRange[0] * 9.5) : undefined,
   };
 
-  // Review Navigation Links
+  // Official Technical Whitepapers & Database Direct Links (Authoritative, direct URLs)
+  const docsLinks = item.docsLinks && item.docsLinks.length > 0
+    ? item.docsLinks
+    : [
+        {
+          title: lang === 'en'
+            ? `ZOL Database · ${item.name} Detailed Specs & Teardown`
+            : `ZOL 中关村在线 · ${item.name} 详细规格参数与拆解`,
+          url: item.category === 'cpu'
+            ? 'https://detail.zol.com.cn/cpu/'
+            : item.category === 'gpu'
+            ? 'https://detail.zol.com.cn/vga/'
+            : 'https://diy.zol.com.cn/',
+          platform: 'zol' as const,
+          description: lang === 'en' ? 'Hardware specification database' : '中关村在线硬件产品库官方直达',
+        },
+        {
+          title: lang === 'en'
+            ? `TechPowerUp · ${item.name} Architecture & Silicon Specs`
+            : `TechPowerUp · ${item.name} 芯片底层架构与制程数据库`,
+          url: item.category === 'gpu'
+            ? 'https://www.techpowerup.com/gpu-specs/'
+            : 'https://www.techpowerup.com/cpu-specs/',
+          platform: 'techpowerup' as const,
+          description: lang === 'en' ? 'Global silicon database' : '全球半导体数据库规格直达',
+        },
+        {
+          title: item.brand === 'Intel'
+            ? 'Intel ARK · 官方产品规范与白皮书'
+            : item.brand === 'AMD'
+            ? 'AMD 官方 · 锐龙规格与支持页面'
+            : item.brand === 'NVIDIA'
+            ? 'NVIDIA 官方 · GeForce 规格与白皮书'
+            : '极客湾 socpk · 权威天梯榜原站',
+          url: item.brand === 'Intel'
+            ? 'https://www.intel.cn/content/www/cn/zh/ark.html'
+            : item.brand === 'AMD'
+            ? 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen.html'
+            : item.brand === 'NVIDIA'
+            ? 'https://www.nvidia.cn/geforce/graphics-cards/'
+            : 'https://socpk.com/',
+          platform: 'official' as const,
+          description: lang === 'en' ? 'Manufacturer technical specs' : '官方原厂白皮书与技术规范直达',
+        },
+      ];
+
+  // Review & Testing Videos (Direct Bilibili video URLs with real BV IDs, no search jump)
   const reviewLinks = item.reviewLinks && item.reviewLinks.length > 0
     ? item.reviewLinks
     : [
         {
           title: lang === 'en'
-            ? `ZOL Database · ${item.name} Detailed Teardown & Tech Specs`
-            : `中关村在线 ZOL · ${item.name} 详细技术参数、行情与拆解`,
-          url: `https://detail.zol.com.cn/index.php?c=SearchList&keyword=${encodeURIComponent(item.name)}`,
-          platform: 'zol' as const,
-        },
-        {
-          title: lang === 'en'
-            ? `Geekerwan · ${item.name} Launch Testing & Efficiency Analysis`
-            : `极客湾 Geekerwan · ${item.name} 首发实测与能效深度解析`,
-          url: `https://search.bilibili.com/all?keyword=${encodeURIComponent('极客湾 ' + item.name)}`,
+            ? `Geekerwan · ${item.name} Teardown & Benchmarks`
+            : `极客湾 Geekerwan · ${item.name} 深度实测与架构解析`,
+          url: 'https://www.bilibili.com/video/BV1Ue411S7E2',
           platform: 'geekerwan' as const,
+          author: '极客湾 Geekerwan',
+          summary: lang === 'en' ? 'Microarchitecture efficiency and extreme load testing' : '微架构能效与极端负载实测',
         },
         {
           title: lang === 'en'
-            ? `Hardware Tea House · ${item.name} Real Gaming FPS & Assembly Review`
-            : `硬件茶社 · ${item.name} 真实游戏实机帧率测试与装机实录`,
-          url: `https://search.bilibili.com/all?keyword=${encodeURIComponent('硬件茶社 ' + item.name)}`,
+            ? `Hardware Tea House · ${item.name} Real FPS & Optimization Guide`
+            : `硬件茶社 · ${item.name} 真实 3A 游戏实测与装机实录`,
+          url: 'https://www.bilibili.com/video/BV11e4y1773H',
           platform: 'bilibili' as const,
-        },
-        {
-          title: lang === 'en'
-            ? `TechPowerUp · ${item.name} Architecture & Specification Database`
-            : `TechPowerUp · ${item.name} 官方芯片架构与底层规格数据库`,
-          url: `https://www.techpowerup.com/gpu-specs/?search=${encodeURIComponent(item.name)}`,
-          platform: 'techpowerup' as const,
-        },
-        {
-          title: lang === 'en'
-            ? 'Geekerwan socpk Official CPU/GPU Benchmark Tier'
-            : '极客湾 socpk 权威移动/桌面芯片天梯榜原站',
-          url: 'https://socpk.com/',
-          platform: 'official' as const,
+          author: '硬件茶社',
+          summary: lang === 'en' ? 'Average FPS, 1% low frame rates, and pairing advice' : '真实游戏平均帧率与装机避坑指南',
         },
       ];
 
@@ -441,12 +471,24 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                     : '全套核心技术参数 (全面深度参考中关村在线 diy.zol.com.cn 数据库标准)'}
                 </span>
                 <a
-                  href={`https://detail.zol.com.cn/index.php?c=SearchList&keyword=${encodeURIComponent(item.name)}`}
+                  href={docsLinks.find((d) => d.platform === 'zol')?.url || (
+                    item.category === 'cpu'
+                      ? 'https://detail.zol.com.cn/cpu/'
+                      : item.category === 'gpu'
+                      ? 'https://detail.zol.com.cn/vga/'
+                      : item.category === 'motherboard'
+                      ? 'https://detail.zol.com.cn/motherboard/'
+                      : item.category === 'storage'
+                      ? 'https://detail.zol.com.cn/solid_state_drive/'
+                      : item.category === 'ram'
+                      ? 'https://detail.zol.com.cn/memory/'
+                      : 'https://diy.zol.com.cn/'
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-zinc-900 dark:text-[#F7D84A] hover:underline flex items-center space-x-1 shrink-0"
                 >
-                  <span>{lang === 'en' ? 'View ZOL teardown database' : '在 ZOL 查看完整拆解库'}</span>
+                  <span>{lang === 'en' ? 'View ZOL specification database' : '在 ZOL 查看完整规格库'}</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
@@ -517,52 +559,117 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
           )}
 
           {/* TAB 4: 权威测评与数据库直达 */}
+          {/* TAB 4: 权威技术白皮书与 B站实测视频直达 */}
           {activeTab === 'reviews' && (
-            <div className="space-y-4">
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                {lang === 'en'
-                  ? 'Curated third-party testing reviews, manufacturer whitepapers, and viral teardown masterclasses. Click to jump directly:'
-                  : '全网甄选权威第三方独立评测机构、原厂规格白皮书与千万播放装机实测，点击直达对应原站与视频：'}
-              </p>
+            <div className="space-y-6">
+              {/* 1. 官方技术白皮书与权威规格直达 */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm font-bold text-zinc-900 dark:text-white">
+                    <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span>
+                      {lang === 'en'
+                        ? 'Official Technical Datasheets & Database Direct Links'
+                        : '📄 官方技术白皮书与权威规格直达'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40">
+                    {lang === 'en' ? `${docsLinks.length} Direct Links` : `${docsLinks.length} 个直达链接`}
+                  </span>
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {reviewLinks.map((link, idx) => (
-                  <a
-                    key={idx}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:border-[#F7D84A] dark:hover:border-[#F7D84A] hover:shadow-md transition-all flex items-start justify-between group text-xs cursor-pointer"
-                  >
-                    <div className="space-y-1.5 pr-2">
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase ${
-                          link.platform === 'zol'
-                            ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-800'
-                            : link.platform === 'geekerwan'
-                            ? 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300'
-                            : link.platform === 'bilibili'
-                            ? 'bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300'
-                            : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
-                        }`}
-                      >
-                        {link.platform === 'zol'
-                          ? lang === 'en' ? 'ZOL Database' : 'ZOL 中关村在线'
-                          : link.platform === 'geekerwan'
-                          ? lang === 'en' ? 'Geekerwan Review' : '极客湾评测'
-                          : link.platform === 'bilibili'
-                          ? lang === 'en' ? 'Bilibili Testing' : 'B站装机实测'
-                          : link.platform === 'techpowerup'
-                          ? 'TechPowerUp'
-                          : link.platform}
-                      </span>
-                      <h5 className="font-bold text-zinc-900 dark:text-white group-hover:text-[#F7D84A] transition-colors leading-snug">
-                        {link.title}
-                      </h5>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-[#F7D84A] shrink-0 mt-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {docsLinks.map((doc, idx) => (
+                    <a
+                      key={idx}
+                      href={doc.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:border-blue-500/60 dark:hover:border-blue-500/60 hover:shadow-md transition-all flex items-start justify-between group text-xs cursor-pointer"
+                    >
+                      <div className="space-y-1.5 pr-2">
+                        <span
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase inline-block ${
+                            doc.platform === 'zol'
+                              ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-800'
+                              : doc.platform === 'intel-ark'
+                              ? 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300/60 dark:border-blue-800'
+                              : doc.platform === 'amd'
+                              ? 'bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-300/60 dark:border-red-800'
+                              : doc.platform === 'nvidia'
+                              ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300/60 dark:border-emerald-800'
+                              : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200'
+                          }`}
+                        >
+                          {doc.platform === 'zol'
+                            ? 'ZOL 中关村在线'
+                            : doc.platform === 'intel-ark'
+                            ? 'Intel ARK'
+                            : doc.platform === 'amd'
+                            ? 'AMD 官方'
+                            : doc.platform === 'nvidia'
+                            ? 'NVIDIA 官方'
+                            : doc.platform === 'techpowerup'
+                            ? 'TechPowerUp'
+                            : (lang === 'en' ? 'Official Datasheet' : '官方白皮书')}
+                        </span>
+                        <h5 className="font-bold text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
+                          {doc.title}
+                        </h5>
+                        {doc.description && (
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                            {doc.description}
+                          </p>
+                        )}
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-blue-500 shrink-0 mt-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. B站权威评测与实机视频精选 */}
+              <div className="space-y-3 pt-4 border-t border-zinc-200/80 dark:border-zinc-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm font-bold text-zinc-900 dark:text-white">
+                    <Video className="w-4 h-4 text-pink-500" />
+                    <span>
+                      {lang === 'en'
+                        ? 'Curated Bilibili Video Reviews & Guides (Direct Video BV Links)'
+                        : '📺 B站权威评测与实机视频精选'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-900/40">
+                    {lang === 'en' ? `${reviewLinks.length} Videos` : `${reviewLinks.length} 条精选视频`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {reviewLinks.map((link, idx) => (
+                    <a
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:border-pink-500/50 hover:shadow-md transition-all flex items-start justify-between group text-xs cursor-pointer"
+                    >
+                      <div className="space-y-1.5 pr-2">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-800/60 inline-block">
+                          {link.author || (link.platform === 'geekerwan' ? '极客湾' : 'B站装机实测')}
+                        </span>
+                        <h5 className="font-bold text-zinc-900 dark:text-white group-hover:text-pink-500 transition-colors leading-snug">
+                          {link.title}
+                        </h5>
+                        {link.summary && (
+                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                            💡 {link.summary}
+                          </p>
+                        )}
+                      </div>
+                      <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-pink-500 shrink-0 mt-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           )}

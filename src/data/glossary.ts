@@ -17,6 +17,18 @@ export const glossaryTerms: GlossaryTerm[] = [
     tags: ['AMD', '游戏神器', '帧率', '缓存'],
   },
   {
+    id: 'term-3d-vcache-gen2',
+    term: '3D V-Cache 第二代反向堆叠工艺 (下置大缓存技术)',
+    alias: ['第二代3D缓存', '下置缓存', '反向堆叠', 'CCD倒装', '9800X3D架构'],
+    category: 'cpu',
+    shortDesc: 'AMD 9800X3D 首创将 64MB SRAM 缓存下置于计算核心底部，让发热的核心直接贴合散热顶盖，彻底打破 X3D 积热与超频枷锁。',
+    fullExplanation:
+      '在初代 5800X3D 和 7800X3D 上，64MB 的 3D V-Cache 硅片是堆叠在 CPU 计算核心（CCD）之上的。SRAM 晶圆导热系数较低，如同一层“隔热毯”覆盖在发热核心上方，导致热量难以及时传导给散热器，因此官方限制了运行电压与主频并锁死超频。而在第二代 3D V-Cache (Ryzen 7 9800X3D) 中，AMD 实现了颠覆性的结构倒置：将 64MB 缓存晶圆垫在底层，发热的 Zen 5 核心晶片放置在最顶层，直接通过导热材料贴合金属顶盖。不仅导热效率数倍跃升、积热彻底解决，更首次完全解锁全核自由超频，让游戏神 U 能在 5.4GHz+ 全核高频下稳定运行。',
+    buyingAdvice:
+      '这是 9800X3D 相比前代最根本的底层技术质变。不仅 1% Low 帧更坚挺，普通百元双塔风冷即可轻松吹透，彻底摆脱必须上昂贵 360 水冷的焦虑。',
+    tags: ['AMD', '9800X3D', '3D缓存', '倒装工艺', '超频'],
+  },
+  {
     id: 'term-ipc',
     term: 'IPC (每时钟周期指令数)',
     alias: ['Instructions Per Cycle', '架构能效', '单核内功'],
@@ -218,15 +230,27 @@ export const glossaryTerms: GlossaryTerm[] = [
   },
   {
     id: 'term-cudimm',
-    term: 'CUDIMM 内存与 CKD 时钟驱动芯片',
-    alias: ['CUDIMM', 'CKD', 'DDR5 8400', '新一代内存'],
+    term: 'CUDIMM (时钟驱动器高频无缓冲内存)',
+    alias: ['CUDIMM', 'CKD', 'Clocked Unbuffered DIMM', 'DDR5 8400+', '时钟驱动器内存'],
     category: 'motherboard',
-    shortDesc: '在内存条自带微型时钟缓冲芯片（CKD），大幅消灭信号抖动，轻松突破 8000~9200 MT/s。',
+    shortDesc: '在内存条 PCB 原生集成 CKD 时钟驱动芯片，突破 CPU 内存控制器信号衰减瓶颈，轻松冲击 8400~9600 MT/s 极限高频。',
     fullExplanation:
-      '传统 UDIMM 内存的高频信号直接受 CPU 内存控制器驱动，受主板走线物理干扰严重，突破 7600MHz 极难稳定。CUDIMM (Clocked Unbuffered DIMM) 在 PCB 核心中央加装了一颗 CKD 客户端时钟驱动芯片，在本地重新锁相放大时钟信号，使高速 DDR5 频率轻松挺进 8400~9000MHz+。',
+      '随着 DDR5 频率突破 7000MT/s，主板到 CPU 内存控制器（IMC）之间的时钟信号抖动剧烈。JEDEC 标准制定的 CUDIMM (Clocked Unbuffered DIMM) 在每根内存条 PCB 正中央增加了一颗微型 CKD (Client Clock Driver) 缓冲芯片，对输入时钟信号进行本地相位锁定 (PLL) 与整形放大。这极大减轻了 CPU 内存控制器的电气负载，使台式机在普通风冷环境下即可达成 8400MT/s、9200MT/s 乃至破万兆的高频稳定运行。当系统处于低频启动或未开启 XMP/EXPO 时，CKD 芯片可旁路运行，向下兼容普通 DDR5 插槽。',
     buyingAdvice:
-      '搭配 Intel Z890 / B860 及后续平台可优先选购 CUDIMM 套条，高频超频稳定性跨代提升。',
-    tags: ['前沿黑科技', '极限超频', 'DDR5'],
+      '搭配 Intel 酷睿 Ultra 200S (Z890 主板) 或高端 AMD X870E/B650 主板冲击 8000MHz+ 极速频宽首选；对于普通电竞玩家，DDR5 6000~6400MHz 普通条依然是高性价比甜点。',
+    tags: ['前沿黑科技', '极限超频', 'DDR5', 'CKD', 'Z890'],
+  },
+  {
+    id: 'term-camm2',
+    term: 'CAMM2 (下一代压缩附加内存模块)',
+    alias: ['CAMM2', 'LPCAMM2', '超薄贴片内存', '双通道单条', '笔记本内存革命'],
+    category: 'motherboard',
+    shortDesc: '取代服役近 25 年的传统 SO-DIMM 插槽的全新超薄、单片双通道内存规范，走线更短、厚度减半、频率更高。',
+    fullExplanation:
+      '传统笔记本 SO-DIMM 插槽厚度大、金手指接触点长，随着频率超过 6400MT/s 信号反射衰减极难克服。JEDEC 确立的 CAMM2 标准采用微型压缩贴片式螺丝锁固结构。单张 CAMM2 模块直接引出 128-bit 完整双通道，走线长度缩短 60% 以上，不仅支持标准 DDR5，更能直接搭载功耗更低、频率高达 7500~8533 MT/s 的 LPDDR5X (LPCAMM2)。厚度较传统插槽降低 57%，极大释放了轻薄本内部电池与散热空间，且依然保留了后期自行拆卸升级的自由度。台式机主板也已推出无遮挡 CAMM2 板型，消灭与风冷散热器的相互干涉。',
+    buyingAdvice:
+      '选购高端轻薄本与便携工作站时，LPCAMM2 兼备了板载焊死内存的高频省电与独立插槽的自由可扩容性，是未来 5 年笔电内存的演进方向。',
+    tags: ['前沿标准', 'LPCAMM2', '笔记本内存', '双通道', '厚度减半'],
   },
   {
     id: 'term-ram-timing-cl',
@@ -329,6 +353,18 @@ export const glossaryTerms: GlossaryTerm[] = [
     tags: ['固态协议', '极速读取', '接口'],
   },
   {
+    id: 'term-pcie5-ssd-thermal',
+    term: 'PCIe 5.0 SSD 散热与降频机制 (14GB/s 极限高温防撞墙)',
+    alias: ['PCIe 5.0固态', '热节流', 'Thermal Throttling', '主动风冷马甲', '高温掉速'],
+    category: 'storage',
+    shortDesc: 'PCIe 5.0 固态读写高达 14,000MB/s，主控发热达 11~14W 极易撞上 85°C+ 保护性断崖掉速，必须配备纯铜热管或主动涡轮风冷。',
+    fullExplanation:
+      'PCIe 5.0 x4 NVMe SSD（采用群联 E26、慧荣 SM2508 等旗舰主控）将顺序读写速率推至 14GB/s 极限。极高数据吞吐使微小裸晶主控的发热量达到惊人的 11W~14W。若仅使用主板附带的普通薄铝片散热装甲，连续全速写入 1~2 分钟温度即飙升至 85°C~90°C，主控会触发强制 Thermal Throttling（热节流降频保护），读写速度瞬间腰斩至数百 MB/s 甚至掉盘断联。因此 PCIe 5.0 固态出厂普遍标配多层高塔散热鳍片、纯铜热管甚至自带微型主动静音涡轮风扇，对机箱内部风道提出极高要求。',
+    buyingAdvice:
+      '普通游戏电竞与日常办公选 PCIe 4.0 TLC（如致态 TiPlus7100 / 三星 990 PRO）发热极低且感知毫无差别；重度影视后期导片与大模型加载选 PCIe 5.0 盘时，务必挑选自带强力热管或主动风冷马甲的型号。',
+    tags: ['PCIe 5.0', 'SSD散热', '热节流', '降频保护', '主动风冷'],
+  },
+  {
     id: 'term-tlc-qlc',
     term: '原厂 3D TLC vs QLC (闪存颗粒防坑秘籍)',
     alias: ['TLC', 'QLC', '黑片', '白片', '大号U盘', '擦写寿命'],
@@ -382,15 +418,15 @@ export const glossaryTerms: GlossaryTerm[] = [
   // ========================================================
   {
     id: 'term-atx3-12v2x6',
-    term: 'ATX 3.1 规范与 12V-2x6 显卡接口',
-    alias: ['16Pin', '12VHPWR', '12V-2x6', '防烧接口', 'ATX3.1'],
+    term: 'ATX 3.1 12V-2x6 改进型微动感应引脚 (防烧卡新标准)',
+    alias: ['12V-2x6', 'ATX 3.1', '12VHPWR改进版', '防烧头', '微动引脚', 'Sense Pin', '16Pin'],
     category: 'psu',
-    shortDesc: '专为次世代显卡大功率瞬态爆发设计的电源新标准，防呆插头大幅改善烧卡隐患。',
+    shortDesc: '全面替换曾引发多起熔毁烧卡事故的 12VHPWR，通过缩短信号针脚实现“未插紧即断电”，从根本上消灭接触不良过热。',
     fullExplanation:
-      '上一代 12VHPWR 16Pin 接口由于感应针脚过短，一旦玩家没完全插紧就会打火烧毁接口。改良后的 ATX 3.1 采用 12V-2x6 接口：缩短感应针（没插紧直接不通电自保）并加长导电铜端子，彻底解决烧卡隐患，并能承受 200% 瞬时峰值动态冲击。',
+      '初代 12VHPWR (ATX 3.0 16-pin) 在 RTX 4090 上多次发生插头熔毁烧蚀，根本原因在于插头稍有松动倾斜时，4 根信号针依然能连通闭合，而此时个别大电流供电端子因接触电阻过大产生剧烈积热。PCI-SIG 组织制定的 ATX 3.1 规范彻底改版为 12V-2x6 标准：将 12 根主供电纯铜端子向外延长 0.25mm，并将 4 根 Sense 信号检测针向内缩回 1.7mm。这一反向差值构造形成了硬件级物理微动联锁——若用户未用尽全力将插头推入到底，信号检测针根本无法触碰闭合，显卡直接拒绝供电开机，从物理底层彻底消灭了“虚接通电导致的打火起火烧卡”风险。',
     buyingAdvice:
-      '新配中高端主机强烈建议认准标配 ATX 3.0/3.1 原生 16Pin 线的金牌全模组电源，严防用老旧转接线。',
-    tags: ['电源安全', '防烧卡', '接口规范'],
+      '2025~2026 年新装机、尤其是搭配 RTX 4070Ti Super / 4080 Super / 5080 / 5090 等高功耗显卡，电源务必认准【ATX 3.1 / 12V-2x6】原生认证，尽量避免使用老旧分接转接线。',
+    tags: ['电源安全', 'ATX 3.1', '12V-2x6', '防烧卡', '微动引脚'],
   },
   {
     id: 'term-80plus-cybenetics',

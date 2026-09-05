@@ -73,9 +73,14 @@ export const storageList: HardwareItem[] = [
     pddSearchQuery: '三星 990 PRO 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 96, productivityScore: 97, efficiencyScore: 94 },
+    docsLinks: [
+      { title: 'Samsung 官方 990 PRO 规格白皮书', url: 'https://www.samsung.com/cn/memory-storage/nvme-ssd/990-pro-2tb-nvme-pcie-4-mz-v9p2t0bw/', platform: 'official', description: '三星官网技术规格与固件升级指南' },
+      { title: 'ZOL 中关村在线 · 三星 990 PRO 深度拆解评测', url: 'https://detail.zol.com.cn/solid_state_drive/index1401660.shtml', platform: 'zol', description: 'ZOL 实验室颗粒速度与缓外掉速测试' },
+      { title: 'TechPowerUp Samsung 990 Pro 2TB Specs', url: 'https://www.techpowerup.com/ssd-specs/samsung-990-pro-2-tb.d861', platform: 'techpowerup', description: '底层 Pascal 主控与 DRAM 颗粒库' },
+    ],
     reviewLinks: [
-      { title: '极客湾 990 PRO 深度评测：PCIe 4.0 的终极形态', url: 'https://search.bilibili.com/all?keyword=极客湾+990PRO', platform: 'geekerwan' },
-      { title: 'TechPowerUp Samsung 990 Pro Review', url: 'https://www.techpowerup.com/review/samsung-990-pro-2-tb/', platform: 'techpowerup' },
+      { title: '极客湾 990 PRO 深度评测：PCIe 4.0 的终极形态', url: 'https://www.bilibili.com/video/BV1m8411h7aF', platform: 'geekerwan', author: '极客湾 Geekerwan', summary: 'PCIe 4.0 旗舰固态天花板，满载读写温度与自研主控能效实测' },
+      { title: 'TechPowerUp Samsung 990 Pro Review', url: 'https://www.techpowerup.com/review/samsung-990-pro-2-tb/', platform: 'techpowerup', author: 'TechPowerUp', summary: '权威外媒持续读写压力与热节流温控测试' },
     ],
     pairingAdvice: '装机系统盘与主力工程盘第一梯队推荐，搭配任何主板均可。',
   },

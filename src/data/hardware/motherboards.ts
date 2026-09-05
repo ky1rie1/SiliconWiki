@@ -38,7 +38,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: 'ROG X870E HERO 主板',
     pddSearchQuery: 'X870E HERO 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-10', price: 5299 },
+      { date: '2025-06', price: 4999 },
+      { date: '2025-11', price: 4899 },
+      { date: '2026-01', price: 4799 },
+      { date: '2026-06', price: 4699 },
+      { date: '2026-09', price: 4699 },
+    ],
     benchmarks: { gamingScore: 98, productivityScore: 100, efficiencyScore: 90 },
+    docsLinks: [
+      { title: '华硕官方 · ROG CROSSHAIR X870E HERO 规格详情', url: 'https://www.asus.com.cn/motherboards-components/motherboards/rog-crosshair/rog-crosshair-x870e-hero/', platform: 'asus', description: 'AM5 旗舰纯血 ROG 官方白皮书' },
+      { title: 'ZOL 中关村在线 · ROG X870E HERO 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1435288.shtml', platform: 'zol', description: 'ZOL 评测室旗舰 AM5 主板深度评测' },
+    ],
+    reviewLinks: [
+      { title: '极客湾 X870E 旗舰主板首发拆解实测', url: 'https://www.bilibili.com/video/BV1LP4y1B7L1', platform: 'geekerwan', author: '极客湾 Geekerwan', summary: '豪华 18+2+2 相供电与双 USB4 满血拓展' },
+    ],
     pairingAdvice: '最佳搭配 9950X / 9800X3D + 顶级 360 水冷与旗舰显卡。',
   },
   {
@@ -73,7 +88,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: '华硕 B650M 重炮手 WIFI',
     pddSearchQuery: '华硕 B650M 重炮手 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-11', price: 1199 },
+      { date: '2025-06', price: 1149 },
+      { date: '2025-11', price: 1119 },
+      { date: '2026-01', price: 1099 },
+      { date: '2026-06', price: 1080 },
+      { date: '2026-09', price: 1069 },
+    ],
     benchmarks: { gamingScore: 94, productivityScore: 93, efficiencyScore: 96 },
+    docsLinks: [
+      { title: '华硕官方 · TUF GAMING B650M-PLUS WIFI 规格', url: 'https://www.asus.com.cn/motherboards-components/motherboards/tuf-gaming/tuf-gaming-b650m-plus-wifi/', platform: 'asus', description: '国民重炮手官方技术规格' },
+      { title: 'ZOL 中关村在线 · TUF B650M 重炮手详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401311.shtml', platform: 'zol', description: 'ZOL 实验室千元装机首选评测' },
+    ],
+    reviewLinks: [
+      { title: '硬件茶社 TUF B650M 重炮手长期使用与装机报告', url: 'https://www.bilibili.com/video/BV1wA411b7q7', platform: 'bilibili', author: '硬件茶社', summary: 'AM5 口碑第一军规神板，带 9800X3D 极其稳健' },
+    ],
     pairingAdvice: '搭配 9800X3D / 7800X3D / 7500F 几乎是全网最热门稳定的搭配。',
   },
   {
@@ -104,7 +134,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: '微星 B650M 迫击炮',
     pddSearchQuery: 'B650M 迫击炮 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-11', price: 1229 },
+      { date: '2025-06', price: 1180 },
+      { date: '2025-11', price: 1140 },
+      { date: '2026-01', price: 1110 },
+      { date: '2026-06', price: 1099 },
+      { date: '2026-09', price: 1080 },
+    ],
     benchmarks: { gamingScore: 93, productivityScore: 93, efficiencyScore: 94 },
+    docsLinks: [
+      { title: '微星官方 · MAG B650M MORTAR WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-B650M-MORTAR-WIFI', platform: 'msi', description: '80A SPS 军火库迫击炮官方参数' },
+      { title: 'ZOL 中关村在线 · B650M 迫击炮详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401312.shtml', platform: 'zol', description: 'ZOL 实验室性能实测' },
+    ],
+    reviewLinks: [
+      { title: '硬件茶社 B650M 迫击炮实测：80A SPS 供电有多强？', url: 'https://www.bilibili.com/video/BV1pu4y1R7K1', platform: 'bilibili', author: '硬件茶社', summary: '超强供电用料，微星内存 Memory Try It! 实测' },
+    ],
     pairingAdvice: '与 7800X3D / 9800X3D 绝配，80A 供电压制 16 核 9950X 满载也毫无压力。',
   },
   {
@@ -134,7 +179,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: '华擎 B650M HDV',
     pddSearchQuery: 'B650M-HDV 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-11', price: 639 },
+      { date: '2025-06', price: 599 },
+      { date: '2025-11', price: 579 },
+      { date: '2026-01', price: 569 },
+      { date: '2026-06', price: 559 },
+      { date: '2026-09', price: 549 },
+    ],
     benchmarks: { gamingScore: 90, productivityScore: 88, efficiencyScore: 98 },
+    docsLinks: [
+      { title: '华擎官方 · B650M-HDV/M.2 规格说明', url: 'https://www.asrock.com/mb/AMD/B650M-HDVM.2/index.cn.asp', platform: 'asrock', description: '平民性价比妖板官方白皮书' },
+      { title: 'ZOL 中关村在线 · 华擎 B650M-HDV 参数', url: 'https://detail.zol.com.cn/motherboard/index1408892.shtml', platform: 'zol', description: 'ZOL 百元妖板评测' },
+    ],
+    reviewLinks: [
+      { title: '硬件茶社 华擎 B650M-HDV 妖板全面实测：百元带 7800X3D？', url: 'https://www.bilibili.com/video/BV1eW411w7pn', platform: 'bilibili', author: '硬件茶社', summary: '双内存槽电气性能拔群，平民高性价比首选' },
+    ],
     pairingAdvice: '预算 4000~6000 元游戏神机首选底板，搭配锐龙 7500F 性价比绝伦。',
   },
   {
@@ -200,7 +260,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: 'ROG Z890 HERO',
     pddSearchQuery: 'Z890 HERO 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-10', price: 5899 },
+      { date: '2025-06', price: 5599 },
+      { date: '2025-11', price: 5399 },
+      { date: '2026-01', price: 5299 },
+      { date: '2026-06', price: 5199 },
+      { date: '2026-09', price: 5199 },
+    ],
     benchmarks: { gamingScore: 97, productivityScore: 100, efficiencyScore: 92 },
+    docsLinks: [
+      { title: '华硕官方 · ROG MAXIMUS Z890 HERO 规格详情', url: 'https://www.asus.com.cn/motherboards-components/motherboards/rog-maximus/rog-maximus-z890-hero/', platform: 'asus', description: 'LGA 1851 纯血顶级旗舰白皮书' },
+      { title: 'ZOL 中关村在线 · ROG Z890 HERO 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1436128.shtml', platform: 'zol', description: 'ZOL 评测室新一代旗舰实测' },
+    ],
+    reviewLinks: [
+      { title: '极客湾 Z890 旗舰主板与 CUDIMM 内存首发体验', url: 'https://www.bilibili.com/video/BV12w411f7cK', platform: 'geekerwan', author: '极客湾 Geekerwan', summary: 'CUDIMM 时钟驱动器高频内存与 110A 供电极致实测' },
+    ],
     pairingAdvice: '专为 Core Ultra 9 285K 打造，极客工作站与极限跑分专属。',
   },
   {
@@ -267,7 +342,22 @@ export const motherboardList: HardwareItem[] = [
     tbSearchQuery: '微星 B760M MORTAR II',
     pddSearchQuery: 'B760M 迫击炮二代 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
+    priceHistory: [
+      { date: '2024-11', price: 1149 },
+      { date: '2025-06', price: 1080 },
+      { date: '2025-11', price: 1040 },
+      { date: '2026-01', price: 1010 },
+      { date: '2026-06', price: 980 },
+      { date: '2026-09', price: 960 },
+    ],
     benchmarks: { gamingScore: 92, productivityScore: 92, efficiencyScore: 94 },
+    docsLinks: [
+      { title: '微星官方 · MAG B760M MORTAR WIFI II 规格', url: 'https://www.msi.cn/Motherboard/MAG-B760M-MORTAR-WIFI-II', platform: 'msi', description: '三 M.2 接口水桶板王官方技术说明' },
+      { title: 'ZOL 中关村在线 · B760M 迫击炮二代参数', url: 'https://detail.zol.com.cn/motherboard/index1421888.shtml', platform: 'zol', description: 'ZOL 实验室性能评测' },
+    ],
+    reviewLinks: [
+      { title: '硬件茶社 B760M 迫击炮二代装机实测：3个M.2终于齐了', url: 'https://www.bilibili.com/video/BV11M411w7fA', platform: 'bilibili', author: '硬件茶社', summary: 'LGA 1700 水桶板王，散热扎实做工精良' },
+    ],
     pairingAdvice: 'Intel 平台 14600KF / 13600KF / 12600KF 最稳妥闭眼入的主板。',
   },
   {

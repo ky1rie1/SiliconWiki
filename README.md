@@ -13,7 +13,7 @@
   </p>
 
   <p>
-    <a href="https://computer-wiki.vercel.app/"><img src="https://img.shields.io/badge/Live_Demo-computer--wiki.vercel.app-F7D84A?style=flat-square&logo=vercel&logoColor=black" alt="Live Demo" /></a>
+    <a href="https://computer-wiki.vercel.app/"><img src="https://img.shields.io/badge/Website-computer--wiki.vercel.app-F7D84A?style=flat-square&logo=vercel&logoColor=black" alt="SiliconWiki Official Website" /></a>
     <img src="https://img.shields.io/badge/React-18.3-61dafb?style=flat-square&logo=react&logoColor=black" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Three.js-3D_WebGL-black?style=flat-square&logo=three.js&logoColor=F7D84A" alt="Three.js" />
@@ -22,7 +22,7 @@
   </p>
 
   <p>
-    <a href="https://computer-wiki.vercel.app/"><b>🚀 在线体验 (Live Demo)</b></a> &nbsp;•&nbsp;
+    <a href="https://computer-wiki.vercel.app/"><b>🌐 SiliconWiki 官方主站 (Official Website)</b></a> &nbsp;•&nbsp;
     <a href="#-简体中文">简体中文</a> &nbsp;•&nbsp;
     <a href="#-english">English</a>
   </p>
@@ -91,25 +91,6 @@ The website supports **real-time Bilingual Switching (English / 简体中文)** 
 
 ---
 
-### 💻 Quick Local Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/ky1rie1/computer_wiki.git
-cd computer_wiki
-
-# Install dependencies
-npm install
-
-# Start local development server
-npm run dev
-
-# Build production static bundle (dist/)
-npm run build
-```
-
----
-
 <a name="简体中文"></a>
 
 ## 🇨🇳 简体中文
@@ -118,7 +99,7 @@ npm run build
 
 **SiliconWiki（芯知硬件百科）** 是一个为电脑硬件爱好者、装机新手与数码选购人群打造的现代化交互式硬件知识百科与 3D 装机互动平台。
 
-🌐 **在线体验地址**：[https://computer-wiki.vercel.app/](https://computer-wiki.vercel.app/)
+🌐 **官方主站**：[https://computer-wiki.vercel.app/](https://computer-wiki.vercel.app/)
 
 项目融合了深入浅出的底层架构技术科普、权威标准归一化性能天梯榜、永不失效的电商实时行情比价，以及基于 **Three.js WebGL 的三维实景装机互动模拟室**，旨在打破硬件信息壁垒，让每一位玩家与装机者都能轻松看懂硬件、零成本体验动手装机的乐趣。
 
@@ -168,25 +149,6 @@ npm run build
 #### 7. 🌓 双主题与中英双语国际化
 * 深邃暗黑（Dark Tech）与高对比纯净工程白皮书（Clean White）一键平滑切换，本地持久化保存。
 * 顶部导航栏一键切换简体中文与 English。
-
----
-
-### 💻 本地运行
-
-```bash
-# 克隆仓库
-git clone https://github.com/ky1rie1/computer_wiki.git
-cd computer_wiki
-
-# 安装依赖
-npm install
-
-# 本地热重载启动
-npm run dev
-
-# 生产环境静态打包
-npm run build
-```
 
 ---
 

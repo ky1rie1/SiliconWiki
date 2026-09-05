@@ -53,11 +53,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="relative rounded-2xl sm:rounded-full bg-white/95 dark:bg-slate-950/85 backdrop-blur-2xl border border-slate-200/90 dark:border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] px-3 sm:px-4 md:px-5 py-2 flex items-center justify-between transition-spring gap-2">
         {/* Left: Brand Identity */}
         <div
-          className="flex items-center space-x-2.5 cursor-pointer group select-none shrink-0"
+          className="flex items-center space-x-2.5 cursor-pointer group select-none shrink-0 active:scale-[0.98] hover:-translate-y-0.5 transition-all duration-200 ease-fluid"
           onClick={() => onTabChange('wiki')}
         >
           {/* Iconic Chip Mark */}
-          <div className="relative w-8 h-8 rounded-xl shadow-md shadow-[#F7D84A]/20 group-hover:scale-105 group-hover:shadow-[#F7D84A]/40 group-active:scale-95 transition-spring shrink-0 overflow-hidden">
+          <div className="relative w-8 h-8 rounded-xl shadow-md shadow-[#F7D84A]/20 group-hover:scale-105 group-hover:shadow-[#F7D84A]/40 group-active:scale-95 transition-all duration-200 ease-fluid shrink-0 overflow-hidden">
             <svg viewBox="0 0 512 512" className="w-full h-full" fill="none">
               <rect width="512" height="512" rx="112" fill="#F7D84A" />
               <rect x="92" y="92" width="328" height="328" rx="36" fill="#09090b" />
@@ -85,10 +85,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
-                className={`relative flex items-center space-x-1.5 px-2.5 lg:px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-spring ${
+                className={`relative flex items-center space-x-1.5 px-2.5 lg:px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ease-fluid active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                   isActive
-                    ? 'bg-slate-950 text-white shadow-md shadow-black/20 dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/40'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/10'
+                    ? 'bg-slate-950 text-white shadow-md shadow-black/20 dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/70 scale-[1.02]'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-xs'
                 }`}
               >
                 <span>{item.icon}</span>
@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Omnisearch Command Bar Button */}
           <button
             onClick={onOpenSearch}
-            className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/60 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-spring group"
+            className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/60 hover:text-slate-900 dark:hover:text-white text-xs font-medium transition-all duration-200 ease-fluid active:scale-[0.98] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] group cursor-pointer"
             title={lang === 'zh' ? '全局搜索 (快捷键: / 或 Ctrl+K)' : 'Omnisearch (Shortcut: / or Ctrl+K)'}
           >
             <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#F7D84A] transition-colors" />
@@ -125,7 +125,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {isDevMode && (
             <button
               onClick={() => setIsEditorOpen(true)}
-              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/10 active:scale-95 transition-spring border border-slate-700 dark:border-blue-400/30"
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold shadow-md shadow-blue-500/10 active:scale-[0.98] hover:-translate-y-0.5 transition-all duration-200 ease-fluid border border-slate-700 dark:border-blue-400/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
               title={t('diagFloatingBtnTitle')}
             >
               <Sliders className="w-3.5 h-3.5 text-cyan-300" />
@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Language Switch */}
           <button
             onClick={toggleLang}
-            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold transition-spring"
+            className="flex items-center space-x-1 px-2.5 py-1.5 rounded-full border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold hover:border-[#F7D84A]/50 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
             title={lang === 'zh' ? 'Switch to English' : '切换为简体中文'}
           >
             <Languages className="w-3.5 h-3.5 text-blue-600 dark:text-cyan-400" />
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Changelog / Announcement Button */}
           <button
             onClick={onOpenChangelog}
-            className="relative p-2 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-spring"
+            className="relative p-2 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/50 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
             title={lang === 'zh' ? '版本更新公告与日志' : 'Version Changelog & Announcements'}
           >
             <Bell className="w-3.5 h-3.5" />
@@ -161,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Dark / Light Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-spring"
+            className="p-2 rounded-full border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:border-[#F7D84A]/50 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
             title={t('toggleTheme')}
           >
             {theme === 'dark' ? (
@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-full border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+            className="md:hidden p-2 rounded-full border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 active:scale-[0.98] transition-all duration-200 ease-fluid cursor-pointer focus-visible:ring-2 focus-visible:ring-[#F7D84A]"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
@@ -193,9 +193,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onTabChange(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold transition-spring ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold active:scale-[0.98] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                   isActive
-                    ? 'bg-slate-950 text-white dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/50 shadow-sm'
+                    ? 'bg-slate-950 text-white dark:bg-slate-900 dark:text-white ring-1 ring-[#F7D84A]/60 shadow-sm'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
@@ -218,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setIsEditorOpen(true);
                 setMobileMenuOpen(false);
               }}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 dark:bg-blue-600 text-white shadow-sm transition-spring mt-2 border border-slate-800 dark:border-blue-400/30"
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 dark:bg-blue-600 text-white shadow-sm active:scale-[0.98] transition-all duration-200 ease-fluid mt-2 border border-slate-800 dark:border-blue-400/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer"
             >
               <div className="flex items-center space-x-2.5">
                 <Sliders className="w-4 h-4 text-cyan-300" />

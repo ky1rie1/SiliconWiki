@@ -17,6 +17,10 @@ import { BenchmarkItem } from '../../types';
 import { HardwarePKModal } from './HardwarePKModal';
 import { useLanguage } from '../../context/LanguageContext';
 
+export interface RankedBenchmarkItem extends BenchmarkItem {
+  globalRank: number;
+}
+
 export const BenchmarkLadder: React.FC = () => {
   const { t, lang } = useLanguage();
   const [hardwareType, setHardwareType] = useState<'cpu' | 'gpu'>('gpu');
@@ -34,22 +38,46 @@ export const BenchmarkLadder: React.FC = () => {
     return item.scores.gamingScore;
   };
 
+  // 1. Filter by platform scope (desktop vs laptop chips)
+  const platformFilteredList = useMemo(() => {
+    return rawList.filter((item) => {
+      if (!includeLaptop && item.platform === 'laptop') return false;
+      return true;
+    });
+  }, [rawList, includeLaptop]);
+
+  // 2. Calculate true absolute rank in the tier list for currently selected score dimension
+  const rankedBenchmarkList = useMemo<RankedBenchmarkItem[]>(() => {
+    const sorted = [...platformFilteredList].sort((a, b) => getScore(b) - getScore(a));
+    return sorted.map((item, index) => ({
+      ...item,
+      globalRank: index + 1,
+    }));
+  }, [platformFilteredList, scoreMode]);
+
+  // 3. Filter according to search query, preserving true globalRank
   const filteredAndSortedList = useMemo(() => {
-    return rawList
-      .filter((item) => {
-        if (!includeLaptop && item.platform === 'laptop') return false;
-        if (searchQuery.trim()) {
-          return item.name.toLowerCase().includes(searchQuery.toLowerCase());
-        }
-        return true;
-      })
-      .sort((a, b) => getScore(b) - getScore(a));
-  }, [rawList, includeLaptop, searchQuery, scoreMode]);
+    if (!searchQuery.trim()) return rankedBenchmarkList;
+    const q = searchQuery.toLowerCase();
+    return rankedBenchmarkList.filter((item) => item.name.toLowerCase().includes(q));
+  }, [rankedBenchmarkList, searchQuery]);
 
   const maxScore = useMemo(() => {
-    if (filteredAndSortedList.length === 0) return 100;
-    return Math.max(...filteredAndSortedList.map(getScore));
-  }, [filteredAndSortedList, scoreMode]);
+    if (rankedBenchmarkList.length === 0) return 100;
+    return Math.max(...rankedBenchmarkList.map(getScore));
+  }, [rankedBenchmarkList, scoreMode]);
+
+  const getActiveDimensionDescription = () => {
+    if (scoreMode === 'productivity') return t('ladderDimProductivity');
+    if (scoreMode === 'efficiency') return t('ladderDimEfficiency');
+    return t('ladderDimGaming');
+  };
+
+  const getScoreDimensionLabel = () => {
+    if (scoreMode === 'productivity') return t('ladderScoreLabelProductivity');
+    if (scoreMode === 'efficiency') return t('ladderScoreLabelEfficiency');
+    return t('ladderScoreLabelGaming');
+  };
 
   const togglePKSelection = (id: string) => {
     if (selectedForPK.includes(id)) {
@@ -115,7 +143,7 @@ export const BenchmarkLadder: React.FC = () => {
               setHardwareType('gpu');
               setSelectedForPK([]);
             }}
-            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 cursor-pointer select-none active:scale-95 hover:scale-[1.02] ${
               hardwareType === 'gpu'
                 ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
                 : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -129,7 +157,7 @@ export const BenchmarkLadder: React.FC = () => {
               setHardwareType('cpu');
               setSelectedForPK([]);
             }}
-            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+            className={`flex items-center space-x-2 px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-150 cursor-pointer select-none active:scale-95 hover:scale-[1.02] ${
               hardwareType === 'cpu'
                 ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
                 : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -150,9 +178,9 @@ export const BenchmarkLadder: React.FC = () => {
             <button
               key={mode.id}
               onClick={() => setScoreMode(mode.id as any)}
-              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 cursor-pointer select-none active:scale-95 hover:scale-[1.02] ${
                 scoreMode === mode.id
-                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs ring-1 ring-zinc-900/10 dark:ring-white/20'
                   : 'bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700'
               }`}
             >
@@ -188,17 +216,64 @@ export const BenchmarkLadder: React.FC = () => {
       </div>
 
       {/* Ladder Chart Bars */}
-      <div className="space-y-3 bg-white dark:bg-[#09090b] rounded-3xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800 text-xs text-zinc-400 dark:text-zinc-500">
-          <span>{t('rankColRank')}</span>
-          <div className="flex items-center space-x-6">
-            <span>{t('rankColPower')}</span>
-            <span className="w-24 text-right">{t('rankColScore')}</span>
-            <span className="w-16 text-center">{t('rankColPk')}</span>
+      <div className="space-y-4 bg-white dark:bg-[#09090b] rounded-3xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+        {/* Context Indicator & Brand Color Legend */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 pb-4 border-b border-zinc-100 dark:border-zinc-800/80">
+          {/* Active Dimension Context */}
+          <div className="flex items-center space-x-2.5">
+            <div className="p-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
+              {scoreMode === 'gaming' && <Gamepad2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+              {scoreMode === 'productivity' && <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
+              {scoreMode === 'efficiency' && <Zap className="w-4 h-4 text-amber-500" />}
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white tracking-tight">
+                {getActiveDimensionDescription()}
+              </div>
+            </div>
+          </div>
+
+          {/* Brand Color Legend (Glassmorphic Pill Badges) */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 select-none">
+              {t('ladderLegendTitle')}
+            </span>
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 backdrop-blur-md shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+              <span>{t('ladderBrandNvidia')}</span>
+            </div>
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/30 text-rose-700 dark:text-rose-300 backdrop-blur-md shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+              <span>{t('ladderBrandAmd')}</span>
+            </div>
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 dark:bg-blue-950/40 border border-blue-500/30 text-blue-700 dark:text-blue-300 backdrop-blur-md shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+              <span>{t('ladderBrandIntel')}</span>
+            </div>
+            <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-zinc-500/10 dark:bg-zinc-800/60 border border-zinc-400/30 dark:border-zinc-600/40 text-zinc-700 dark:text-zinc-300 backdrop-blur-md shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-zinc-100 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+              <span>{t('ladderBrandApple')}</span>
+            </div>
           </div>
         </div>
 
-        {filteredAndSortedList.map((item, index) => {
+        {/* Column Headers */}
+        <div className="flex items-center justify-between pb-2 text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+          <span>{t('rankColRank')}</span>
+          <div className="flex items-center space-x-4 sm:space-x-6">
+            <span>{t('rankColPower')}</span>
+            <span className="w-28 sm:w-36 text-right">{t('rankColScore')}</span>
+            <span className="w-20 sm:w-22 text-center">{t('rankColPk')}</span>
+          </div>
+        </div>
+
+        {filteredAndSortedList.length === 0 && (
+          <div className="py-12 text-center text-zinc-400 dark:text-zinc-500 text-sm">
+            {lang === 'en' ? 'No matching hardware found' : '未找到匹配的芯片型号'}
+          </div>
+        )}
+
+        {filteredAndSortedList.map((item) => {
           const score = getScore(item);
           const percentage = Math.max(8, Math.round((score / maxScore) * 100));
           const isSelected = selectedForPK.includes(item.id);
@@ -212,20 +287,21 @@ export const BenchmarkLadder: React.FC = () => {
                   : 'hover:bg-zinc-50 dark:hover:bg-zinc-850/60 border-transparent hover:border-zinc-200 dark:hover:border-zinc-800'
               }`}
             >
-              {/* Left Title & Platform */}
+              {/* Left Title & Platform & Global Rank Badge */}
               <div className="flex items-center space-x-3 sm:w-1/3 min-w-0">
                 <span
-                  className={`w-6 h-6 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold ${
-                    index === 0
-                      ? 'bg-[#F7D84A] text-zinc-950 shadow-xs'
-                      : index === 1
-                      ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white'
-                      : index === 2
-                      ? 'bg-amber-600/80 text-white'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
+                  className={`min-w-[2.25rem] h-6 px-1.5 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-transform ${
+                    item.globalRank === 1
+                      ? 'bg-[#F7D84A] text-zinc-950 shadow-xs ring-1 ring-[#F7D84A]/60'
+                      : item.globalRank === 2
+                      ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white ring-1 ring-zinc-400/50'
+                      : item.globalRank === 3
+                      ? 'bg-amber-600/85 text-white ring-1 ring-amber-600/50'
+                      : 'bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60'
                   }`}
+                  title={`#${item.globalRank}`}
                 >
-                  {index + 1}
+                  #{item.globalRank}
                 </span>
 
                 <div className="min-w-0">
@@ -254,9 +330,9 @@ export const BenchmarkLadder: React.FC = () => {
                     <div className="w-[1px] h-full bg-zinc-400/50" />
                   </div>
 
-                  {/* Luminous Fill Bar */}
+                  {/* Luminous Fill Bar with Eased Transition */}
                   <div
-                    className={`h-full rounded-md transition-all duration-700 relative overflow-hidden flex items-center justify-end pr-1 shadow-xs ${
+                    className={`h-full rounded-md transition-all duration-700 ease-out relative overflow-hidden flex items-center justify-end pr-1 shadow-xs ${
                       item.brand === 'NVIDIA'
                         ? 'bg-gradient-to-r from-emerald-700 via-emerald-500 to-teal-400 shadow-emerald-500/20'
                         : item.brand === 'AMD'
@@ -281,35 +357,40 @@ export const BenchmarkLadder: React.FC = () => {
               </div>
 
               {/* Right Metrics & PK button */}
-              <div className="flex items-center justify-between sm:justify-end space-x-4 shrink-0">
+              <div className="flex items-center justify-between sm:justify-end space-x-4 sm:space-x-6 shrink-0">
                 <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500 flex items-center">
                   <Zap className="w-3 h-3 text-amber-500 mr-0.5" />
                   {item.tdpWatts}W
                 </span>
 
-                <div className="w-24 text-right">
-                  <span className="text-sm font-black font-mono text-zinc-900 dark:text-white group-hover:text-[#F7D84A] dark:group-hover:text-[#F7D84A] transition-colors">
-                    {score}
-                  </span>
-                  <span className="text-[10px] text-zinc-400 ml-1">{t('scoreUnitPts')}</span>
+                <div className="w-28 sm:w-36 text-right shrink-0">
+                  <div className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-tight truncate">
+                    {getScoreDimensionLabel()}
+                  </div>
+                  <div className="text-sm font-black font-mono text-zinc-900 dark:text-white group-hover:text-[#d4990d] dark:group-hover:text-[#F7D84A] transition-colors leading-tight">
+                    {score}{' '}
+                    <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+                      pts
+                    </span>
+                  </div>
                 </div>
 
                 <button
                   onClick={() => togglePKSelection(item.id)}
-                  className={`w-20 flex items-center justify-center space-x-1 py-1 px-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+                  className={`w-20 sm:w-22 flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none active:scale-90 hover:scale-105 ${
                     isSelected
-                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs ring-1 ring-zinc-900/10 dark:ring-white/20'
+                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60'
                   }`}
                 >
                   {isSelected ? (
                     <>
-                      <CheckSquare className="w-3 h-3" />
+                      <CheckSquare className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
                       <span>{t('btnAddedToPk')}</span>
                     </>
                   ) : (
                     <>
-                      <Square className="w-3 h-3" />
+                      <Square className="w-3.5 h-3.5 text-zinc-400" />
                       <span>{t('btnAddToPk')}</span>
                     </>
                   )}
