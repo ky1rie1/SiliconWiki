@@ -229,8 +229,8 @@ export const BenchmarkLadder: React.FC = () => {
           <span className="shrink-0 text-base select-none">⚠️</span>
           <div>
             {lang === 'en'
-              ? '⚠️ Performance-per-Watt efficiency reflects performance output per watt (mobile and low-power architectures naturally hold an advantage), rather than absolute maximum performance. To compare raw performance, please switch to [3A Gaming Performance] or [Multi-Core Productivity].'
-              : '⚠️ 每瓦能效比反映的是每瓦性能产出（移动端与低功耗架构天然占优），并非纯粹绝对性能极限。如需对比纯战力，请切换至【3A 游戏性能】或【多核生产力】。'}
+              ? 'Performance-per-Watt efficiency reflects performance output per watt (mobile and low-power architectures naturally hold an advantage), rather than absolute maximum performance. To compare raw performance, please switch to [3A Gaming Performance] or [Multi-Core Productivity].'
+              : '每瓦能效比反映的是每瓦性能产出（移动端与低功耗架构天然占优），并非纯粹绝对性能极限。如需对比纯战力，请切换至【3A 游戏性能】或【多核生产力】。'}
           </div>
         </div>
       )}

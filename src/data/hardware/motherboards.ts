@@ -48,11 +48,12 @@ export const motherboardList: HardwareItem[] = [
     ],
     benchmarks: { gamingScore: 98, productivityScore: 100, efficiencyScore: 90 },
     docsLinks: [
-      { title: '华硕官方 · ROG CROSSHAIR X870E HERO 规格详情', url: 'https://www.asus.com.cn/motherboards-components/motherboards/rog-crosshair/rog-crosshair-x870e-hero/', platform: 'asus', description: 'AM5 旗舰纯血 ROG 官方白皮书' },
-      { title: 'ZOL 中关村在线 · ROG X870E HERO 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1435288.shtml', platform: 'zol', description: 'ZOL 评测室旗舰 AM5 主板深度评测' },
+      { title: '华硕官方 · ROG CROSSHAIR X870E HERO 规格详情', url: 'https://rog.asus.com/motherboards/rog-crosshair/rog-crosshair-x870e-hero/', platform: 'asus', description: 'AM5 纯血 ROG 旗舰官方白皮书与技术规格' },
+      { title: 'TechPowerUp · ASUS ROG Crosshair X870E Hero Review', url: 'https://www.techpowerup.com/review/asus-rog-crosshair-x870e-hero/', platform: 'techpowerup', description: '权威外媒对 X870E Hero 供电温控与双 USB4 架构深度评测' },
     ],
     reviewLinks: [
-      { title: '极客湾 X870E 旗舰主板首发拆解实测', url: 'https://www.bilibili.com/video/BV1LP4y1B7L1', platform: 'geekerwan', author: '极客湾 Geekerwan', summary: '豪华 18+2+2 相供电与双 USB4 满血拓展' },
+      { title: 'Asus ROG Crosshair X870E Hero - c\'est magnifique', url: 'https://www.youtube.com/watch?v=AwuSEuGqmrk', platform: 'youtube', author: 'KitGuruTech', summary: '纯血 ROG X870E 旗舰规格拆解与 9950X 满载供电温控实测' },
+      { title: '一张真正的旗舰主板是什么水平？ROG CROSSHAIR X870E Hero测评&拆解【老弟】', url: 'https://www.bilibili.com/video/BV1cD12YsEoR/', platform: 'bilibili', author: '老弟一号', summary: '豪华 18+2+2 相 110A 供电与双 USB4 满血拓展全方位拆解实录' },
     ],
     pairingAdvice: '最佳搭配 9950X / 9800X3D + 顶级 360 水冷与旗舰显卡。',
   },
@@ -98,11 +99,12 @@ export const motherboardList: HardwareItem[] = [
     ],
     benchmarks: { gamingScore: 94, productivityScore: 93, efficiencyScore: 96 },
     docsLinks: [
-      { title: '华硕官方 · TUF GAMING B650M-PLUS WIFI 规格', url: 'https://www.asus.com.cn/motherboards-components/motherboards/tuf-gaming/tuf-gaming-b650m-plus-wifi/', platform: 'asus', description: '国民重炮手官方技术规格' },
-      { title: 'ZOL 中关村在线 · TUF B650M 重炮手详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401311.shtml', platform: 'zol', description: 'ZOL 实验室千元装机首选评测' },
+      { title: '华硕官方 · TUF GAMING B650M-PLUS WIFI 规格参数', url: 'https://www.asus.com/motherboards-components/motherboards/tuf-gaming/tuf-gaming-b650m-plus-wifi/', platform: 'asus', description: '国民重炮手军规供电与 PCIe 5.0 M.2 官方规格说明' },
+      { title: 'ZOL 中关村在线 · 华硕 TUF B650M 重炮手详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401311.shtml', platform: 'zol', description: '中关村在线千元装机首选评测与技术参数汇总' },
     ],
     reviewLinks: [
-      { title: '硬件茶社 TUF B650M 重炮手长期使用与装机报告', url: 'https://www.bilibili.com/video/BV1wA411b7q7', platform: 'bilibili', author: '硬件茶社', summary: 'AM5 口碑第一军规神板，带 9800X3D 极其稳健' },
+      { title: 'AMD B650 Roundup: 35 Motherboards Tested, Complete Buying Guide', url: 'https://www.youtube.com/watch?v=ZtHOOyWYiic', platform: 'youtube', author: 'Hardware Unboxed', summary: '35款主流B650主板VRM烤机温度横评，重炮手供电散热表现优异' },
+      { title: '取舍的艺术-TUF B650重炮手WIFI评测【老弟】', url: 'https://www.bilibili.com/video/BV1LN4y1w7GN/', platform: 'bilibili', author: '老弟一号', summary: '千元国民神板深度拆解与满载稳定性实测，带 7800X3D/9800X3D 极其稳健' },
     ],
     pairingAdvice: '搭配 9800X3D / 7800X3D / 7500F 几乎是全网最热门稳定的搭配。',
   },
@@ -144,11 +146,12 @@ export const motherboardList: HardwareItem[] = [
     ],
     benchmarks: { gamingScore: 93, productivityScore: 93, efficiencyScore: 94 },
     docsLinks: [
-      { title: '微星官方 · MAG B650M MORTAR WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-B650M-MORTAR-WIFI', platform: 'msi', description: '80A SPS 军火库迫击炮官方参数' },
-      { title: 'ZOL 中关村在线 · B650M 迫击炮详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401312.shtml', platform: 'zol', description: 'ZOL 实验室性能实测' },
+      { title: '微星官方 · MAG B650M MORTAR WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-B650M-MORTAR-WIFI', platform: 'msi', description: '80A SPS 军火库迫击炮官方参数与供电拓扑' },
+      { title: 'ZOL 中关村在线 · 微星 B650M 迫击炮详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401312.shtml', platform: 'zol', description: 'ZOL 实验室性能实测与做工用料拆解' },
     ],
     reviewLinks: [
-      { title: '硬件茶社 B650M 迫击炮实测：80A SPS 供电有多强？', url: 'https://www.bilibili.com/video/BV1pu4y1R7K1', platform: 'bilibili', author: '硬件茶社', summary: '超强供电用料，微星内存 Memory Try It! 实测' },
+      { title: 'Checking Out the MSI B650M Mortar: Is Losing PCIe 5 a Big Deal on AM5?', url: 'https://www.youtube.com/watch?v=Td516IEBNCw', platform: 'youtube', author: 'Level1Techs', summary: '80A SPS 豪华供电用料与 Micro-ATX 紧凑级扩展性深度分析' },
+      { title: '永远的对手 B650M迫击炮 重炮手对比评测', url: 'https://www.bilibili.com/video/BV18k4y1H7BE/', platform: 'bilibili', author: 'codeyuri', summary: '迫击炮对比重炮手全方位实测与微星内存超频优势解析' },
     ],
     pairingAdvice: '与 7800X3D / 9800X3D 绝配，80A 供电压制 16 核 9950X 满载也毫无压力。',
   },
@@ -189,11 +192,12 @@ export const motherboardList: HardwareItem[] = [
     ],
     benchmarks: { gamingScore: 90, productivityScore: 88, efficiencyScore: 98 },
     docsLinks: [
-      { title: '华擎官方 · B650M-HDV/M.2 规格说明', url: 'https://www.asrock.com/mb/AMD/B650M-HDVM.2/index.cn.asp', platform: 'asrock', description: '平民性价比妖板官方白皮书' },
-      { title: 'ZOL 中关村在线 · 华擎 B650M-HDV 参数', url: 'https://detail.zol.com.cn/motherboard/index1408892.shtml', platform: 'zol', description: 'ZOL 百元妖板评测' },
+      { title: '华擎官方 · B650M-HDV/M.2 规格说明', url: 'https://www.asrock.com/mb/AMD/B650M-HDVM.2/index.cn.asp', platform: 'asrock', description: '平民性价比妖板官方白皮书与 BIOS 特性' },
+      { title: 'ZOL 中关村在线 · 华擎 B650M-HDV 参数', url: 'https://detail.zol.com.cn/motherboard/index1408892.shtml', platform: 'zol', description: '百元级 AM5 高性价比妖板实测' },
     ],
     reviewLinks: [
-      { title: '硬件茶社 华擎 B650M-HDV 妖板全面实测：百元带 7800X3D？', url: 'https://www.bilibili.com/video/BV1eW411w7pn', platform: 'bilibili', author: '硬件茶社', summary: '双内存槽电气性能拔群，平民高性价比首选' },
+      { title: 'Is The New Cheapest B650 Board Any Good? Asrock B650M-HDV/M.2 Review', url: 'https://www.youtube.com/watch?v=DOrhnNssrN4', platform: 'youtube', author: 'Hardware Unboxed', summary: '平民性价比妖板，双槽走线内存超频与VRM带高阶CPU实测' },
+      { title: '性能暴涨!华擎B650M–H/M.2+手动超频作业7500f轻松超5.5g', url: 'https://www.bilibili.com/video/BV1Sw4m1y7Kn/', platform: 'bilibili', author: '老猫硬谈', summary: '华擎妖板PBO手动超频作业与DDR5高频低时序实录' },
     ],
     pairingAdvice: '预算 4000~6000 元游戏推荐配置首选底板，搭配锐龙 7500F 性价比优秀。',
   },
@@ -225,6 +229,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'B650 吹雪 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 94, productivityScore: 94, efficiencyScore: 92 },
+    docsLinks: [
+      { title: '华硕官方 · ROG STRIX B650-A GAMING WIFI 规格详情', url: 'https://rog.asus.com/motherboards/rog-strix/rog-strix-b650-a-gaming-wifi-model/', platform: 'asus', description: '吹雪纯白电竞大板官方规格说明书' },
+      { title: 'ZOL 中关村在线 · 华硕 B650-A 吹雪详细参数', url: 'https://detail.zol.com.cn/motherboard/index1401768.shtml', platform: 'zol', description: '高颜值白色装甲与 12+2 供电规格评测' },
+    ],
+    reviewLinks: [
+      { title: 'Budget Beauty! Asus ROG Strix B650-A Gaming WiFi Review', url: 'https://www.youtube.com/watch?v=QRCRAy9-fAI', platform: 'youtube', author: 'FPP Tech', summary: '纯白主题装机颜值标杆，三 M.2 接口与供电规格实测' },
+      { title: 'Rog Strix B650-A 吹雪简单开箱介绍', url: 'https://www.bilibili.com/video/BV15P411g7zy/', platform: 'bilibili', author: '流弊的二姨夫', summary: '华硕纯白吹雪装甲做工、银白散热片与BIOS超频解析' },
+    ],
     pairingAdvice: '白色主题海景房搭配 9800X3D + 白色 4070Ti Super / 4080 Super。',
   },
 
@@ -270,11 +282,12 @@ export const motherboardList: HardwareItem[] = [
     ],
     benchmarks: { gamingScore: 97, productivityScore: 100, efficiencyScore: 92 },
     docsLinks: [
-      { title: '华硕官方 · ROG MAXIMUS Z890 HERO 规格详情', url: 'https://www.asus.com.cn/motherboards-components/motherboards/rog-maximus/rog-maximus-z890-hero/', platform: 'asus', description: 'LGA 1851 纯血顶级旗舰白皮书' },
-      { title: 'ZOL 中关村在线 · ROG Z890 HERO 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1436128.shtml', platform: 'zol', description: 'ZOL 评测室新一代旗舰实测' },
+      { title: '华硕官方 · ROG MAXIMUS Z890 HERO 规格详情', url: 'https://rog.asus.com/motherboards/rog-maximus/rog-maximus-z890-hero/', platform: 'asus', description: 'LGA 1851 纯血顶级旗舰白皮书与双雷电4配置' },
+      { title: 'TechPowerUp · ASUS ROG Maximus Z890 Hero Review', url: 'https://www.techpowerup.com/review/asus-rog-maximus-z890-hero/', platform: 'techpowerup', description: 'Intel Core Ultra 200系列首发旗舰深度测试' },
     ],
     reviewLinks: [
-      { title: '极客湾 Z890 旗舰主板与 CUDIMM 内存首发体验', url: 'https://www.bilibili.com/video/BV12w411f7cK', platform: 'geekerwan', author: '极客湾 Geekerwan', summary: 'CUDIMM 时钟驱动器高频内存与 110A 供电极致实测' },
+      { title: 'ASUS ROG Maximus Z890 Hero Motherboard Review', url: 'https://www.youtube.com/watch?v=gTWhlV4dlvE', platform: 'youtube', author: 'ThinkComputers', summary: 'Intel Core Ultra 200系列首发旗舰，双雷电4与110A极限供电实测' },
+      { title: '“板皇”降临！ROG Z890 HERO首发评测：主板界的旗舰王中王', url: 'https://www.bilibili.com/video/BV1YY1NYREX5/', platform: 'bilibili', author: '有点硬核的宅同学', summary: 'LGA1851新平台旗舰做工、满血PCIe 5.0扩展与CUDIMM内存支持' },
     ],
     pairingAdvice: '专为 Core Ultra 9 285K 打造，极客工作站与极限跑分专属。',
   },
@@ -308,6 +321,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'Z890 战斧导弹 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 94, productivityScore: 96, efficiencyScore: 95 },
+    docsLinks: [
+      { title: '微星官方 · MAG Z890 TOMAHAWK WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-Z890-TOMAHAWK-WIFI', platform: 'msi', description: '16+1+1+1 90A SPS 战斧导弹官方技术参数' },
+      { title: 'TechPowerUp · MSI MAG Z890 Tomahawk Wi-Fi Review', url: 'https://www.techpowerup.com/review/msi-mag-z890-tomahawk-wifi/', platform: 'techpowerup', description: '权威外媒对 Z890 战斧导弹 VRM 温度与超频性能评测' },
+    ],
+    reviewLinks: [
+      { title: 'MSI MAG Z890 TOMAHAWK WIFI Review - Worth It?', url: 'https://www.youtube.com/watch?v=7lHuj97Jito', platform: 'youtube', author: 'BC Zone', summary: '90A SPS 16相豪华供电与雷电4接口的性价比黑马实测' },
+      { title: '主板PCB解析: 微星Z890 Tomahawk Wifi II【Actually Hardcore Overclocking】', url: 'https://www.bilibili.com/video/BV1ZFjB6yE4e/', platform: 'bilibili', author: 'Tacoma213', summary: 'Buildzoid深度拆解PCB走线、供电元器件与内存电气布局' },
+    ],
     pairingAdvice: '搭配 Core Ultra 7 265K / Ultra 9 285K，性价比与扩展性极其均衡。',
   },
 
@@ -353,10 +374,11 @@ export const motherboardList: HardwareItem[] = [
     benchmarks: { gamingScore: 92, productivityScore: 92, efficiencyScore: 94 },
     docsLinks: [
       { title: '微星官方 · MAG B760M MORTAR WIFI II 规格', url: 'https://www.msi.cn/Motherboard/MAG-B760M-MORTAR-WIFI-II', platform: 'msi', description: '三 M.2 接口水桶板王官方技术说明' },
-      { title: 'ZOL 中关村在线 · B760M 迫击炮二代参数', url: 'https://detail.zol.com.cn/motherboard/index1421888.shtml', platform: 'zol', description: 'ZOL 实验室性能评测' },
+      { title: 'ZOL 中关村在线 · B760M 迫击炮二代参数', url: 'https://detail.zol.com.cn/motherboard/index1421888.shtml', platform: 'zol', description: 'ZOL 实验室性能评测与散热实测' },
     ],
     reviewLinks: [
-      { title: '硬件茶社 B760M 迫击炮二代装机实测：3个M.2终于齐了', url: 'https://www.bilibili.com/video/BV11M411w7fA', platform: 'bilibili', author: '硬件茶社', summary: 'LGA 1700 水桶板王，散热扎实做工精良' },
+      { title: 'MSI MAG Mortar Series In-Depth Performance Review', url: 'https://www.youtube.com/watch?v=xUnl6n9Jwjs', platform: 'youtube', author: 'Hardware Busters', summary: '三条 M.2 满配与 12+1+1 供电用料带 14700K 满载功耗实测' },
+      { title: '微星B760 迫击炮D5 4070TI显卡装机实录', url: 'https://www.bilibili.com/video/BV1GA411o7Zc/', platform: 'bilibili', author: '留白电脑装机大手留白', summary: '迫击炮二代装机实测，升级三M.2接口与DDR5高频调校' },
     ],
     pairingAdvice: 'Intel 平台 14600KF / 13600KF / 12600KF 最稳妥闭眼入的主板。',
   },
@@ -388,6 +410,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'B760M 天选 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 90, productivityScore: 90, efficiencyScore: 93 },
+    docsLinks: [
+      { title: '华硕官方 · TX GAMING B760M WIFI 天选规格详情', url: 'https://www.asus.com.cn/motherboards-components/motherboards/tx-gaming/tx-gaming-b760m-wifi/', platform: 'asus', description: '天选二次元青绿白银机甲官方白皮书' },
+      { title: 'ZOL 中关村在线 · 华硕天选 B760M 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1410190.shtml', platform: 'zol', description: '天选二次元高颜值电竞小板规格评测' },
+    ],
+    reviewLinks: [
+      { title: 'ASUS White Themed Gaming Motherboard Review', url: 'https://www.youtube.com/watch?v=QRCRAy9-fAI', platform: 'youtube', author: 'FPP Tech', summary: '华硕二次元天选纯白装机，高规格供电与白色主题装甲设计' },
+      { title: '华硕B760M 天选系列与主流B760深度对比测试', url: 'https://www.bilibili.com/video/BV1Pu4m1u7Zc/', platform: 'bilibili', author: '你滴强哥diy电脑', summary: '天选绿白清新配色外观、12+1供电实测与BIOS调试指南' },
+    ],
     pairingAdvice: '与华硕天选显卡、天选机箱组成纯白天选全家桶。',
   },
   {
@@ -418,6 +448,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'CVN B760M 冰封 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 88, productivityScore: 88, efficiencyScore: 94 },
+    docsLinks: [
+      { title: '七彩虹官方 · CVN B760M FROZEN WIFI V20 规格', url: 'https://www.colorful.cn/home/product?mid=84&id=918', platform: 'other', description: '寒霜散热装甲与 12+1+1 相 55A DrMOS 官方技术说明' },
+      { title: 'ZOL 中关村在线 · 七彩虹 CVN B760M 冰封参数', url: 'https://detail.zol.com.cn/motherboard/index1409395.shtml', platform: 'zol', description: '纯白战列舰全覆盖金属散热马甲实测' },
+    ],
+    reviewLinks: [
+      { title: 'Budget Intel B760 Motherboard Analysis', url: 'https://www.youtube.com/watch?v=xUnl6n9Jwjs', platform: 'youtube', author: 'Hardware Busters', summary: '12+1相55A DrMOS供电与3个PCIe 4.0 M.2接口实测' },
+      { title: '全白B650/B760 七彩虹CVN冰封主板全方位实测', url: 'https://www.bilibili.com/video/BV1Di421D7uH/', platform: 'bilibili', author: 'codeyuri', summary: '寒霜银白金属散热装甲与国产品牌BIOS大幅进步实测' },
+    ],
     pairingAdvice: '预算有限但想要极致纯白海景房的玩家，搭配 i5-12600KF / 14400F。',
   },
   {
@@ -448,6 +486,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'B650M 小雕 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 93, productivityScore: 92, efficiencyScore: 95 },
+    docsLinks: [
+      { title: '技嘉官方 · B650M AORUS ELITE AX 小雕技术规格', url: 'https://www.gigabyte.com/Motherboard/B650M-AORUS-ELITE-AX-rev-10-11/sp#sp', platform: 'gigabyte', description: '12+2+2 相供电与高覆盖散热装甲官方参数' },
+      { title: 'ZOL 中关村在线 · 技嘉 B650M 小雕参数', url: 'https://detail.zol.com.cn/motherboard/index1401314.shtml', platform: 'zol', description: 'ZOL 实验室性能评测与内存黑科技评测' },
+    ],
+    reviewLinks: [
+      { title: 'AMD B650 Roundup: 35 Motherboards Tested, Complete Buying Guide', url: 'https://www.youtube.com/watch?v=ZtHOOyWYiic', platform: 'youtube', author: 'Hardware Unboxed', summary: '小雕12+2+2相供电与满载VRM温度位列同价位前茅' },
+      { title: '华硕B650M重炮手、微星B650M迫击炮、技嘉B650M小雕横评对比评测', url: 'https://www.bilibili.com/video/BV1DNYkeLE9b/', platform: 'bilibili', author: '大学生评测', summary: '技嘉低延迟黑科技、三巨头千元AM5板皇实机横评对比' },
+    ],
     pairingAdvice: '搭配 9800X3D / 7800X3D + DDR5 6000 内存，享受一键黑科技低延迟。',
   },
   {
@@ -478,6 +524,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'B760M Pro RS 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 88, productivityScore: 86, efficiencyScore: 95 },
+    docsLinks: [
+      { title: '华擎官方 · B760M Pro RS 规格参数', url: 'https://www.asrock.com/mb/Intel/B760M%20Pro%20RS/index.cn.asp', platform: 'asrock', description: '钢铁传奇银白装甲与 7+1+1 相 Dr.MOS 官方规格' },
+      { title: 'ZOL 中关村在线 · 华擎 B760M Pro RS 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1411516.shtml', platform: 'zol', description: '平民银白战甲主板外观与扩展接口详解' },
+    ],
+    reviewLinks: [
+      { title: 'ASRock Pro RS Series Motherboard Deep Dive', url: 'https://www.youtube.com/watch?v=DOrhnNssrN4', platform: 'youtube', author: 'goldfries', summary: '7+1+1相Dr.MOS供电与银白全覆盖散热马甲深度评测' },
+      { title: '丐板拉皮 微星/华擎B760M 深度对比横评', url: 'https://www.bilibili.com/video/BV1a14y1R757/', platform: 'bilibili', author: 'codeyuri', summary: '千元内最美银白马甲主板，双M.2散热片与DDR5性能实测' },
+    ],
     pairingAdvice: '搭配 i5-12600KF / 12400F 打造千元内浅色系电竞主机。',
   },
   {
@@ -501,6 +555,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: '微星 B760M-A 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 89, productivityScore: 89, efficiencyScore: 96 },
+    docsLinks: [
+      { title: '微星官方 · PRO B760M-A WIFI 规格', url: 'https://www.msi.cn/Motherboard/PRO-B760M-A-WIFI', platform: 'msi', description: '办公商用稳健电容与扩展性官方技术说明' },
+      { title: 'ZOL 中关村在线 · 微星 PRO B760M-A 详细参数', url: 'https://detail.zol.com.cn/motherboard/index1407335.shtml', platform: 'zol', description: '高稳定性商用办公生产力主板实测' },
+    ],
+    reviewLinks: [
+      { title: 'MSI PRO Series Workstation and Desktop Reliability', url: 'https://www.youtube.com/watch?v=Td516IEBNCw', platform: 'youtube', author: 'Level1Techs', summary: '商用办公与生产力坚实稳定首选，双DP+双HDMI多屏输出' },
+      { title: '微星PRO B760M-A II 深度拆解对比高性价比生产力平台评测', url: 'https://www.bilibili.com/video/BV17S411F71r/', platform: 'bilibili', author: '極酷玩家装机馆', summary: '商用稳健供电设计，微星BIOS调校与办公长时间稳定性实测' },
+    ],
     pairingAdvice: '办公机、深度开发与无光机箱装机首选。',
   },
   {
@@ -530,6 +592,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: 'Z790 DARK HERO 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 97, productivityScore: 98, efficiencyScore: 90 },
+    docsLinks: [
+      { title: '华硕官方 · ROG MAXIMUS Z790 DARK HERO 规格详情', url: 'https://rog.asus.com/motherboards/rog-maximus/rog-maximus-z790-dark-hero/', platform: 'asus', description: '暗黑纯血败家之眼旗舰白皮书与 Wi-Fi 7 说明' },
+      { title: 'TechPowerUp · ASUS ROG Maximus Z790 Dark Hero Review', url: 'https://www.techpowerup.com/review/asus-rog-maximus-z790-dark-hero/', platform: 'techpowerup', description: '外媒旗舰主板 20+1+2 相供电与极限超频深度评测' },
+    ],
+    reviewLinks: [
+      { title: 'What A Way To END Z790 Series - ASUS ROG MAXIMUS Z790 DARK HERO', url: 'https://www.youtube.com/watch?v=pgeMBsEbNbI', platform: 'youtube', author: 'A2K', summary: 'LGA 1700 终极黑化卡皇，20+1+2 相供电与 Wi-Fi 7 极限超频' },
+      { title: '顶级的中端级高端入门型Z790主板——ROG MAXIMUS Z790 HERO 旗舰评测', url: 'https://www.bilibili.com/video/BV1cW4y1n7um/', platform: 'bilibili', author: '吃瓜大师', summary: '暗黑纯血败家之眼，豪华供电与5个M.2全装甲实录' },
+    ],
     pairingAdvice: '搭配 14900KS / 14900K 打造纯黑顶级发烧旗舰。',
   },
   {
@@ -564,6 +634,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: '微星 B650M GAMING PLUS 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 93, productivityScore: 92, efficiencyScore: 97 },
+    docsLinks: [
+      { title: '微星官方 · B650M GAMING PLUS WIFI 规格', url: 'https://www.msi.cn/Motherboard/B650M-GAMING-PLUS-WIFI', platform: 'msi', description: '10+2+1 相供电电竞甜点板官方参数' },
+      { title: 'ZOL 中关村在线 · 微星 B650M GAMING PLUS 参数', url: 'https://detail.zol.com.cn/motherboard/index1425126.shtml', platform: 'zol', description: '电竞主流高性价比 AM5 小板详细参数' },
+    ],
+    reviewLinks: [
+      { title: 'AMD B650 Roundup: 35 Motherboards Tested, Complete Buying Guide', url: 'https://www.youtube.com/watch?v=ZtHOOyWYiic', platform: 'youtube', author: 'Hardware Unboxed', summary: '微星普及型 AM5 电竞小板，10+2+1 相供电带 7800X3D 实测' },
+      { title: '【主板横评】7家B650M系列丐板大横评，谁是丐帮帮主？', url: 'https://www.bilibili.com/video/BV13WKKeVEz3/', platform: 'bilibili', author: '氪机动物园', summary: '微星Memory Try It!一键超频与百元AM5甜点位主板对比' },
+    ],
     pairingAdvice: '搭配 AMD Ryzen 5 7500F 或 Ryzen 7 7800X3D / 9800X3D 电竞整机首选。',
   },
   {
@@ -597,6 +675,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: '华擎 B650M Pro RS 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 92, productivityScore: 91, efficiencyScore: 98 },
+    docsLinks: [
+      { title: '华擎官方 · B650M Pro RS 规格参数', url: 'https://www.asrock.com/mb/AMD/B650M%20Pro%20RS/index.cn.asp', platform: 'asrock', description: '银白装甲 3x M.2 接口官方规格说明' },
+      { title: 'ZOL 中关村在线 · 华擎 B650M Pro RS 参数', url: 'https://detail.zol.com.cn/motherboard/index1409228.shtml', platform: 'zol', description: '千元内罕见的 3 个 M.2 接口性价比实测' },
+    ],
+    reviewLinks: [
+      { title: 'AMD B650 Roundup: 35 Motherboards Tested, Complete Buying Guide', url: 'https://www.youtube.com/watch?v=ZtHOOyWYiic', platform: 'youtube', author: 'Hardware Unboxed', summary: '8+2+1相Dr.MOS供电与罕见的3个M.2接口，同价位性价比顶尖' },
+      { title: '升级还是降级2 来看女王对比精粤B650MPRO与B650M GAMING PLUS', url: 'https://www.bilibili.com/video/BV1sztkesEaX/', platform: 'bilibili', author: '花语荷装机坊', summary: '千元内罕见的3个M.2接口与银白装甲，性价比极高' },
+    ],
     pairingAdvice: '纯白主题装机、需要插 2~3 块 M.2 固态硬盘的玩家首选。',
   },
   {
@@ -630,6 +716,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: '微星 Z790 战斧导弹 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 96, productivityScore: 96, efficiencyScore: 94 },
+    docsLinks: [
+      { title: '微星官方 · MAG Z790 TOMAHAWK WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-Z790-TOMAHAWK-WIFI', platform: 'msi', description: '16+1+1 90A SPS 战斧导弹主力大板官方白皮书' },
+      { title: 'TechPowerUp · MSI MAG Z790 Tomahawk WiFi Review', url: 'https://www.techpowerup.com/review/msi-mag-z790-tomahawk-wifi/', platform: 'techpowerup', description: '权威外媒对 Z790 战斧导弹温控与供电持续负载评测' },
+    ],
+    reviewLinks: [
+      { title: 'MSI MAG Z790/Z890 Tomahawk Detailed Review', url: 'https://www.youtube.com/watch?v=7lHuj97Jito', platform: 'youtube', author: 'BC Zone', summary: '16+1+1相90A SPS供电与4个M.2接口的水桶级主力大板' },
+      { title: '微星战斧导弹主板不一样的评测 微星的冷门战斧导弹系列主板', url: 'https://www.bilibili.com/video/BV1Rp3QzUEGU/', platform: 'bilibili', author: '声动耳机小栈', summary: '经典战斧导弹扎实用料，超频i7/i9稳定不降频' },
+    ],
     pairingAdvice: '预算 10000~20000 元黑武士旗舰主机，搭配 i7-14700K / i9-13900K 黄金搭档。',
   },
   {
@@ -664,6 +758,14 @@ export const motherboardList: HardwareItem[] = [
     pddSearchQuery: '华硕 B760-G 小吹雪 百亿补贴',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 94, productivityScore: 93, efficiencyScore: 95 },
+    docsLinks: [
+      { title: '华硕官方 · ROG STRIX B760-G GAMING WIFI 规格详情', url: 'https://rog.asus.com/motherboards/rog-strix/rog-strix-b760-g-gaming-wifi/', platform: 'asus', description: '小吹雪银白二次元机甲官方技术说明' },
+      { title: 'ZOL 中关村在线 · 华硕 B760-G 小吹雪详细参数', url: 'https://detail.zol.com.cn/motherboard/index1410188.shtml', platform: 'zol', description: '高颜值白色小板与 12+1 相 60A 供电实测' },
+    ],
+    reviewLinks: [
+      { title: 'ASUS ROG Strix Gaming WiFi Motherboard Review', url: 'https://www.youtube.com/watch?v=QRCRAy9-fAI', platform: 'youtube', author: 'FPP Tech', summary: 'ROG小吹雪二次元银白机甲，APE 3.0一键解锁功耗墙与DDR5高频实测' },
+      { title: '测了三个月？断流？华硕最有态度的一集！吹雪变强之路！华硕ROG B760-G小吹雪评测', url: 'https://www.bilibili.com/video/BV1zpbcztE9X/', platform: 'bilibili', author: '马晕测', summary: '12+1相60A供电与白色主题装机首选，DDR5 8000+超频测试' },
+    ],
     pairingAdvice: '纯白海景房、吹雪主题全家桶，搭配 i5-13600KF / i5-14600KF 的颜值顶流。',
   },
 ];

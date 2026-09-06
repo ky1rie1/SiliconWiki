@@ -106,27 +106,31 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
         },
       ];
 
-  // Review & Testing Videos (Direct Bilibili video URLs with real BV IDs, no search jump)
+  // Review & Testing Videos (Bilibili & YouTube direct links)
   const reviewLinks = item.reviewLinks && item.reviewLinks.length > 0
     ? item.reviewLinks
     : [
         {
           title: lang === 'en'
-            ? `Geekerwan · ${item.name} Teardown & Benchmarks`
-            : `极客湾 Geekerwan · ${item.name} 深度实测与架构解析`,
-          url: 'https://www.bilibili.com/video/BV1Ue411S7E2',
-          platform: 'geekerwan' as const,
-          author: '极客湾 Geekerwan',
-          summary: lang === 'en' ? 'Microarchitecture efficiency and extreme load testing' : '微架构能效与极端负载实测',
+            ? `YouTube · ${item.name} Global Benchmarks & In-Depth Review`
+            : `YouTube · ${item.name} 全球权威实测与深度评测直达`,
+          url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${item.brand} ${item.name} review benchmark`)}`,
+          platform: 'youtube' as const,
+          author: 'YouTube Tech',
+          summary: lang === 'en'
+            ? 'Curated international benchmarks, teardown & thermals from Gamers Nexus, Hardware Unboxed, LTT, etc.'
+            : '直达 YouTube 全球科技博主（Gamers Nexus、Hardware Unboxed、LTT 等）高清实测',
         },
         {
           title: lang === 'en'
-            ? `Hardware Tea House · ${item.name} Real FPS & Optimization Guide`
-            : `硬件茶社 · ${item.name} 真实 3A 游戏实测与装机实录`,
-          url: 'https://www.bilibili.com/video/BV11e4y1773H',
+            ? `Bilibili · ${item.name} Comprehensive Teardown & Benchmarks`
+            : `B站 · ${item.name} 国内高清实测与装机实录直达`,
+          url: `https://search.bilibili.com/all?keyword=${encodeURIComponent(`${item.brand} ${item.name} 评测`)}`,
           platform: 'bilibili' as const,
-          author: '硬件茶社',
-          summary: lang === 'en' ? 'Average FPS, 1% low frame rates, and pairing advice' : '真实游戏平均帧率与装机避坑指南',
+          author: 'B站硬件测评',
+          summary: lang === 'en'
+            ? 'High-resolution gaming FPS, temperature benchmarks and building advice on Bilibili'
+            : '直达 B 站一线硬件博主（极客湾、硬件茶社、林海散热等）最新实机测试',
         },
       ];
 
@@ -628,15 +632,15 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* 2. B站权威评测与实机视频精选 */}
+              {/* 2. 权威评测与实机视频精选 (Bilibili / YouTube 高清直达) */}
               <div className="space-y-3 pt-4 border-t border-zinc-200/80 dark:border-zinc-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-sm font-bold text-zinc-900 dark:text-white">
                     <Video className="w-4 h-4 text-pink-500" />
                     <span>
                       {lang === 'en'
-                        ? 'Curated Bilibili Video Reviews & Guides (Direct Video BV Links)'
-                        : '📺 B站权威评测与实机视频精选'}
+                        ? 'Curated Video Reviews & Guides (Bilibili / YouTube Direct)'
+                        : '📺 权威评测与实机视频精选 (Bilibili / YouTube 高清直达)'}
                     </span>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-950/60 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-900/40">
@@ -645,30 +649,53 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {reviewLinks.map((link, idx) => (
-                    <a
-                      key={idx}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:border-pink-500/50 hover:shadow-md transition-all flex items-start justify-between group text-xs cursor-pointer"
-                    >
-                      <div className="space-y-1.5 pr-2">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-800/60 inline-block">
-                          {link.author || (link.platform === 'geekerwan' ? '极客湾' : 'B站装机实测')}
-                        </span>
-                        <h5 className="font-bold text-zinc-900 dark:text-white group-hover:text-pink-500 transition-colors leading-snug">
-                          {link.title}
-                        </h5>
-                        {link.summary && (
-                          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">
-                            💡 {link.summary}
-                          </p>
-                        )}
-                      </div>
-                      <ExternalLink className="w-4 h-4 text-zinc-400 group-hover:text-pink-500 shrink-0 mt-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </a>
-                  ))}
+                  {reviewLinks.map((link, idx) => {
+                    const isYouTube = link.platform === 'youtube' || (link.url && link.url.includes('youtube.com'));
+                    return (
+                      <a
+                        key={idx}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 hover:shadow-md transition-all flex items-start justify-between group text-xs cursor-pointer ${
+                          isYouTube
+                            ? 'hover:border-red-500/50'
+                            : 'hover:border-pink-500/50'
+                        }`}
+                      >
+                        <div className="space-y-1.5 pr-2">
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold uppercase inline-block ${
+                              isYouTube
+                                ? 'bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-200/60 dark:border-red-800/60'
+                                : 'bg-pink-100 dark:bg-pink-950/80 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-800/60'
+                            }`}
+                          >
+                            {isYouTube
+                              ? `YouTube · ${link.author || 'Global Tech'}`
+                              : `B站 · ${link.author || (link.platform === 'geekerwan' ? '极客湾' : '装机实测')}`}
+                          </span>
+                          <h5
+                            className={`font-bold text-zinc-900 dark:text-white transition-colors leading-snug ${
+                              isYouTube ? 'group-hover:text-red-500' : 'group-hover:text-pink-500'
+                            }`}
+                          >
+                            {link.title}
+                          </h5>
+                          {link.summary && (
+                            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                              💡 {link.summary}
+                            </p>
+                          )}
+                        </div>
+                        <ExternalLink
+                          className={`w-4 h-4 text-zinc-400 shrink-0 mt-1 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${
+                            isYouTube ? 'group-hover:text-red-500' : 'group-hover:text-pink-500'
+                          }`}
+                        />
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             </div>
