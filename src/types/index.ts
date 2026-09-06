@@ -123,6 +123,17 @@ export interface BuildPart {
   jdQuery: string;
 }
 
+export interface BuildUpgradeOption {
+  id: string;
+  category: 'cpu' | 'gpu' | 'ram' | 'storage' | 'case' | 'cooling' | 'psu' | 'other';
+  title: string;
+  description: string;
+  partName: string;
+  priceDelta: number;
+  targetComponent: string;
+  jdQuery?: string;
+}
+
 export interface RecommendedBuild {
   id: string;
   title: string;
@@ -133,6 +144,7 @@ export interface RecommendedBuild {
   parts: BuildPart[];
   totalPrice: number;
   notes: string[];
+  upgradeOptions?: BuildUpgradeOption[];
 }
 
 export interface ChangelogItem {

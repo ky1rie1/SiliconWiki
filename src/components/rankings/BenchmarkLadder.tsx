@@ -19,6 +19,7 @@ import { useLanguage } from '../../context/LanguageContext';
 
 export interface RankedBenchmarkItem extends BenchmarkItem {
   globalRank: number;
+  isTied?: boolean;
 }
 
 export const BenchmarkLadder: React.FC = () => {
@@ -46,13 +47,44 @@ export const BenchmarkLadder: React.FC = () => {
     });
   }, [rawList, includeLaptop]);
 
+  const getSecondaryScore = (item: BenchmarkItem) => {
+    if (scoreMode === 'gaming') return item.scores.productivityScore;
+    if (scoreMode === 'productivity') return item.scores.gamingScore;
+    return item.scores.gamingScore;
+  };
+
   // 2. Calculate true absolute rank in the tier list for currently selected score dimension
+  // Multi-level deterministic sorting (Primary: score, Secondary: complementary score, Tertiary: ID)
+  // Dense/competition ranking: items with identical scores share the exact same rank number
   const rankedBenchmarkList = useMemo<RankedBenchmarkItem[]>(() => {
-    const sorted = [...platformFilteredList].sort((a, b) => getScore(b) - getScore(a));
-    return sorted.map((item, index) => ({
-      ...item,
-      globalRank: index + 1,
-    }));
+    const sorted = [...platformFilteredList].sort((a, b) => {
+      const primaryDiff = getScore(b) - getScore(a);
+      if (primaryDiff !== 0) return primaryDiff;
+      const secondaryDiff = getSecondaryScore(b) - getSecondaryScore(a);
+      if (secondaryDiff !== 0) return secondaryDiff;
+      return a.id.localeCompare(b.id);
+    });
+
+    const ranked: RankedBenchmarkItem[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const item = sorted[i];
+      const isTiedWithPrev = i > 0 && getScore(item) === getScore(sorted[i - 1]);
+      const globalRank = isTiedWithPrev ? ranked[i - 1].globalRank : i + 1;
+      ranked.push({
+        ...item,
+        globalRank,
+      });
+    }
+
+    // Mark items that share rank with others
+    for (let i = 0; i < ranked.length; i++) {
+      const prevScore = i > 0 ? getScore(ranked[i - 1]) : null;
+      const nextScore = i < ranked.length - 1 ? getScore(ranked[i + 1]) : null;
+      const curScore = getScore(ranked[i]);
+      ranked[i].isTied = curScore === prevScore || curScore === nextScore;
+    }
+
+    return ranked;
   }, [platformFilteredList, scoreMode]);
 
   // 3. Filter according to search query, preserving true globalRank
@@ -293,10 +325,11 @@ export const BenchmarkLadder: React.FC = () => {
           </div>
         )}
 
-        {filteredAndSortedList.map((item) => {
+        {filteredAndSortedList.map((item, searchIndex) => {
           const score = getScore(item);
-          const percentage = Math.max(8, Math.round((score / maxScore) * 100));
+          const percentage = maxScore > 0 ? Math.min(100, Math.max(8, Math.round((score / maxScore) * 100))) : 8;
           const isSelected = selectedForPK.includes(item.id);
+          const isSearchActive = Boolean(searchQuery.trim());
 
           return (
             <div
@@ -309,20 +342,60 @@ export const BenchmarkLadder: React.FC = () => {
             >
               {/* Left Title & Platform & Global Rank Badge */}
               <div className="flex items-center space-x-3 sm:w-1/3 min-w-0">
-                <span
-                  className={`min-w-[2.25rem] h-6 px-1.5 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-transform ${
-                    item.globalRank === 1
-                      ? 'bg-[#F7D84A] text-zinc-950 shadow-xs ring-1 ring-[#F7D84A]/60'
-                      : item.globalRank === 2
-                      ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white ring-1 ring-zinc-400/50'
-                      : item.globalRank === 3
-                      ? 'bg-amber-600/85 text-white ring-1 ring-amber-600/50'
-                      : 'bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60'
-                  }`}
-                  title={`#${item.globalRank}`}
-                >
-                  #{item.globalRank}
-                </span>
+                {isSearchActive ? (
+                  <div className="flex items-center space-x-1.5 shrink-0">
+                    <span
+                      className="min-w-[1.75rem] h-6 px-1.5 shrink-0 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-700/80"
+                      title={t('ladderSearchResultIndex', { index: searchIndex + 1 })}
+                    >
+                      №{searchIndex + 1}
+                    </span>
+                    <span
+                      className={`min-w-[4.5rem] h-6 px-2 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-transform ${
+                        item.globalRank === 1
+                          ? 'bg-[#F7D84A] text-zinc-950 shadow-xs ring-1 ring-[#F7D84A]/60'
+                          : item.globalRank === 2
+                          ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white ring-1 ring-zinc-400/50'
+                          : item.globalRank === 3
+                          ? 'bg-amber-600/85 text-white ring-1 ring-amber-600/50'
+                          : 'bg-zinc-100 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60'
+                      }`}
+                      title={item.isTied ? t('ladderTiedTooltip', { rank: item.globalRank }) : t('ladderGlobalRankBadge', { rank: item.globalRank })}
+                    >
+                      {t('ladderGlobalRankBadge', { rank: item.globalRank })}
+                      {item.isTied && (
+                        <span className="text-[9px] ml-1 px-1 rounded bg-black/10 dark:bg-white/15">
+                          {t('ladderTiedBadge')}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-1.5 shrink-0">
+                    <span
+                      className={`min-w-[2.25rem] h-6 px-1.5 shrink-0 rounded-lg flex items-center justify-center text-xs font-mono font-bold transition-transform ${
+                        item.globalRank === 1
+                          ? 'bg-[#F7D84A] text-zinc-950 shadow-xs ring-1 ring-[#F7D84A]/60'
+                          : item.globalRank === 2
+                          ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white ring-1 ring-zinc-400/50'
+                          : item.globalRank === 3
+                          ? 'bg-amber-600/85 text-white ring-1 ring-amber-600/50'
+                          : 'bg-zinc-100 dark:bg-zinc-800/90 text-zinc-600 dark:text-zinc-400 border border-zinc-200/60 dark:border-zinc-700/60'
+                      }`}
+                      title={item.isTied ? t('ladderTiedTooltip', { rank: item.globalRank }) : `#${item.globalRank}`}
+                    >
+                      #{item.globalRank}
+                    </span>
+                    {item.isTied && (
+                      <span
+                        className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 font-mono border border-zinc-200/60 dark:border-zinc-700/60 shrink-0"
+                        title={t('ladderTiedTooltip', { rank: item.globalRank })}
+                      >
+                        {t('ladderTiedBadge')}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 <div className="min-w-0">
                   <div className="flex items-center space-x-1.5 flex-wrap">
@@ -394,7 +467,7 @@ export const BenchmarkLadder: React.FC = () => {
 
                 <button
                   onClick={() => togglePKSelection(item.id)}
-                  className={`w-20 sm:w-22 flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none active:scale-90 hover:scale-105 ${
+                  className={`w-20 sm:w-22 flex items-center justify-center space-x-1.5 py-1.5 px-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none active:scale-[0.98] hover:scale-[1.02] ${
                     isSelected
                       ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs ring-1 ring-zinc-900/10 dark:ring-white/20'
                       : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60'

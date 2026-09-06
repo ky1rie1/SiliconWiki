@@ -95,6 +95,15 @@ export const stepSpecsMapZh: Record<string, HardwareSpecDetail> = {
     ],
     highlightTip: '闭合全景玻璃侧板，整机组装完成，开启通电自检！',
   },
+  'thermal-paste': {
+    craft: '微米级纳米氧化铝与高导热硅脂矩阵 · 8.5 W/m-K 高导热率 · 绝缘非导电配方',
+    specs: [
+      { label: '涂抹手法', val: '经典五点法 / 九点法 / 中心豌豆法' },
+      { label: '延展形态', val: '扣具均压下自展延为 0.03mm 超薄均热界面层' },
+      { label: '安全守则', val: '散热器铜底出厂膜必撕！严防外溢至插槽底座' },
+    ],
+    highlightTip: '五点法点涂，扣具对角逐圈旋紧，硅脂自然平铺填满微观隙缝',
+  },
 };
 
 export const stepSpecsMapEn: Record<string, HardwareSpecDetail> = {
@@ -188,12 +197,22 @@ export const stepSpecsMapEn: Record<string, HardwareSpecDetail> = {
     ],
     highlightTip: 'Latch the side panoramic glass to complete the build and begin POST check!',
   },
+  'thermal-paste': {
+    craft: 'Micron-Grade Nano-Aluminum Oxide Matrix · 8.5 W/m-K High Conductivity · Non-Conductive TIM Formula',
+    specs: [
+      { label: 'Application Method', val: 'Classic 5-Point / 9-Point / Center Pea Pattern' },
+      { label: 'Compressed Layer', val: 'Flattens into ultra-thin 0.03mm conductive interface film' },
+      { label: 'Safety Rule', val: 'Peel off cooler copper base protective film; zero socket spillage' },
+    ],
+    highlightTip: '5-point pea pattern flattens evenly under diagonal mounting torque',
+  },
 };
 
 export const componentNameMapZh: Record<string, string> = {
   cpu: 'CPU 处理器',
   ram: '双通道内存',
   ssd: 'M.2 NVMe 固态',
+  'thermal-paste': '导热硅脂 (五点法涂抹)',
   cooler: '风冷散热器',
   motherboard: 'ATX 旗舰主板',
   psu: '模组电源',
@@ -207,6 +226,7 @@ export const componentNameMapEn: Record<string, string> = {
   cpu: 'CPU Processor',
   ram: 'Dual-Channel RAM',
   ssd: 'M.2 NVMe SSD',
+  'thermal-paste': 'Thermal Paste (TIM Compound)',
   cooler: 'CPU Air Cooler',
   motherboard: 'ATX Flagship Motherboard',
   psu: 'Modular Power Supply (PSU)',

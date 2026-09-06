@@ -128,6 +128,10 @@ export const translations = {
     ladderScoreLabelGaming: '战力得分',
     ladderScoreLabelProductivity: '生产力',
     ladderScoreLabelEfficiency: '每瓦效能',
+    ladderGlobalRankBadge: '总榜 #{rank}',
+    ladderSearchResultIndex: '搜索第 {index} 位',
+    ladderTiedBadge: '并列',
+    ladderTiedTooltip: '与同分硬件并列第 #{rank} 名',
 
     // 3D Assembly
     assemblyHeroTitle: '全三维分步实景拼装 · 零成本体验装机手感',
@@ -185,6 +189,14 @@ export const translations = {
     thAction: '电商比价',
     buildNotesTitle: '配置选购避坑与搭配理由：',
     bomTotalPriceLabel: '配件参考总价',
+    buildUpgradesTitle: '合理选配与升级路径',
+    buildUpgradesDesc: '根据个人实际需求与预算，灵活调整核心部件搭配：',
+    buildUpgradeApply: '选用此方案',
+    buildUpgradeApplied: '已选配',
+    buildUpgradeRevert: '取消选配',
+    buildUpgradeDiff: '差价',
+    buildUpgradeReplaces: '替代原配置中的：',
+    buildCustomizedTotal: '选配后总预算',
 
     // Footer
     footerCoreModules: '核心功能板块',
@@ -409,6 +421,10 @@ export const translations = {
     ladderScoreLabelGaming: 'Gaming Score',
     ladderScoreLabelProductivity: 'Productivity',
     ladderScoreLabelEfficiency: 'Per-Watt Score',
+    ladderGlobalRankBadge: 'Global #{rank}',
+    ladderSearchResultIndex: 'Result #{index}',
+    ladderTiedBadge: 'Tied',
+    ladderTiedTooltip: 'Tied at rank #{rank} with identical benchmark score',
 
     // 3D Assembly
     assemblyHeroTitle: 'Interactive 3D Virtual PC Building Simulator',
@@ -466,6 +482,14 @@ export const translations = {
     thAction: 'Live Pricing',
     buildNotesTitle: 'Building Tips & Component Pairing Rationale:',
     bomTotalPriceLabel: 'Estimated Total Price',
+    buildUpgradesTitle: 'Recommended Optional Paths & Upgrades',
+    buildUpgradesDesc: 'Tailor your build for specific workflows, aesthetics, or future upgrade paths:',
+    buildUpgradeApply: 'Apply Option',
+    buildUpgradeApplied: 'Applied',
+    buildUpgradeRevert: 'Reset Option',
+    buildUpgradeDiff: 'Delta',
+    buildUpgradeReplaces: 'Replaces base component:',
+    buildCustomizedTotal: 'Customized Budget',
 
     // Footer
     footerCoreModules: 'Core Modules',

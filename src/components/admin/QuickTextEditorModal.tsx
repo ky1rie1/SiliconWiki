@@ -180,16 +180,45 @@ export const QuickTextEditorModal: React.FC = () => {
 
   const handleExportFeedbackCsv = () => {
     if (feedbacks.length === 0) return;
-    const headers = ['ID', '反馈类型', '涉及页面/硬件', '详细描述', '联系方式', '提交时间', '处理状态'];
-    const rows = feedbacks.map((fb) => [
-      `"${fb.id}"`,
-      `"${fb.type === 'bug' ? '网页 Bug' : fb.type === 'data' ? '数据不准/不及时' : fb.type === 'feature' ? '功能建议' : '其他'}"`,
-      `"${(fb.target || '').replace(/"/g, '""')}"`,
-      `"${fb.content.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-      `"${(fb.contact || '').replace(/"/g, '""')}"`,
-      `"${fb.createdAt}"`,
-      `"${fb.status === 'resolved' ? '已处理' : '待处理'}"`,
-    ]);
+    const headers =
+      lang === 'en'
+        ? ['ID', 'Type', 'Target Page/Hardware', 'Description', 'Contact', 'Timestamp', 'Status']
+        : ['ID', '反馈类型', '涉及页面/硬件', '详细描述', '联系方式', '提交时间', '处理状态'];
+    const rows = feedbacks.map((fb) => {
+      const typeLabel =
+        lang === 'en'
+          ? fb.type === 'bug'
+            ? 'Web Bug'
+            : fb.type === 'data'
+            ? 'Data Issue'
+            : fb.type === 'feature'
+            ? 'Feature Suggestion'
+            : 'Other'
+          : fb.type === 'bug'
+          ? '网页 Bug'
+          : fb.type === 'data'
+          ? '数据不准/不及时'
+          : fb.type === 'feature'
+          ? '功能建议'
+          : '其他';
+      const statusLabel =
+        lang === 'en'
+          ? fb.status === 'resolved'
+            ? 'Resolved'
+            : 'Pending'
+          : fb.status === 'resolved'
+          ? '已处理'
+          : '待处理';
+      return [
+        `"${fb.id}"`,
+        `"${typeLabel}"`,
+        `"${(fb.target || '').replace(/"/g, '""')}"`,
+        `"${fb.content.replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        `"${(fb.contact || '').replace(/"/g, '""')}"`,
+        `"${fb.createdAt}"`,
+        `"${statusLabel}"`,
+      ];
+    });
     const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -1034,7 +1063,11 @@ export const defaultTextOverrides: Record<string, BilingualOverride> = ${JSON.st
                                   }`}
                                   title={
                                     item.status === 'resolved'
-                                      ? '点击重置为待处理'
+                                      ? lang === 'en'
+                                        ? 'Click to reset to Pending'
+                                        : '点击重置为待处理'
+                                      : lang === 'en'
+                                      ? 'Click to mark as Resolved'
                                       : '点击标记为已处理'
                                   }
                                 >

@@ -719,18 +719,11 @@ export const coolerList: HardwareItem[] = [
     ],
     reviewLinks: [
       {
-        title: "Functionality With Normal Price Tag - VALKYRIE A360 B ARGB",
-        url: 'https://www.youtube.com/watch?v=2O4e5InptQc',
+        title: "Valkyrie A360 & A240. The best CPU Liquid Cooler right now!",
+        url: 'https://www.youtube.com/watch?v=LFvS1S1Yhik',
         platform: 'youtube',
-        author: "PC Crazy",
-        summary: "瓦尔基里高规格冷排散热架构评测：增压水泵与冷头高透无限镜光环效果展示",
-      },
-      {
-        title: "VALKYRIE SYN 360 ARGB LCD AIO - Review, Tutorial, Benchmarks!",
-        url: 'https://www.youtube.com/watch?v=VvnbZmPGE1s',
-        platform: 'youtube',
-        author: "PC Crazy",
-        summary: "旗舰水冷解热上限测试：300W 高热负载温控与风扇转速曲线调校",
+        author: "Kopi & Tech",
+        summary: "瓦尔基里系列一体式水冷扣具安装便利度与高功耗压制实测",
       },
       {
         title: "【硬件茶看】技压群雄！VK星环GL360开箱测试",

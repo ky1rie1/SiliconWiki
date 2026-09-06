@@ -84,6 +84,18 @@ export const GlossaryPopoverModal: React.FC<GlossaryPopoverModalProps> = ({
           accent: 'text-rose-500 dark:text-rose-400',
           label: isEn ? 'Displays & Color Tech' : '显示器与色彩',
         };
+      case 'ram':
+        return {
+          badge: 'bg-teal-50 dark:bg-teal-950/80 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-900/60',
+          accent: 'text-teal-500 dark:text-teal-400',
+          label: isEn ? 'RAM Memory & Timings' : '内存颗粒与时序',
+        };
+      case 'case':
+        return {
+          badge: 'bg-violet-50 dark:bg-violet-950/80 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-900/60',
+          accent: 'text-violet-500 dark:text-violet-400',
+          label: isEn ? 'Chassis & Form Factors' : '机箱架构与规格',
+        };
       default:
         return {
           badge: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
@@ -210,7 +222,7 @@ export const GlossaryPopoverModal: React.FC<GlossaryPopoverModalProps> = ({
               className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-sm transition-all"
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>{lang === 'en' ? 'Browse All 40+ Tech Terms' : '翻阅全部 40+ 名词宝典'}</span>
+              <span>{lang === 'en' ? 'Browse All 85+ Tech Terms' : '翻阅全部 85+ 名词宝典'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           )}

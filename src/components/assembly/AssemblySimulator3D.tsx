@@ -80,6 +80,7 @@ export const AssemblySimulator3D: React.FC = () => {
       const targetIndex = assemblyStepsData.findIndex(
         (s) =>
           s.componentKey === componentId ||
+          (componentId === 'thermal-paste' && (s.componentKey === 'cooler' || s.stepNumber === 4)) ||
           (componentId === 'case-glass' && (s.componentKey === 'case' || s.stepNumber === 9))
       );
       if (targetIndex !== -1) {
