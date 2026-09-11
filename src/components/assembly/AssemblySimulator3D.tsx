@@ -12,6 +12,9 @@ import {
   Sparkles,
   Cpu,
   Wrench,
+  Scan,
+  Focus,
+  Box,
 } from 'lucide-react';
 import { assemblyStepsData } from '../../data/assemblySteps';
 import {
@@ -36,6 +39,11 @@ export const AssemblySimulator3D: React.FC = () => {
   const [isInstalling, setIsInstalling] = useState(false);
   const [hoveredComponentName, setHoveredComponentName] = useState<string | null>(null);
 
+  const [sceneError, setSceneError] = useState(false);
+  const [sceneVersion, setSceneVersion] = useState(0);
+  const [installProgress, setInstallProgress] = useState(100);
+  const mountedRef = useRef(false);
+
   const rawStep = assemblyStepsData[currentStepIndex];
   const stepTranslation = lang === 'en' ? stepTranslationsEn[rawStep.stepNumber] : undefined;
   const currentStep = {
@@ -55,10 +63,11 @@ export const AssemblySimulator3D: React.FC = () => {
   const handleStepChange = (newIndex: number) => {
     if (newIndex < 0 || newIndex >= assemblyStepsData.length) return;
     setCurrentStepIndex(newIndex);
+    setIsInstalling(false);
     const step = assemblyStepsData[newIndex];
     if (sceneRef.current) {
-      sceneRef.current.setStep(step.stepNumber, step.componentKey);
-      sceneRef.current.focusComponent(step.componentKey);
+      sceneRef.current.setStep(step.stepNumber);
+
     }
   };
 
@@ -68,12 +77,19 @@ export const AssemblySimulator3D: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Initialize 3D WebGL scene
-    const scene = new PCScene3D(containerRef.current);
+    mountedRef.current = true;
+    let scene: PCScene3D;
+    try { scene = new PCScene3D(containerRef.current); }
+    catch { setSceneError(true); return () => { mountedRef.current = false; }; }
     sceneRef.current = scene;
+    setSceneError(false);
+    scene.onError = () => { setSceneError(true); setIsInstalling(false); sceneRef.current = null; };
+    scene.onAnimationProgress = setInstallProgress;
 
     // Set initial step
-    scene.setStep(assemblyStepsData[0].stepNumber, assemblyStepsData[0].componentKey);
+    const selected = assemblyStepsData[currentStepIndex];
+    scene.setStep(selected.stepNumber);
+    scene.setExploded(isExploded);
 
     // 3D Model click syncs to React state and updates right-hand panel
     scene.onComponentClick = (componentId: string) => {
@@ -92,17 +108,15 @@ export const AssemblySimulator3D: React.FC = () => {
       setHoveredComponentName(compName);
     };
 
-    const handleResize = () => {
-      scene.handleResize();
-    };
-    window.addEventListener('resize', handleResize);
-
     return () => {
-      window.removeEventListener('resize', handleResize);
+      mountedRef.current = false;
+      scene.onAnimationProgress = undefined;
+      scene.onComponentHover = undefined;
       scene.dispose();
       sceneRef.current = null;
     };
-  }, []);
+    // The live controller handles step/explode changes; retry alone recreates the scene.
+  }, [sceneVersion]);
 
   const handleToggleExplode = () => {
     const next = !isExploded;
@@ -121,8 +135,9 @@ export const AssemblySimulator3D: React.FC = () => {
   const handleSimulateInstall = () => {
     if (isInstalling || !sceneRef.current) return;
     setIsInstalling(true);
+    setIsExploded(false);
     sceneRef.current.animateInstallStep(currentStep.stepNumber, () => {
-      setIsInstalling(false);
+      if (mountedRef.current) setIsInstalling(false);
     });
   };
 
@@ -133,16 +148,23 @@ export const AssemblySimulator3D: React.FC = () => {
       {/* Main 3D Canvas + Step Instructions Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-2xl overflow-hidden relative group transition-colors">
+        <div className="assembly-studio lg:col-span-7 flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden relative transition-colors">
+          <div className="assembly-studio-heading">
+            <div><span className="assembly-studio-kicker">SILICON WIKI / LAB 01</span><h3>{lang === 'zh' ? '装配研究室' : 'Assembly studio'}</h3></div>
+            <span className="assembly-studio-spec">ATX · AM5<br /><span>{lang === 'zh' ? '示意模型' : 'Illustrative model'}</span></span>
+          </div>
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="w-full h-[400px] sm:h-[500px] cursor-grab active:cursor-grabbing relative z-10 bg-[radial-gradient(ellipse_at_50%_45%,_#fafafa_0%,_#f4f4f5_55%,_#e4e4e7_100%)] dark:bg-[radial-gradient(ellipse_at_50%_45%,_#18181b_0%,_#09090b_60%,_#000000_100%)] overflow-hidden transition-colors"
+            className="assembly-viewport w-full h-[400px] sm:h-[520px] cursor-grab active:cursor-grabbing relative z-10 overflow-hidden"
           >
+            {sceneError && <div className="assembly-scene-error" role="status"><Box size={36} /><strong>{lang === 'zh' ? '3D 场景暂不可用' : '3D view is unavailable'}</strong><p>{lang === 'zh' ? '可继续阅读装机步骤，或重试加载场景。' : 'Follow the written guide, or try loading the scene again.'}</p><button className="primary-action" onClick={() => setSceneVersion(value => value + 1)}>{lang === 'zh' ? '重新加载' : 'Retry'}</button></div>}
             {/* On-canvas Controls Overlay */}
             <div className="absolute top-4 left-4 z-20 flex items-center space-x-2">
               <button
                 onClick={handleToggleExplode}
+                disabled={sceneError}
+                aria-pressed={isExploded}
                 className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
                   isExploded
                     ? 'bg-[#F7D84A] text-zinc-950 ring-2 ring-[#F7D84A]/50 font-bold'
@@ -155,18 +177,22 @@ export const AssemblySimulator3D: React.FC = () => {
 
               <button
                 onClick={handleResetCamera}
+                disabled={sceneError}
+                aria-label={t('btnResetView')}
                 className="p-2 rounded-xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-colors shadow-xs cursor-pointer"
                 title={t('btnResetView')}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
+              <button className="assembly-camera-button" disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('front')} title={lang === 'zh' ? '正面查看' : 'Front view'} aria-label={lang === 'zh' ? '正面查看' : 'Front view'}><Scan size={15} /></button>
+              <button className="assembly-camera-button" disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('detail')} title={lang === 'zh' ? '零件特写' : 'Component detail'} aria-label={lang === 'zh' ? '零件特写' : 'Component detail'}><Focus size={15} /></button>
             </div>
 
             {/* Hover Tooltip Overlay */}
             {hoveredComponentName && (
               <div className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold backdrop-blur-md shadow-lg pointer-events-none animate-in fade-in duration-150 flex items-center space-x-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#F7D84A] animate-pulse" />
-                <span>{t('componentLabel', { name: hoveredComponentName })}</span>
+                <span>{t('componentLabel', { name: componentNameMap[hoveredComponentName] || (hoveredComponentName === 'case-glass' ? (lang === 'zh' ? '侧面玻璃' : 'Side glass') : hoveredComponentName) })}</span>
               </div>
             )}
 
@@ -174,11 +200,12 @@ export const AssemblySimulator3D: React.FC = () => {
             <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-zinc-600 dark:text-zinc-400 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
               <span>{t('cameraHintFull')}</span>
               <span className="hidden sm:inline text-zinc-800 dark:text-zinc-200 font-medium">
-                {t('cleanWorkbench')}
+                {currentStepIndex < 4 ? (lang === 'zh' ? '平放预装' : 'Bench assembly') : (lang === 'zh' ? '机箱装配' : 'Case assembly')}
               </span>
             </div>
           </div>
 
+          <div className="assembly-status-line" aria-live="polite"><span className={`assembly-status-dot ${currentStepIndex === 8 && !isExploded && installProgress >= 72 ? 'is-powered' : ''}`} /><span>{isInstalling ? (lang === 'zh' ? `装配演示 · ${installProgress}%` : `Installing · ${installProgress}%`) : isExploded ? (lang === 'zh' ? '分解观察 · 线缆暂时隐藏' : 'Exploded view · cables hidden') : currentStepIndex === 8 ? (lang === 'zh' ? '通电状态示意 · 非实际 POST 检测' : 'Power-on illustration · no POST diagnostics') : (lang === 'zh' ? '断电装配 · 风扇静止' : 'Power disconnected · fans stopped')}</span><span className="ml-auto font-mono">{String(currentStepIndex + 1).padStart(2, '0')} / 09</span></div>
           {/* Stepper & Progress Rail below Canvas */}
           <div className="p-4 bg-zinc-50 dark:bg-slate-900 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
             <div className="flex items-center justify-between text-xs">
@@ -228,6 +255,9 @@ export const AssemblySimulator3D: React.FC = () => {
                         isCurrent ? 'scale-110 z-20' : 'hover:scale-105'
                       }`}
                       title={`${s.stepNumber}. ${displayTitle}`}
+                      aria-label={`${s.stepNumber}. ${displayTitle}`}
+                      aria-current={isCurrent ? 'step' : undefined}
+                      data-step={s.stepNumber}
                     >
                       <div
                         className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all ${
@@ -291,6 +321,7 @@ export const AssemblySimulator3D: React.FC = () => {
                   disabled={currentStepIndex === 0}
                   className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 disabled:opacity-30 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-colors cursor-pointer"
                   title={t('btnPrevStep')}
+                  aria-label={t('btnPrevStep')}
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -299,6 +330,7 @@ export const AssemblySimulator3D: React.FC = () => {
                   disabled={currentStepIndex === assemblyStepsData.length - 1}
                   className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 disabled:opacity-30 text-white dark:text-zinc-900 transition-colors cursor-pointer"
                   title={t('btnNextStep')}
+                  aria-label={t('btnNextStep')}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -316,7 +348,8 @@ export const AssemblySimulator3D: React.FC = () => {
             {/* Interactive Simulate Action Button */}
             <button
               onClick={handleSimulateInstall}
-              disabled={isInstalling}
+              disabled={isInstalling || sceneError}
+              data-action="install"
               className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 disabled:opacity-50 text-white dark:text-zinc-950 text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
             >
               <Sparkles className={`w-4 h-4 text-[#F7D84A] dark:text-[#d4990d] ${isInstalling ? 'animate-spin' : ''}`} />
@@ -326,7 +359,7 @@ export const AssemblySimulator3D: React.FC = () => {
             {/* Hardware Craft & Specs Snapshot */}
             {stepSpec && (
               <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                <div className="flex flex-col gap-2 text-xs font-bold text-zinc-800 dark:text-zinc-200">
                   <span className="flex items-center space-x-1.5">
                     <Cpu className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
                     <span>{t('hardwareCraftSnapshot')}</span>
@@ -345,7 +378,7 @@ export const AssemblySimulator3D: React.FC = () => {
                       className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[11px] space-y-0.5"
                     >
                       <div className="text-zinc-400 dark:text-zinc-500 text-[10px]">{sp.label}</div>
-                      <div className="font-semibold text-zinc-800 dark:text-zinc-200 truncate">
+                      <div className="font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed break-words">
                         {sp.val}
                       </div>
                     </div>

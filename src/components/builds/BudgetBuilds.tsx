@@ -1,5 +1,5 @@
 import { PageHeader } from '../layout/PageHeader';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Copy,
   Check,
@@ -12,12 +12,22 @@ import {
 import { recommendedBuilds } from '../../data/builds';
 import { RecommendedBuild } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 export const BudgetBuilds: React.FC = () => {
   const { t, lang } = useLanguage();
   const [selectedTier, setSelectedTier] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const [copyingId, setCopyingId] = useState<string | null>(null);
+  const copyRequestRef = useRef(0);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeUpgrades, setActiveUpgrades] = useState<Record<string, string[]>>({});
+
+  useEffect(() => () => {
+    copyRequestRef.current += 1;
+    if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+  }, []);
 
   const tiers = [
     { id: 'all', label: lang === 'en' ? 'All Price Tiers' : '全部价位段' },
@@ -64,7 +74,12 @@ export const BudgetBuilds: React.FC = () => {
       ? recommendedBuilds
       : recommendedBuilds.filter((b) => b.budgetLevel === selectedTier);
 
-  const copyBuildText = (build: RecommendedBuild) => {
+  const copyBuildText = async (build: RecommendedBuild) => {
+    const request = ++copyRequestRef.current;
+    if (copyTimerRef.current !== null) clearTimeout(copyTimerRef.current);
+    setCopiedId(null);
+    setCopyFailed(false);
+    setCopyingId(build.id);
     const buildUpgradeIds = activeUpgrades[build.id] || [];
     const appliedUpgrades = (build.upgradeOptions || []).filter((u) =>
       buildUpgradeIds.includes(u.id)
@@ -122,14 +137,24 @@ export const BudgetBuilds: React.FC = () => {
             ...build.notes.map((n) => `• ${n}`),
           ].join('\n');
 
-    navigator.clipboard.writeText(text);
+    const copied = await copyTextToClipboard(text);
+    if (request !== copyRequestRef.current) return;
+    setCopyingId(null);
+    if (!copied) {
+      setCopyFailed(true);
+      return;
+    }
     setCopiedId(build.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    copyTimerRef.current = setTimeout(() => {
+      setCopiedId(null);
+      copyTimerRef.current = null;
+    }, 2000);
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <PageHeader eyebrow={t('buildsHeroBadge')} title={t('buildsHeroTitle')} description={t('buildsHeroDesc')}  />
+      {copyFailed && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{lang === 'en' ? 'Could not copy the build. Check clipboard permissions and try again.' : '复制配置失败，请检查浏览器的剪贴板权限后重试。'}</p>}
 
       {/* Tier Filter Tabs */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
@@ -208,6 +233,8 @@ export const BudgetBuilds: React.FC = () => {
 
                   <button
                     onClick={() => copyBuildText(build)}
+                    disabled={copyingId === build.id}
+                    aria-busy={copyingId === build.id}
                     className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-850 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold transition-all duration-150 cursor-pointer select-none active:scale-[0.98] border border-zinc-200 dark:border-zinc-700"
                     title={t('btnCopyBuild')}
                   >
@@ -221,7 +248,7 @@ export const BudgetBuilds: React.FC = () => {
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
-                        <span>{t('btnCopyBuild')}</span>
+                        <span>{copyingId === build.id ? (lang === 'en' ? 'Copying…' : '正在复制…') : t('btnCopyBuild')}</span>
                       </>
                     )}
                   </button>

@@ -1,20 +1,41 @@
-import { useState, useEffect, useCallback } from 'react';
+import { Component, lazy, Suspense, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import { LanguageProvider } from './context/LanguageContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { CustomContentProvider } from './context/CustomContentContext';
 import { QuickTextEditorModal } from './components/admin/QuickTextEditorModal';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { HardwareWiki } from './components/wiki/HardwareWiki';
-import { BenchmarkLadder } from './components/rankings/BenchmarkLadder';
-import { AssemblySimulator3D } from './components/assembly/AssemblySimulator3D';
-import { GlossaryView } from './components/glossary/GlossaryView';
-import { BudgetBuilds } from './components/builds/BudgetBuilds';
 import { SearchModal } from './components/search/SearchModal';
 import { ChangelogModal } from './components/changelog/ChangelogModal';
 import { FeedbackFloatingButton } from './components/feedback/FeedbackFloatingButton';
 import { ActiveTab } from './types';
 import { changelogList } from './data/changelog';
+
+const BenchmarkLadder = lazy(() => import('./components/rankings/BenchmarkLadder').then((module) => ({ default: module.BenchmarkLadder })));
+const AssemblySimulator3D = lazy(() => import('./components/assembly/AssemblySimulator3D').then((module) => ({ default: module.AssemblySimulator3D })));
+const GlossaryView = lazy(() => import('./components/glossary/GlossaryView').then((module) => ({ default: module.GlossaryView })));
+const BudgetBuilds = lazy(() => import('./components/builds/BudgetBuilds').then((module) => ({ default: module.BudgetBuilds })));
+
+function RouteFeedback({ failed = false }: { failed?: boolean }) {
+  const { lang } = useLanguage();
+  return (
+    <div className="py-16 text-center space-y-4" role={failed ? 'alert' : 'status'} aria-live="polite" aria-busy={!failed}>
+      <p>{failed
+        ? (lang === 'en' ? 'This tool could not load. Reload the page to try again.' : '工具加载失败，请重新加载页面后再试。')
+        : (lang === 'en' ? 'Loading your tool…' : '正在加载工具…')}</p>
+      {failed && <button className="primary-action" onClick={() => window.location.reload()}>{lang === 'en' ? 'Reload page' : '重新加载页面'}</button>}
+    </div>
+  );
+}
+
+class RouteErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() { return { failed: true }; }
+
+  render() { return this.state.failed ? <RouteFeedback failed /> : this.props.children; }
+}
 
 /**
  * Parses current route from URL query params, hash, pathname, or hostname subdomain.
@@ -172,16 +193,20 @@ export default function App() {
 
             {/* Main Content Area */}
             <main id="main-content" tabIndex={-1} className="main-content flex-1">
-              {activeTab === 'wiki' && (
-                <HardwareWiki
-                  onNavigate={handleTabChange}
-                  onNavigateToGlossary={() => handleTabChange('glossary')}
-                />
-              )}
-              {activeTab === 'rankings' && <BenchmarkLadder />}
-              {activeTab === 'simulator3d' && <AssemblySimulator3D />}
-              {activeTab === 'glossary' && <GlossaryView />}
-              {activeTab === 'builds' && <BudgetBuilds />}
+              <RouteErrorBoundary key={activeTab}>
+                <Suspense fallback={<RouteFeedback />}>
+                  {activeTab === 'wiki' && (
+                    <HardwareWiki
+                      onNavigate={handleTabChange}
+                      onNavigateToGlossary={() => handleTabChange('glossary')}
+                    />
+                  )}
+                  {activeTab === 'rankings' && <BenchmarkLadder />}
+                  {activeTab === 'simulator3d' && <AssemblySimulator3D />}
+                  {activeTab === 'glossary' && <GlossaryView />}
+                  {activeTab === 'builds' && <BudgetBuilds />}
+                </Suspense>
+              </RouteErrorBoundary>
             </main>
 
             {/* Global Footer */}

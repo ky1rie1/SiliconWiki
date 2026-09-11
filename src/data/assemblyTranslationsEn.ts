@@ -4,236 +4,435 @@ export interface HardwareSpecDetail {
   highlightTip: string;
 }
 
+// These cards describe representative teaching geometry, not a vendor SKU.
 export const stepSpecsMapZh: Record<string, HardwareSpecDetail> = {
-  cpu: {
-    craft: 'TSMC N4P 先进制程 · 镀镍紫铜 IHS 均热顶盖 · 金色防呆三角对位标',
-    specs: [
-      { label: '插槽封装', val: 'LGA1700 / AM5 (1718 Pin)' },
-      { label: '热设计功耗', val: '120W - 253W 动态功耗' },
-      { label: '操作关键', val: '认准金色三角，切勿触碰底座针脚' },
+  "cpu": {
+    "craft": "AM5 处理器示意 · 金属顶盖 · LGA 触点与定位标记",
+    "specs": [
+      {
+        "label": "示例平台",
+        "val": "AMD AM5 / LGA1718"
+      },
+      {
+        "label": "安装方向",
+        "val": "核对三角标记与定位缺口"
+      },
+      {
+        "label": "接触保护",
+        "val": "捏住边缘，不触碰插槽针脚"
+      }
     ],
-    highlightTip: '金手指标记与插槽缺口严密对齐，零压力自由落座',
+    "highlightTip": "处理器对齐后自然落座，确认平整再锁定扣盖"
   },
-  ram: {
-    craft: '10层服务器级 PCB · 原厂海力士 A-die 颗粒 · 阳极氧化厚重铝马甲',
-    specs: [
-      { label: '技术规范', val: 'DDR5 6000MHz CL30 双通道' },
-      { label: '插槽推荐', val: '优先插入第 2 槽与第 4 槽 (A2/B2)' },
-      { label: '超频支持', val: '支持 Intel XMP 3.0 & AMD EXPO' },
+  "ram": {
+    "craft": "DDR5 DIMM 示意 · 非对称防呆缺口 · 双模块安装",
+    "specs": [
+      {
+        "label": "示例插槽",
+        "val": "A2 / B2，即从 CPU 向外的第 2 / 4 槽"
+      },
+      {
+        "label": "安装顺序",
+        "val": "以主板说明书为准"
+      },
+      {
+        "label": "内存配置",
+        "val": "先验证默认设置，再按需开启 EXPO / XMP"
+      }
     ],
-    highlightTip: '两端听到“咔哒”锁定声，卡扣自动回弹咬紧',
+    "highlightTip": "核对两端入位和卡扣状态，不只依赖咔哒声"
   },
-  ssd: {
-    craft: 'PCIe 4.0 x4 NVMe 2.0 · 3D TLC 高速颗粒 · 独立高速 DRAM 物理缓存',
-    specs: [
-      { label: '传输速度', val: '读取 7400 MB/s · 写入 6500 MB/s' },
-      { label: '固定形式', val: 'M.2 2280 规格 · 免工具旋转卡扣 / 螺丝' },
-      { label: '散热提醒', val: '主板金属散热马甲背后蓝色导热垫膜必撕！' },
+  "ssd": {
+    "craft": "M.2 NVMe 示意 · 2280 外形 · 尾端支柱固定",
+    "specs": [
+      {
+        "label": "外形规格",
+        "val": "22 × 80 mm（M.2 2280）"
+      },
+      {
+        "label": "安装角度",
+        "val": "本示例约 30° 斜插，再轻压尾端"
+      },
+      {
+        "label": "散热接触",
+        "val": "若有导热垫保护膜，按说明移除"
+      }
     ],
-    highlightTip: '30°~45° 倾斜入槽到底，向下轻压旋紧固定',
+    "highlightTip": "连接器端保持入位，尾端落在正确支柱上后固定"
   },
-  cooler: {
-    craft: '双塔穿 FIN 工艺 · 6x 6mm 逆重力烧结纯铜热管 · FDB 液压静音轴承风扇',
-    specs: [
-      { label: '解热能力', val: '最高压制 260W TDP 核心发热' },
-      { label: '风扇规格', val: '120mm PWM 温控静音扇 (800-1850RPM)' },
-      { label: '供电接口', val: '主板 CPU_FAN 4-Pin 专用排针' },
+  "cooler": {
+    "craft": "双塔风冷示意 · 金属鳍片与热管 · 前进后出风道",
+    "specs": [
+      {
+        "label": "示例风向",
+        "val": "由机箱前方吹向后部排风口"
+      },
+      {
+        "label": "底座检查",
+        "val": "移除运输保护件，核对是否预涂硅脂"
+      },
+      {
+        "label": "风扇接线",
+        "val": "CPU_FAN；额外风扇按主板说明连接"
+      }
     ],
-    highlightTip: '铜底撕膜后点涂黄豆粒硅脂，对角线交替旋紧螺丝',
+    "highlightTip": "使用 AM5 兼容扣具，均匀交替拧紧至规定止点"
   },
-  motherboard: {
-    craft: '标准 ATX 版型 · 16+1+2 相 90A 旗舰供电 · 8层 2oz 加厚铜箔 PCB',
-    specs: [
-      { label: '扩展插槽', val: 'PCIe 5.0 x16 金属加固槽 + 4x M.2' },
-      { label: '后置 I/O', val: '一体化预装金属挡板 + Wi-Fi 7 天线接口' },
-      { label: '机箱对位', val: '主板 9 孔螺丝位，必须与机箱铜柱一一对应' },
+  "motherboard": {
+    "craft": "ATX 主板示意 · AM5 插槽 · DDR5 与 PCIe 扩展区域",
+    "specs": [
+      {
+        "label": "示例板型",
+        "val": "标准 ATX：305 × 244 mm"
+      },
+      {
+        "label": "安装孔位",
+        "val": "逐孔匹配铜柱，不预设统一孔数"
+      },
+      {
+        "label": "整体入箱",
+        "val": "已装 CPU、内存、SSD、散热器一同移动"
+      }
     ],
-    highlightTip: '主板斜向滑入机箱卡稳 I/O 挡板，严防多余铜柱短路',
+    "highlightTip": "托稳主板组件，对齐后置接口，移除多余铜柱"
   },
-  psu: {
-    craft: 'ATX 3.0 规范 · 80 PLUS 金牌全模组 · 105°C 日系全固态/电解电容',
-    specs: [
-      { label: '额定功率', val: '850W 纯净单路 12V 稳压输出' },
-      { label: '新显卡线', val: '原生 PCIe 5.0 12V-2x6 600W 接口' },
-      { label: '风道方向', val: '风扇朝下对准机箱底面防尘网进风' },
+  "psu": {
+    "craft": "下置模组电源示意 · 后部安装 · 独立底部进风",
+    "specs": [
+      {
+        "label": "示例安装",
+        "val": "由机箱后部电源开口装入"
+      },
+      {
+        "label": "风扇朝向",
+        "val": "本机箱朝下进风，底部保持通风"
+      },
+      {
+        "label": "线材选择",
+        "val": "仅用原配或厂家明确兼容的模组线"
+      }
     ],
-    highlightTip: '装箱前先插好线缆，CPU 8Pin 与 PCIe 8Pin 绝不可插反',
+    "highlightTip": "区分 CPU EPS 4+4-Pin 与显卡 PCIe 6+2-Pin"
   },
-  gpu: {
-    craft: 'Ada / RDNA3 旗舰核心 · 3x 逆向环形导流风扇 · 金属穿透散热背板',
-    specs: [
-      { label: '视频输出', val: '3x DP 2.1 + 1x HDMI 2.1 高刷接口' },
-      { label: '槽位规格', val: '2.5 槽加厚散热体 · 双金属挡片牢靠固定' },
-      { label: '供电注意事项', val: '16-Pin 接口必须垂直完全插到底零缝隙' },
+  "gpu": {
+    "craft": "水平显卡示意 · 向下进风的轴流风扇 · 后部固定挡板",
+    "specs": [
+      {
+        "label": "主板连接",
+        "val": "主 PCIe x16 插槽，完整入位并锁定"
+      },
+      {
+        "label": "机械固定",
+        "val": "固定后挡板，按显卡重量添加支撑"
+      },
+      {
+        "label": "辅助供电",
+        "val": "按实际接口接线，卡扣锁定，避免急弯"
+      }
     ],
-    highlightTip: '推入 PCIe 槽发出咔哒锁死，机箱挡片螺丝紧固防下垂',
+    "highlightTip": "核对槽位、挡板和线缆间隙，不强行推压显卡"
   },
-  cables: {
-    craft: '高密度编织蛇皮网 · 镀金端子触点 · 附赠高刚性透明工程理线梳',
-    specs: [
-      { label: '开机核心', val: 'POWER SW 双针 (插 JFP1 无正负极)' },
-      { label: '高速传输', val: '前置 USB 3.0 19-Pin (防呆缺口严防断针)' },
-      { label: '音频走线', val: 'HD AUDIO 9-Pin 防呆插座 (防呆缺一针)' },
+  "cables": {
+    "craft": "电源与前置 I/O 线缆示意 · 背部走线 · 针脚图对照",
+    "specs": [
+      {
+        "label": "开机按键",
+        "val": "POWER SW：连接指定开关针脚"
+      },
+      {
+        "label": "前置接口",
+        "val": "USB 与 HD AUDIO 接到对应防呆接口"
+      },
+      {
+        "label": "理线检查",
+        "val": "留出线缆余量，避开扇叶和侧板夹点"
+      }
     ],
-    highlightTip: '分束梳理顺直走背线，扎带固定提升机箱内部风道效能',
+    "highlightTip": "针脚定义以主板说明书为准，全程断电接线"
   },
-  case: {
-    craft: '270° 无立柱海景房 · 4mm 超白钢化防爆玻璃 · 独立下置电源仓分舱',
-    specs: [
-      { label: '点亮自检', val: '观察主板 CPU->DRAM->VGA->BOOT 4颗灯' },
-      { label: '视频接线', val: '视频线务必插在独显后置接口，严禁插主板' },
-      { label: '首开进系统', val: '狂按 Del 进 BIOS 开启 XMP / EXPO 内存加速' },
+  "case": {
+    "craft": "ATX 机箱示意 · 透明侧板 · 首次通电检查",
+    "specs": [
+      {
+        "label": "诊断指示",
+        "val": "按主板说明书解释 POST 灯或代码"
+      },
+      {
+        "label": "显示输出",
+        "val": "优先接独显；核显输出需平台支持"
+      },
+      {
+        "label": "首次 BIOS",
+        "val": "核对硬件识别、温度与风扇状态"
+      }
     ],
-    highlightTip: '通电自检全绿即大功告成，享受首次点亮主机的仪式感！',
+    "highlightTip": "没有可启动系统时 BOOT 灯可能常亮；内存训练时间因配置而异"
   },
-  'case-glass': {
-    craft: '270° 无立柱全景钢化超透玻璃 · 4mm 超白透光 · 磁吸/防脱落卡扣导轨',
-    specs: [
-      { label: '侧板材质', val: '4mm 高透光钢化防爆玻璃 (超白透光)' },
-      { label: '固定方式', val: '底部滑轨定位槽 + 顶部强磁吸合扣' },
-      { label: '安装技巧', val: '对准下底槽向前平推入位，严防硬砸' },
+  "case-glass": {
+    "craft": "透明侧板示意 · 沿面板法线接近机箱 · 固定件定位",
+    "specs": [
+      {
+        "label": "模型动作",
+        "val": "垂直于侧板平面靠近并闭合"
+      },
+      {
+        "label": "实际拆装",
+        "val": "滑轨、铰链或螺丝结构以机箱说明书为准"
+      },
+      {
+        "label": "操作注意",
+        "val": "托稳玻璃，放在平整软垫上"
+      }
     ],
-    highlightTip: '闭合全景玻璃侧板，整机组装完成，开启通电自检！',
+    "highlightTip": "确认线缆和显卡供电插头不受侧板挤压"
   },
-  'thermal-paste': {
-    craft: '微米级纳米氧化铝与高导热硅脂矩阵 · 8.5 W/m-K 高导热率 · 绝缘非导电配方',
-    specs: [
-      { label: '涂抹手法', val: '经典五点法 / 九点法 / 中心豌豆法' },
-      { label: '延展形态', val: '扣具均压下自展延为 0.03mm 超薄均热界面层' },
-      { label: '安全守则', val: '散热器铜底出厂膜必撕！严防外溢至插槽底座' },
+  "thermal-paste": {
+    "craft": "导热界面材料示意 · 填补 CPU 顶盖与底座微小间隙",
+    "specs": [
+      {
+        "label": "预涂检查",
+        "val": "已有预涂硅脂时，不重复叠加"
+      },
+      {
+        "label": "用量图案",
+        "val": "遵循 CPU、散热器或硅脂说明书"
+      },
+      {
+        "label": "接触准备",
+        "val": "底座如有运输保护膜，安装前移除"
+      }
     ],
-    highlightTip: '五点法点涂，扣具对角逐圈旋紧，硅脂自然平铺填满微观隙缝',
-  },
+    "highlightTip": "保持接触面干净，按扣具要求均匀施压"
+  }
 };
 
 export const stepSpecsMapEn: Record<string, HardwareSpecDetail> = {
-  cpu: {
-    craft: 'TSMC N4P Advanced Node · Nickel-Plated Copper IHS · Golden Alignment Triangle',
-    specs: [
-      { label: 'Socket Spec', val: 'LGA1700 / AM5 (1718 Pin)' },
-      { label: 'TDP Rating', val: '120W - 253W Dynamic' },
-      { label: 'Key Tip', val: 'Align golden triangle; never touch socket pins' },
+  "cpu": {
+    "craft": "Representative AM5 processor · Metal heat spreader · LGA contacts and alignment marks",
+    "specs": [
+      {
+        "label": "Example platform",
+        "val": "AMD AM5 / LGA1718"
+      },
+      {
+        "label": "Orientation",
+        "val": "Match the triangle and locating notches"
+      },
+      {
+        "label": "Contact protection",
+        "val": "Hold edges; do not touch socket pins"
+      }
     ],
-    highlightTip: 'Align gold pins with socket notch; zero-insertion force drop-in',
+    "highlightTip": "Let the aligned CPU settle flat before closing the load plate"
   },
-  ram: {
-    craft: '10-Layer Server-Grade PCB · SK Hynix A-die ICs · Anodized Heavy Aluminum Heatspreader',
-    specs: [
-      { label: 'Spec Standard', val: 'DDR5 6000MHz CL30 Dual Channel' },
-      { label: 'Recommended Slots', val: 'Slots 2 & 4 (A2/B2 channel)' },
-      { label: 'OC Support', val: 'Intel XMP 3.0 & AMD EXPO' },
+  "ram": {
+    "craft": "Representative DDR5 DIMMs · Asymmetric key notch · Two-module installation",
+    "specs": [
+      {
+        "label": "Example slots",
+        "val": "A2 / B2: second and fourth slots from the CPU"
+      },
+      {
+        "label": "Population order",
+        "val": "Follow the motherboard manual"
+      },
+      {
+        "label": "Memory profile",
+        "val": "Verify defaults before optional EXPO / XMP"
+      }
     ],
-    highlightTip: "Listen for crisp audible 'click' on both ends as latches lock in",
+    "highlightTip": "Check both ends and latches; do not rely on a click alone"
   },
-  ssd: {
-    craft: 'PCIe 4.0 x4 NVMe 2.0 · 3D TLC High-Speed Flash · Dedicated Physical DRAM Cache',
-    specs: [
-      { label: 'Read/Write Speed', val: 'Read 7400 MB/s · Write 6500 MB/s' },
-      { label: 'Form Factor', val: 'M.2 2280 · Toolless Latch / Standoff Screw' },
-      { label: 'Thermal Warning', val: 'Peel off protective film under motherboard heatsink!' },
+  "ssd": {
+    "craft": "Representative M.2 NVMe drive · 2280 outline · Tail secured to a standoff",
+    "specs": [
+      {
+        "label": "Form factor",
+        "val": "22 × 80 mm (M.2 2280)"
+      },
+      {
+        "label": "Insertion angle",
+        "val": "About 30° in this example; gently lower the tail"
+      },
+      {
+        "label": "Thermal contact",
+        "val": "Remove thermal-pad protective film if present"
+      }
     ],
-    highlightTip: 'Insert at 30°~45° angle until seated, press down gently and secure',
+    "highlightTip": "Keep the connector seated and secure the tail on the correct standoff"
   },
-  cooler: {
-    craft: 'Dual-Tower Fin Stack · 6x 6mm Anti-Gravity Sintered Heatpipes · FDB Hydraulic Fan',
-    specs: [
-      { label: 'Thermal Capacity', val: 'Tames up to 260W TDP heat output' },
-      { label: 'Fan Spec', val: '120mm PWM Silent Fan (800-1850 RPM)' },
-      { label: 'Power Header', val: 'Motherboard CPU_FAN 4-Pin Dedicated' },
+  "cooler": {
+    "craft": "Representative dual-tower cooler · Metal fins and heatpipes · Front-to-rear airflow",
+    "specs": [
+      {
+        "label": "Example airflow",
+        "val": "From the case front toward the rear exhaust"
+      },
+      {
+        "label": "Base inspection",
+        "val": "Remove shipping protection; check for pre-applied paste"
+      },
+      {
+        "label": "Fan connection",
+        "val": "CPU_FAN; connect extra fans as the manual specifies"
+      }
     ],
-    highlightTip: 'Peel bottom film, apply pea-sized paste, tighten diagonally in turns',
+    "highlightTip": "Use AM5-compatible mounts and tighten evenly to the specified stop"
   },
-  motherboard: {
-    craft: 'Standard ATX · 16+1+2 Phase 90A Flagship VRM · 8-Layer 2oz Copper PCB',
-    specs: [
-      { label: 'Expansion Slots', val: 'PCIe 5.0 x16 Reinforced + 4x M.2' },
-      { label: 'Rear I/O', val: 'Integrated I/O Shield + Wi-Fi 7 Antenna' },
-      { label: 'Chassis Alignment', val: '9 screw holes; match chassis standoffs 1-to-1' },
+  "motherboard": {
+    "craft": "Representative ATX board · AM5 socket · DDR5 and PCIe expansion areas",
+    "specs": [
+      {
+        "label": "Example form factor",
+        "val": "Standard ATX: 305 × 244 mm"
+      },
+      {
+        "label": "Mounting points",
+        "val": "Match each hole; hole counts vary by board"
+      },
+      {
+        "label": "Assembly transfer",
+        "val": "CPU, RAM, SSD and cooler move with the board"
+      }
     ],
-    highlightTip: 'Slide board at angle into I/O shield; beware rogue standoffs causing shorts',
+    "highlightTip": "Support the board assembly, align rear I/O and remove extra standoffs"
   },
-  psu: {
-    craft: 'ATX 3.0 Spec · 80 PLUS Gold Full Modular · 105°C Japanese All-Solid Capacitors',
-    specs: [
-      { label: 'Rated Power', val: '850W Pure Single-Rail 12V Output' },
-      { label: '12VHPWR Cable', val: 'Native PCIe 5.0 12V-2x6 600W Header' },
-      { label: 'Airflow Direction', val: 'Fan faces downward toward bottom dust filter' },
+  "psu": {
+    "craft": "Representative modular PSU · Rear insertion · Separate bottom air intake",
+    "specs": [
+      {
+        "label": "Example installation",
+        "val": "Insert through the rear PSU opening"
+      },
+      {
+        "label": "Fan orientation",
+        "val": "Downward intake here; keep the bottom ventilated"
+      },
+      {
+        "label": "Cable selection",
+        "val": "Use original or explicitly approved compatible cables"
+      }
     ],
-    highlightTip: 'Pre-connect modular cables before case install; never mix CPU and PCIe 8-Pin',
+    "highlightTip": "Distinguish CPU EPS 4+4-Pin from GPU PCIe 6+2-Pin"
   },
-  gpu: {
-    craft: 'Ada / RDNA3 Flagship Core · 3x Reverse Ring Axial Fans · Metal Flow-Through Backplate',
-    specs: [
-      { label: 'Display Output', val: '3x DP 2.1 + 1x HDMI 2.1 High Refresh' },
-      { label: 'Slot Size', val: '2.5-Slot Thick Heatsink · Dual Metal Brackets' },
-      { label: 'Power Warning', val: '16-Pin cable must be seated completely flush with zero gap' },
+  "gpu": {
+    "craft": "Representative horizontal GPU · Downward-facing axial fans · Rear mounting bracket",
+    "specs": [
+      {
+        "label": "Board connection",
+        "val": "Primary PCIe x16 slot, fully seated and locked"
+      },
+      {
+        "label": "Mechanical support",
+        "val": "Secure bracket; add support as needed for card weight"
+      },
+      {
+        "label": "Auxiliary power",
+        "val": "Match actual connectors; latch fully and avoid tight bends"
+      }
     ],
-    highlightTip: 'Press into PCIe slot until latch locks, secure bracket screws to prevent sag',
+    "highlightTip": "Check slot, bracket and cable clearance; do not force the card"
   },
-  cables: {
-    craft: 'High-Density Braided Sleeving · Gold-Plated Contacts · High-Rigidity Cable Combs',
-    specs: [
-      { label: 'Power Switch', val: 'POWER SW 2-Pin (JFP1 header, no polarity)' },
-      { label: 'Front USB', val: 'USB 3.0 19-Pin (Careful with keyed notch)' },
-      { label: 'Front Audio', val: 'HD AUDIO 9-Pin Keyed Header' },
+  "cables": {
+    "craft": "Representative power and front I/O cables · Rear routing · Manual pinout reference",
+    "specs": [
+      {
+        "label": "Power button",
+        "val": "POWER SW: connect to the designated switch pins"
+      },
+      {
+        "label": "Front I/O",
+        "val": "Connect USB and HD AUDIO to matching keyed headers"
+      },
+      {
+        "label": "Routing check",
+        "val": "Allow slack and avoid fan blades and panel pinch points"
+      }
     ],
-    highlightTip: 'Route along backside channels, secure with zip ties to maintain internal airflow',
+    "highlightTip": "Follow the motherboard pinout and connect cables with power disconnected"
   },
-  case: {
-    craft: '270° Pillarless Panoramic Fish Tank · 4mm Ultra-White Tempered Glass · Dual-Chamber PSU Bay',
-    specs: [
-      { label: 'POST Self-Test', val: 'Watch Motherboard Debug LEDs: CPU->DRAM->VGA->BOOT' },
-      { label: 'Display Cable', val: 'Plug monitor cable into GPU rear ports, NEVER motherboard!' },
-      { label: 'First Boot BIOS', val: 'Spam Del key to enter BIOS & enable XMP / EXPO memory OC' },
+  "case": {
+    "craft": "Representative ATX case · Transparent side panel · First power-on checks",
+    "specs": [
+      {
+        "label": "Diagnostics",
+        "val": "Interpret POST LEDs or codes using the board manual"
+      },
+      {
+        "label": "Display output",
+        "val": "Usually GPU; integrated output requires platform support"
+      },
+      {
+        "label": "First BIOS visit",
+        "val": "Check detected hardware, temperatures and fan status"
+      }
     ],
-    highlightTip: 'All debug LEDs off means success — enjoy your pristine custom rig!',
+    "highlightTip": "BOOT may remain lit without a bootable OS; memory training time varies"
   },
-  'case-glass': {
-    craft: '270° Pillarless Panoramic Ultra-Clear Tempered Glass · 4mm Crystal Transparency · Magnetic Latch Rails',
-    specs: [
-      { label: 'Panel Material', val: '4mm High-Transmission Shatterproof Tempered Glass' },
-      { label: 'Mounting Mechanism', val: 'Bottom Slide-in Groove + Top Magnetic Quick-Release' },
-      { label: 'Assembly Technique', val: 'Seat into bottom groove first, then push flush to lock' },
+  "case-glass": {
+    "craft": "Representative transparent panel · Movement normal to panel · Mounting alignment",
+    "specs": [
+      {
+        "label": "Model movement",
+        "val": "Approaches the case perpendicular to the panel plane"
+      },
+      {
+        "label": "Actual mechanism",
+        "val": "Rails, hinges and screws depend on the case manual"
+      },
+      {
+        "label": "Handling",
+        "val": "Support the glass and place it on a flat padded surface"
+      }
     ],
-    highlightTip: 'Latch the side panoramic glass to complete the build and begin POST check!',
+    "highlightTip": "Ensure the panel does not press on cables or GPU power connectors"
   },
-  'thermal-paste': {
-    craft: 'Micron-Grade Nano-Aluminum Oxide Matrix · 8.5 W/m-K High Conductivity · Non-Conductive TIM Formula',
-    specs: [
-      { label: 'Application Method', val: 'Classic 5-Point / 9-Point / Center Pea Pattern' },
-      { label: 'Compressed Layer', val: 'Flattens into ultra-thin 0.03mm conductive interface film' },
-      { label: 'Safety Rule', val: 'Peel off cooler copper base protective film; zero socket spillage' },
+  "thermal-paste": {
+    "craft": "Representative thermal interface material · Fills small gaps between CPU and cooler",
+    "specs": [
+      {
+        "label": "Pre-applied paste",
+        "val": "Do not add more paste over an existing application"
+      },
+      {
+        "label": "Amount and pattern",
+        "val": "Follow CPU, cooler or paste manufacturer instructions"
+      },
+      {
+        "label": "Contact preparation",
+        "val": "Remove shipping protection from the base if present"
+      }
     ],
-    highlightTip: '5-point pea pattern flattens evenly under diagonal mounting torque',
-  },
+    "highlightTip": "Keep contact surfaces clean and apply even mounting pressure"
+  }
 };
 
 export const componentNameMapZh: Record<string, string> = {
-  cpu: 'CPU 处理器',
-  ram: '双通道内存',
-  ssd: 'M.2 NVMe 固态',
-  'thermal-paste': '导热硅脂 (五点法涂抹)',
-  cooler: '风冷散热器',
-  motherboard: 'ATX 旗舰主板',
-  psu: '模组电源',
-  gpu: '独立显卡',
-  cables: '模组线缆与跳线',
-  case: '全景机箱侧板',
-  'case-glass': '全景侧透玻璃',
+  "cpu": "CPU 处理器",
+  "ram": "双通道内存",
+  "ssd": "M.2 NVMe 固态",
+  "thermal-paste": "导热硅脂",
+  "cooler": "双塔风冷散热器",
+  "motherboard": "ATX 主板",
+  "psu": "模组电源",
+  "gpu": "独立显卡",
+  "cables": "电源线缆与面板跳线",
+  "case": "机箱与侧板",
+  "case-glass": "透明侧板"
 };
 
 export const componentNameMapEn: Record<string, string> = {
-  cpu: 'CPU Processor',
-  ram: 'Dual-Channel RAM',
-  ssd: 'M.2 NVMe SSD',
-  'thermal-paste': 'Thermal Paste (TIM Compound)',
-  cooler: 'CPU Air Cooler',
-  motherboard: 'ATX Flagship Motherboard',
-  psu: 'Modular Power Supply (PSU)',
-  gpu: 'Discrete Graphics Card (GPU)',
-  cables: 'Modular Cables & Front Panel Headers',
-  case: 'Panoramic Glass Panel & Case',
-  'case-glass': 'Panoramic Tempered Glass',
+  "cpu": "CPU Processor",
+  "ram": "Dual-Channel RAM",
+  "ssd": "M.2 NVMe SSD",
+  "thermal-paste": "Thermal Paste",
+  "cooler": "Dual-Tower Air Cooler",
+  "motherboard": "ATX Motherboard",
+  "psu": "Modular Power Supply",
+  "gpu": "Discrete Graphics Card",
+  "cables": "Power Cables & Front Panel Headers",
+  "case": "Case & Side Panel",
+  "case-glass": "Transparent Side Panel"
 };
 
 export const stepTranslationsEn: Record<
@@ -247,156 +446,129 @@ export const stepTranslationsEn: Record<
     debugCheck?: string;
   }
 > = {
-  1: {
-    title: 'Motherboard Prep & CPU Installation',
-    subtitle: 'Golden Triangle Alignment · Lever Locking & Socket Cap Ejection',
-    summary:
-      'Place the motherboard on its packaging cardboard box, open the retention lever, and gently align and seat the processor.',
-    instructions: [
-      'Use the motherboard box cardboard as a temporary insulated bench; NEVER place the board on the conductive outside of the anti-static bag.',
-      'Gently press the metal retention lever beside the CPU socket, unhook it outwards, and lift it completely upward.',
-      'Locate the small printed golden triangle on the CPU corner and match it precisely with the triangle mark on the socket corner.',
-      'Hold the CPU by its edges and place it vertically and levelly into the socket with zero pressure — it should drop in naturally.',
-      'Lower the load plate, swing the lever down with firm pressure, and hook it back into place (the black plastic protective cap will automatically pop off).',
+  "1": {
+    "title": "Motherboard Preparation & CPU Installation",
+    "subtitle": "AM5 Socket · Triangle Alignment · Retention Lever",
+    "summary": "Disconnect power, prepare the motherboard on a stable surface, and gently seat the aligned processor in its AM5 socket.",
+    "instructions": [
+      "Switch off and unplug the power supply, and take anti-static precautions. Place the motherboard on its clean, flat cardboard box; do not use the outside of an anti-static bag as a work mat.",
+      "Open the CPU retention lever and load plate as directed by the motherboard manual, keeping fingers and tools away from socket pins.",
+      "Hold the CPU by its edges. Match its corner triangle with the socket alignment mark and check the locating notches.",
+      "Keep the CPU level and lower it gently into the socket. It should settle naturally without pressing or sliding it across the pins.",
+      "Confirm that all corners sit flat, then close the plate and lock the lever as instructed. The protective cap typically releases during locking; keep it for shipping or service."
     ],
-    criticalWarning:
-      'CRITICAL WARNING: AM5 and LGA1700 sockets have over a thousand delicate spring pins! Never touch pins with fingers or tools — bent pins will ruin the socket or memory channels!',
-    debugCheck:
-      'Check that the CPU is seated perfectly flat with no corners lifted, and the lever is hooked securely under the latch.',
+    "criticalWarning": "AM5 socket pins are delicate. If the CPU will not sit flat, check its orientation before closing the load plate. Never touch the pins.",
+    "debugCheck": "CPU sits flat and correctly aligned, lever is locked, and the socket is free of debris."
   },
-  2: {
-    title: 'Dual-Channel Memory (RAM) Installation',
-    subtitle: 'Keyed Notch Check · Prioritize Slots 2 & 4',
-    summary:
-      'Identify the asymmetrical key notch on the DIMM slot and press down until both latches produce a crisp audible click.',
-    instructions: [
-      'For typical 4-slot motherboards, when installing 2 sticks, always prioritize Slot 2 and Slot 4 counting from the CPU (channels A2 and B2).',
-      'Open the retention latches at one or both ends of the memory slots.',
-      'Align the asymmetrical notch on the RAM gold fingers with the matching ridge in the slot — it only fits one way.',
-      'Place both thumbs on the ends of the module and press firmly downward until the latches snap shut with a loud, satisfying click!',
+  "2": {
+    "title": "Dual-Channel Memory Installation",
+    "subtitle": "Check the Key Notch · A2 / B2 in This Example",
+    "summary": "This example installs two DDR5 modules in A2 and B2. Check that both ends of each module are fully seated.",
+    "instructions": [
+      "Check the motherboard population order. This example uses the second and fourth slots from the CPU, A2 and B2; other boards may specify a different order.",
+      "Open the movable slot latches. Some slots have only one movable latch; do not pry open the fixed end.",
+      "Align the asymmetric contact-edge notch with the slot key and verify that the memory type matches the board.",
+      "Press evenly at both ends until the module is fully seated and the movable latches close. Do not rely on an audible click alone."
     ],
-    criticalWarning:
-      'If insertion feels extraordinarily difficult, do NOT force it — you likely have the orientation reversed. Re-check the middle notch.',
-    debugCheck:
-      'Look from the side to confirm gold pins are fully recessed inside the slot and both retention latches are fully engaged.',
+    "criticalWarning": "If resistance feels abnormal, stop and check the key notch, latches and memory type. Do not rock or strike the module.",
+    "debugCheck": "Both ends sit at the same height, contacts are seated, and movable latches and fixed ends correctly retain the module."
   },
-  3: {
-    title: 'M.2 NVMe High-Speed SSD Installation',
-    subtitle: '30°~45° Incline Angle · Standoff Screw · Peel Film Warning',
-    summary:
-      'Install the primary NVMe SSD into the top CPU-direct slot, peel off the heatsink thermal pad protective film, and tighten down.',
-    instructions: [
-      'Use a Phillips screwdriver to remove the motherboard metal M.2 heatsink closest to the CPU socket.',
-      'Insert the M.2 SSD gently at a 30°~45° angle into the M.2 slot connector until golden contacts are fully seated.',
-      'Gently press down the raised end of the SSD and secure it with the standoff screw or rotate the toolless plastic EZ-latch.',
-      'Turn over the heatsink cover, PEEL OFF the protective blue/clear film on the thermal pad, and screw the heatsink back in place.',
+  "3": {
+    "title": "M.2 NVMe SSD Installation",
+    "subtitle": "About 30° Insertion · Lower and Secure the Tail · Check Thermal-Pad Film",
+    "summary": "Insert the M.2 2280 SSD at an angle, then gently pivot its tail down around the seated connector and secure it.",
+    "instructions": [
+      "Choose an NVMe-compatible slot using the board manual, check lane-sharing restrictions, and set the standoff or latch to the 80 mm position for a 2280 drive. Remove the heatsink if fitted.",
+      "Align the key notch and gently insert the SSD at about 30° until its connector is seated.",
+      "Lower the raised tail onto the standoff and secure it with the supplied screw or toolless latch. Do not bend the SSD circuit board.",
+      "If fitting a heatsink, remove any thermal-pad film marked for removal and reinstall the heatsink as instructed. Do not peel off the SSD product label."
     ],
-    criticalWarning:
-      'MOST COMMON BEGINNER MISTAKE: You MUST peel the protective film off the thermal pad beneath the heatsink! Leaving it on causes rapid overheating and thermal throttling.',
-    debugCheck:
-      'SSD is flat and securely held; heatsink makes flush, complete contact with SSD surface with no gaps.',
+    "criticalWarning": "Check standoff position and thermal-pad thickness. Do not press an unsupported SSD down or leave protective film between thermal contact surfaces.",
+    "debugCheck": "SSD is flat and secure, its connector is seated, and the fitted heatsink does not bend the board."
   },
-  4: {
-    title: 'CPU Cooler & Thermal Paste Application',
-    subtitle: 'PEEL BOTTOM FILM! · Pea-Sized Dot · Diagonal Cross-Tightening',
-    summary:
-      'Apply thermal paste to the CPU IHS, peel the protective sticker off the cooler base, and tighten mounting screws diagonally in turns.',
-    instructions: [
-      'Install the appropriate mounting brackets and standoffs onto the motherboard according to your CPU socket (AMD AM5 or Intel LGA1700).',
-      'Apply a pea-sized dot of thermal paste directly in the center of the CPU integrated heat spreader (IHS).',
-      'CRITICAL REMINDER: Inspect the cooler copper base and PEEL OFF the clear plastic sticker labeled "WARNING: REMOVE BEFORE USE"!',
-      'Position cooler base over the CPU mounting posts; tighten screws alternating diagonally 2 turns at a time until snugly bottomed out.',
-      'Connect the fan 4-Pin PWM header to the motherboard header labeled CPU_FAN (do not plug into SYS_FAN).',
+  "4": {
+    "title": "CPU Cooler & Thermal Paste Installation",
+    "subtitle": "Inspect Base Protection · Follow Paste Instructions · Rearward Airflow",
+    "summary": "Install the dual-tower cooler with AM5-compatible mounts, check the base and paste, and direct airflow from front to rear.",
+    "instructions": [
+      "Fit the AM5 brackets, spacers and mounts specified by the cooler manual. Retain the motherboard backplate when required by those instructions.",
+      "Check for pre-applied thermal paste. If none is present, use the amount and pattern specified by the cooler or paste manufacturer; do not add paste over an existing application.",
+      "Inspect the cooler base for removable shipping film or a protective cover. Remove it if present and keep the contact surface clean.",
+      "Align the mount and tighten screws evenly in alternating turns to the specified stop or torque. Do not keep tightening beyond that point.",
+      "This example blows from the case front toward the rear exhaust. Connect CPU_FAN; follow the board manual for splitters, CPU_OPT and header current limits."
     ],
-    criticalWarning:
-      'TALES OF TEARS: Leaving the plastic sticker on the cooler base will send temperatures to 100°C within 3 seconds of booting, causing emergency thermal shutdown!',
-    debugCheck:
-      'Fan is connected to CPU_FAN; gently wiggle the heatsink to confirm zero play or loose wobble.',
+    "criticalWarning": "Leftover film, poor contact or incorrect paste application can impair cooling. Check CPU temperature and fan status in BIOS and shut down to investigate abnormal readings.",
+    "debugCheck": "Mount is secure, fans clear the RAM and cables, airflow direction is consistent, and CPU_FAN is connected."
   },
-  5: {
-    title: 'Motherboard Installation into PC Chassis',
-    subtitle: 'Seat I/O Shield · Match Standoffs 1:1 · Snug Screws',
-    summary:
-      'Remove chassis side panels, verify standoff positions against the motherboard, slide board in, and fasten mounting screws.',
-    instructions: [
-      'Remove both chassis side panels (place tempered glass on a soft surface away from hard tile floors).',
-      'Verify the motherboard standoffs inside the case match your motherboard form factor (ATX 9 holes / M-ATX 8 holes). Remove any unused standoffs to prevent short circuits!',
-      'If your motherboard does not have an integrated I/O shield, snap the loose shield firmly into the rear chassis cutout first.',
-      'Hold the board by its edges and slide it diagonally into the case, pressing rear ports into the shield while centering on the alignment pin.',
-      'Drive motherboard screws in a diagonal pattern until snug; do not over-torque to avoid cracking the PCB trace layers.',
+  "5": {
+    "title": "Install the Motherboard Assembly in the Case",
+    "subtitle": "Match Standoffs · Align Rear I/O · Support Installed Components",
+    "summary": "Move the motherboard, installed CPU, memory, SSD and cooler into the case together, then align and secure the mounting holes.",
+    "instructions": [
+      "Remove side panels as directed by the case manual. Place glass on a soft, flat surface where it cannot be knocked over.",
+      "Match every case standoff to an actual motherboard mounting hole. Hole counts vary by board design; remove all extra standoffs beneath areas without mounting holes.",
+      "If the board uses a separate I/O shield, fit it into the rear opening first and check that its tabs do not obstruct the ports.",
+      "Support the board at its edges and carry the weight securely, keeping clear of pins and cables. Lower the installed assembly into the case; do not use the cooler as a handle.",
+      "Align the rear ports and mounting holes, start screws loosely, then tighten evenly until secure without damaging the circuit board."
     ],
-    criticalWarning:
-      'NEVER leave an extra unused metal standoff installed under an empty motherboard spot — it will directly short power traces upon booting and brick the motherboard!',
-    debugCheck:
-      'Board edges are stable and secure; all rear USB and audio ports protrude cleanly through the I/O shield without bent grounding tabs blocking them.',
+    "criticalWarning": "Misplaced or extra metal standoffs can short circuitry on the back of the board. Check each position and remove dropped screws before powering on.",
+    "debugCheck": "Mounting holes are correctly supported, rear ports are unobstructed, and no loose screws remain in the case."
   },
-  6: {
-    title: 'Power Supply (PSU) & Main Power Cables',
-    subtitle: 'Fan Facing Downward Intake · 24-Pin Motherboard & 8-Pin CPU EPS',
-    summary:
-      'Slide PSU into the lower power shroud, fan facing downward toward the dust filter, and route primary power cables.',
-    instructions: [
-      'If using a modular PSU, plug in needed cables before sliding it in: 24-Pin ATX, 8-Pin CPU (4+4), and PCIe 8-Pin / 12V-2x6.',
-      'Slide the PSU into the lower chassis bay with the intake FAN FACING DOWNWARD toward the bottom mesh dust filter for dedicated cool air intake.',
-      'Fasten the PSU from the case exterior rear with 4 coarse-thread case screws.',
-      'Route the thick 24-Pin motherboard cable through the rear grommet and snap it firmly into the right side of the motherboard.',
-      'Route the CPU 8-Pin (4+4) cable through the top-left opening and plug it into the top-left EPS header on the motherboard.',
+  "6": {
+    "title": "Power Supply & Motherboard Power",
+    "subtitle": "Rear PSU Insertion · 24-Pin ATX · CPU EPS",
+    "summary": "This example inserts the PSU from the rear with its fan facing the bottom intake, then connects motherboard and CPU power.",
+    "instructions": [
+      "Keep mains power disconnected. Pre-connect needed modular cables if convenient, using only cables supplied with the PSU or explicitly approved as compatible by its manufacturer.",
+      "Follow the case manual for its rear PSU bracket and insert the PSU. This case has a bottom vent and filter, so the fan faces downward for intake; keep clearance beneath the case.",
+      "Secure the PSU and bracket with the supplied hardware. Other cases may require side insertion or a different fan orientation depending on ventilation.",
+      "Route the 24-Pin ATX cable through the cable opening and seat it in the matching motherboard socket with the latch engaged.",
+      "Connect the cable marked CPU / EPS, typically 4+4-Pin, to the CPU power socket. Connect additional sockets when required by the motherboard and processor instructions."
     ],
-    criticalWarning:
-      'NEVER MIX UP: CPU 8-Pin (splits 4+4) and PCIe GPU 8-Pin (splits 6+2) have completely different pinouts! Check the molded labels on the connectors.',
-    debugCheck:
-      '24-Pin latch is fully clicked and flush; CPU 8-Pin is firmly seated.',
+    "criticalWarning": "CPU EPS 4+4-Pin and GPU PCIe 6+2-Pin are not interchangeable. Modular PSU pinouts can differ between models even when plugs physically fit.",
+    "debugCheck": "PSU is secure with a clear intake; 24-Pin and all required CPU power connectors are fully seated and latched."
   },
-  7: {
-    title: 'Graphics Card (GPU) & Power Connector',
-    subtitle: 'Remove Rear PCIe Slots · Open Retention Latch · Click In & Secure',
-    summary:
-      'Remove rear metal slot covers, push open PCIe retention latch, seat GPU firmly until locked, and fasten bracket screws.',
-    instructions: [
-      'Measure GPU thickness and remove the corresponding 2 to 3 metal expansion slot covers from the rear chassis.',
-      'Push open the plastic retention lock at the rear of the motherboard primary PCIe x16 slot.',
-      'Hold GPU level with both hands, align the golden fingers with the primary slot, and push straight down until the slot latch snaps closed with a click.',
-      'Fasten 1 to 2 screws at the rear bracket to firmly anchor the graphics card to the case chassis.',
-      'Plug in the dedicated GPU power cable (native 12V-2x6 16-Pin for modern cards, PCIe 6+2 Pin for others) — push all the way in until zero gap remains!',
+  "7": {
+    "title": "Graphics Card Installation & Power",
+    "subtitle": "Horizontal Mounting · Primary PCIe x16 Slot · Support and Clearance",
+    "summary": "This example uses a conventional horizontal GPU with fans facing downward. Seat it in the primary PCIe x16 slot and secure the rear bracket.",
+    "instructions": [
+      "Remove the expansion-slot covers required by the actual card thickness and position. Check card length and cable clearance.",
+      "Release the primary PCIe x16 slot lock as directed by the board manual. Some boards use a separate release button; do not force fixed parts.",
+      "Support the GPU with both hands, align the contact edge and rear bracket, and apply even pressure in the slot insertion direction until fully seated and locked.",
+      "Secure the rear bracket and fit a support for heavier cards as instructed by the manufacturer to prevent excessive sag.",
+      "Connect power according to the actual card: PCIe 6/8-Pin, 16-Pin, or no auxiliary connector on some models. Fully seat and latch plugs; avoid tight bends or sideways strain close to connectors."
     ],
-    criticalWarning:
-      'The 16-Pin power connector MUST be seated completely flush with zero gap! Any partial insertion creates high contact resistance and catastrophic terminal melting.',
-    debugCheck:
-      'PCIe latch has snapped closed; bracket screws are tight; GPU exhibits no severe sagging.',
+    "criticalWarning": "An incompletely seated power plug can overheat. Follow GPU and PSU cable requirements, connect all required sockets, and allow space for cable bends and the side panel.",
+    "debugCheck": "PCIe lock is engaged, bracket and support are secure, power plugs are seated, and GPU fans are unobstructed."
   },
-  8: {
-    title: 'Front Panel Headers & Case I/O Routing',
-    subtitle: 'Fear No More! · POWER SW · USB 3.0 · HD Audio',
-    summary:
-      'Connect power button switches, front USB 3.0, and front audio headers following motherboard silkscreen labels.',
-    instructions: [
-      'Find the small front-panel wire bundle; locate the 2-pin connector labeled POWER SW (power switch).',
-      'Locate the header cluster labeled F_PANEL or JFP1 on bottom-right of the motherboard. Plug POWER SW onto the designated 2 pins (polarity does not matter!).',
-      'Connect RESET SW (reset switch) and POWER LED (+/- mindful of polarity) if present.',
-      'Align the blue front USB 3.0 19-Pin connector with the keyed notch on the motherboard USB 3.0 header and press gently and straight.',
-      'Plug the connector labeled HD AUDIO into the 9-Pin keyed audio header at the bottom-left of the board.',
+  "8": {
+    "title": "Front Panel Headers & I/O",
+    "subtitle": "Follow the Pinout · POWER SW · USB · HD AUDIO",
+    "summary": "Use the motherboard manual to connect the power switch, LEDs, front USB and audio, then route cables clear of fans.",
+    "instructions": [
+      "Find the POWER SW two-pin connector in the case front-panel bundle. Some cases use a combined connector; check its pin arrangement first.",
+      "Locate the F_PANEL / JFP1 or equivalent pinout in the board manual and connect POWER SW to the designated pair. Mechanical switches are normally not polarity-sensitive.",
+      "Connect RESET SW and POWER LED / HDD LED as needed, observing LED polarity.",
+      "Connect front USB cables to matching headers with their keys aligned. Front USB Type-C uses its corresponding header; never force a plug into another socket.",
+      "Connect HD AUDIO and any case fans as required. Route cables behind the tray and secure them without contacting blades or creating side-panel pinch points."
     ],
-    criticalWarning:
-      'Front USB 3.0 headers have 19 fragile pins inside. Align perfectly straight before pushing — angling or forcing will bend or snap pins instantly!',
-    debugCheck:
-      'POWER SW is plugged onto correct power pins; USB 3.0 and HD Audio cables are securely seated.',
+    "criticalWarning": "Header names, positions and pinouts vary by motherboard. Check the manual, keep power disconnected, and do not insert USB header plugs at an angle.",
+    "debugCheck": "Power-switch pins are correct, USB and audio are seated, fans are connected, and cables cannot catch in fan blades."
   },
-  9: {
-    title: 'Side Panoramic Glass Panel & Final Power-On Self-Test',
-    subtitle: 'Slide & Lock Tempered Glass · Observe Debug LEDs · BIOS XMP Setup',
-    summary:
-      'Slide and lock the ultra-clear panoramic glass panel, connect power cord, turn on PSU switch, observe Debug LEDs, and enter BIOS to enable XMP/EXPO.',
-    instructions: [
-      'Slide the panoramic tempered glass side panel into the chassis bottom retaining groove and engage the magnetic top latch.',
-      'CARDINAL RULE: Plug your monitor HDMI/DP cable directly into the DISCRETE GPU REAR PORTS, NEVER into the motherboard IO!',
-      'Flip the physical power toggle switch on the back of the PSU to the "I" (ON) position; press the chassis power button.',
-      'Watch the 4 diagnostic Debug LEDs through the crystal-clear glass (CPU -> DRAM -> VGA -> BOOT). All 4 lights turning off signifies a successful clean POST!',
-      'When monitor turns on with the motherboard brand logo, rapidly tap Delete or F2 to enter BIOS setup.',
-      'Locate the XMP or EXPO toggle in BIOS EZ Mode, set to Profile 1 (Enabled), press F10 to save & reboot, and prepare Windows installation!',
+  "9": {
+    "title": "Close the Side Panel & Check First Boot",
+    "subtitle": "Inspect Wiring · Observe POST · Enter BIOS",
+    "summary": "Check fasteners and cables, fit the side panel, connect the monitor and power, and observe startup before entering BIOS.",
+    "instructions": [
+      "Check for loose screws and cables near fans, then align and secure the panel following the case manual. Do not press on the GPU power connector.",
+      "When using a discrete GPU, normally connect HDMI / DP to the graphics card. Motherboard video outputs can also work when the CPU has integrated graphics and the platform supports and enables them.",
+      "Connect the power cord and keyboard, switch the PSU to I / ON, and press the case power button.",
+      "Interpret diagnostic LEDs or codes using the board manual. CPU, DRAM, VGA and BOOT behavior varies; BOOT may remain lit when no bootable operating system is installed.",
+      "Use the documented key, commonly Delete or F2, to enter BIOS. Check CPU, memory capacity and SSD detection, temperatures and fan status.",
+      "Confirm a stable boot at default settings first. Enable a compatible EXPO / XMP profile only if desired, then verify stability; memory overclocking is optional for first boot."
     ],
-    criticalWarning:
-      'On first boot, DDR5 platforms run "Memory Training" — the DRAM amber LED may stay lit and screen remains black for 1 to 2 minutes. Do NOT panic or pull the plug!',
-    debugCheck:
-      'Panoramic glass panel securely seated; all 4 Debug LEDs extinguish after POST; display boots cleanly into BIOS; RAM runs at rated high speed.',
-  },
+    "criticalWarning": "First boot or memory-setting changes can trigger DDR5 training and a prolonged blank screen. Duration depends on the platform, BIOS and memory configuration; follow the board manual rather than a universal time limit.",
+    "debugCheck": "BIOS is accessible, hardware detection is correct, and temperatures and fan status are reasonable. Interpret diagnostics before proceeding to OS installation."
+  }
 };

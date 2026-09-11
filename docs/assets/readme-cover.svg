@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="480" viewBox="0 0 1440 480" fill="none">
+  <title>SiliconWiki — Explore hardware. Understand the build.</title>
+  <desc>An editorial title cover with a schematic desktop tower, a warm paper background, and a yellow accent.</desc>
+  <rect width="1440" height="480" rx="20" fill="#F2F1EC"/>
+  <path d="M72 80H1368M72 400H1368" stroke="#CFCEC6"/>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <text x="72" y="59" fill="#6C6F68" font-size="13" letter-spacing="3">HARDWARE KNOWLEDGE / INTERACTIVE ASSEMBLY</text>
+    <text x="72" y="205" fill="#202923" font-size="84" font-weight="650" letter-spacing="-4">SiliconWiki</text>
+    <rect x="76" y="242" width="46" height="4" fill="#B39734"/>
+    <text x="72" y="294" fill="#465047" font-size="27">Explore hardware. Understand the build.</text>
+    <text x="72" y="359" fill="#73776F" font-size="15" letter-spacing="1">ENCYCLOPEDIA</text>
+    <text x="228" y="359" fill="#B39734" font-size="15">/</text>
+    <text x="249" y="359" fill="#73776F" font-size="15" letter-spacing="1">COMPARISONS</text>
+    <text x="409" y="359" fill="#B39734" font-size="15">/</text>
+    <text x="430" y="359" fill="#73776F" font-size="15" letter-spacing="1">3D ASSEMBLY</text>
+    <text x="72" y="440" fill="#73776F" font-size="13">React · TypeScript · Three.js</text>
+    <text x="1163" y="440" fill="#73776F" font-size="13">OPEN TO EXPLORATION</text>
+  </g>
+  <g stroke-linejoin="round">
+    <path d="M1037 111L1227 141V362L1037 330Z" fill="#E3E5DA" stroke="#788170" stroke-width="2"/>
+    <path d="M1037 111L946 151V369L1037 330Z" fill="#DADED2" stroke="#788170" stroke-width="2"/>
+    <path d="M1037 111L1227 141L1134 183L946 151Z" fill="#E9EADF" stroke="#788170" stroke-width="2"/>
+    <path d="M946 151L1134 183V401L946 369Z" fill="#F2F1EC" fill-opacity=".7" stroke="#52624B" stroke-width="2"/>
+    <path d="M1134 183L1227 141V362L1134 401Z" fill="#D1D7C9" fill-opacity=".6" stroke="#52624B" stroke-width="2"/>
+    <path d="M967 181L1096 203V329L967 307Z" stroke="#788170"/>
+    <path d="M992 210L1033 217V259L992 252Z" fill="#B39734" fill-opacity=".3" stroke="#9D8533"/>
+    <path d="M1050 214V264M1063 216V266M990 269L1096 287V311L990 293Z" stroke="#788170" stroke-width="3"/>
+    <path d="M962 332L1116 358V382L962 356Z" fill="#CDD3C4" stroke="#788170"/>
+    <ellipse cx="1179" cy="226" rx="19" ry="30" transform="rotate(22 1179 226)" stroke="#9D8533" stroke-width="2"/>
+    <ellipse cx="1179" cy="226" rx="5" ry="8" transform="rotate(22 1179 226)" fill="#B39734"/>
+    <ellipse cx="1179" cy="302" rx="19" ry="30" transform="rotate(22 1179 302)" stroke="#9D8533" stroke-width="2"/>
+    <ellipse cx="1179" cy="302" rx="5" ry="8" transform="rotate(22 1179 302)" fill="#B39734"/>
+    <path d="M922 163V368M913 163H931M913 368H931M1250 153V357M1241 153H1259M1241 357H1259" stroke="#A6AD9E" stroke-dasharray="3 4"/>
+  </g>
+</svg>

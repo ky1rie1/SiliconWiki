@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { autoTranslateHardwareZhToEn } from '../utils/translator';
 import { translations } from '../i18n/translations';
 import { defaultTextOverrides } from '../data/defaultTextOverrides';
-import { resolveTextOverride, TextOverrideState } from '../utils/textOverrides';
+import { createTextOverrideEntries, resolveTextOverride, TextOverrideState } from '../utils/textOverrides';
+import { useLanguage } from './LanguageContext';
 
 export interface BilingualOverride {
   zh: string;
@@ -40,6 +41,7 @@ export const useCustomContent = () => {
 };
 
 export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { lang } = useLanguage();
   // Internal diagnostics and calibration state
   const [isDevMode, setIsDevMode] = useState<boolean>(() => {
     try {
@@ -107,7 +109,6 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   // WeakMap to track original node values so replacements can be safely applied/reverted
   const originalTextMap = useRef<WeakMap<Node, TextOverrideState>>(new WeakMap());
   const originalAttrMap = useRef<WeakMap<Element, Record<string, TextOverrideState>>>(new WeakMap());
-  const isReplacingRef = useRef(false);
   const rafIdRef = useRef<number | null>(null);
 
   // Save overrides to localStorage
@@ -158,38 +159,14 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [saveOverrides]);
 
-  // Robust Text and Attribute Replacement Engine with Active Language Awareness
+  const activeEntries = useMemo(
+    () => createTextOverrideEntries(overrides, lang, translations),
+    [overrides, lang],
+  );
+
+  // Keep the dictionary stable across DOM mutations; React owns the active language.
   const applyOverridesToNode = useCallback(
     (rootNode: Node) => {
-      const keys = Object.keys(overrides);
-      if (keys.length === 0) return;
-
-      const currentLang = (localStorage.getItem('silicon_wiki_lang') as 'zh' | 'en') || 'zh';
-
-      // Build active replacement dictionary
-      const activeDict: Record<string, string> = {};
-      keys.forEach((origZh) => {
-        const item = overrides[origZh];
-        if (!item) return;
-
-        // In Chinese mode, replace original Chinese with new Chinese
-        activeDict[origZh] = currentLang === 'zh' ? item.zh : item.en;
-
-        // If in English mode, check if origZh has an English equivalent in translations.ts
-        if (currentLang === 'en') {
-          const zhMap = translations.zh as Record<string, string>;
-          const enMap = translations.en as Record<string, string>;
-          for (const k of Object.keys(zhMap)) {
-            if (zhMap[k] === origZh && enMap[k]) {
-              activeDict[enMap[k]] = item.en;
-            }
-          }
-        }
-      });
-
-      const activeKeys = Object.keys(activeDict);
-      if (activeKeys.length === 0) return;
-
       // 1. Scan and replace within individual Text nodes
       const walker = document.createTreeWalker(
         rootNode,
@@ -220,7 +197,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
       let currentNode = walker.nextNode();
       while (currentNode) {
-        const state = resolveTextOverride(currentNode.nodeValue || '', originalTextMap.current.get(currentNode), activeDict);
+        const state = resolveTextOverride(currentNode.nodeValue || '', originalTextMap.current.get(currentNode), activeEntries);
         originalTextMap.current.set(currentNode, state);
         const newText = state.rendered;
 
@@ -247,7 +224,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
         ['placeholder', 'title', 'aria-label'].forEach((attr) => {
           if (!el.hasAttribute(attr)) { delete originalAttrs![attr]; return; }
-          const state = resolveTextOverride(el.getAttribute(attr) || '', originalAttrs![attr], activeDict);
+          const state = resolveTextOverride(el.getAttribute(attr) || '', originalAttrs![attr], activeEntries);
           originalAttrs![attr] = state;
           const newVal = state.rendered;
           if (el.getAttribute(attr) !== newVal) {
@@ -257,50 +234,43 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
     },
-    [overrides]
+    [activeEntries]
   );
 
-  // Trigger replacement on overrides change, DOM mutations, and storage (language) changes
+  // Full scans include queued React changes, but never observe our own synchronous writes.
   useEffect(() => {
-    if (Object.keys(overrides).length === 0) return;
-
+    const observerOptions: MutationObserverInit = {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['placeholder', 'title', 'aria-label'],
+    };
     const runReplace = () => {
-      if (isReplacingRef.current) return;
-      isReplacingRef.current = true;
+      rafIdRef.current = null;
+      observer.disconnect();
       try {
         applyOverridesToNode(document.body);
       } finally {
-        isReplacingRef.current = false;
+        observer.observe(document.body, observerOptions);
       }
     };
-
-    runReplace();
-
     const scheduleReplace = () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = requestAnimationFrame(runReplace);
+      if (rafIdRef.current === null) rafIdRef.current = requestAnimationFrame(runReplace);
     };
 
     const observer = new MutationObserver(() => {
       scheduleReplace();
     });
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-      attributeFilter: ['placeholder', 'title', 'aria-label'],
-    });
-
-    window.addEventListener('storage', runReplace);
+    runReplace();
 
     return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
       observer.disconnect();
-      window.removeEventListener('storage', runReplace);
     };
-  }, [overrides, applyOverridesToNode]);
+  }, [applyOverridesToNode]);
 
   // Visual Click-to-Edit Mode
   useEffect(() => {
