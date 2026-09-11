@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { autoTranslateHardwareZhToEn } from '../utils/translator';
 import { translations } from '../i18n/translations';
 import { defaultTextOverrides } from '../data/defaultTextOverrides';
+import { resolveTextOverride, TextOverrideState } from '../utils/textOverrides';
 
 export interface BilingualOverride {
   zh: string;
@@ -104,8 +105,8 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isEditorOpen, setIsEditorOpen] = useState(false);
 
   // WeakMap to track original node values so replacements can be safely applied/reverted
-  const originalTextMap = useRef<WeakMap<Node, string>>(new WeakMap());
-  const originalAttrMap = useRef<WeakMap<Element, Record<string, string>>>(new WeakMap());
+  const originalTextMap = useRef<WeakMap<Node, TextOverrideState>>(new WeakMap());
+  const originalAttrMap = useRef<WeakMap<Element, Record<string, TextOverrideState>>>(new WeakMap());
   const isReplacingRef = useRef(false);
   const rafIdRef = useRef<number | null>(null);
 
@@ -219,18 +220,9 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
       let currentNode = walker.nextNode();
       while (currentNode) {
-        let original = originalTextMap.current.get(currentNode);
-        if (original === undefined) {
-          original = currentNode.nodeValue || '';
-          originalTextMap.current.set(currentNode, original);
-        }
-
-        let newText = original;
-        for (const key of activeKeys) {
-          if (newText.includes(key)) {
-            newText = newText.split(key).join(activeDict[key]);
-          }
-        }
+        const state = resolveTextOverride(currentNode.nodeValue || '', originalTextMap.current.get(currentNode), activeDict);
+        originalTextMap.current.set(currentNode, state);
+        const newText = state.rendered;
 
         if (currentNode.nodeValue !== newText) {
           currentNode.nodeValue = newText;
@@ -249,43 +241,21 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
 
         let originalAttrs = originalAttrMap.current.get(el);
         if (!originalAttrs) {
-          originalAttrs = {
-            placeholder: el.getAttribute('placeholder') || '',
-            title: el.getAttribute('title') || '',
-            ariaLabel: el.getAttribute('aria-label') || '',
-          };
+          originalAttrs = {};
           originalAttrMap.current.set(el, originalAttrs);
         }
 
         ['placeholder', 'title', 'aria-label'].forEach((attr) => {
-          const origVal =
-            attr === 'aria-label' ? originalAttrs!.ariaLabel : originalAttrs![attr];
-          if (!origVal) return;
-
-          let newVal = origVal;
-          for (const key of activeKeys) {
-            if (newVal.includes(key)) {
-              newVal = newVal.split(key).join(activeDict[key]);
-            }
-          }
+          if (!el.hasAttribute(attr)) { delete originalAttrs![attr]; return; }
+          const state = resolveTextOverride(el.getAttribute(attr) || '', originalAttrs![attr], activeDict);
+          originalAttrs![attr] = state;
+          const newVal = state.rendered;
           if (el.getAttribute(attr) !== newVal) {
             el.setAttribute(attr, newVal);
           }
         });
       });
 
-      // 3. Container Element direct text fallback (for elements with mixed inline tags)
-      for (const key of activeKeys) {
-        const potentialContainers = document.querySelectorAll('h1, h2, h3, h4, h5, p, span, button, a, label, li');
-        potentialContainers.forEach((el) => {
-          if (el.closest('[data-no-text-override]')) return;
-          if (el.children.length === 0 && el.textContent?.trim() === key) {
-            if (el.textContent !== activeDict[key]) {
-              el.textContent = activeDict[key];
-            }
-          }
-        });
-      }
     },
     [overrides]
   );
@@ -320,7 +290,7 @@ export const CustomContentProvider: React.FC<{ children: React.ReactNode }> = ({
       subtree: true,
       characterData: true,
       attributes: true,
-      attributeFilter: ['placeholder', 'title'],
+      attributeFilter: ['placeholder', 'title', 'aria-label'],
     });
 
     window.addEventListener('storage', runReplace);

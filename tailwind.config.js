@@ -8,6 +8,10 @@ export default {
   theme: {
     extend: {
       colors: {
+        zinc: {
+          750: '#393e36',
+          850: '#242a23',
+        },
         silicon: {
           50: '#fffbeb',
           100: '#fef3c7',
@@ -34,13 +38,23 @@ export default {
           gold: '#F7D84A',
         },
         slate: {
-          850: '#151f32',
-          925: '#0b1120',
-          950: '#030712',
+          50: '#f7f7f5',
+          100: '#efefec',
+          200: '#e0e1dd',
+          300: '#c9cbc5',
+          400: '#93978e',
+          500: '#6e7469',
+          600: '#545b51',
+          700: '#3d453b',
+          800: '#282e29',
+          900: '#191e1a',
+          850: '#202720',
+          925: '#151a15',
+          950: '#111511',
         },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Manrope', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
       },
       transitionTimingFunction: {

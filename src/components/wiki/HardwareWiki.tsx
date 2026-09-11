@@ -20,11 +20,12 @@ import {
 import { hardwareList } from '../../data/hardware';
 import { glossaryTerms } from '../../data/glossary';
 import { HardwareCard } from './HardwareCard';
+import { WikiIntro } from './WikiIntro';
 import { HardwareTableView } from './HardwareTableView';
 import { LaptopSection } from './LaptopSection';
 import { HardwareDetailModal } from './HardwareDetailModal';
 import { GlossaryPopoverModal } from '../common/GlossaryPopoverModal';
-import { HardwareCategory, HardwareItem, GlossaryTerm } from '../../types';
+import { ActiveTab, HardwareCategory, HardwareItem, GlossaryTerm } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import {
   matchHardwareFuzzy,
@@ -32,6 +33,7 @@ import {
 } from '../../utils/hardwareSearch';
 
 interface HardwareWikiProps {
+  onNavigate: (tab: ActiveTab) => void;
   onNavigateToGlossary?: () => void;
 }
 
@@ -47,7 +49,7 @@ interface SpecDimension {
   options: SpecFilterOption[];
 }
 
-export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary }) => {
+export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary, onNavigate }) => {
   const { t, lang } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
@@ -1450,8 +1452,13 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      <WikiIntro onNavigate={onNavigate} />
+      <div id="hardware-catalog" tabIndex={-1} className="catalog-heading">
+        <div><p className="section-eyebrow">{lang === 'en' ? 'THE HARDWARE INDEX' : '探索 / 硬件目录'}</p><h2>{lang === 'en' ? 'Find your next component' : '你的下一块硬件，从这里开始'}</h2></div>
+        <span>{lang === 'en' ? 'Specs. Context. Better choices.' : '查参数 · 看评测 · 做选择'}</span>
+      </div>
       {/* Category Pills Bar with Live Item Counts */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="category-nav" role="group" aria-label={lang === 'en' ? 'Hardware categories' : '硬件分类'}>
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           const count = categoryCounts[cat.id] ?? 0;
@@ -1459,6 +1466,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id)}
+              aria-pressed={isSelected}
               className={`group flex items-center space-x-2 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap shadow-xs transition-all duration-200 ease-fluid active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                 isSelected
                   ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950 shadow-md ring-2 ring-[#F7D84A] scale-[1.02]'
@@ -1489,7 +1497,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
       ) : (
         <>
           {/* Modern Control Panel Card */}
-          <div className="space-y-4 p-5 rounded-3xl bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 shadow-sm">
+          <div className="catalog-controls space-y-4">
             {/* Top Row: Search Input + Sorting + Vercel-Style Segmented View Switcher */}
             <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
               {/* Fuzzy Search Input */}
@@ -1497,6 +1505,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
+                  aria-label={lang === 'en' ? 'Search hardware' : '搜索硬件'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('searchPlaceholderHardware') || (lang === 'en' ? 'Search model, brand, architecture or codename (e.g. 9800X3D, RTX 4070)...' : '搜索硬件型号、品牌、架构或代号（如 9800X3D, RTX 4070, 重炮手）...')}
@@ -1519,6 +1528,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 <div className="flex items-center space-x-1.5">
                   <span className="text-xs text-slate-400 hidden sm:inline">{t('sortLabel') || (lang === 'en' ? 'Sort:' : '排序:')}</span>
                   <select
+                    aria-label={lang === 'en' ? 'Sort hardware' : '硬件排序'}
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
                     className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-[#F7D84A] focus:border-[#F7D84A] hover:border-[#F7D84A]/50 transition-all duration-200 ease-fluid font-medium cursor-pointer"
@@ -1535,6 +1545,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   <button
                     type="button"
                     onClick={() => handleViewModeChange('grid')}
+                    aria-pressed={viewMode === 'grid'}
                     className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.97] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                       viewMode === 'grid'
                         ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs ring-1 ring-black/5 dark:ring-white/10 scale-[1.02]'
@@ -1549,6 +1560,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                   <button
                     type="button"
                     onClick={() => handleViewModeChange('table')}
+                    aria-pressed={viewMode === 'table'}
                     className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold active:scale-[0.97] transition-all duration-200 ease-fluid focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                       viewMode === 'table'
                         ? 'bg-white dark:bg-neutral-900 text-slate-900 dark:text-white shadow-xs ring-1 ring-black/5 dark:ring-white/10 scale-[1.02]'
@@ -1576,6 +1588,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                     <button
                       key={b.name}
                       onClick={() => handleBrandClick(b.name)}
+                      aria-pressed={isBrandActive}
                       className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap active:scale-[0.98] transition-all duration-200 ease-fluid flex items-center space-x-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F7D84A] cursor-pointer ${
                         isBrandActive
                           ? 'bg-blue-600 dark:bg-cyan-500 text-white shadow-xs scale-[1.02]'
@@ -1622,6 +1635,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                             <button
                               key={opt.id}
                               onClick={() => handleSpecSelect(dim.id, opt.id)}
+                              aria-pressed={isOptionActive}
                               title={
                                 isZeroUnderBrand
                                   ? (lang === 'en'
@@ -1726,7 +1740,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
           </div>
 
           {/* Quick Technical Term Shelf */}
-          <div className="flex items-center space-x-2 overflow-x-auto py-1 scrollbar-none">
+          <div className="quick-terms flex items-center space-x-2 overflow-x-auto py-1 scrollbar-none">
             <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0 mr-1 bg-blue-50 dark:bg-blue-950/60 px-3 py-1.5 rounded-xl border border-blue-200/60 dark:border-blue-900/60 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>{t('coreTechSpecs') || (lang === 'en' ? 'Core Tech Specs:' : '核心技术速查：')}</span>
@@ -1749,6 +1763,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
           </div>
 
           {/* Hardware Cards Grid or Empty State */}
+          <div className="results-summary" role="status"><span>{lang === 'en' ? 'Browse results' : '硬件检索结果'}</span><span><strong>{filteredItems.length}</strong> {lang === 'en' ? 'models' : '款型号'}<span className="results-divider">/</span>{lang === 'en' ? 'Reference prices only' : '价格仅供参考，以平台实价为准'}</span></div>
           {filteredItems.length === 0 ? (
             <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3 p-6">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 mx-auto flex items-center justify-center">

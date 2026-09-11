@@ -1,3 +1,4 @@
+import { PageHeader } from '../layout/PageHeader';
 import React, { useState, useMemo } from 'react';
 import {
   BookOpen,
@@ -54,30 +55,17 @@ export const GlossaryView: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Header Banner */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl transition-colors">
-        <div className="max-w-2xl space-y-2 relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
-            <BookOpen className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
-            <span>{t('glossaryHeroBadge')}</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
-            {t('glossaryHeroTitle')}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            {t('glossaryHeroDesc')}
-          </p>
-        </div>
-      </div>
+      <PageHeader eyebrow={t('glossaryHeroBadge')} title={t('glossaryHeroTitle')} description={t('glossaryHeroDesc')}  />
 
       {/* Categories & Search */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
         {/* Category Pills */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((c) => (
             <button
               key={c.id}
               onClick={() => setSelectedCat(c.id)}
+              aria-pressed={selectedCat === c.id}
               className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedCat === c.id
                   ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
@@ -95,6 +83,7 @@ export const GlossaryView: React.FC = () => {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
           <input
             type="text"
+            aria-label={t('glossarySearchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('glossarySearchPlaceholder')}
@@ -105,7 +94,7 @@ export const GlossaryView: React.FC = () => {
 
       {/* Terms Grid */}
       {filteredTerms.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-[#09090b] rounded-3xl border border-zinc-200 dark:border-zinc-800">
+        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             {t('noTermFound', { query: searchQuery })}
           </p>
@@ -115,7 +104,7 @@ export const GlossaryView: React.FC = () => {
           {filteredTerms.map((term) => (
             <div
               key={term.id}
-              className="flex flex-col justify-between rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/40 shadow-sm hover:shadow-md transition-all"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 hover:border-[#F7D84A]/60 dark:hover:border-[#F7D84A]/40 shadow-sm hover:shadow-md transition-all"
             >
               <div className="space-y-3">
                 {/* Title & Category Badge */}
@@ -138,7 +127,7 @@ export const GlossaryView: React.FC = () => {
                 </div>
 
                 {/* 1. 一句话大白话 */}
-                <div className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 flex items-start space-x-2.5">
+                <div className="py-2 pl-3 border-l-2 border-[#F7D84A] flex items-start space-x-2.5">
                   <Lightbulb className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A] shrink-0 mt-0.5" />
                   <div className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed">
                     <strong className="text-zinc-900 dark:text-white mr-1">
@@ -149,8 +138,8 @@ export const GlossaryView: React.FC = () => {
                 </div>
 
                 {/* 2. 底层物理原理 */}
-                <div className="p-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/30 border border-zinc-200/80 dark:border-zinc-800/80 flex items-start space-x-2.5">
-                  <Microscope className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                <div className="py-3 border-t border-zinc-200/80 dark:border-zinc-800/80 flex items-start space-x-2.5">
+                  <Microscope className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
                   <div className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed space-y-1">
                     <strong className="text-zinc-900 dark:text-zinc-100 block">
                       {t('termTechLabel')}

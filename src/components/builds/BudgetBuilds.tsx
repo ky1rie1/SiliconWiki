@@ -1,6 +1,6 @@
+import { PageHeader } from '../layout/PageHeader';
 import React, { useState } from 'react';
 import {
-  DollarSign,
   Copy,
   Check,
   ShoppingBag,
@@ -129,21 +129,7 @@ export const BudgetBuilds: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Header Banner */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl transition-colors">
-        <div className="max-w-2xl space-y-2 relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
-            <DollarSign className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
-            <span>{t('buildsHeroBadge')}</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
-            {t('buildsHeroTitle')}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            {t('buildsHeroDesc')}
-          </p>
-        </div>
-      </div>
+      <PageHeader eyebrow={t('buildsHeroBadge')} title={t('buildsHeroTitle')} description={t('buildsHeroDesc')}  />
 
       {/* Tier Filter Tabs */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
@@ -154,7 +140,7 @@ export const BudgetBuilds: React.FC = () => {
             className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-150 cursor-pointer select-none active:scale-[0.98] ${
               selectedTier === tItem.id
                 ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
-                : 'bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-850'
+                : 'bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-850'
             }`}
           >
             {tItem.label}
@@ -176,7 +162,7 @@ export const BudgetBuilds: React.FC = () => {
           return (
             <div
               key={build.id}
-              className="rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6"
+              className="rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden p-6 sm:p-8 space-y-6"
             >
               {/* Card Header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-5">

@@ -1,6 +1,6 @@
+import { PageHeader } from '../layout/PageHeader';
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Box,
   RotateCcw,
   Layers,
   ChevronLeft,
@@ -128,39 +128,12 @@ export const AssemblySimulator3D: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Top Banner with Vercel minimalist high-contrast design */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors">
-        {/* Ambient lighting decorative accents */}
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#F7D84A]/10 dark:bg-[#F7D84A]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="space-y-2 max-w-2xl relative z-10">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
-            <Box className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
-            <span>{t('assemblyHeroBadge')}</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
-            {t('assemblyHeroTitle')}
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-            {t('assemblyHeroDesc')}
-          </p>
-        </div>
-
-        {/* Video Tutorial Launcher Button */}
-        <button
-          onClick={() => setIsBilibiliModalOpen(true)}
-          className="relative z-10 flex items-center space-x-2 px-5 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 text-xs sm:text-sm font-bold shadow-sm border border-zinc-700 dark:border-zinc-300 active:scale-95 transition-all shrink-0 cursor-pointer"
-        >
-          <Tv className="w-4 h-4 text-[#F7D84A] dark:text-[#d4990d]" />
-          <span>{t('btnBilibiliGuides')}</span>
-        </button>
-      </div>
+      <PageHeader eyebrow={t('assemblyHeroBadge')} title={t('assemblyHeroTitle')} description={t('assemblyHeroDesc')} actions={<button className="primary-action" onClick={() => setIsBilibiliModalOpen(true)}><Tv size={16} />{t('btnBilibiliGuides')}</button>} />
 
       {/* Main 3D Canvas + Step Instructions Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="lg:col-span-7 flex flex-col rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-2xl overflow-hidden relative group transition-colors">
+        <div className="lg:col-span-7 flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-2xl overflow-hidden relative group transition-colors">
           {/* Canvas Container */}
           <div
             ref={containerRef}
@@ -207,7 +180,7 @@ export const AssemblySimulator3D: React.FC = () => {
           </div>
 
           {/* Stepper & Progress Rail below Canvas */}
-          <div className="p-4 bg-zinc-50 dark:bg-[#09090b] border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+          <div className="p-4 bg-zinc-50 dark:bg-slate-900 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
                 <Wrench className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A]" />
@@ -287,7 +260,7 @@ export const AssemblySimulator3D: React.FC = () => {
         </div>
 
         {/* Right: Step Detailed Guide Card (5 Cols) */}
-        <div className="lg:col-span-5 rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-md p-6 transition-colors">
+        <div className="lg:col-span-5 rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-md p-6 transition-colors">
           <div key={currentStepIndex} className="space-y-5 animate-in fade-in slide-in-from-right-2 duration-300">
             {/* Step Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">

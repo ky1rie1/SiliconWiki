@@ -160,7 +160,7 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <CustomContentProvider>
-          <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 selection:bg-[#F7D84A]/30 selection:text-slate-950 dark:selection:text-[#F7D84A] transition-colors duration-200">
+          <div className="app-shell min-h-screen flex flex-col">
             {/* Global Navbar */}
             <Navbar
               activeTab={activeTab}
@@ -171,9 +171,10 @@ export default function App() {
             />
 
             {/* Main Content Area */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <main id="main-content" tabIndex={-1} className="main-content flex-1">
               {activeTab === 'wiki' && (
                 <HardwareWiki
+                  onNavigate={handleTabChange}
                   onNavigateToGlossary={() => handleTabChange('glossary')}
                 />
               )}

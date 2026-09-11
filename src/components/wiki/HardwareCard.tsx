@@ -92,7 +92,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
   };
 
   return (
-    <div className="double-bezel-outer h-full flex flex-col group/card hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-cyan-950/20 transition-all duration-200 ease-fluid">
+    <article className="hardware-card double-bezel-outer h-full flex flex-col group/card hover:-translate-y-1 transition-all duration-200 ease-fluid">
       <div
         onClick={() => onOpenSpecs?.(item)}
         className="double-bezel-inner h-full flex flex-col flex-1 overflow-hidden cursor-pointer border border-slate-200/80 dark:border-white/5 group-hover/card:border-[#F7D84A]/40 dark:group-hover/card:border-[#F7D84A]/30 transition-colors duration-200"
@@ -120,7 +120,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                 {item.releaseYear}{lang === 'en' ? '' : ' 年'}
               </span>
               {item.badge && (
-                <span className="text-xs px-2 py-0.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-xs">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[#F7D84A]/20 text-amber-900 dark:text-[#F7D84A] font-medium">
                   {item.badge}
                 </span>
               )}
@@ -134,8 +134,8 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
           {/* Title & Architecture (Standardized min-h for perfect vertical alignment) */}
           <div className="min-h-[3.25rem] flex flex-col justify-center">
-            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover/card:text-blue-600 dark:group-hover/card:text-cyan-400 transition-colors line-clamp-2">
-              {item.name}
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors line-clamp-2">
+              <button className="text-left hover:text-amber-700 dark:hover:text-[#F7D84A]" onClick={(event) => { event.stopPropagation(); onOpenSpecs?.(item); }}>{item.name}</button>
             </h3>
             {item.architecture ? (
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-mono truncate">
@@ -149,10 +149,10 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
         {/* Highlights (Standardized min-h) */}
         <div className="px-5 py-2">
-          <div className="space-y-1.5 bg-slate-50/80 dark:bg-slate-850/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 min-h-[5.5rem] flex flex-col justify-center">
+          <div className="space-y-1.5 py-2 min-h-[4.5rem] flex flex-col justify-center">
             {item.highlights.slice(0, 3).map((hl, idx) => (
               <div key={idx} className="flex items-start space-x-2 text-xs text-slate-700 dark:text-slate-300">
-                <span className="text-blue-500 dark:text-cyan-400 font-bold mt-0.5">•</span>
+                <span className="text-amber-600 dark:text-[#F7D84A] font-bold mt-0.5">·</span>
                 <span className="leading-snug line-clamp-1">{hl}</span>
               </div>
             ))}
@@ -256,7 +256,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               <span className="text-[10px] text-slate-400 dark:text-slate-500 block uppercase">
                 {t('marketPriceLabel')}
               </span>
-              <div className="text-base font-extrabold text-blue-600 dark:text-cyan-400 font-mono">
+              <div className="text-base font-bold text-slate-900 dark:text-[#F7D84A] font-mono">
                 ￥{item.marketPriceRange[0]} ~ ￥{item.marketPriceRange[1]}
               </div>
             </div>
@@ -316,6 +316,6 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };

@@ -1,3 +1,4 @@
+import { PageHeader } from '../layout/PageHeader';
 import React, { useState, useMemo } from 'react';
 import {
   Cpu,
@@ -10,7 +11,6 @@ import {
   Laptop,
   CheckSquare,
   Square,
-  Sparkles,
 } from 'lucide-react';
 import { cpuRankings, gpuRankings } from '../../data/rankings';
 import { BenchmarkItem } from '../../types';
@@ -135,47 +135,10 @@ export const BenchmarkLadder: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Top Banner with Geekerwan Attribution */}
-      <div className="rounded-3xl p-6 sm:p-8 bg-zinc-50/80 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 backdrop-blur-xl relative overflow-hidden shadow-xs dark:shadow-2xl transition-colors">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-semibold border border-zinc-200 dark:border-zinc-700">
-              <Sparkles className="w-3.5 h-3.5 text-[#e5a912] dark:text-[#F7D84A]" />
-              <span>{t('rankHeroBadge')}</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 dark:text-white">
-              {t('rankHeroTitle')}
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              {t('rankHeroDesc')}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href="https://socpk.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 text-xs font-bold shadow-sm transition-all cursor-pointer"
-            >
-              <span>{t('btnGeekerwan')}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#F7D84A] dark:text-[#d4990d]" />
-            </a>
-            <a
-              href="https://www.techpowerup.com/gpu-specs/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-zinc-800 dark:text-zinc-200 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition-all cursor-pointer"
-            >
-              <span>{t('btnTechPowerUp')}</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </div>
-      </div>
+      <PageHeader eyebrow={t('rankHeroBadge')} title={t('rankHeroTitle')} description={t('rankHeroDesc')} actions={<><a className="primary-action" href="https://socpk.com/" target="_blank" rel="noopener noreferrer">{t('btnGeekerwan')}<ExternalLink size={14} /></a><a className="text-action" href="https://www.techpowerup.com/gpu-specs/" target="_blank" rel="noopener noreferrer">{t('btnTechPowerUp')}<ExternalLink size={14} /></a></>} />
 
       {/* Control Tabs & Filters */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 rounded-3xl bg-white dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div className="rank-controls p-4 rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800">
         {/* Hardware Switch (CPU vs GPU) */}
         <div className="flex items-center p-1 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80">
           <button
@@ -247,6 +210,7 @@ export const BenchmarkLadder: React.FC = () => {
 
           <input
             type="text"
+            aria-label={t('filterModel')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('filterModel')}
@@ -268,7 +232,7 @@ export const BenchmarkLadder: React.FC = () => {
       )}
 
       {/* Ladder Chart Bars */}
-      <div className="space-y-4 bg-white dark:bg-[#09090b] rounded-3xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div className="space-y-4 bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
         {/* Context Indicator & Brand Color Legend */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 pb-4 border-b border-zinc-100 dark:border-zinc-800/80">
           {/* Active Dimension Context */}
@@ -493,7 +457,7 @@ export const BenchmarkLadder: React.FC = () => {
 
       {/* Floating Bottom Dock for Selected PK */}
       {selectedForPK.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-zinc-900/95 dark:bg-[#09090b]/95 text-white shadow-2xl border border-zinc-700 dark:border-zinc-800 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-4 px-6 py-3.5 rounded-2xl bg-zinc-900/95 dark:bg-slate-900/95 text-white shadow-2xl border border-zinc-700 dark:border-zinc-800 backdrop-blur-xl animate-in slide-in-from-bottom duration-300">
           <div className="flex items-center space-x-2 text-xs sm:text-sm font-semibold">
             <Swords className="w-4 h-4 text-[#F7D84A]" />
             <span>{t('pkDockTitle', { count: selectedForPK.length })}</span>
