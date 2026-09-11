@@ -58,17 +58,12 @@ export const cpuList: HardwareItem[] = [
     },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 9800X3D 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9800x3d.html',
+        title: 'AMD 官方 Ryzen 7 9800X3D 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9800x3d.html',
         platform: 'amd',
         description: 'AMD 官方 Zen 5 架构与第二代 3D V-Cache 下置工艺规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 7 9800X3D Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-7-9800x3d.c3672',
-        platform: 'techpowerup',
-        description: '底层硅片步进、IPC与晶体管拓扑数据',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 7 9800X3D Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-7-9800x3d/',
@@ -162,17 +157,12 @@ export const cpuList: HardwareItem[] = [
     },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 9 9950X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9950x.html',
+        title: 'AMD 官方 Ryzen 9 9950X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9950x.html',
         platform: 'amd',
         description: 'AMD 官方 16 核 32 线程 Zen 5 旗舰处理器完整技术规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 9 9950X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-9-9950x.c3600',
-        platform: 'techpowerup',
-        description: '底层双 CCD 架构与频率拓扑参数',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 9 9950X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-9-9950x/',
@@ -252,17 +242,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 86, productivityScore: 89, efficiencyScore: 90, cinebenchSingle: 2240, cinebenchMulti: 33500 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 9 9900X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9900x.html',
+        title: 'AMD 官方 Ryzen 9 9900X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9900x.html',
         platform: 'amd',
         description: 'AMD 官方 12 核 24 线程 Zen 5 高端处理器参数',
       },
-      {
-        title: 'TechPowerUp Ryzen 9 9900X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-9-9900x.c3601',
-        platform: 'techpowerup',
-        description: '架构参数与硅片晶体管数据',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 9 9900X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-9-9900x/',
@@ -344,17 +329,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 84, productivityScore: 74, efficiencyScore: 99, cinebenchSingle: 2210, cinebenchMulti: 22800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 9700X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9700x.html',
+        title: 'AMD 官方 Ryzen 7 9700X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9700x.html',
         platform: 'amd',
         description: 'AMD 官方 8 核 16 线程 65W TDP 单 CCD 处理器规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 7 9700X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-7-9700x.c3602',
-        platform: 'techpowerup',
-        description: '单 CCD 结构、三缓与能效参数',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 7 9700X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-7-9700x/',
@@ -436,17 +416,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 81, productivityScore: 60, efficiencyScore: 97, cinebenchSingle: 2190, cinebenchMulti: 17200 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 5 9600X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-5-9600x.html',
+        title: 'AMD 官方 Ryzen 5 9600X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-5-9600x.html',
         platform: 'amd',
         description: 'AMD 官方 Zen 5 架构 6 核 12 线程主流处理器规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 5 9600X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-5-9600x.c3603',
-        platform: 'techpowerup',
-        description: '硅片步进与 IPC 提升数据',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 5 9600X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-5-9600x/',
@@ -532,8 +507,8 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 94, productivityScore: 70, efficiencyScore: 96, cinebenchSingle: 1820, cinebenchMulti: 18500 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 7800X3D 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html',
+        title: 'AMD 官方 Ryzen 7 7800X3D 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html',
         platform: 'amd',
         description: 'AMD 官方 Zen 4 架构 3D V-Cache 游戏神 U 规格',
       },
@@ -615,17 +590,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 92, productivityScore: 94, efficiencyScore: 94, cinebenchSingle: 2050, cinebenchMulti: 37500 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 9 7950X3D 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-9-7950x3d.html',
+        title: 'AMD 官方 Ryzen 9 7950X3D 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-9-7950x3d.html',
         platform: 'amd',
         description: 'AMD 官方双 CCD 混合架构 3D V-Cache 旗舰规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 9 7950X3D Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-9-7950x3d.c3020',
-        platform: 'techpowerup',
-        description: '128MB 缓存与异构 CCD 频率数据',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 9 7950X3D Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-9-7950x3d/',
@@ -697,17 +667,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 78, productivityScore: 68, efficiencyScore: 84, cinebenchSingle: 1980, cinebenchMulti: 19800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 7700X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7700x.html',
+        title: 'AMD 官方 Ryzen 7 7700X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7700x.html',
         platform: 'amd',
         description: 'AMD 官方 8 核 16 线程 5.4GHz 加速频率规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 7 7700X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-7-7700x.c2842',
-        platform: 'techpowerup',
-        description: 'Zen 4 架构参数与晶体管拓扑数据',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 7 7700X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-7-7700x/',
@@ -794,23 +759,13 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 76, productivityScore: 54, efficiencyScore: 98, cinebenchSingle: 1820, cinebenchMulti: 14200 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 5 7500F 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7500f.html',
+        title: 'AMD 官方 Ryzen 5 7500F 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7500f.html',
         platform: 'amd',
         description: 'AMD 官方千元甜点无核显 6 核处理器规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 5 7500F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-5-7500f.c3268',
-        platform: 'techpowerup',
-        description: 'AM5 入门甜点架构与功耗参数',
-      },
-      {
-        title: 'TechPowerUp AMD Ryzen 5 7500F Review',
-        url: 'https://www.techpowerup.com/review/amd-ryzen-5-7500f/',
-        platform: 'techpowerup',
-        description: '最具性价比千元电竞神 U 深度实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -882,17 +837,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 82, productivityScore: 56, efficiencyScore: 86, cinebenchSingle: 1400, cinebenchMulti: 13600 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 5700X3D 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5700x3d.html',
+        title: 'AMD 官方 Ryzen 7 5700X3D 支持与规格',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-7-5700x3d.html',
         platform: 'amd',
         description: 'AMD 官方 AM4 平台升级神器 3D V-Cache 规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 7 5700X3D Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-7-5700x3d.c3447',
-        platform: 'techpowerup',
-        description: 'AM4 架构 96MB 缓存底层数据',
-      },
+
       {
         title: 'Tom\'s Hardware AMD Ryzen 7 5700X3D Review',
         url: 'https://www.tomshardware.com/pc-components/cpus/amd-ryzen-7-5700x3d-cpu-review',
@@ -965,8 +915,8 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 65, productivityScore: 48, efficiencyScore: 90, cinebenchSingle: 1510, cinebenchMulti: 11200 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 5 5600 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-5-5600.html',
+        title: 'AMD 官方 Ryzen 5 5600 支持与规格',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600.html',
         platform: 'amd',
         description: 'AMD 官方经典 6 核 12 线程入门百元神 U 规格',
       },
@@ -1046,8 +996,8 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 54, productivityScore: 46, efficiencyScore: 92, cinebenchSingle: 1470, cinebenchMulti: 10800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 5 5600G 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-5-5600g.html',
+        title: 'AMD 官方 Ryzen 5 5600G 支持与规格',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html',
         platform: 'amd',
         description: 'AMD 官方 Cezanne 架构 Vega 7 强力核显 APU 规格',
       },
@@ -1160,12 +1110,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 Arrow Lake-S 旗舰处理器技术参数',
       },
-      {
-        title: 'TechPowerUp Core Ultra 9 285K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-ultra-9-285k.c3620',
-        platform: 'techpowerup',
-        description: 'TSMC N3B 制程、Lion Cove + Skymont 架构参数',
-      },
+
       {
         title: 'TechPowerUp Intel Core Ultra 9 285K Review',
         url: 'https://www.techpowerup.com/review/intel-core-ultra-9-285k/',
@@ -1243,12 +1188,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 20 核 20 线程高端处理器技术参数',
       },
-      {
-        title: 'TechPowerUp Core Ultra 7 265K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-ultra-7-265k.c3621',
-        platform: 'techpowerup',
-        description: '架构参数与硅片布局数据',
-      },
+
       {
         title: 'TechPowerUp Intel Core Ultra 7 265K Review',
         url: 'https://www.techpowerup.com/review/intel-core-ultra-7-265k/',
@@ -1325,12 +1265,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 14 核 14 线程主流超频处理器参数',
       },
-      {
-        title: 'TechPowerUp Core Ultra 5 245K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-ultra-5-245k.c3622',
-        platform: 'techpowerup',
-        description: 'Lion Cove + Skymont 主流架构参数',
-      },
+
       {
         title: 'TechPowerUp Intel Core Ultra 5 245K Review',
         url: 'https://www.techpowerup.com/review/intel-core-ultra-5-245k/',
@@ -1412,12 +1347,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 6.2GHz 极限出厂灰烬版旗舰规格',
       },
-      {
-        title: 'TechPowerUp Core i9-14900KS Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i9-14900ks.c3448',
-        platform: 'techpowerup',
-        description: '极限特挑体质与 TVB 频率参数',
-      },
+
       {
         title: 'Tom\'s Hardware Intel Core i9-14900KS Review',
         url: 'https://www.tomshardware.com/pc-components/cpus/intel-core-i9-14900ks-cpu-review',
@@ -1504,12 +1434,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 24 核 32 线程 6.0GHz 旗舰规格',
       },
-      {
-        title: 'TechPowerUp Core i9-14900K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i9-14900k.c3263',
-        platform: 'techpowerup',
-        description: 'Raptor Lake Refresh 底层数据',
-      },
+
       {
         title: 'TechPowerUp Intel Core i9-14900K Review',
         url: 'https://www.techpowerup.com/review/intel-core-i9-14900k/',
@@ -1597,7 +1522,7 @@ export const cpuList: HardwareItem[] = [
       },
       {
         title: 'TechPowerUp Core i7-14700K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3264',
+        url: 'https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3268',
         platform: 'techpowerup',
         description: '多核心升级与 33MB L3 缓存参数',
       },
@@ -1776,12 +1701,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 10 核 16 线程千元主流处理器规格',
       },
-      {
-        title: 'TechPowerUp Core i5-14400F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i5-14400f.c3446',
-        platform: 'techpowerup',
-        description: '6P+4E 核心架构与 65W TDP 参数',
-      },
+
       {
         title: 'Tom\'s Hardware Intel Core i5-14400 Review',
         url: 'https://www.tomshardware.com/pc-components/cpus/intel-core-i5-14400-cpu-review',
@@ -1866,12 +1786,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方经典 13 代 14 核 20 线程神 U 规格',
       },
-      {
-        title: 'TechPowerUp Core i5-13600KF Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i5-13600kf.c2847',
-        platform: 'techpowerup',
-        description: 'Raptor Lake 架构参数与缓存拓扑',
-      },
+
       {
         title: 'TechPowerUp Intel Core i5-13600K Review',
         url: 'https://www.techpowerup.com/review/intel-core-i5-13600k/',
@@ -1956,18 +1871,8 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 Alder Lake 10 核 16 线程百元常青树规格',
       },
-      {
-        title: 'TechPowerUp Core i5-12600KF Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i5-12600kf.c2547',
-        platform: 'techpowerup',
-        description: 'Intel 7 工艺与混合架构参数',
-      },
-      {
-        title: 'TechPowerUp Intel Core i5-12600K Review',
-        url: 'https://www.techpowerup.com/review/intel-core-i5-12600k/',
-        platform: 'techpowerup',
-        description: '性价比常青树装机实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2045,12 +1950,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方纯大核 6 核 12 线程入门百元神 U 规格',
       },
-      {
-        title: 'TechPowerUp Core i5-12400F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i5-12400f.c2552',
-        platform: 'techpowerup',
-        description: '纯 Golden Cove 大核架构数据',
-      },
+
       {
         title: 'TechPowerUp Intel Core i5-12400F Review',
         url: 'https://www.techpowerup.com/review/intel-core-i5-12400f/',
@@ -2135,12 +2035,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 4 核 8 线程最强平民入门电竞 CPU 规格',
       },
-      {
-        title: 'TechPowerUp Core i3-12100F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i3-12100f.c2555',
-        platform: 'techpowerup',
-        description: '单核强劲的 4 核入门架构参数',
-      },
+
       {
         title: 'TechPowerUp Intel Core i3-12100F Review',
         url: 'https://www.techpowerup.com/review/intel-core-i3-12100f/',
@@ -2218,23 +2113,13 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 52, productivityScore: 84, efficiencyScore: 99, cinebenchSingle: 2040, cinebenchMulti: 23500 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen AI 9 HX 370 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/laptop/ryzen/300-series/amd-ryzen-ai-9-hx-370.html',
+        title: 'AMD 官方 Ryzen AI 9 HX 370 产品规格',
+        url: 'https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-9-hx-370.html',
         platform: 'amd',
         description: 'AMD 官方 Zen 5 + Zen 5c 混合移动旗舰规格',
       },
-      {
-        title: 'TechPowerUp Ryzen AI 9 HX 370 Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-ai-9-hx-370.c3648',
-        platform: 'techpowerup',
-        description: 'Radeon 890M 核显与 50 TOPS NPU 底层数据',
-      },
-      {
-        title: 'Tom\'s Hardware AMD Ryzen AI 9 HX 370 Tested',
-        url: 'https://www.tomshardware.com/laptops/amd-ryzen-ai-9-hx-370-tested-zen-5-pushes-mobile-boundaries',
-        platform: 'tomshardware',
-        description: 'AI PC 新时代轻薄本 CPU 与核显极限测试',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2303,22 +2188,12 @@ export const cpuList: HardwareItem[] = [
         docsLinks: [
       {
         title: 'Apple 官方 M4 Pro 与 M4 Max 官方新闻与技术发布',
-        url: 'https://www.apple.com.cn/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/',
+        url: 'https://www.apple.com.cn/newsroom/2024/10/apple-introduces-m4-pro-m4-max/',
         platform: 'official',
         description: 'Apple 官方第二代 3nm 工艺与雷雳 5 技术规格',
       },
-      {
-        title: 'TechPowerUp Apple M4 Pro Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/apple-m4-pro-14-core.c3746',
-        platform: 'techpowerup',
-        description: '台积电第二代 3nm 制程晶体管与能效拓扑',
-      },
-      {
-        title: 'Tom\'s Hardware Apple M4 Pro Review',
-        url: 'https://www.tomshardware.com/pc-components/cpus/apple-m4-pro-benchmarks',
-        platform: 'tomshardware',
-        description: 'MacBook Pro 顶尖单核能效与生产力实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2389,18 +2264,8 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 Meteor Lake 第一代 Ultra 移动旗舰规格',
       },
-      {
-        title: 'TechPowerUp Core Ultra 9 185H Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-ultra-9-185h.c3444',
-        platform: 'techpowerup',
-        description: 'Intel 4 3D Foveros 封装与 Arc 8Xe 核显参数',
-      },
-      {
-        title: 'Tom\'s Hardware Intel Core Ultra 9 185H Benchmarks',
-        url: 'https://www.tomshardware.com/pc-components/cpus/intel-core-ultra-9-185h-benchmarks',
-        platform: 'tomshardware',
-        description: '全功能移动 AI PC 续航与性能实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2471,18 +2336,8 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 24 核 32 线程 5.8GHz 顶级游戏本处理器规格',
       },
-      {
-        title: 'TechPowerUp Core i9-14900HX Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i9-14900hx.c3445',
-        platform: 'techpowerup',
-        description: '桌面级芯片下放移动端完整参数',
-      },
-      {
-        title: 'Tom\'s Hardware Intel Core i9-14900HX Gaming Benchmarks',
-        url: 'https://www.tomshardware.com/laptops/intel-core-i9-14900hx-review',
-        platform: 'tomshardware',
-        description: '顶级旗舰游戏本满血释放功耗与性能实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2556,8 +2411,8 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 85, productivityScore: 60, efficiencyScore: 88, cinebenchSingle: 1520, cinebenchMulti: 14800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 7 5800X3D 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5800x3d.html',
+        title: 'AMD 官方 Ryzen 7 5800X3D 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5800x3d.html',
         platform: 'amd',
         description: 'AMD 官方初代 3D V-Cache 革命性游戏神 U 规格',
       },
@@ -2646,17 +2501,12 @@ export const cpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 78, productivityScore: 58, efficiencyScore: 92, cinebenchSingle: 1940, cinebenchMulti: 15100 },
         docsLinks: [
       {
-        title: 'AMD 官方 Ryzen 5 7600X 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7600x.html',
+        title: 'AMD 官方 Ryzen 5 7600X 产品规格',
+        url: 'https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7600x.html',
         platform: 'amd',
         description: 'AMD 官方 Zen 4 架构 6 核 12 线程高频电竞 U 规格',
       },
-      {
-        title: 'TechPowerUp Ryzen 5 7600X Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/ryzen-5-7600x.c2843',
-        platform: 'techpowerup',
-        description: '5.3GHz 加速频率与 AM5 平台底层参数',
-      },
+
       {
         title: 'TechPowerUp AMD Ryzen 5 7600X Review',
         url: 'https://www.techpowerup.com/review/amd-ryzen-5-7600x/',
@@ -2742,12 +2592,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 13 代 24 核 32 线程旗舰规格',
       },
-      {
-        title: 'TechPowerUp Core i9-13900K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i9-13900k.c2844',
-        platform: 'techpowerup',
-        description: 'Raptor Lake 架构 5.8GHz 加速频率底层数据',
-      },
+
       {
         title: 'TechPowerUp Intel Core i9-13900K Review',
         url: 'https://www.techpowerup.com/review/intel-core-i9-13900k/',
@@ -2832,12 +2677,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 16 核 24 线程高端次旗舰规格',
       },
-      {
-        title: 'TechPowerUp Core i7-13700K Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i7-13700k.c2845',
-        platform: 'techpowerup',
-        description: '8P+8E 核心拓扑与 30MB 缓存数据',
-      },
+
       {
         title: 'TechPowerUp Intel Core i7-13700K Review',
         url: 'https://www.techpowerup.com/review/intel-core-i7-13700k/',
@@ -2922,12 +2762,7 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 10 核 16 线程千元电竞处理器规格',
       },
-      {
-        title: 'TechPowerUp Core i5-13400F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i5-13400f.c2966',
-        platform: 'techpowerup',
-        description: '6P+4E 核心架构与功耗参数',
-      },
+
       {
         title: 'TechPowerUp Intel Core i5-13400F Review',
         url: 'https://www.techpowerup.com/review/intel-core-i5-13400f/',
@@ -3012,18 +2847,8 @@ export const cpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方 4 核 8 线程 4.7GHz 入门电竞处理器规格',
       },
-      {
-        title: 'TechPowerUp Core i3-14100F Database Specs',
-        url: 'https://www.techpowerup.com/cpu-specs/core-i3-14100f.c3449',
-        platform: 'techpowerup',
-        description: '纯大核高频入门架构参数',
-      },
-      {
-        title: 'Tom\'s Hardware Intel Core i3-14100 Review',
-        url: 'https://www.tomshardware.com/pc-components/cpus/intel-core-i3-14100-cpu-review',
-        platform: 'tomshardware',
-        description: '百元高性价比入门装机游戏性能测试',
-      },
+
+
     ],
         reviewLinks: [
       {

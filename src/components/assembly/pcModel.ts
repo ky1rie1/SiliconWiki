@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { assemblyFrame, BOARD_MOUNT, type Vec3 } from './animation';
 import { ModelResources } from './modelResources';
+import { batchStaticMeshes } from './batchStaticMeshes';
 
 // Representative ATX / AM5 layout. One scene unit is 100 mm; not a vendor CAD model.
 export const CPU_POSITION: Vec3 = [-.38, .68, .115];
@@ -58,7 +59,12 @@ export function createPCModel() {
       shape.closePath();
       return new THREE.ExtrudeGeometry(shape, { depth: .018, bevelEnabled: false, curveSegments: 8 });
     });
-    for (let i = 0; i < 7; i++) r.mesh(rotor, bladeGeometry, darkSilver).rotation.z = i * Math.PI * 2 / 7;
+    for (let i = 0; i < 7; i++) {
+      const blade = r.mesh(rotor, bladeGeometry, darkSilver);
+      blade.rotation.z = i * Math.PI * 2 / 7;
+      // Tiny moving blade shadows add a full shadow pass without helping assembly legibility.
+      blade.castShadow = false;
+    }
     screws(frame, [-1, 1].flatMap(x => [-1, 1].map(y => [x * diameter * .43, y * diameter * .43, .1] as Vec3)), .021);
     return frame;
   }
@@ -146,6 +152,7 @@ export function createPCModel() {
   r.mesh(cpu, r.geometry('orientation-triangle', () => new THREE.ShapeGeometry(triangle)), gold, [-.185, -.183, .02]);
   const pasteGroup = group(cpu, [0, 0, .049], 'thermal-paste');
   const paste = r.mesh(pasteGroup, r.geometry('paste', () => new THREE.SphereGeometry(1, 24, 12)), r.material('paste', 0x8e9699, .3, .85));
+  paste.userData.dynamic = true;
 
   RAM_X.forEach((x, slot) => {
     r.box(motherboard, [.078, 1.38, .11], [x, .57, .075], plastic);
@@ -257,7 +264,10 @@ export function createPCModel() {
 
   const basePositions = new Map<THREE.Object3D, THREE.Vector3>();
   [cpu, cooler, ssd, psu, gpu, glass, ...sticks, shield, atxPlug, epsPlug, gpuPlug, signalPlug].forEach(object => basePositions.set(object, object.position.clone()));
-  function offset(object: THREE.Object3D, x = 0, y = 0, z = 0) { object.position.copy(basePositions.get(object)!).add(new THREE.Vector3(x, y, z)); }
+  function offset(object: THREE.Object3D, x = 0, y = 0, z = 0) {
+    const base = basePositions.get(object)!;
+    object.position.set(base.x + x, base.y + y, base.z + z);
+  }
 
   function apply(step: number, progress: number, exploded: number) {
     const pose = assemblyFrame(step, progress);
@@ -281,8 +291,8 @@ export function createPCModel() {
     drive.rotation.y = pose.ssdAngle;
     offset(shield, 0, 0, pose.ssdShieldLift + exploded * .32);
     offset(cooler, -exploded * .3, exploded * .15, pose.coolerLift + exploded * 1.8);
-    paste.scale.setScalar(pose.pasteAmount);
-    paste.scale.multiply(new THREE.Vector3(.052 + .1 * pose.pasteSpread, .052 + .1 * pose.pasteSpread, .022 - .019 * pose.pasteSpread));
+    const pasteRadius = pose.pasteAmount * (.052 + .1 * pose.pasteSpread);
+    paste.scale.set(pasteRadius, pasteRadius, pose.pasteAmount * (.022 - .019 * pose.pasteSpread));
     film.visible = step === 4 && progress < .35;
     film.position.x = pose.filmPeel * .6; film.position.z = -.009 - pose.filmPeel * .24; film.rotation.y = pose.filmPeel * .8;
     offset(psu, pose.psuSlide - exploded * .9, 0, exploded * .7);
@@ -298,6 +308,7 @@ export function createPCModel() {
     return pose;
   }
 
+  batchStaticMeshes(root, resources);
   apply(1, 1, 0);
   return { root, parts, fans, boardAssembly, sticks, drive, shield, latch, paste, resources, apply };
 }

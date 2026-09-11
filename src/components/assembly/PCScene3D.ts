@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { AssemblyTimeline, type AnimationResult } from './animation';
 import { createPCModel, type PCModel } from './pcModel';
+import { renderingBudget, type RenderingQuality } from './renderingBudget';
 
 const viewportFit = (aspect: number) => Math.max(1, 1.15 / aspect);
 
@@ -39,6 +40,13 @@ export class PCScene3D {
   private onScreen = true;
   private powered = false;
   private lastProgress = -1;
+  private lastPose?: { step: number; progress: number; exploded: number };
+  private quality: RenderingQuality = 'balanced';
+  private budget = renderingBudget('balanced', 740, 520, window.devicePixelRatio);
+  private wakeTimer = 0;
+  private lastDrawTime = 0;
+  private urgentFrame = false;
+  private pickMeshes: THREE.Object3D[] = [];
   private raycaster = new THREE.Raycaster();
   private pointer = new THREE.Vector2();
   private pointerDirty = false;
@@ -53,6 +61,8 @@ export class PCScene3D {
       this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
       this.renderer.toneMappingExposure = 1.08;
       this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.autoUpdate = false;
+      this.renderer.shadowMap.needsUpdate = true;
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       this.renderer.domElement.setAttribute('aria-label', 'Interactive PC assembly model');
       this.renderer.domElement.style.display = 'block';
@@ -91,7 +101,10 @@ export class PCScene3D {
       canvas.addEventListener('pointercancel', this.onPointerLeave); canvas.addEventListener('webglcontextlost', this.onContextLost);
       document.addEventListener('visibilitychange', this.onVisibility); this.motion.addEventListener('change', this.onMotionChange);
       this.resizeObserver = new ResizeObserver(this.handleResize); this.resizeObserver.observe(this.container);
-      this.intersectionObserver = new IntersectionObserver(entries => { this.onScreen = entries[0].isIntersecting; if (this.onScreen) this.requestFrame(); });
+      this.intersectionObserver = new IntersectionObserver(entries => {
+        this.onScreen = entries[0].isIntersecting;
+        if (this.onScreen) this.requestFrame(); else this.stopFrames();
+      });
       this.intersectionObserver.observe(this.container);
       this.themeObserver = new MutationObserver(this.updateTheme);
       this.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -114,7 +127,7 @@ export class PCScene3D {
     }
     this.requestFrame();
   };
-  private onVisibility = () => { if (!document.hidden) this.requestFrame(); };
+  private onVisibility = () => { if (!document.hidden) this.requestFrame(); else this.stopFrames(); };
   private onContextLost = (event: Event) => { event.preventDefault(); this.timeline.cancel(); this.onError?.(); this.dispose(); };
   private stopCameraTransition = () => { this.cameraMoving = false; };
 
@@ -122,6 +135,10 @@ export class PCScene3D {
     if (this.disposed) return;
     const { width, height } = this.container.getBoundingClientRect();
     if (!width || !height) return;
+    this.budget = renderingBudget(this.quality, width, height, window.devicePixelRatio);
+    this.renderer.setPixelRatio(this.budget.pixelRatio);
+    this.renderer.shadowMap.enabled = this.budget.shadows;
+    this.renderer.shadowMap.needsUpdate = true;
     const previousAspect = this.camera.aspect;
     this.camera.aspect = width / height; this.camera.updateProjectionMatrix();
     const scale = viewportFit(this.camera.aspect) / viewportFit(previousAspect);
@@ -129,6 +146,7 @@ export class PCScene3D {
     this.cameraTarget.sub(this.lookTarget).multiplyScalar(scale).add(this.lookTarget);
     this.renderer.setSize(width, height); this.requestFrame();
   };
+  setQuality(quality: RenderingQuality) { this.quality = quality; this.handleResize(); }
   setStep(step: number) {
     this.timeline.cancel(); this.step = Math.max(1, Math.min(9, step)); this.lastProgress = -1;
     this.applyPose(1); this.clearHover(); this.resetCamera(); this.requestFrame();
@@ -177,17 +195,42 @@ export class PCScene3D {
     this.applyPose(0); this.requestFrame();
   }
   private applyPose(progress: number) {
-    const pose = this.model.apply(this.step, progress, this.exploded); this.powered = pose.powered; this.bench.visible = this.step < 5;
     const quantized = Math.round(progress * 100);
     if (quantized !== this.lastProgress) { this.lastProgress = quantized; this.onAnimationProgress?.(quantized); }
+    if (this.lastPose?.step === this.step && this.lastPose.progress === progress && this.lastPose.exploded === this.exploded) return;
+    this.lastPose = { step: this.step, progress, exploded: this.exploded };
+    const pose = this.model.apply(this.step, progress, this.exploded); this.powered = pose.powered; this.bench.visible = this.step < 5;
+    this.renderer.shadowMap.needsUpdate = true;
+    this.pickMeshes.length = 0;
+    this.model.root.traverseVisible(object => { if (object instanceof THREE.Mesh && !object.userData.ignorePick) this.pickMeshes.push(object); });
+    this.updateSelection();
   }
-  private requestFrame = () => {
+  private stopFrames() {
+    cancelAnimationFrame(this.frameId); clearTimeout(this.wakeTimer);
+    this.frameId = 0; this.wakeTimer = 0;
+  }
+  private requestFrame = () => { this.requestRender(true); };
+  private requestRender(urgent: boolean) {
+    if (urgent) { this.urgentFrame = true; clearTimeout(this.wakeTimer); this.wakeTimer = 0; }
     if (!this.disposed && !this.frameId && this.onScreen && !document.hidden) this.frameId = requestAnimationFrame(this.render);
+  }
+  private scheduleFanFrame(now: number) {
+    if (this.wakeTimer || this.disposed || !this.onScreen || document.hidden) return;
+    this.wakeTimer = window.setTimeout(() => {
+      this.wakeTimer = 0; this.requestRender(false);
+    }, Math.max(0, this.budget.fanInterval - (performance.now() - now) - 3));
+  }
+  private updateSelection() {
+    const part = this.hovered && this.model.parts.get(this.hovered);
+    if (part) this.selection.box.setFromObject(part);
   };
   private render = (now: number) => {
     this.frameId = 0;
     if (this.disposed || !this.onScreen || document.hidden) return;
-    const delta = Math.min(.05, (now - (this.lastTime || now)) / 1000); this.lastTime = now;
+    const urgent = this.urgentFrame; this.urgentFrame = false;
+    if (!urgent && now - this.lastDrawTime < this.budget.fanInterval - 1) { this.scheduleFanFrame(this.lastDrawTime); return; }
+    const elapsed = Math.min(.25, (now - (this.lastTime || now)) / 1000);
+    const delta = Math.min(.05, elapsed); this.lastTime = now;
     let moving = false;
     if (Math.abs(this.explodeTarget - this.exploded) > .001) { this.exploded = THREE.MathUtils.damp(this.exploded, this.explodeTarget, 7, delta); moving = true; }
     else this.exploded = this.explodeTarget;
@@ -198,12 +241,14 @@ export class PCScene3D {
       if (this.camera.position.distanceTo(this.cameraTarget) < .006) this.cameraMoving = false;
       moving = this.cameraMoving || moving;
     }
-    this.controls.update();
-    if (this.powered && !this.motion.matches && this.exploded < .01) { this.model.fans.forEach(fan => fan.rotation.z = (fan.rotation.z + delta * 5) % (Math.PI * 2)); moving = true; }
+    moving = this.controls.update() || moving;
+    const animateFans = this.powered && !this.motion.matches && this.exploded < .01;
+    if (animateFans) this.model.fans.forEach(fan => fan.rotation.z = (fan.rotation.z + elapsed * 5) % (Math.PI * 2));
     if (this.pointerDirty) { this.pointerDirty = false; this.pickHover(); }
-    if (this.hovered) { const part = this.model.parts.get(this.hovered); if (part) this.selection.box.setFromObject(part); }
     this.renderer.render(this.scene, this.camera);
+    this.lastDrawTime = now;
     if (moving || this.timeline.running) this.requestFrame();
+    else if (animateFans) this.scheduleFanFrame(now);
   };
   private onPointerDown = (event: PointerEvent) => { this.pointerDown = { x: event.clientX, y: event.clientY }; };
   private onPointerMove = (event: PointerEvent) => {
@@ -220,19 +265,17 @@ export class PCScene3D {
   private clearHover() { this.hovered = null; this.selection.visible = false; this.onComponentHover?.(null); this.requestFrame(); }
   private pick() {
     this.raycaster.setFromCamera(this.pointer, this.camera);
-    const meshes: THREE.Object3D[] = [];
-    this.model.root.traverseVisible(object => { if (object instanceof THREE.Mesh && !object.userData.ignorePick) meshes.push(object); });
-    for (const hit of this.raycaster.intersectObjects(meshes, false)) {
+    for (const hit of this.raycaster.intersectObjects(this.pickMeshes, false)) {
       let object: THREE.Object3D | null = hit.object;
       while (object) { if (object.userData.component) return object.userData.component as string; object = object.parent; }
     }
     return null;
   }
-  private pickHover() { const key = this.pick(); if (key === this.hovered) return; this.hovered = key; this.selection.visible = !!key; this.onComponentHover?.(key); }
+  private pickHover() { const key = this.pick(); if (key === this.hovered) return; this.hovered = key; this.selection.visible = !!key; this.updateSelection(); this.onComponentHover?.(key); }
 
   dispose() {
     if (this.disposed) return;
-    this.disposed = true; this.timeline.cancel(); cancelAnimationFrame(this.frameId);
+    this.disposed = true; this.timeline.cancel(); this.stopFrames();
     this.resizeObserver?.disconnect(); this.intersectionObserver?.disconnect(); this.themeObserver?.disconnect();
     document.removeEventListener('visibilitychange', this.onVisibility); this.motion.removeEventListener('change', this.onMotionChange);
     this.controls?.removeEventListener('change', this.requestFrame); this.controls?.removeEventListener('start', this.stopCameraTransition); this.controls?.dispose();

@@ -8,8 +8,10 @@ import { psuList } from './hardware/psu';
 import { coolerList } from './hardware/coolers';
 import { caseList } from './hardware/cases';
 import { laptopList } from './hardware/laptops';
+import { applyVerifiedHardwareFacts, getHardwareVerification } from './sources/verifiedHardware';
+import { createHardwareCatalog } from '../utils/hardwareCatalog';
 
-export const hardwareList: HardwareItem[] = [
+export const hardwareList: HardwareItem[] = applyVerifiedHardwareFacts([
   ...cpuList,
   ...gpuList,
   ...motherboardList,
@@ -19,4 +21,7 @@ export const hardwareList: HardwareItem[] = [
   ...coolerList,
   ...caseList,
   ...laptopList,
-];
+]);
+
+/** Canonical indexed model for new consumers; hardwareList remains the legacy UI adapter. */
+export const hardwareCatalog = createHardwareCatalog(hardwareList, getHardwareVerification);

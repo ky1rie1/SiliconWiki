@@ -38,7 +38,7 @@ export const storageList: HardwareItem[] = [
     benchmarks: { gamingScore: 99, productivityScore: 100, efficiencyScore: 82 },
     docsLinks: [
       { title: 'Crucial 官方 · T705 PCIe 5.0 NVMe SSD 规格白皮书', url: 'https://www.crucial.com/ssd/t705/ct2000t705ssd3', platform: 'official', description: '美光 232 层 3D TLC 闪存与 14500MB/s 读速官方规格' },
-      { title: 'TechPowerUp · Crucial T705 2 TB Review', url: 'https://www.techpowerup.com/review/crucial-t705-2-tb/', platform: 'techpowerup', description: '全球最速 PCIe 5.0 固态硬盘深度读写与温控性能评测' },
+
     ],
         reviewLinks: [
       {
@@ -250,7 +250,7 @@ export const storageList: HardwareItem[] = [
     imageUrl: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 91, productivityScore: 88, efficiencyScore: 96 },
     docsLinks: [
-      { title: '雷克沙官方 · ARES 战神 PCIe 4.0 固态硬盘规格', url: 'https://www.lexar.com/product/lexar-ares-pcie-4-0-nvme-ssd/', platform: 'official', description: '7400MB/s 读速与新一代高导热石墨烯散热贴官方说明' },
+
       { title: 'TechPowerUp · Lexar Ares 2 TB Review', url: 'https://www.techpowerup.com/review/lexar-ares-2-tb/', platform: 'techpowerup', description: '联芸 MAP1602 主控与长江存储 TLC 颗粒满血表现评测' },
     ],
         reviewLinks: [

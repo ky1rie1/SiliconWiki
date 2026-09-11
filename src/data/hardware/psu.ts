@@ -49,12 +49,7 @@ export const psuList: HardwareItem[] = [
         platform: "other",
         description: "Cybenetics 国际权威转换效率、超低电磁纹波与声学认证数据",
       },
-      {
-        title: "Hardware Busters: Seasonic Vertex GX-1000 ATX v3.0 PSU Review",
-        url: "https://hwbusters.com/psus/seasonic-vertex-gx-1000-atx-v3-0-psu-review/",
-        platform: "techpowerup",
-        description: "全球权威电源实验室深度电气负载与 200% 动态瞬态脉冲测试",
-      },
+
     ],
         reviewLinks: [
       {
@@ -222,13 +217,7 @@ export const psuList: HardwareItem[] = [
         author: "Gamers Nexus",
         summary: "Gamers Nexus 专业负载机测试长城代工电源方案与电气纹波表现",
       },
-      {
-        title: "Test PSU Greatwall 750W/850W 80+Gold",
-        url: 'https://www.youtube.com/watch?v=W71WItih37M',
-        platform: 'youtube',
-        author: "WAIZ Fishing Channel",
-        summary: "长城金牌全模组电源真实电压负载测试与风扇噪音表现",
-      },
+
       {
         title: "直接解决你的电源焦虑！长城X8，额定850w电源开箱体验",
         url: "https://www.bilibili.com/video/BV1dN411z78v",
@@ -372,20 +361,8 @@ export const psuList: HardwareItem[] = [
       },
     ],
         reviewLinks: [
-      {
-        title: "Huntkey Power Supply Quality and Efficiency Overview",
-        url: 'https://www.youtube.com/watch?v=IxakW_w5Oaw',
-        platform: 'youtube',
-        author: "Huntkey Official",
-        summary: "航嘉金牌电源设计标准、转换效率与过载保护方案解析",
-      },
-      {
-        title: "Level up your gaming setup with the Huntkey GXM Series Power Supply!",
-        url: "https://www.youtube.com/watch?v=IxakW_w5Oaw",
-        platform: "youtube",
-        author: "Huntkey Official",
-        summary: "航嘉金牌电源内部元器件布局与耐高温电容展示",
-      },
+
+
       {
         title: "是真材实料还是偷工虚标，航嘉650W小金牌爆火背后的秘密拆解评测",
         url: "https://www.bilibili.com/video/BV1Qp421Q7nW",
@@ -531,12 +508,7 @@ export const psuList: HardwareItem[] = [
         platform: "other",
         description: "Cybenetics 国际权威白金效率认证与 Lambda A++ 极致静音评级",
       },
-      {
-        title: "KitGuru: ASUS ROG Thor 1200W Platinum Power Supply Review",
-        url: "https://www.kitguru.net/components/power-supplies/zardon/asus-rog-thor-1200w-platinum-power-supply-review/",
-        platform: "techpowerup",
-        description: "外媒旗舰深度拆解：海韵顶级白金架构加持与 OLED 功耗屏实际精度实测",
-      },
+
     ],
         reviewLinks: [
       {
@@ -606,7 +578,7 @@ export const psuList: HardwareItem[] = [
         docsLinks: [
       {
         title: "Seasonic 官方 FOCUS GX-850 ATX 3.0 规格页面",
-        url: "https://seasonic.com/focus-gx-atx-3-0",
+        url: "https://seasonic.com/atx3-focus-gx/",
         platform: "official",
         description: "海韵官方 MTLR 微容差电压调节技术与智能温控规格",
       },
@@ -616,12 +588,7 @@ export const psuList: HardwareItem[] = [
         platform: "other",
         description: "Cybenetics 金牌效率与超低纹波噪声实测数据",
       },
-      {
-        title: "Hardware Busters: Seasonic Focus GX-850 ATX v3.0 PSU Review",
-        url: "https://hwbusters.com/psus/seasonic-focus-gx-850-atx-v3-0-psu-review/",
-        platform: "techpowerup",
-        description: "海韵主力中高端金牌电源负载效率与 PCIe 5.0 动态尖峰抗冲击测试",
-      },
+
     ],
         reviewLinks: [
       {
@@ -855,24 +822,14 @@ export const psuList: HardwareItem[] = [
     benchmarks: { gamingScore: 96, productivityScore: 96, efficiencyScore: 97 },
     pairingAdvice: '讨厌复杂看模组接口排布、追求极软走线的高品质主机。',
         docsLinks: [
-      {
-        title: "Super Flower 官方 LEADEX VII Gold 850W 页面",
-        url: "https://www.super-flower.com.tw/en/products/leadex-vii-gold-850w-bk",
-        platform: "official",
-        description: "振华专利九宫格万用插座与全日系电容电气规格",
-      },
+
       {
         title: "Cybenetics: Super Flower Leadex VII Gold 850W Report",
         url: "https://www.cybenetics.com/evaluations/psus/2026/",
         platform: "other",
         description: "Cybenetics 白金转换效率与超低电气噪声测试报告",
       },
-      {
-        title: "Hardware Busters: Super Flower Leadex VII Gold 850W Review",
-        url: "https://hwbusters.com/psus/super-flower-leadex-vii-gold-850w-sf-850f14xg-psu-review/",
-        platform: "techpowerup",
-        description: "九宫格通用端子接触电阻与极限瞬态抗拉测试，纹波表现惊艳",
-      },
+
     ],
         reviewLinks: [
       {

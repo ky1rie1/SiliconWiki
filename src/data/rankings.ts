@@ -1217,7 +1217,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 54000
     },
     "tdpWatts": 600,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4224",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1233,7 +1233,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 39500
     },
     "tdpWatts": 400,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4225",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4217",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1377,7 +1377,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 13400
     },
     "tdpWatts": 160,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-ti-8-gb.c3899",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1457,7 +1457,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 19800
     },
     "tdpWatts": 263,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-7800-xt.c3831",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1569,7 +1569,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 18400
     },
     "tdpWatts": 350,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3080-12-gb.c3833",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1633,7 +1633,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 12400
     },
     "tdpWatts": 225,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3060-ti-gddr6x.c3936",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1713,7 +1713,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 21500
     },
     "tdpWatts": 335,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6950-xt.c3885",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1745,7 +1745,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 18800
     },
     "tdpWatts": 300,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6800-xt.c3713",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1809,7 +1809,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 10400
     },
     "tdpWatts": 180,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6650-xt.c3884",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1841,7 +1841,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 8300
     },
     "tdpWatts": 132,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3796",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3696",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1873,7 +1873,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 13800
     },
     "tdpWatts": 190,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/arc-b580.c4228",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1889,7 +1889,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 11800
     },
     "tdpWatts": 150,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/arc-b570.c4229",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -1937,7 +1937,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 10400
     },
     "tdpWatts": 185,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/arc-a580.c3930",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2049,7 +2049,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 6100
     },
     "tdpWatts": 125,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3474",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3458",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2129,7 +2129,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 22400
     },
     "tdpWatts": 175,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4090-mobile.c3947",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2145,7 +2145,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 19200
     },
     "tdpWatts": 175,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3950",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3947",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2209,7 +2209,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 13600
     },
     "tdpWatts": 175,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3080-ti-mobile.c3866",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2225,7 +2225,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 11800
     },
     "tdpWatts": 150,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3070-ti-mobile.c3865",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2241,7 +2241,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 8800
     },
     "tdpWatts": 140,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3060-mobile.c3746",
+
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2273,7 +2273,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 3700
     },
     "tdpWatts": 35,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4226",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4224",
     "geekerwanUrl": "https://socpk.com/"
   },
   {
@@ -2289,7 +2289,7 @@ export const gpuRankings: BenchmarkItem[] = [
       "timeSpyScore": 3100
     },
     "tdpWatts": 35,
-    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4159",
+    "techPowerUpUrl": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4221",
     "geekerwanUrl": "https://socpk.com/"
   },
   {

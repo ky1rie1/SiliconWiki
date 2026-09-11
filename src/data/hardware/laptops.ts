@@ -43,12 +43,7 @@ export const laptopList: HardwareItem[] = [
         platform: "official",
         description: "联想中国官方 200W 性能释放调教与霜刃 Pro 5.0 散热架构",
       },
-      {
-        title: "Notebookcheck: Lenovo Legion Pro 5 16IRX9 (Y9000P) Review",
-        url: "https://www.notebookcheck.net/Lenovo-Legion-Pro-5-16IRX9-laptop-review-Great-performance-now-with-14th-gen-Intel-Core.816301.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：14 代酷睿 i9 与满血 140W 显卡游戏跑分",
-      },
+
     ],
         reviewLinks: [
       {
@@ -204,12 +199,7 @@ export const laptopList: HardwareItem[] = [
         platform: "official",
         description: "苹果官方 M4 Pro 统一内存架构、雷雳 5 接口与 Liquid 视网膜 XDR 屏规格",
       },
-      {
-        title: "Notebookcheck: Apple MacBook Pro 16 2024 M4 Pro Review",
-        url: "https://www.notebookcheck.net/Apple-MacBook-Pro-16-2024-M4-Pro-review-Quiet-work-machine-with-exceptional-battery-life.917173.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：安静工作站、卓越离电能效与 24 小时续航",
-      },
+
     ],
         reviewLinks: [
       {
@@ -279,12 +269,7 @@ export const laptopList: HardwareItem[] = [
         platform: "asus",
         description: "华硕天选 5 Pro 锐龙 8845HX 满血规格与魔幻青二次元外观技术参数",
       },
-      {
-        title: "Notebookcheck: Asus TUF Gaming A15 / A16 Series Review",
-        url: "https://www.notebookcheck.net/Asus-TUF-Gaming-A15-laptop-review-Budget-gamer-with-Ryzen-power.800164.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：锐龙大核平台高能效与满血独显实机表现",
-      },
+
     ],
         reviewLinks: [
       {
@@ -369,13 +354,7 @@ export const laptopList: HardwareItem[] = [
         author: "Just Josh",
         summary: "Josh 深度评测：屏幕色彩素质、键盘手感与大电池长续航真实表现",
       },
-      {
-        title: "Redmi Book Pro 16 Review | Gaming | Screen | Speaker test",
-        url: "https://www.youtube.com/watch?v=Ekngmq4DYOg",
-        platform: "youtube",
-        author: "TechUtopia",
-        summary: "3.1K 165Hz 屏幕测试、扬声器音效与轻薄全金属机身质感测试",
-      },
+
       {
         title: "Redmi Book Pro 16 2024评测：续航很长的大屏本",
         url: "https://www.bilibili.com/video/BV19r421W75s",
@@ -434,12 +413,7 @@ export const laptopList: HardwareItem[] = [
         platform: "official",
         description: "210W 狂暴双烤性能释放与 TrueStrike 全尺寸原感键盘官方说明",
       },
-      {
-        title: "Notebookcheck: Lenovo Legion Pro 5 16IRX9 Laptop Review",
-        url: "https://www.notebookcheck.net/Lenovo-Legion-Pro-5-16IRX9-laptop-review-Great-performance-now-with-14th-gen-Intel-Core.816301.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：140W 满血 RTX 4070 实际游戏与生产力表现",
-      },
+
     ],
         reviewLinks: [
       {
@@ -513,12 +487,7 @@ export const laptopList: HardwareItem[] = [
         platform: "asus",
         description: "华硕 ROG 18 英寸 2.5K 240Hz Mini-LED 星云原画屏与 175W 满血 4090 规格",
       },
-      {
-        title: "Notebookcheck: Asus ROG Strix SCAR 18 In-Depth Review",
-        url: "https://www.notebookcheck.net/Asus-ROG-Strix-SCAR-18-G834JY-laptop-review-The-ultimate-desktop-replacement.703215.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：终极桌面替代者、移动端旗舰算力巅峰表现",
-      },
+
     ],
         reviewLinks: [
       {
@@ -592,12 +561,7 @@ export const laptopList: HardwareItem[] = [
         platform: "official",
         description: "联想官方 1.09kg 碳纤维机身、美军标防摔规范与 OLED 屏规格",
       },
-      {
-        title: "Notebookcheck: Lenovo ThinkPad X1 Carbon G12 Laptop Review",
-        url: "https://www.notebookcheck.net/Lenovo-ThinkPad-X1-Carbon-G12-laptop-review-First-update-in-three-years-brings-OLED.807831.0.html",
-        platform: "other",
-        description: "Notebookcheck 深度测试：三年首迎大改款、120Hz OLED 护眼与输入体验",
-      },
+
     ],
         reviewLinks: [
       {

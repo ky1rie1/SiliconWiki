@@ -37,7 +37,7 @@ export const ramList: HardwareItem[] = [
     benchmarks: { gamingScore: 98, productivityScore: 95, efficiencyScore: 95 },
     docsLinks: [
       { title: '芝奇官方 · Trident Z5 Neo 焰锋戟 DDR5 规格', url: 'https://www.gskill.com/product/165/390/1665020865/F5-6000J3038F16GX2-TZ5NR', platform: 'official', description: 'AMD EXPO 认证低时序特挑颗粒官方技术白皮书' },
-      { title: 'TechPowerUp · G.Skill Trident Z5 RGB DDR5 Review', url: 'https://www.techpowerup.com/review/g-skill-trident-z5-rgb-ddr5-6800-cl34-2x-16-gb/', platform: 'techpowerup', description: '芝奇旗舰幻锋戟铝合金流线型马甲散热与高频极限测试' },
+
     ],
         reviewLinks: [
       {
@@ -62,14 +62,7 @@ export const ramList: HardwareItem[] = [
         summary: "PC老A 芝奇幻锋戟 RGB 灯效展示与主板神光同步体验",
         bvId: "BV1dU4y1K756",
       },
-      {
-        title: "芝奇Trident Z5 Neo焰锋戟DDR5 6000内存评测",
-        url: "https://www.bilibili.com/video/BV1Uf4y1c77P",
-        platform: "bilibili",
-        author: "电脑爱好者",
-        summary: "AMD EXPO 认证超频与游戏最低帧提升幅度实测",
-        bvId: "BV1Uf4y1c77P",
-      },
+
     ],
     pairingAdvice: 'AMD 锐龙 9800X3D / 7800X3D 装机黄金搭档，免去调参烦恼。',
   },
@@ -103,7 +96,7 @@ export const ramList: HardwareItem[] = [
     benchmarks: { gamingScore: 96, productivityScore: 98, efficiencyScore: 90 },
     docsLinks: [
       { title: '海盗船官方 · DOMINATOR TITANIUM RGB DDR5 规格', url: 'https://www.corsair.com/us/en/p/memory/cmp32gx5m2x7200c34/dominator-titanium-rgb-2x16gb-ddr5-dram-7200mt-s-cl34-intel-xmp-memory-kit-cmp32gx5m2x7200c34', platform: 'official', description: 'DHX 专利双通道散热与顶盖可更换设计官方规格' },
-      { title: 'TechPowerUp · Corsair Dominator Titanium DDR5-7200 Review', url: 'https://www.techpowerup.com/review/corsair-dominator-titanium-first-edition-ddr5-7200-2x-16-gb/', platform: 'techpowerup', description: '海盗船旗舰统治者泰坦 7200MT/s 极限性能与灯效系统评测' },
+
     ],
         reviewLinks: [
       {
@@ -235,7 +228,7 @@ export const ramList: HardwareItem[] = [
     benchmarks: { gamingScore: 82, productivityScore: 88, efficiencyScore: 100 },
     docsLinks: [
       { title: 'Crucial 官方 · Pro DDR5-5600 内存规格', url: 'https://www.crucial.com/memory/ddr5/cp2k16g56c46u5', platform: 'official', description: '美光原厂颗粒 JEDEC 5600 即插即用超低功耗官方白皮书' },
-      { title: 'TechPowerUp · Crucial Pro DDR5-5600 2x 16 GB Review', url: 'https://www.techpowerup.com/review/crucial-pro-ddr5-5600-2x-16-gb/', platform: 'techpowerup', description: '黑色低矮散热马甲与极高系统稳定性全方位测试' },
+
     ],
         reviewLinks: [
       {
@@ -396,14 +389,7 @@ export const ramList: HardwareItem[] = [
         summary: "codeyuri 极速实测全新 CUDIMM 内存：直冲 9866MHz 极限频率",
         bvId: "BV17BzhYdEW1",
       },
-      {
-        title: "金士顿FURY叛逆者CUDIMM DDR5 8400新一代内存首发评测",
-        url: "https://www.bilibili.com/video/BV1ZPdSYUEas",
-        platform: "bilibili",
-        author: "极客之眼",
-        summary: "板载时钟驱动芯片带来信号完整性飞跃，高频游戏 1% Low 实测",
-        bvId: "BV1ZPdSYUEas",
-      },
+
     ],
     pairingAdvice: '专为 Intel 酷睿 Ultra 200S + ROG/微星 Z890 主板打造的极致性能搭档。',
   },
@@ -651,7 +637,7 @@ export const ramList: HardwareItem[] = [
     benchmarks: { gamingScore: 93, productivityScore: 91, efficiencyScore: 96 },
     docsLinks: [
       { title: '海盗船官方 · VENGEANCE DDR5 6000 规格参数', url: 'https://www.corsair.com/us/en/p/memory/cmk32gx5m2b6000c30/vengeance-32gb-2x16gb-ddr5-dram-6000mt-s-c30-memory-kit-black-cmk32gx5m2b6000c30', platform: 'official', description: '矮版紧凑设计兼容顶级风冷散热官方白皮书' },
-      { title: 'TechPowerUp · Corsair Vengeance DDR5-6000 CL30 Review', url: 'https://www.techpowerup.com/review/corsair-vengeance-rgb-ddr5-6000-cl30-2x-16-gb/', platform: 'techpowerup', description: '低延迟 CL30 调校与 AMD EXPO / Intel XMP 性能实测' },
+
     ],
         reviewLinks: [
       {
@@ -720,8 +706,8 @@ export const ramList: HardwareItem[] = [
     imageUrl: 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 96, productivityScore: 96, efficiencyScore: 92 },
     docsLinks: [
-      { title: '芝奇官方 · Trident Z5 RGB 幻锋戟 DDR5 6800 规格', url: 'https://www.gskill.com/product/165/374/1665643750/F5-6800J3445G16GX2-TZ5RS', platform: 'official', description: '流线型双色马甲与高透光RGB导光条官方技术说明' },
-      { title: 'TechPowerUp · G.Skill Trident Z5 RGB DDR5-6800 CL34 Review', url: 'https://www.techpowerup.com/review/g-skill-trident-z5-rgb-ddr5-6800-cl34-2x-16-gb/', platform: 'techpowerup', description: '旗舰幻锋戟 6800MT/s 极限超频与发烧级稳定性评测' },
+
+
     ],
         reviewLinks: [
       {
@@ -853,7 +839,7 @@ export const ramList: HardwareItem[] = [
     benchmarks: { gamingScore: 92, productivityScore: 91, efficiencyScore: 95 },
     docsLinks: [
       { title: '金士顿官方 · FURY Beast 野兽系列 DDR5 规格', url: 'https://www.kingston.com/en/memory/gaming/kingston-fury-beast-ddr5-memory', platform: 'official', description: '半高紧凑马甲与双认证自动超频官方技术说明' },
-      { title: 'TechPowerUp · Kingston Fury Beast RGB DDR5-6000 Review', url: 'https://www.techpowerup.com/review/kingston-fury-beast-rgb-ddr5-6000-cl36-2x-16-gb/', platform: 'techpowerup', description: '野兽系列 DDR5 6000 即插即用稳定性与游戏实测' },
+
     ],
         reviewLinks: [
       {

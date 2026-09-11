@@ -126,12 +126,7 @@ export const caseList: HardwareItem[] = [
         platform: 'official',
         description: "FSC 认证胡桃木/橡木前脸材质标准与五金尺寸图",
       },
-      {
-        title: "TechPowerUp: Fractal Design North Case Review",
-        url: 'https://www.techpowerup.com/review/fractal-design-north-case/',
-        platform: 'techpowerup',
-        description: "TechPowerUp 深度评测：天然实木与高静压进风风道测试",
-      },
+
     ],
     reviewLinks: [
       {
@@ -424,13 +419,7 @@ export const caseList: HardwareItem[] = [
         author: "主观评测部",
         summary: "爱国者星璨岚（大岚双屏版）无立柱全景海景房开箱装机与风道效能实测",
       },
-      {
-        title: "darkFlash MOTI Micro-ATX Dual-Chamber Panoramic PC Case Build & Review",
-        url: 'https://www.youtube.com/watch?v=UTMkQjbXa4s',
-        platform: 'youtube',
-        author: "DanKamYouKnow",
-        summary: "darkFlash MOTI 紧凑型双仓无立柱海景房全透视角与散热表现详测",
-      },
+
       {
         title: "[JC] 登岛前，先来看看的登岛守则！ darkFlash 大飞 MOTI镜之岛（星璨·岚）上手体验",
         url: 'https://www.bilibili.com/video/BV1du4y1Q7B4',
@@ -732,7 +721,7 @@ export const caseList: HardwareItem[] = [
         title: "JONSBO D31 SCREEN - CLEAN DESIGN & 8\" LCD DISPLAY!",
         url: 'https://www.youtube.com/watch?v=vPXjffYc03I',
         platform: 'youtube',
-        author: "Mikes unboxing, reviews and how to",
+        author: 'PC Crazy',
         summary: "乔思伯 D31 带屏版装机实录与 8 英寸副屏副屏投屏设置技巧",
       },
       {
@@ -874,12 +863,7 @@ export const caseList: HardwareItem[] = [
         platform: 'official',
         description: "分形工艺官方北欧天然橡木/胡桃木加工工艺与黄铜金属件参数",
       },
-      {
-        title: "TechPowerUp: Fractal Design North Case Review",
-        url: 'https://www.techpowerup.com/review/fractal-design-north-case/',
-        platform: 'techpowerup',
-        description: "权威外媒评测：北欧极简美学设计与前进后出直通风道表现",
-      },
+
     ],
     reviewLinks: [
       {

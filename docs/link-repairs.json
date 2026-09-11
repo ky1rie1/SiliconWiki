@@ -1,0 +1,415 @@
+{
+  "checkedAt": "2026-09-11",
+  "repairs": [
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-ti/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/gaming-laptops/rtx-40-series/",
+      "newUrl": "https://www.nvidia.cn/geforce/laptops/40-series/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/laptops/40-series/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/gaming-laptops/rtx-4070/",
+      "newUrl": "https://www.nvidia.cn/geforce/laptops/40-series/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/laptops/40-series/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/gaming-laptops/rtx-4080/",
+      "newUrl": "https://www.nvidia.cn/geforce/laptops/40-series/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/laptops/40-series/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-super/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-ti-super/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-ti/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4080-super/",
+      "newUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4080-family/",
+      "reason": "Manufacturer canonical family page opened and model presence confirmed in page text/specifications; label as a family specification page.",
+      "evidenceUrl": "https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4080-family/"
+    },
+    {
+      "oldUrl": "https://www.apple.com.cn/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/",
+      "newUrl": "https://www.apple.com.cn/newsroom/2024/10/apple-introduces-m4-pro-m4-max/",
+      "evidenceUrl": "https://www.apple.com.cn/newsroom/2024/10/apple-introduces-m4-pro-m4-max/",
+      "reason": "Manufacturer page search result confirms matching exact product and title. Old URL confirmed HTTP404 or soft404."
+    },
+    {
+      "oldUrl": "https://www.msi.cn/Motherboard/MAG-Z790-TOMAHAWK-WIFI",
+      "newUrl": "https://www.msi.com/Motherboard/MAG-Z790-TOMAHAWK-WIFI",
+      "evidenceUrl": "https://www.msi.com/Motherboard/MAG-Z790-TOMAHAWK-WIFI",
+      "reason": "Manufacturer page search result confirms matching exact product and title. Old URL confirmed HTTP404 or soft404."
+    },
+    {
+      "oldUrl": "https://seasonic.com/focus-gx-atx-3-0",
+      "newUrl": "https://seasonic.com/atx3-focus-gx/",
+      "evidenceUrl": "https://seasonic.com/atx3-focus-gx/",
+      "reason": "Manufacturer page search result confirms matching exact product and title. Old URL confirmed HTTP404 or soft404."
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3264",
+      "newUrl": "https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3268",
+      "evidenceUrl": "https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3268",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3474",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3458",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3458",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3944",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3946",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3946",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3950",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3947",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3947",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4219",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4218",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4218",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4225",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4217",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4217",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4224",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4159",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4221",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4221",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4226",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4224",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4224",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3796",
+      "newUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3696",
+      "evidenceUrl": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3696",
+      "reason": "Existing public database response confirmed numeric ID belongs to exact expected model; canonical slug uses that observed ID.",
+      "evidenceMethod": "HTTP 200 page title exact model match for numeric ID"
+    },
+    {
+      "oldUrl": "https://www.deepcool.com/products/Cooling/cpuaircoolers/AK620-DIGITAL-Performance-CPU-Cooler-With-Status-Display/2023/17202.shtml",
+      "newUrl": "https://uk.deepcool.com/products/Cooling/cpuaircoolers/AK620-Digital-Performance-CPU-Cooler-With-Status-Display-1700-AM5/2023/17207.shtml",
+      "evidenceUrl": "https://uk.deepcool.com/products/Cooling/cpuaircoolers/AK620-Digital-Performance-CPU-Cooler-With-Status-Display-1700-AM5/2023/17207.shtml",
+      "reason": "Manufacturer regional product page opened; AK620 DIGITAL heading, specification table and R-AK620-BKADMN-G part number confirmed."
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html",
+      "newUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html",
+      "newUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6750-gre.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-6000-series/amd-radeon-rx-6750-gre-12gb.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page with exact RX 6750 GRE 12GB heading; no Specifications section; label changed to driver support.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-6000-series/amd-radeon-rx-6750-gre-12gb.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html",
+      "newUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html",
+      "newUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html",
+      "newUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-xt.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xt.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page; exact model name and Specifications section are present.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xt.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-xtx.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xtx.html",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page; exact model name and Specifications section are present.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xtx.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-5-5600.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page; exact model name and Specifications section are present.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-5-5600g.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page; exact model name and Specifications section are present.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-5-5600g.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5700x3d.html",
+      "newUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-7-5700x3d.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Opened official support page; exact model name and Specifications section are present.",
+      "evidenceUrl": "https://www.amd.com/en/support/downloads/drivers.html/processors/ryzen/ryzen-5000-series/amd-ryzen-7-5700x3d.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5800x3d.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5800x3d.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/5000-series/amd-ryzen-7-5800x3d.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7500f.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7500f.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7500f.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7600x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7600x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-5-7600x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7700x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7700x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7700x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/7000-series/amd-ryzen-9-7950x3d.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-9-7950x3d.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-9-7950x3d.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-5-9600x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-5-9600x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-5-9600x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9700x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9700x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9700x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9800x3d.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9800x3d.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-7-9800x3d.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9900x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9900x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9900x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9950x.html",
+      "newUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9950x.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/desktops/ryzen/9000-series/amd-ryzen-9-9950x.html"
+    },
+    {
+      "oldUrl": "https://www.amd.com/zh-hans/products/processors/laptop/ryzen/300-series/amd-ryzen-ai-9-hx-370.html",
+      "newUrl": "https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-9-hx-370.html",
+      "files": [
+        "src/data/hardware/cpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Read-only GET returned HTTP 200; page h1 matches the exact model. HX 370 uses the ai-300-series directory.",
+      "evidenceUrl": "https://www.amd.com/en/products/processors/laptop/ryzen/ai-300-series/amd-ryzen-ai-9-hx-370.html"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090/",
+      "newUrl": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Official English product page and model specification table verified earlier in this session.",
+      "evidenceUrl": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/"
+    },
+    {
+      "oldUrl": "https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5080/",
+      "newUrl": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/",
+      "files": [
+        "src/data/hardware/gpus.ts"
+      ],
+      "checkedAt": "2026-09-11",
+      "reason": "Official English product page and model specification table verified earlier in this session.",
+      "evidenceUrl": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/"
+    }
+  ]
+}

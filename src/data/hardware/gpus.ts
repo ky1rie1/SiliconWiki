@@ -16,20 +16,20 @@ export const gpuList: HardwareItem[] = [
       '显存容量/类型': '32 GB GDDR7',
       '显存位宽/带宽': '512-bit / 1792 GB/s',
       'CUDA 核心数': '21760',
-      '核心加速频率': '2400 MHz+',
+      '核心加速频率': '2.41 GHz（参考设计）',
       '总线接口': 'PCIe 5.0 x16',
       '制程工艺': 'TSMC 4NP 定制工艺',
-      '整卡功耗 (TGP/TBP)': '600W (最大峰值释放可达 650W+)',
-      'AI 算力': '3000+ TOPS (FP8/FP4 DLSS 4 多帧插帧)',
+      '整卡功耗 (TGP/TBP)': '575W TGP（参考设计）',
+      'AI 算力': '3352 AI TOPS（厂商标称，不能与不同精度指标直接比较）',
     },
     highlights: [
       '消费级图形卡历史最强性能怪兽，32GB GDDR7 超大显存',
       '512-bit 极限带宽，4K/8K 极限光追与本地百亿大模型推演训练终极神器',
-      '第四代 Tensor 核心与 DLSS 4 带来革命性高帧率体验',
+      '第五代 Tensor 核心，支持 DLSS 4 多帧生成',
     ],
     pros: ['4K 光追全开无脑 144Hz+，全景光追黑神话如履平地', '32GB 显存可直接单卡微调 70B 大模型', 'PCIe 5.0 带来极致带宽'],
-    cons: ['整卡功耗高达 600W，要求至少 1000W~1200W ATX 3.0 电源', '价格高昂且初期货源极度紧张有溢价'],
-    tdpWatts: 600,
+    cons: ['参考设计整卡功耗 575W；官方规格表建议系统电源 1000W，具体需求取决于整机配置', '价格高昂且初期货源极度紧张有溢价'],
+    tdpWatts: 575,
     msrpRmb: 15999,
     marketPriceRange: [15999, 19999],
     priceTrend: 'warning',
@@ -56,7 +56,7 @@ export const gpuList: HardwareItem[] = [
         docsLinks: [
       {
         title: 'NVIDIA 官方 GeForce RTX 5090 旗舰技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5090/',
+        url: 'https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 Blackwell 架构、GB202 核心与 32GB GDDR7 显存规格',
       },
@@ -121,12 +121,12 @@ export const gpuList: HardwareItem[] = [
       'CUDA 核心数': '10752',
       '总线接口': 'PCIe 5.0 x16',
       '制程工艺': 'TSMC 4NP',
-      '整卡功耗 (TGP/TBP)': '400W',
+      '整卡功耗 (TGP/TBP)': '360W TGP（参考设计）',
     },
     highlights: ['次旗舰 Blackwell 强力之作', '全新高速 GDDR7 显存', '全面超越 4090 传统光栅或接近'],
-    pros: ['4K 3A 游戏通吃，DLSS 4 多帧生成加持', '功耗相比 5090 大幅降低至 400W'],
+    pros: ['4K 3A 游戏通吃，DLSS 4 多帧生成加持', '参考设计整卡功耗 360W，低于 RTX 5090 的 575W'],
     cons: ['16GB 显存在次旗舰定位略显克制'],
-    tdpWatts: 400,
+    tdpWatts: 360,
     msrpRmb: 8299,
     marketPriceRange: [8299, 9599],
     priceTrend: 'stable',
@@ -148,7 +148,7 @@ export const gpuList: HardwareItem[] = [
         docsLinks: [
       {
         title: 'NVIDIA 官方 GeForce RTX 5080 旗舰技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5080/',
+        url: 'https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5080/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 Blackwell 架构、16GB GDDR7 显存与 DLSS 4 技术规格',
       },
@@ -236,23 +236,13 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 78, productivityScore: 74, efficiencyScore: 89, timeSpyScore: 28500 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 5070 Ti 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-ti/',
+        title: 'NVIDIA 官方 GeForce RTX 5070 系列规格（含 RTX 5070 Ti）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 Blackwell 架构高端 16GB GDDR7 显卡规格',
       },
-      {
-        title: 'TechPowerUp GeForce RTX 5070 Ti Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-5070-ti.c4218',
-        platform: 'techpowerup',
-        description: '8960 CUDA 核心、256-bit 位宽与晶体管拓扑数据',
-      },
-      {
-        title: 'Tom\'s Hardware NVIDIA GeForce RTX 5070 Ti Review',
-        url: 'https://www.tomshardware.com/pc-components/gpus/nvidia-geforce-rtx-5070-ti-review',
-        platform: 'tomshardware',
-        description: '2K/4K 极致画质游戏表现与 Blackwell 高能效测试',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -325,23 +315,18 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 70, productivityScore: 66, efficiencyScore: 91, timeSpyScore: 23200 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 5070 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070/',
+        title: 'NVIDIA 官方 GeForce RTX 5070 系列规格（含 RTX 5070）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/50-series/rtx-5070-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 Blackwell 架构 12GB GDDR7 甜点次旗舰规格',
       },
       {
         title: 'TechPowerUp GeForce RTX 5070 Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4219',
+        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4218',
         platform: 'techpowerup',
         description: '6144 CUDA 核心、192-bit 位宽底层架构数据',
       },
-      {
-        title: 'Tom\'s Hardware NVIDIA GeForce RTX 5070 Review',
-        url: 'https://www.tomshardware.com/pc-components/gpus/nvidia-geforce-rtx-5070-review',
-        platform: 'tomshardware',
-        description: '2K 分辨率高刷 3A 光追游戏与 DLSS 4 能效实测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -509,8 +494,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 82, productivityScore: 80, efficiencyScore: 90, timeSpyScore: 28800 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4080 Super 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4080-super/',
+        title: 'NVIDIA 官方 GeForce RTX 4080 系列规格（含 RTX 4080 SUPER）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4080-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 10240 CUDA 核心、16GB G6X 显存规格',
       },
@@ -599,8 +584,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 74, productivityScore: 72, efficiencyScore: 92, timeSpyScore: 24800 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4070 Ti Super 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-ti-super/',
+        title: 'NVIDIA 官方 GeForce RTX 4070 系列规格（含 RTX 4070 Ti SUPER）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方升级 16GB 显存与 256-bit 位宽规格',
       },
@@ -689,8 +674,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 66, productivityScore: 62, efficiencyScore: 95, timeSpyScore: 21200 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4070 Super 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-super/',
+        title: 'NVIDIA 官方 GeForce RTX 4070 系列规格（含 RTX 4070 SUPER）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方增加 20% 核心规模 12GB G6X 规格',
       },
@@ -779,17 +764,12 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 48, productivityScore: 45, efficiencyScore: 97, timeSpyScore: 13600 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4060 Ti 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-ti/',
+        title: 'NVIDIA 官方 GeForce RTX 4060 系列规格（含 RTX 4060 Ti）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 4352 CUDA 核心、32MB 大二级缓存规格',
       },
-      {
-        title: 'TechPowerUp GeForce RTX 4060 Ti Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-ti-8-gb.c3978',
-        platform: 'techpowerup',
-        description: 'AD106 核心、128-bit 位宽与 160W TDP 数据',
-      },
+
       {
         title: 'TechPowerUp NVIDIA GeForce RTX 4060 Ti Review',
         url: 'https://www.techpowerup.com/review/nvidia-geforce-rtx-4060-ti-founders-edition/',
@@ -868,8 +848,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 40, productivityScore: 36, efficiencyScore: 99, timeSpyScore: 10600 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4060 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060/',
+        title: 'NVIDIA 官方 GeForce RTX 4060 系列规格（含 RTX 4060）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4060-4060ti/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 115W 极高能效比主流甜点显卡规格',
       },
@@ -1144,8 +1124,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 82, productivityScore: 68, efficiencyScore: 78, timeSpyScore: 29500 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 7900 XTX 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-xtx.html',
+        title: 'AMD 官方 Radeon RX 7900 XTX 支持与规格',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xtx.html',
         platform: 'amd',
         description: 'AMD 官方 RDNA 3 架构 Chiplet 小芯片旗舰 24GB 规格',
       },
@@ -1234,17 +1214,12 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 60, productivityScore: 48, efficiencyScore: 82, timeSpyScore: 19200 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 7800 XT 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html',
+        title: 'AMD 官方 Radeon RX 7800 XT 产品规格',
+        url: 'https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html',
         platform: 'amd',
         description: 'AMD 官方 16GB 大显存 256-bit 2K 高性价比神卡规格',
       },
-      {
-        title: 'TechPowerUp Radeon RX 7800 XT Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/radeon-rx-7800-xt.c3831',
-        platform: 'techpowerup',
-        description: 'Navi 32 核心、3840 流处理器与 64MB Infinity Cache 数据',
-      },
+
       {
         title: 'TechPowerUp AMD Radeon RX 7800 XT Review',
         url: 'https://www.techpowerup.com/review/amd-radeon-rx-7800-xt/',
@@ -1324,23 +1299,13 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 45, productivityScore: 32, efficiencyScore: 79, timeSpyScore: 12800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 6750 GRE 12GB 技术规格',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6750-gre.html',
+        title: 'AMD 官方 Radeon RX 6750 GRE 12GB 驱动支持',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-6000-series/amd-radeon-rx-6750-gre-12gb.html',
         platform: 'amd',
-        description: 'AMD 官方中国特供高性价比 2K 甜点显卡规格',
+        description: '对应 12GB 型号的官方支持页；该页提供驱动下载，不作为完整硬件规格的核验来源',
       },
-      {
-        title: 'TechPowerUp Radeon RX 6750 GRE 12GB Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/radeon-rx-6750-gre-12-gb.c4184',
-        platform: 'techpowerup',
-        description: 'Navi 22 满血核心、2560 流处理器与 192-bit 位宽数据',
-      },
-      {
-        title: 'Tom\'s Hardware AMD Radeon RX 6750 GRE 12GB Review',
-        url: 'https://www.tomshardware.com/reviews/amd-radeon-rx-6750-gre-12gb-review',
-        platform: 'tomshardware',
-        description: '两千元档最强 2K 游戏性价比神卡深度评测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -1414,8 +1379,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 30, productivityScore: 22, efficiencyScore: 88, timeSpyScore: 8200 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 6600 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html',
+        title: 'AMD 官方 Radeon RX 6600 产品规格',
+        url: 'https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6600.html',
         platform: 'amd',
         description: 'AMD 官方 1080P 入门千元电竞神卡规格',
       },
@@ -1519,12 +1484,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方第二代 Battlemage Xe2 架构主流甜品显卡参数',
       },
-      {
-        title: 'TechPowerUp Intel Arc B580 Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/arc-b580.c4221',
-        platform: 'techpowerup',
-        description: 'BMG-G21 核心、20 个 Xe2 核心与 192-bit 位宽数据',
-      },
+
       {
         title: 'TechPowerUp Intel Arc B580 Review',
         url: 'https://www.techpowerup.com/review/intel-arc-b580/',
@@ -1614,12 +1574,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'ACM-G10 核心、32 个 Xe 核心与 256-bit 位宽数据',
       },
-      {
-        title: 'TechPowerUp Intel Arc A770 16GB Review',
-        url: 'https://www.techpowerup.com/review/intel-arc-a770-limited-edition/',
-        platform: 'techpowerup',
-        description: '大显存视频剪辑编码与 DX12 游戏性能实测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -1689,23 +1644,18 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 39, productivityScore: 35, efficiencyScore: 98, timeSpyScore: 10400 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 40 系列笔记本电脑 GPU 技术规格',
-        url: 'https://www.nvidia.cn/geforce/gaming-laptops/rtx-40-series/',
+        title: 'NVIDIA 官方 GeForce RTX 40 笔记本 GPU 系列规格（含 RTX 4060）',
+        url: 'https://www.nvidia.cn/geforce/laptops/40-series/',
         platform: 'nvidia',
-        description: 'NVIDIA 官方 140W 满血移动版 RTX 4060 笔记本规格参数',
+        description: 'NVIDIA 官方系列规格表；查看 RTX 4060 Laptop GPU 对应列，整机功耗配置以笔记本厂商为准',
       },
       {
         title: 'TechPowerUp GeForce RTX 4060 Mobile Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3944',
+        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3946',
         platform: 'techpowerup',
         description: 'AD107 移动核心、3072 CUDA 单元与 8GB GDDR6 参数',
       },
-      {
-        title: 'Tom\'s Hardware RTX 4060 Mobile Gaming Benchmarks',
-        url: 'https://www.tomshardware.com/reviews/nvidia-geforce-rtx-4060-mobile',
-        platform: 'tomshardware',
-        description: '主流游戏本满血释放能耗与 2K 游戏实测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -1771,10 +1721,10 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 68, productivityScore: 65, efficiencyScore: 90, timeSpyScore: 19500 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4080 笔记本电脑 GPU 规格',
-        url: 'https://www.nvidia.cn/geforce/gaming-laptops/rtx-4080/',
+        title: 'NVIDIA 官方 GeForce RTX 40 笔记本 GPU 系列规格（含 RTX 4080）',
+        url: 'https://www.nvidia.cn/geforce/laptops/40-series/',
         platform: 'nvidia',
-        description: 'NVIDIA 官方 12GB 显存高端游戏本 GPU 参数',
+        description: 'NVIDIA 官方系列规格表；查看 RTX 4080 Laptop GPU 对应列，整机功耗配置以笔记本厂商为准',
       },
       {
         title: 'TechPowerUp GeForce RTX 4080 Mobile Database Specs',
@@ -1782,12 +1732,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'AD104 核心、7424 CUDA 单元与 175W 最大功耗参数',
       },
-      {
-        title: 'Tom\'s Hardware RTX 4080 Mobile Review',
-        url: 'https://www.tomshardware.com/reviews/nvidia-rtx-4080-mobile-gpu',
-        platform: 'tomshardware',
-        description: '次旗舰游戏本 2K/4K 极致光追实测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -1852,10 +1797,10 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 48, productivityScore: 46, efficiencyScore: 95, timeSpyScore: 12600 },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4070 笔记本电脑 GPU 规格',
-        url: 'https://www.nvidia.cn/geforce/gaming-laptops/rtx-4070/',
+        title: 'NVIDIA 官方 GeForce RTX 40 笔记本 GPU 系列规格（含 RTX 4070）',
+        url: 'https://www.nvidia.cn/geforce/laptops/40-series/',
         platform: 'nvidia',
-        description: 'NVIDIA 官方 8GB 显存移动版主流中高端 GPU 参数',
+        description: 'NVIDIA 官方系列规格表；查看 RTX 4070 Laptop GPU 对应列，整机功耗配置以笔记本厂商为准',
       },
       {
         title: 'TechPowerUp GeForce RTX 4070 Mobile Database Specs',
@@ -1863,12 +1808,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'AD106 核心、4608 CUDA 单元与 140W 满血释放数据',
       },
-      {
-        title: 'Tom\'s Hardware RTX 4070 Laptop GPU Review',
-        url: 'https://www.tomshardware.com/reviews/nvidia-geforce-rtx-4070-laptop-gpu',
-        platform: 'tomshardware',
-        description: '轻薄性能本与游戏本实际游戏帧率评测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -1942,8 +1882,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 75, productivityScore: 62, efficiencyScore: 82, timeSpyScore: 25800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 7900 XT 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-xt.html',
+        title: 'AMD 官方 Radeon RX 7900 XT 支持与规格',
+        url: 'https://www.amd.com/en/support/downloads/drivers.html/graphics/radeon-rx/radeon-rx-7000-series/amd-radeon-rx-7900-xt.html',
         platform: 'amd',
         description: 'AMD 官方 20GB 大显存 320-bit 次旗舰显卡规格',
       },
@@ -2032,8 +1972,8 @@ export const gpuList: HardwareItem[] = [
     benchmarks: { gamingScore: 68, productivityScore: 54, efficiencyScore: 86, timeSpyScore: 21800 },
         docsLinks: [
       {
-        title: 'AMD 官方 Radeon RX 7900 GRE 技术规格白皮书',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html',
+        title: 'AMD 官方 Radeon RX 7900 GRE 产品规格',
+        url: 'https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7900-gre.html',
         platform: 'amd',
         description: 'AMD 官方兔年纪念版 16GB 高性能显卡参数',
       },
@@ -2043,12 +1983,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'Navi 31 核心、5120 流处理器与 256-bit 位宽参数',
       },
-      {
-        title: 'TechPowerUp AMD Radeon RX 7900 GRE Review',
-        url: 'https://www.techpowerup.com/review/amd-radeon-rx-7900-gre/',
-        platform: 'techpowerup',
-        description: '降维打击 4070 的 16GB 甜点旗舰综合评测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -2216,18 +2151,8 @@ export const gpuList: HardwareItem[] = [
         platform: 'intel-ark',
         description: 'Intel 官方第二代 Battlemage 10GB 甜品显卡参数',
       },
-      {
-        title: 'TechPowerUp Intel Arc B570 Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/arc-b570.c4222',
-        platform: 'techpowerup',
-        description: '18 个 Xe2 核心、160-bit 位宽与 150W 功耗数据',
-      },
-      {
-        title: 'Tom\'s Hardware Intel Arc B570 Review',
-        url: 'https://www.tomshardware.com/pc-components/gpus/intel-arc-b570-review',
-        platform: 'tomshardware',
-        description: '千元级新架构显卡 1080P/2K 游戏性价比测试',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2313,8 +2238,8 @@ export const gpuList: HardwareItem[] = [
     },
         docsLinks: [
       {
-        title: 'NVIDIA 官方 GeForce RTX 4070 技术规格',
-        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070/',
+        title: 'NVIDIA 官方 GeForce RTX 4070 系列规格（含 RTX 4070）',
+        url: 'https://www.nvidia.cn/geforce/graphics-cards/40-series/rtx-4070-family/',
         platform: 'nvidia',
         description: 'NVIDIA 官方 5888 CUDA 核心、12GB 显存 200W 低功耗规格',
       },
@@ -2520,18 +2445,8 @@ export const gpuList: HardwareItem[] = [
         platform: 'nvidia',
         description: 'NVIDIA 官方升级 19 Gbps GDDR6X 极速显存甜点卡规格',
       },
-      {
-        title: 'TechPowerUp GeForce RTX 3060 Ti GDDR6X Database Specs',
-        url: 'https://www.techpowerup.com/gpu-specs/geforce-rtx-3060-ti-gddr6x.c3936',
-        platform: 'techpowerup',
-        description: 'GA104 核心、4864 CUDA 单元与 608 GB/s 显存带宽参数',
-      },
-      {
-        title: 'TechPowerUp NVIDIA GeForce RTX 3060 Ti GDDR6X Review',
-        url: 'https://www.techpowerup.com/review/asus-geforce-rtx-3060-ti-tuf-gddr6x/',
-        platform: 'techpowerup',
-        description: '升级 G6X 显存后 2K 游戏实机帧率提升实测',
-      },
+
+
     ],
         reviewLinks: [
       {
@@ -2617,7 +2532,7 @@ export const gpuList: HardwareItem[] = [
         docsLinks: [
       {
         title: 'AMD 官方 Radeon RX 7700 XT 12GB 技术规格',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html',
+        url: 'https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7700-xt.html',
         platform: 'amd',
         description: 'AMD 官方 12GB 显存 2K 高画质电竞显卡技术规格',
       },
@@ -2627,12 +2542,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'Navi 32 核心、3456 流处理器与 192-bit 位宽数据',
       },
-      {
-        title: 'TechPowerUp AMD Radeon RX 7700 XT Review',
-        url: 'https://www.techpowerup.com/review/amd-radeon-rx-7700-xt/',
-        platform: 'techpowerup',
-        description: '2K 分辨率主流 3A 游戏性能对比实测',
-      },
+
     ],
         reviewLinks: [
       {
@@ -2718,7 +2628,7 @@ export const gpuList: HardwareItem[] = [
         docsLinks: [
       {
         title: 'AMD 官方 Radeon RX 6700 XT 12GB 技术规格',
-        url: 'https://www.amd.com/zh-hans/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html',
+        url: 'https://www.amd.com/en/products/graphics/desktops/radeon/6000-series/amd-radeon-rx-6700-xt.html',
         platform: 'amd',
         description: 'AMD 官方经典 12GB 大显存 2K 性价比神卡参数',
       },
@@ -2728,12 +2638,7 @@ export const gpuList: HardwareItem[] = [
         platform: 'techpowerup',
         description: 'Navi 22 核心、2560 流处理器与 96MB Infinity Cache 数据',
       },
-      {
-        title: 'TechPowerUp AMD Radeon RX 6700 XT Review',
-        url: 'https://www.techpowerup.com/review/amd-radeon-rx-6700-xt-reference/',
-        platform: 'techpowerup',
-        description: '经典 2K 甜点卡 3A 游戏实机帧率与光栅性能测试',
-      },
+
     ],
         reviewLinks: [
       {

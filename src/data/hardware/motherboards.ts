@@ -202,8 +202,7 @@ export const motherboardList: HardwareItem[] = [
       { title: 'ZOL 中关村在线 · 华擎 B650M-HDV 参数', url: 'https://detail.zol.com.cn/motherboard/index1408892.shtml', platform: 'zol', description: '百元级 AM5 高性价比妖板实测' },
     ],
     reviewLinks: [
-      { title: 'Is The New Cheapest B650 Board Any Good? Asrock B650M-HDV/M.2 Review', url: 'https://www.youtube.com/watch?v=DOrhnNssrN4', platform: 'youtube', author: 'Hardware Unboxed', summary: '平民性价比妖板，双槽走线内存超频与VRM带高阶CPU实测' },
-      { title: '性能暴涨!华擎B650M–H/M.2+手动超频作业7500f轻松超5.5g', url: 'https://www.bilibili.com/video/BV1Sw4m1y7Kn/', platform: 'bilibili', author: '老猫硬谈', summary: '华擎妖板PBO手动超频作业与DDR5高频低时序实录' },
+      { title: '10 Reasons to buy ASRock B650M-HDV/M.2 - Best value AM5 Motherboard for AMD', url: 'https://www.youtube.com/watch?v=DOrhnNssrN4', platform: 'youtube', author: 'goldfries', summary: 'ASRock B650M-HDV/M.2 选购介绍；请结合原视频核对配置与测试条件。' },
     ],
     pairingAdvice: '预算 4000~6000 元游戏推荐配置首选底板，搭配锐龙 7500F 性价比优秀。',
   },
@@ -383,7 +382,7 @@ export const motherboardList: HardwareItem[] = [
       { title: 'ZOL 中关村在线 · B760M 迫击炮二代参数', url: 'https://detail.zol.com.cn/motherboard/index1421888.shtml', platform: 'zol', description: 'ZOL 实验室性能评测与散热实测' },
     ],
     reviewLinks: [
-      { title: 'MSI MAG Mortar Series In-Depth Performance Review', url: 'https://www.youtube.com/watch?v=xUnl6n9Jwjs', platform: 'youtube', author: 'Hardware Busters', summary: '三条 M.2 满配与 12+1+1 供电用料带 14700K 满载功耗实测' },
+
       {
         title: "功耗爆炸的14代还能降压吗？中期改款的B760M迫击炮II能否驾驭？14700K晚发体验+B760M迫击炮II测评",
         url: 'https://www.bilibili.com/video/BV13u4y177Du',
@@ -578,7 +577,7 @@ export const motherboardList: HardwareItem[] = [
         author: "BC Zone",
         summary: "华擎 B760M Pro RS 银白马甲散热效能与高性价比主板实测",
       },
-      { title: '丐板拉皮 微星/华擎B760M 深度对比横评', url: 'https://www.bilibili.com/video/BV1a14y1R757/', platform: 'bilibili', author: 'codeyuri', summary: '千元内最美银白马甲主板，双M.2散热片与DDR5性能实测' },
+
     ],
     pairingAdvice: '搭配 i5-12600KF / 12400F 打造千元内浅色系电竞主机。',
   },
@@ -615,7 +614,7 @@ export const motherboardList: HardwareItem[] = [
         author: "Comparative Reviews",
         summary: "微星 PRO 商用系列稳定供电与办公/轻度游戏可靠性评测",
       },
-      { title: '微星PRO B760M-A II 深度拆解对比高性价比生产力平台评测', url: 'https://www.bilibili.com/video/BV17S411F71r/', platform: 'bilibili', author: '極酷玩家装机馆', summary: '商用稳健供电设计，微星BIOS调校与办公长时间稳定性实测' },
+
     ],
     pairingAdvice: '办公机、深度开发与无光机箱装机首选。',
   },
@@ -648,11 +647,11 @@ export const motherboardList: HardwareItem[] = [
     benchmarks: { gamingScore: 97, productivityScore: 98, efficiencyScore: 90 },
     docsLinks: [
       { title: '华硕官方 · ROG MAXIMUS Z790 DARK HERO 规格详情', url: 'https://rog.asus.com/motherboards/rog-maximus/rog-maximus-z790-dark-hero/', platform: 'asus', description: '暗黑纯血败家之眼旗舰白皮书与 Wi-Fi 7 说明' },
-      { title: 'TechPowerUp · ASUS ROG Maximus Z790 Dark Hero Review', url: 'https://www.techpowerup.com/review/asus-rog-maximus-z790-dark-hero/', platform: 'techpowerup', description: '外媒旗舰主板 20+1+2 相供电与极限超频深度评测' },
+
     ],
     reviewLinks: [
       { title: 'What A Way To END Z790 Series - ASUS ROG MAXIMUS Z790 DARK HERO', url: 'https://www.youtube.com/watch?v=pgeMBsEbNbI', platform: 'youtube', author: 'A2K', summary: 'LGA 1700 终极黑化卡皇，20+1+2 相供电与 Wi-Fi 7 极限超频' },
-      { title: '顶级的中端级高端入门型Z790主板——ROG MAXIMUS Z790 HERO 旗舰评测', url: 'https://www.bilibili.com/video/BV1cW4y1n7um/', platform: 'bilibili', author: '吃瓜大师', summary: '暗黑纯血败家之眼，豪华供电与5个M.2全装甲实录' },
+
     ],
     pairingAdvice: '搭配 14900KS / 14900K 打造纯黑顶级发烧旗舰。',
   },
@@ -789,7 +788,7 @@ export const motherboardList: HardwareItem[] = [
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60',
     benchmarks: { gamingScore: 96, productivityScore: 96, efficiencyScore: 94 },
     docsLinks: [
-      { title: '微星官方 · MAG Z790 TOMAHAWK WIFI 规格', url: 'https://www.msi.cn/Motherboard/MAG-Z790-TOMAHAWK-WIFI', platform: 'msi', description: '16+1+1 90A SPS 战斧导弹主力大板官方白皮书' },
+      { title: '微星官方 · MAG Z790 TOMAHAWK WIFI 规格', url: 'https://www.msi.com/Motherboard/MAG-Z790-TOMAHAWK-WIFI', platform: 'msi', description: '16+1+1 90A SPS 战斧导弹主力大板官方白皮书' },
       { title: 'TechPowerUp · MSI MAG Z790 Tomahawk WiFi Review', url: 'https://www.techpowerup.com/review/msi-mag-z790-tomahawk-wifi/', platform: 'techpowerup', description: '权威外媒对 Z790 战斧导弹温控与供电持续负载评测' },
     ],
     reviewLinks: [

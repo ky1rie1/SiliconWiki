@@ -1,0 +1,60 @@
+.hardware-image {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 208px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 48% 35%, #fafaf4 0%, #eeeee5 62%, #e4e7dc 100%);
+  border-bottom: 1px solid var(--line, #dedfd9);
+  color: #636c59;
+  user-select: none;
+}
+.hardware-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23000' filter='url(%23n)' opacity='.2' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+  opacity: .11;
+}
+.dark .hardware-image {
+  background: radial-gradient(ellipse at 48% 30%, #394334 0%, #272f25 53%, #20271f 100%);
+  color: #bdc5ae;
+}
+.hardware-image__art { display: block; width: 100%; height: 100%; }
+.hardware-image__heading, .hardware-image__caption {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 1;
+  pointer-events: none;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.hardware-image__heading { top: 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: 1.7px; }
+.hardware-image__index { color: #8a7650; }
+.dark .hardware-image__index { color: #c8b67d; }
+.hardware-image__caption { bottom: 12px; letter-spacing: .5px; }
+.hardware-image__caption > :first-child { max-width: 70%; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-weight: 600; }
+.hardware-image__caption > :last-child { flex-shrink: 0; font-size: 9px; }
+.hardware-image__photo { display: block; width: 100%; height: 100%; object-fit: contain; padding: 31px 22px 30px; }
+.hardware-image__product { transform-origin: 50% 52%; transition: transform 240ms ease; }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hardware-card:hover .hardware-image__product { transform: translateY(-3px); }
+}
+/* Existing compact callers set the available height on their wrapper. */
+.h-28 > .hardware-image, .h-8 > .hardware-image { height: 100%; border-bottom: 0; }
+.h-28 > .hardware-image .hardware-image__heading,
+.h-28 > .hardware-image .hardware-image__caption,
+.h-8 > .hardware-image .hardware-image__heading,
+.h-8 > .hardware-image .hardware-image__caption { display: none; }
+.h-8 > .hardware-image .hardware-image__art { width: 145%; height: 145%; margin: -22.5%; }
+.h-28 > .hardware-image .hardware-image__photo { padding: 6px; }
+.h-8 > .hardware-image .hardware-image__photo { padding: 1px; }
+@media (max-width: 639px) { .hardware-image { height: 196px; } }

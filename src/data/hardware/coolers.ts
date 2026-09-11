@@ -110,12 +110,7 @@ export const coolerList: HardwareItem[] = [
     benchmarks: { gamingScore: 98, productivityScore: 99, efficiencyScore: 92 },
     pairingAdvice: 'Intel i7-14700K / i9-14900K 及 AMD 9950X 发烧级生产力装机必选。',
     docsLinks: [
-      {
-        title: "Valkyrie 官方品牌与产品技术页面",
-        url: 'https://www.valkyrie-gaming.com/',
-        platform: 'official',
-        description: "瓦尔基里自研高转速三相马达与磁吸冷头参数",
-      },
+
       {
         title: "ZOL 中关村在线 · 瓦尔基里 GL360 详细参数与评测",
         url: 'https://detail.zol.com.cn/cooling_product/index1416410.shtml',
@@ -189,12 +184,7 @@ export const coolerList: HardwareItem[] = [
         platform: 'official',
         description: "官方 38mm 加厚冷排与专用接触框扣具安装指南",
       },
-      {
-        title: "TechPowerUp: Arctic Liquid Freezer III 360 A-RGB Review",
-        url: 'https://www.techpowerup.com/review/arctic-liquid-freezer-iii-360-a-rgb/',
-        platform: 'techpowerup',
-        description: "权威外媒评测：欧洲极客水冷 38mm 加厚排与 VRM 主板供电降温神技",
-      },
+
     ],
     reviewLinks: [
       {
@@ -394,16 +384,11 @@ export const coolerList: HardwareItem[] = [
     docsLinks: [
       {
         title: "DeepCool 官方 AK620 DIGITAL 详细规格页面",
-        url: 'https://www.deepcool.com/products/Cooling/cpuaircoolers/AK620-DIGITAL-Performance-CPU-Cooler-With-Status-Display/2023/17202.shtml',
+        url: 'https://uk.deepcool.com/products/Cooling/cpuaircoolers/AK620-Digital-Performance-CPU-Cooler-With-Status-Display-1700-AM5/2023/17207.shtml',
         platform: 'official',
         description: "九州风神官方数显顶盖、双向恒定热平衡热管与驱动说明",
       },
-      {
-        title: "TechPowerUp: DeepCool AK620 Digital CPU Air Cooler Review",
-        url: 'https://www.techpowerup.com/review/deepcool-ak620-digital-cpu-air-cooler/',
-        platform: 'techpowerup',
-        description: "TechPowerUp 实验室噪音曲线与实时数显顶盖评测",
-      },
+
     ],
     reviewLinks: [
       {
@@ -704,12 +689,7 @@ export const coolerList: HardwareItem[] = [
     benchmarks: { gamingScore: 98, productivityScore: 98, efficiencyScore: 92 },
     pairingAdvice: '搭配 Intel i7-14700KF / i9-13900K 或 AMD 9950X 高端整机。',
     docsLinks: [
-      {
-        title: "Valkyrie 官方品牌与产品技术页面",
-        url: 'https://www.valkyrie-gaming.com/',
-        platform: 'official',
-        description: "SuperEngine 增压水泵与冷头无限镜灯效控制指南",
-      },
+
       {
         title: "ZOL 中关村在线 · 瓦尔基里 GL360 ARGB 性能评测",
         url: 'https://detail.zol.com.cn/cooling_product/index1416410.shtml',
@@ -781,12 +761,7 @@ export const coolerList: HardwareItem[] = [
         platform: 'official',
         description: "矩阵式鳍片架构与纯铜微凸底座官方规格",
       },
-      {
-        title: "TechPowerUp: DeepCool AK620 Dual-Tower Cooler Review",
-        url: 'https://www.techpowerup.com/review/deepcool-ak620-cpu-cooler/',
-        platform: 'techpowerup',
-        description: "TechPowerUp 深度评测：性能媲美猫头鹰 D15，做工极其扎实",
-      },
+
     ],
     reviewLinks: [
       {
@@ -859,12 +834,7 @@ export const coolerList: HardwareItem[] = [
         platform: 'official',
         description: "欧洲极客水冷神物：38mm 工业特厚冷排与专用一体扣具",
       },
-      {
-        title: "TechPowerUp: Arctic Liquid Freezer III 360 A-RGB Review",
-        url: 'https://www.techpowerup.com/review/arctic-liquid-freezer-iii-360-a-rgb/',
-        platform: 'techpowerup',
-        description: "TechPowerUp 严苛压力测试：静音与 320W 极限解热无可挑剔",
-      },
+
     ],
     reviewLinks: [
       {

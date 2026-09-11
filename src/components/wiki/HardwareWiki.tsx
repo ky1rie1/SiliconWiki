@@ -57,6 +57,18 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'tdp'>('default');
   const [selectedDetailItem, setSelectedDetailItem] = useState<HardwareItem | null>(null);
+  useEffect(() => {
+    const openSharedHardware = () => {
+      const url = new URL(window.location.href);
+      const id = url.searchParams.get('hardware') || url.hash.slice(1);
+      const shared = hardwareList.find(hardware => hardware.id === id);
+      if (shared) setSelectedDetailItem(shared);
+    };
+    openSharedHardware();
+    window.addEventListener('popstate', openSharedHardware);
+    window.addEventListener('hashchange', openSharedHardware);
+    return () => { window.removeEventListener('popstate', openSharedHardware); window.removeEventListener('hashchange', openSharedHardware); };
+  }, []);
   const [selectedGlossaryTerm, setSelectedGlossaryTerm] = useState<GlossaryTerm | null>(null);
   const [selectionTooltip, setSelectionTooltip] = useState<{
     text: string;

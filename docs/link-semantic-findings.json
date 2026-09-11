@@ -1,0 +1,1371 @@
+{
+  "checkedAt": "2026-09-11",
+  "findings": [
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/apple-m4-pro-14-core.c3746",
+      "observedTitle": "AMD K6-2+ 450ADZM",
+      "expectedSlug": "apple-m4-pro-14-core",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2312,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-apple-m4-pro",
+          "itemName": "Apple M4 Pro",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Apple M4 Pro Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i3-12100f.c2555",
+      "observedTitle": "Intel Core i5-12500TE",
+      "expectedSlug": "core-i3-12100f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2140,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-12100f",
+          "itemName": "Intel Core i3-12100F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i3-12100F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i3-14100f.c3449",
+      "observedTitle": "Intel Core i5-14400",
+      "expectedSlug": "core-i3-14100f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 3017,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14100f",
+          "itemName": "Intel Core i3-14100F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i3-14100F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i5-12400f.c2552",
+      "observedTitle": "Intel Core i5-12500",
+      "expectedSlug": "core-i5-12400f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2050,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-12400f",
+          "itemName": "Intel Core i5-12400F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i5-12400F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i5-12600kf.c2547",
+      "observedTitle": "Intel Core i3-12300HE",
+      "expectedSlug": "core-i5-12600kf",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1961,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-12600kf",
+          "itemName": "Intel Core i5-12600KF",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i5-12600KF Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i5-13400f.c2966",
+      "observedTitle": "Intel Pentium II Xeon 450 2MB",
+      "expectedSlug": "core-i5-13400f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2927,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-13400f",
+          "itemName": "Intel Core i5-13400F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i5-13400F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i5-13600kf.c2847",
+      "observedTitle": "AMD Ryzen 9 7900X",
+      "expectedSlug": "core-i5-13600kf",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1871,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-13600kf",
+          "itemName": "Intel Core i5-13600KF",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i5-13600KF Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i5-14400f.c3446",
+      "observedTitle": "Intel Core i7-14700T",
+      "expectedSlug": "core-i5-14400f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1781,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14400f",
+          "itemName": "Intel Core i5-14400F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i5-14400F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i7-13700k.c2845",
+      "observedTitle": "AMD Ryzen Embedded R1600",
+      "expectedSlug": "core-i7-13700k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2837,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-13700k",
+          "itemName": "Intel Core i7-13700K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i7-13700K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3264",
+      "observedTitle": "Intel Core i5-8279U",
+      "expectedSlug": "core-i7-14700k",
+      "replacementCandidate": "https://www.techpowerup.com/cpu-specs/core-i7-14700k.c3268",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1600,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14700k",
+          "itemName": "Intel Core i7-14700K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i7-14700K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i9-13900k.c2844",
+      "observedTitle": "AMD Ryzen Embedded R1606G",
+      "expectedSlug": "core-i9-13900k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2747,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-13900k",
+          "itemName": "Intel Core i9-13900K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i9-13900K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i9-14900hx.c3445",
+      "observedTitle": "Intel Core i9-14900F",
+      "expectedSlug": "core-i9-14900hx",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2476,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14900hx",
+          "itemName": "Intel Core i9-14900HX",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i9-14900HX Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i9-14900k.c3263",
+      "observedTitle": "AMD Ryzen 9 7945HX3D",
+      "expectedSlug": "core-i9-14900k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1509,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14900k",
+          "itemName": "Intel Core i9-14900K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i9-14900K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-i9-14900ks.c3448",
+      "observedTitle": "Intel Core i5-14500",
+      "expectedSlug": "core-i9-14900ks",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1417,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-14900ks",
+          "itemName": "Intel Core i9-14900KS",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core i9-14900KS Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-ultra-5-245k.c3622",
+      "observedTitle": "Intel Mobile Pentium III 450",
+      "expectedSlug": "core-ultra-5-245k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1330,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-ultra5-245k",
+          "itemName": "Intel Core Ultra 5 245K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core Ultra 5 245K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-ultra-7-265k.c3621",
+      "observedTitle": "Intel Mobile Pentium III 400",
+      "expectedSlug": "core-ultra-7-265k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1248,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-ultra7-265k",
+          "itemName": "Intel Core Ultra 7 265K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core Ultra 7 265K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-ultra-9-185h.c3444",
+      "observedTitle": "Intel Core i9-14900T",
+      "expectedSlug": "core-ultra-9-185h",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2394,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-ultra9-185h",
+          "itemName": "Intel Core Ultra 9 185H",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core Ultra 9 185H Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/core-ultra-9-285k.c3620",
+      "observedTitle": "Intel Pentium III 1000",
+      "expectedSlug": "core-ultra-9-285k",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 1165,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-intel-ultra9-285k",
+          "itemName": "Intel Core Ultra 9 285K",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Core Ultra 9 285K Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-5-7500f.c3268",
+      "observedTitle": "Intel Core i7-14700K",
+      "expectedSlug": "ryzen-5-7500f",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 804,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-7500f",
+          "itemName": "AMD Ryzen 5 7500F",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 5 7500F Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-5-7600x.c2843",
+      "observedTitle": "AMD Ryzen Embedded R1505G",
+      "expectedSlug": "ryzen-5-7600x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2656,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-7600x",
+          "itemName": "AMD Ryzen 5 7600X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 5 7600X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-5-9600x.c3603",
+      "observedTitle": "Intel Celeron 4205U",
+      "expectedSlug": "ryzen-5-9600x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 446,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-9600x",
+          "itemName": "AMD Ryzen 5 9600X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 5 9600X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-7-5700x3d.c3447",
+      "observedTitle": "Intel Core i5-14600",
+      "expectedSlug": "ryzen-7-5700x3d",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 892,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-5700x3d",
+          "itemName": "AMD Ryzen 7 5700X3D",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 7 5700X3D Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-7-7700x.c2842",
+      "observedTitle": "AMD Ryzen Embedded R1305G",
+      "expectedSlug": "ryzen-7-7700x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 707,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-7700x",
+          "itemName": "AMD Ryzen 7 7700X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 7 7700X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-7-9700x.c3602",
+      "observedTitle": "Intel Celeron 4305U",
+      "expectedSlug": "ryzen-7-9700x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 354,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-9700x",
+          "itemName": "AMD Ryzen 7 9700X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 7 9700X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-7-9800x3d.c3672",
+      "observedTitle": "AMD GX-212JJ",
+      "expectedSlug": "ryzen-7-9800x3d",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 68,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-9800x3d",
+          "itemName": "AMD Ryzen 7 9800X3D",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 7 9800X3D Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-9-7950x3d.c3020",
+      "observedTitle": "AMD Ryzen 9 7940HS",
+      "expectedSlug": "ryzen-9-7950x3d",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 625,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-7950x3d",
+          "itemName": "AMD Ryzen 9 7950X3D",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 9 7950X3D Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-9-9900x.c3601",
+      "observedTitle": "Intel Pentium Gold 5405U",
+      "expectedSlug": "ryzen-9-9900x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 262,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-9900x",
+          "itemName": "AMD Ryzen 9 9900X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 9 9900X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-9-9950x.c3600",
+      "observedTitle": "Intel Core i5-8365UE",
+      "expectedSlug": "ryzen-9-9950x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 172,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-9950x",
+          "itemName": "AMD Ryzen 9 9950X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen 9 9950X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/cpu-specs/ryzen-ai-9-hx-370.c3648",
+      "observedTitle": "Intel Mobile Pentium III 500 MMC",
+      "expectedSlug": "ryzen-ai-9-hx-370",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/cpus.ts",
+          "line": 2228,
+          "usage": "literal"
+        },
+        {
+          "itemId": "cpu-amd-hx370",
+          "itemName": "AMD Ryzen AI 9 HX 370",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Ryzen AI 9 HX 370 Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/arc-a580.c3930",
+      "observedTitle": "Intel Arc A310",
+      "expectedSlug": "arc-a580",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1940,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/arc-b570.c4222",
+      "observedTitle": "AMD Radeon 760M",
+      "expectedSlug": "arc-b570",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 2221,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-intel-arc-b570",
+          "itemName": "Intel Arc B570 (二代甜点)",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Intel Arc B570 Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/arc-b570.c4229",
+      "observedTitle": "AMD Radeon RX 9070 XT",
+      "expectedSlug": "arc-b570",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1892,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/arc-b580.c4221",
+      "observedTitle": "AMD Radeon 780M",
+      "expectedSlug": "arc-b580",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 1524,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-intel-arc-b580",
+          "itemName": "Intel Arc B580",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Intel Arc B580 Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/arc-b580.c4228",
+      "observedTitle": "NVIDIA GeForce RTX 4070 GDDR6",
+      "expectedSlug": "arc-b580",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1876,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3474",
+      "observedTitle": "AMD Radeon RX 5600 XT",
+      "expectedSlug": "geforce-gtx-1660-super",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-gtx-1660-super.c3458",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2052,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3060-mobile.c3746",
+      "observedTitle": "NVIDIA A100 SXM4 80 GB",
+      "expectedSlug": "geforce-rtx-3060-mobile",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2244,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3060-ti-gddr6x.c3936",
+      "observedTitle": "NVIDIA GeForce RTX 3070 Ti 8 GB GA102",
+      "expectedSlug": "geforce-rtx-3060-ti-gddr6x",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 2525,
+          "usage": "literal"
+        },
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1636,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-nvidia-rtx3060ti-g6x",
+          "itemName": "NVIDIA GeForce RTX 3060 Ti G6X",
+          "usage": "docsLinks",
+          "title": "TechPowerUp GeForce RTX 3060 Ti GDDR6X Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3070-ti-mobile.c3865",
+      "observedTitle": "AMD Radeon RX 6500M",
+      "expectedSlug": "geforce-rtx-3070-ti-mobile",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2228,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3080-12-gb.c3833",
+      "observedTitle": "AMD Radeon Graphics 448SP",
+      "expectedSlug": "geforce-rtx-3080-12-gb",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1572,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-3080-ti-mobile.c3866",
+      "observedTitle": "AMD Radeon RX 6300M",
+      "expectedSlug": "geforce-rtx-3080-ti-mobile",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2212,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3944",
+      "observedTitle": "NVIDIA GeForce RTX 4070 Mobile",
+      "expectedSlug": "geforce-rtx-4060-mobile",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-mobile.c3946",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 1699,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-laptop-rtx4060",
+          "itemName": "NVIDIA GeForce RTX 4060 Laptop (移动端)",
+          "usage": "docsLinks",
+          "title": "TechPowerUp GeForce RTX 4060 Mobile Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-ti-8-gb.c3899",
+      "observedTitle": "NVIDIA H100 PCIe 80 GB",
+      "expectedSlug": "geforce-rtx-4060-ti-8-gb",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1380,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4060-ti-8-gb.c3978",
+      "observedTitle": "AMD Radeon Pro SSG",
+      "expectedSlug": "geforce-rtx-4060-ti-8-gb",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 789,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-nvidia-rtx4060ti",
+          "itemName": "NVIDIA GeForce RTX 4060 Ti (8GB / 16GB)",
+          "usage": "docsLinks",
+          "title": "TechPowerUp GeForce RTX 4060 Ti Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3950",
+      "observedTitle": "NVIDIA GeForce RTX 4070 Ti",
+      "expectedSlug": "geforce-rtx-4080-mobile",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4080-mobile.c3947",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2148,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-4090-mobile.c3947",
+      "observedTitle": "NVIDIA GeForce RTX 4080 Mobile",
+      "expectedSlug": "geforce-rtx-4090-mobile",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2132,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070-ti.c4218",
+      "observedTitle": "NVIDIA GeForce RTX 5070",
+      "expectedSlug": "geforce-rtx-5070-ti",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 246,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-nvidia-rtx5070ti",
+          "itemName": "NVIDIA GeForce RTX 5070 Ti",
+          "usage": "docsLinks",
+          "title": "TechPowerUp GeForce RTX 5070 Ti Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4219",
+      "observedTitle": "NVIDIA GeForce RTX 5060",
+      "expectedSlug": "geforce-rtx-5070",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5070.c4218",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 335,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-nvidia-rtx5070",
+          "itemName": "NVIDIA GeForce RTX 5070",
+          "usage": "docsLinks",
+          "title": "TechPowerUp GeForce RTX 5070 Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4225",
+      "observedTitle": "AMD Radeon 880M",
+      "expectedSlug": "geforce-rtx-5080",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5080.c4217",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1236,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4224",
+      "observedTitle": "AMD Radeon 890M",
+      "expectedSlug": "geforce-rtx-5090",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1220,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4159",
+      "observedTitle": "AMD Radeon RX 7700",
+      "expectedSlug": "radeon-780m",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/radeon-780m.c4221",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2292,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4226",
+      "observedTitle": "NVIDIA GeForce RTX 4070 10 GB",
+      "expectedSlug": "radeon-890m",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/radeon-890m.c4224",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 2276,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3796",
+      "observedTitle": "NVIDIA T600",
+      "expectedSlug": "radeon-rx-6600",
+      "replacementCandidate": "https://www.techpowerup.com/gpu-specs/radeon-rx-6600.c3696",
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1844,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-6650-xt.c3884",
+      "observedTitle": "Intel UHD Graphics 64EU Mobile",
+      "expectedSlug": "radeon-rx-6650-xt",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1812,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-6750-gre-12-gb.c4184",
+      "observedTitle": "AMD Radeon PRO W7700",
+      "expectedSlug": "radeon-rx-6750-gre-12-gb",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 1334,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-amd-rx6750gre-12g",
+          "itemName": "AMD Radeon RX 6750 GRE 12GB",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Radeon RX 6750 GRE 12GB Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-6800-xt.c3713",
+      "observedTitle": "AMD Radeon RX 6800",
+      "expectedSlug": "radeon-rx-6800-xt",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1748,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-6950-xt.c3885",
+      "observedTitle": "Intel Arctic Sound-M",
+      "expectedSlug": "radeon-rx-6950-xt",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1716,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.techpowerup.com/gpu-specs/radeon-rx-7800-xt.c3831",
+      "observedTitle": "NVIDIA GeForce RTX 3080 Ti 20 GB",
+      "expectedSlug": "radeon-rx-7800-xt",
+      "replacementCandidate": null,
+      "reason": "Product database numeric ID resolves to a different processor/GPU despite HTTP 200.",
+      "references": [
+        {
+          "file": "src/data/hardware/gpus.ts",
+          "line": 1244,
+          "usage": "literal"
+        },
+        {
+          "file": "src/data/rankings.ts",
+          "line": 1460,
+          "usage": "literal"
+        },
+        {
+          "itemId": "gpu-amd-rx7800xt",
+          "itemName": "AMD Radeon RX 7800 XT",
+          "usage": "docsLinks",
+          "title": "TechPowerUp Radeon RX 7800 XT Database Specs",
+          "platform": "techpowerup"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV17S411F71r/",
+      "reason": "Video reviews PRO B760M-A II DDR4, not catalog PRO B760M-A WIFI DDR5.",
+      "observedTitle": "微星PRO B760M-A II DDR4 优劣明显的中端性价比D4平台最后绝唱_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/motherboards.ts",
+          "line": 618,
+          "usage": "literal"
+        },
+        {
+          "itemId": "mb-msi-pro-b760m-a-wifi",
+          "itemName": "MSI PRO B760M-A WIFI (办公稳定商用)",
+          "usage": "reviewLinks",
+          "title": "微星PRO B760M-A II 深度拆解对比高性价比生产力平台评测",
+          "platform": "bilibili"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1Uf4y1c77P",
+      "reason": "Trident Z5/Z5 RGB launch promotion, not Trident Z5 Neo DDR5-6000 C28 review.",
+      "observedTitle": "芝奇全新旗舰系列DDR5内存「Trident Z5 RGB 幻锋戟 & Trident Z5 炫锋戟」荣耀登场!_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/ram.ts",
+          "line": 67,
+          "usage": "literal"
+        },
+        {
+          "itemId": "ram-gskill-trident-z5-neo-6000-c28",
+          "itemName": "G.Skill Trident Z5 Neo RGB DDR5-6000 C28 32GB (16Gx2)",
+          "usage": "reviewLinks",
+          "title": "芝奇Trident Z5 Neo焰锋戟DDR5 6000内存评测",
+          "platform": "bilibili"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1ZPdSYUEas",
+      "reason": "Video tests BIWIN DW100 OC LAB, not Kingston FURY CUDIMM.",
+      "observedTitle": "AMD非X3D内存频率怎么选？6000 C26到8400 C38游戏能有多少差距？搭配佰维DW100 OC LAB测试_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/ram.ts",
+          "line": 401,
+          "usage": "literal"
+        },
+        {
+          "itemId": "ram-kingston-cudimm-8400",
+          "itemName": "Kingston FURY Renegade CUDIMM DDR5-8400 48GB (24Gx2)",
+          "usage": "reviewLinks",
+          "title": "金士顿FURY叛逆者CUDIMM DDR5 8400新一代内存首发评测",
+          "platform": "bilibili"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1a14y1R757/",
+      "reason": "Video reviews MSI B760M P, not ASRock B760M Pro RS.",
+      "observedTitle": "丐板拉皮 微星B760M P评测_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/motherboards.ts",
+          "line": 581,
+          "usage": "literal"
+        },
+        {
+          "itemId": "mb-asrock-b760m-pro-rs",
+          "itemName": "ASRock B760M Pro RS 银白钢铁系列",
+          "usage": "reviewLinks",
+          "title": "丐板拉皮 微星/华擎B760M 深度对比横评",
+          "platform": "bilibili"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1b441197UX",
+      "reason": "Overwatch gameplay; not motherboard jumper instructions.",
+      "observedTitle": "[瘦皮猴儿] <守望先锋OW> 日常集锦 1_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/bilibiliVideos.ts",
+          "line": 63,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1b54y1V7y4",
+      "reason": "Video host returns an unavailable/deleted-video title despite HTTP 200.",
+      "observedTitle": "视频去哪了呢？_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/bilibiliVideos.ts",
+          "line": 51,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1cW4y1n7um/",
+      "reason": "Video reviews Z790 HERO, not catalog Z790 DARK HERO.",
+      "observedTitle": "【主板】顶级的中端级高端入门型Z790主板——ROG MAXIMUS Z790 HERO 开箱&简单测试_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/motherboards.ts",
+          "line": 655,
+          "usage": "literal"
+        },
+        {
+          "itemId": "mb-asus-rog-z790-dark-hero",
+          "itemName": "ASUS ROG MAXIMUS Z790 DARK HERO",
+          "usage": "reviewLinks",
+          "title": "顶级的中端级高端入门型Z790主板——ROG MAXIMUS Z790 HERO 旗舰评测",
+          "platform": "bilibili"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1eW411w7pn",
+      "reason": "Unrelated video title; not a PC assembly guide.",
+      "observedTitle": "震惊，老师的儿子竟然在……_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/bilibiliVideos.ts",
+          "line": 25,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1wA411b7q7",
+      "reason": "Video host returns an unavailable/deleted-video title despite HTTP 200.",
+      "observedTitle": "视频去哪了呢？_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/bilibiliVideos.ts",
+          "line": 38,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1ya411c7A2",
+      "reason": "Red Dead Redemption 2 gameplay; not BIOS or Windows installation.",
+      "observedTitle": "荒野大镖客2 救赎 游戏视频 P27_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/bilibiliVideos.ts",
+          "line": 75,
+          "usage": "literal"
+        }
+      ]
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Ekngmq4DYOg",
+      "reason": "Redmi Book Pro 16 2025, not catalog 2024 generation.",
+      "observedTitle": "Chinese Laptops are garbage? Redmi Book Pro 16 2025 Review I Gaming I Screen I Speaker test",
+      "observedAuthor": "TechUtopia",
+      "evidenceMethod": "public_youtube_oembed",
+      "references": [
+        {
+          "file": "src/data/hardware/laptops.ts",
+          "line": 374,
+          "usage": "literal"
+        },
+        {
+          "itemId": "laptop-redmibook-pro-16-2024",
+          "itemName": "Redmi Book Pro 16 2024 (酷睿 Ultra 旗舰轻薄本)",
+          "usage": "reviewLinks",
+          "title": "Redmi Book Pro 16 Review | Gaming | Screen | Speaker test",
+          "platform": "youtube"
+        }
+      ]
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=IxakW_w5Oaw",
+      "reason": "Huntkey GXM-series promotion, not catalog Huntkey WD650K.",
+      "observedTitle": "Level up your gaming setup with the Huntkey GXM Series Power Supply!",
+      "observedAuthor": "Huntkey Official",
+      "evidenceMethod": "public_youtube_oembed",
+      "references": [
+        {
+          "file": "src/data/hardware/psu.ts",
+          "line": 377,
+          "usage": "literal"
+        },
+        {
+          "file": "src/data/hardware/psu.ts",
+          "line": 384,
+          "usage": "literal"
+        },
+        {
+          "itemId": "psu-huntkey-wd650k",
+          "itemName": "Huntkey (航嘉) WD650K 650W 金牌电源",
+          "usage": "reviewLinks",
+          "title": "Huntkey Power Supply Quality and Efficiency Overview",
+          "platform": "youtube"
+        },
+        {
+          "itemId": "psu-huntkey-wd650k",
+          "itemName": "Huntkey (航嘉) WD650K 650W 金牌电源",
+          "usage": "reviewLinks",
+          "title": "Level up your gaming setup with the Huntkey GXM Series Power Supply!",
+          "platform": "youtube"
+        }
+      ]
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=UTMkQjbXa4s",
+      "reason": "DarkFlash DY470 case, not catalog MOTI.",
+      "observedTitle": "DarkFlash DY470 PC Case!! #pc #pcbuild #pcgaming #gamingpc",
+      "observedAuthor": "DanKamYouKnow",
+      "evidenceMethod": "public_youtube_oembed",
+      "references": [
+        {
+          "file": "src/data/hardware/cases.ts",
+          "line": 429,
+          "usage": "literal"
+        },
+        {
+          "itemId": "case-darkflash-moti",
+          "itemName": "DarkFlash (大水牛/爱国者) MOTI 镜界平价海景房",
+          "usage": "reviewLinks",
+          "title": "darkFlash MOTI Micro-ATX Dual-Chamber Panoramic PC Case Build & Review",
+          "platform": "youtube"
+        }
+      ]
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W71WItih37M",
+      "reason": "Greatwall 750W test, not catalog X8 850W; declared label incorrectly added 850W.",
+      "observedTitle": "Test PSU Greatwall 750W 80+Gold",
+      "observedAuthor": "WAIZ Fishing Channel",
+      "evidenceMethod": "public_youtube_oembed",
+      "references": [
+        {
+          "file": "src/data/hardware/psu.ts",
+          "line": 227,
+          "usage": "literal"
+        },
+        {
+          "itemId": "psu-greatwall-x8-850w",
+          "itemName": "Great Wall (长城) 猎皇 X8 850W 金牌全模组",
+          "usage": "reviewLinks",
+          "title": "Test PSU Greatwall 750W/850W 80+Gold",
+          "platform": "youtube"
+        }
+      ]
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=xUnl6n9Jwjs",
+      "reason": "MSI B650M Mortar motherboard, not B760M Mortar WiFi II.",
+      "observedTitle": "MSI MAG B650M Mortar Wi-Fi mATX Review (with AMD Ryzen 5 7600x)",
+      "observedAuthor": "Hardware Busters",
+      "evidenceMethod": "public_youtube_oembed",
+      "references": [
+        {
+          "file": "src/data/hardware/motherboards.ts",
+          "line": 386,
+          "usage": "literal"
+        },
+        {
+          "itemId": "mb-msi-b760m-mortar-wifi-ii",
+          "itemName": "MSI MAG B760M MORTAR WIFI II 迫击炮二代",
+          "usage": "reviewLinks",
+          "title": "MSI MAG Mortar Series In-Depth Performance Review",
+          "platform": "youtube"
+        }
+      ]
+    },
+    {
+      "url": "https://www.bilibili.com/video/BV1Sw4m1y7Kn/",
+      "reason": "Video title identifies ASRock B650M-H/M.2+, not the catalog B650M-HDV/M.2. Declared title matching does not establish the correct product variant.",
+      "observedTitle": "性能暴涨!华擎B650M–H/M.2+手动超频作业7500f轻松超5.5g,flck2200,内存，6400c28*_哔哩哔哩_bilibili",
+      "references": [
+        {
+          "file": "src/data/hardware/motherboards.ts",
+          "line": 206,
+          "usage": "literal"
+        },
+        {
+          "itemId": "mb-asrock-b650m-hdv",
+          "itemName": "ASRock B650M-HDV/M.2",
+          "usage": "reviewLinks",
+          "title": "性能暴涨!华擎B650M–H/M.2+手动超频作业7500f轻松超5.5g",
+          "platform": "bilibili",
+          "author": "老猫硬谈"
+        }
+      ]
+    }
+  ]
+}

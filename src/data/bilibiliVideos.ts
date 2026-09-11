@@ -1,77 +1,61 @@
-export interface BilibiliVideo {
-  id: string;
-  title: string;
-  upName: string;
-  plays: string;
-  danmaku: string;
-  duration: string;
-  description: string;
-  tags: string[];
-  url: string;
-  isRecommend?: boolean;
+interface LocalizedGuideText {
+  zh: string;
+  en: string;
 }
 
-export const bilibiliVideos: BilibiliVideo[] = [
+export interface BilibiliSearchGuide {
+  id: string;
+  title: LocalizedGuideText;
+  description: LocalizedGuideText;
+  /** Chinese keywords match the primarily Chinese-language Bilibili catalog. */
+  query: string;
+}
+
+// Topic searches, not endorsements of individual videos or their creators.
+export const bilibiliSearchGuides: BilibiliSearchGuide[] = [
   {
-    id: 'bv-chaguan-pc-guide',
-    title: '【装机教程】保姆级装机教程，从零开始手把手教你组装一台电脑！',
-    upName: '硬件茶社',
-    plays: '1500万+ 播放',
-    danmaku: '12万+ 弹幕',
-    duration: '42:18',
-    description:
-      '全网公认标杆级的装机实操教科书。视频全景特写镜头、多机位慢动作演示，从 CPU 安装防呆、内存双通道、散热器撕膜、机箱铜柱固定到最让新手头疼的跳线连接，每一秒都干货满满。',
-    tags: ['保姆级教程', '零基础必看', '全网最高赞', '多机位特写'],
-    url: 'https://www.bilibili.com/video/BV1eW411w7pn',
-    isRecommend: true,
+    id: 'assembly-basics',
+    title: { zh: '基础装机：从零了解安装顺序', en: 'PC assembly basics' },
+    description: {
+      zh: '搜索 CPU、内存、散热器与机箱安装的完整演示，结合 3D 步骤观察零件方向和固定方式。',
+      en: 'Find walkthroughs of CPU, memory, cooler and case installation. Compare component orientation and mounting with the 3D guide.',
+    },
+    query: '电脑装机 基础 完整教程',
   },
   {
-    id: 'bv-geekerwan-assembly',
-    title: '【极客湾】如何装一台电脑？硬件搭配、避坑技巧与实测装机',
-    upName: '极客湾 Geekerwan',
-    plays: '800万+ 播放',
-    danmaku: '8万+ 弹幕',
-    duration: '35:40',
-    description:
-      '极客湾官方出品，从软硬件底层原理切入，不仅教你怎么插零件，更告诉你为什么这么设计、不同硬件规格的真实性能差异与避坑秘籍。',
-    tags: ['极客湾权威', '底层逻辑', '装机避坑', '硬件搭配'],
-    url: 'https://www.bilibili.com/video/BV1wA411b7q7',
-    isRecommend: true,
+    id: 'hardware-compatibility',
+    title: { zh: '硬件兼容：插槽、尺寸与供电', en: 'Hardware compatibility' },
+    description: {
+      zh: '搜索 CPU 插槽、内存代际、显卡长度与电源接口的搭配说明，并按具体型号核对厂商规格。',
+      en: 'Explore CPU sockets, memory generations, graphics-card clearance and power connectors. Check compatibility against the exact product specifications.',
+    },
+    query: '电脑装机 硬件兼容 插槽 尺寸 电源',
   },
   {
-    id: 'bv-zjy-pc',
-    title: '【装机猿】装机其实很简单，看一遍就会的装机实录',
-    upName: '装机猿',
-    plays: '650万+ 播放',
-    danmaku: '6万+ 弹幕',
-    duration: '28:30',
-    description:
-      '风趣幽默的大白话装机教学，重点强调各种防呆口防反手感、螺丝力度以及海景房机箱风道优化与背线整理技巧。',
-    tags: ['幽默通俗', '理线技巧', '背插主板', '风道实操'],
-    url: 'https://www.bilibili.com/video/BV1b54y1V7y4',
+    id: 'cables-and-airflow',
+    title: { zh: '理线风道：线材路径与风扇方向', en: 'Cable management and airflow' },
+    description: {
+      zh: '搜索机箱背线、进风与排风布局示范，观察线材如何避开风扇和主要通风路径。',
+      en: 'Find case cable-routing and intake/exhaust examples, including ways to keep cables clear of fans and airflow paths.',
+    },
+    query: '机箱 理线 风道 风扇 安装',
   },
   {
-    id: 'bv-tiaoxian-jumpers',
-    title: '【跳线专题】告别恐惧！主板跳线 3 分钟极速搞定指南',
-    upName: '搞机所',
-    plays: '320万+ 播放',
-    danmaku: '3万+ 弹幕',
-    duration: '06:15',
-    description:
-      '专门针对装机新手最害怕的 POWER SW、RESET、HDD LED 跳线连接制作的微距教学，带超大图解丝印对比，一秒学会。',
-    tags: ['跳线专题', '短视频秒懂', 'POWER SW', '前置面板'],
-    url: 'https://www.bilibili.com/video/BV1b441197UX',
+    id: 'front-panel-wiring',
+    title: { zh: '主板跳线：前面板接口与极性', en: 'Motherboard front-panel wiring' },
+    description: {
+      zh: '搜索 POWER SW、RESET SW 和 LED 接线演示。引脚排列与极性以实际主板手册为准。',
+      en: 'Look up POWER SW, RESET SW and LED wiring demonstrations. Use the actual motherboard manual for pin assignments and polarity.',
+    },
+    query: '主板 前面板 跳线 POWER SW LED 教程',
   },
   {
-    id: 'bv-bios-win11',
-    title: '【点亮与系统】装机后首次开机进 BIOS 开启 XMP 与 Windows 11 安装',
-    upName: '电脑吧评测室',
-    plays: '460万+ 播放',
-    danmaku: '4万+ 弹幕',
-    duration: '18:50',
-    description:
-      '硬件拼好之后的下半场！手把手带你使用微软官方 MediaCreationTool 制作纯净无捆绑的 Win11 安装 U 盘，并在 BIOS 中一键开启 XMP/EXPO 与 TPM 2.0。',
-    tags: ['系统安装', 'BIOS设置', '开启XMP', '纯净系统'],
-    url: 'https://www.bilibili.com/video/BV1ya411c7A2',
+    id: 'bios-and-os',
+    title: { zh: 'BIOS 与系统安装：首次启动之后', en: 'BIOS setup and OS installation' },
+    description: {
+      zh: '搜索首次进入 BIOS、检查硬件识别和安装系统的操作流程，按主板与系统版本选择对应教程。',
+      en: 'Find first-boot BIOS checks, hardware detection and operating-system installation guides that match your motherboard and OS version.',
+    },
+    query: '装机 首次开机 BIOS 系统安装 教程',
   },
 ];

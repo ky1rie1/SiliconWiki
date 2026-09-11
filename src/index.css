@@ -310,6 +310,8 @@ button:active { transform: translateY(1px); }
 .assembly-studio-heading h3 { font-size: 20px; font-weight: 650; letter-spacing: -.04em; margin-top: 4px; }
 .assembly-studio-spec { text-align: right; font: 11px/1.7 monospace; color: var(--muted); }
 .assembly-studio-spec span { font: 10px/1.5 sans-serif; }
+.assembly-quality-control { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 4px; }
+.assembly-quality-control select { font-family: inherit; font-size: 11px; line-height: 1.5; color: var(--ink); background: var(--subtle); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; cursor: pointer; }
 .assembly-viewport { background: #e8eeeb; }
 .dark .assembly-viewport { background: #252e34; }
 .assembly-camera-button { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #d4d9d6; border-radius: 10px; background: #fffffff0; color: #394449; }

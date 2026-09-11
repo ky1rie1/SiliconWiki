@@ -25,6 +25,7 @@ import {
   stepTranslationsEn,
 } from '../../data/assemblyTranslationsEn';
 import { PCScene3D } from './PCScene3D';
+import type { RenderingQuality } from './renderingBudget';
 import { BilibiliGuidesModal } from './BilibiliGuidesModal';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -43,6 +44,7 @@ export const AssemblySimulator3D: React.FC = () => {
   const [sceneVersion, setSceneVersion] = useState(0);
   const [installProgress, setInstallProgress] = useState(100);
   const mountedRef = useRef(false);
+  const [quality, setQuality] = useState<RenderingQuality>('balanced');
 
   const rawStep = assemblyStepsData[currentStepIndex];
   const stepTranslation = lang === 'en' ? stepTranslationsEn[rawStep.stepNumber] : undefined;
@@ -90,6 +92,7 @@ export const AssemblySimulator3D: React.FC = () => {
     const selected = assemblyStepsData[currentStepIndex];
     scene.setStep(selected.stepNumber);
     scene.setExploded(isExploded);
+    scene.setQuality(quality);
 
     // 3D Model click syncs to React state and updates right-hand panel
     scene.onComponentClick = (componentId: string) => {
@@ -151,7 +154,7 @@ export const AssemblySimulator3D: React.FC = () => {
         <div className="assembly-studio lg:col-span-7 flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden relative transition-colors">
           <div className="assembly-studio-heading">
             <div><span className="assembly-studio-kicker">SILICON WIKI / LAB 01</span><h3>{lang === 'zh' ? '装配研究室' : 'Assembly studio'}</h3></div>
-            <span className="assembly-studio-spec">ATX · AM5<br /><span>{lang === 'zh' ? '示意模型' : 'Illustrative model'}</span></span>
+            <div className="assembly-studio-spec">ATX · AM5<br /><label className="assembly-quality-control"><span>{lang === 'zh' ? '画质' : 'Quality'}</span><select aria-label={lang === 'zh' ? '3D 画质与功耗' : '3D quality and power usage'} value={quality} onChange={event => { const next = event.target.value as RenderingQuality; setQuality(next); sceneRef.current?.setQuality(next); }}><option value="saver">{lang === 'zh' ? '省电' : 'Saver'}</option><option value="balanced">{lang === 'zh' ? '均衡' : 'Balanced'}</option><option value="quality">{lang === 'zh' ? '精细' : 'Detailed'}</option></select></label></div>
           </div>
           {/* Canvas Container */}
           <div
@@ -426,7 +429,7 @@ export const AssemblySimulator3D: React.FC = () => {
               </div>
             )}
 
-            {/* Video timestamp shortcut button */}
+            {/* Topic search; no unverified video timestamp. */}
             <div className="pt-2">
               <button
                 onClick={() => setIsBilibiliModalOpen(true)}
@@ -434,7 +437,7 @@ export const AssemblySimulator3D: React.FC = () => {
               >
                 <div className="flex items-center space-x-2">
                   <Tv className="w-4 h-4 text-[#F7D84A]" />
-                  <span>{t('btnViewVideoStep', { time: currentStep.bilibiliTimestamp || '' })}</span>
+                  <span>{lang === 'en' ? 'Find assembly tutorials' : '搜索装机教程'}</span>
                 </div>
                 <ChevronRight className="w-4 h-4" />
               </button>
