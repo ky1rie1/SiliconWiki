@@ -60,22 +60,34 @@ describe('2026 Budget Builds Suite', () => {
 });
 
 describe('Version Changelog Suite', () => {
-  it('should have v2.4.0 as the latest release entry', () => {
+  it('should have v2.5.0 as the latest release entry', () => {
     const latest = changelogList[0];
-    expect(latest.version).toBe('v2.4.0');
-    expect(latest.date).toBe('2026-09-05');
+    expect(latest.version).toBe('v2.5.0');
+    expect(latest.date).toBe('2026-09-11');
     expect(latest.tag).toBe('最新发布');
-    expect(latest.title).toContain('3D装机光影矫正');
-    expect(latest.title).toContain('天梯榜基准标尺重构');
-    expect(latest.title).toContain('2026预算配置升级');
-    expect(latest.title).toContain('客观工程文风净化');
-    expect(latest.title).toContain('用户反馈系统');
+    expect(latest.title).toContain('3D装机性能重构');
+    expect(latest.title).toContain('网格合批');
+    expect(latest.title).toContain('工程设计体系刷新');
+    expect(latest.title).toContain('硬件数据规范化');
+    expect(latest.title).toContain('权威信源核验');
   });
 
-  it('should cover all 5 required update areas in v2.4.0', () => {
+  it('should cover all key update areas in v2.5.0', () => {
     const latest = changelogList[0];
     const texts = latest.updates.map((u) => u.text).join('\n');
 
+    expect(texts).toContain('Draw Call');
+    expect(texts).toContain('装配层级');
+    expect(texts).toContain('渲染预算');
+    expect(texts).toContain('设计系统');
+    expect(texts).toContain('状态机');
+    expect(texts).toContain('HardwareCatalog');
+  });
+
+  it('should retain v2.4.0 in history with all required update areas', () => {
+    const v240 = changelogList.find((c) => c.version === 'v2.4.0');
+    expect(v240).toBeDefined();
+    const texts = v240?.updates.map((u) => u.text).join('\n') || '';
     expect(texts).toContain('ACES Filmic');
     expect(texts).toContain('天梯排行榜基准逻辑校准');
     expect(texts).toContain('2026 预算配置全面焕新');

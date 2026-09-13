@@ -131,7 +131,7 @@ export default function App() {
 
   // Check if current version announcement was already dismissed or seen by user
   useEffect(() => {
-    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    const latestVersion = changelogList[0]?.version || 'v2.5.0';
     const seenVersion = localStorage.getItem('_sw_last_seen_changelog_ver');
     if (seenVersion !== latestVersion) {
       setHasUnreadChangelog(true);
@@ -141,7 +141,7 @@ export default function App() {
   }, []);
 
   const handleCloseChangelog = (dontShowAgain?: boolean) => {
-    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    const latestVersion = changelogList[0]?.version || 'v2.5.0';
     localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
     if (dontShowAgain) {
       localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
@@ -151,7 +151,7 @@ export default function App() {
   };
 
   const handleMarkAllAsRead = () => {
-    const latestVersion = changelogList[0]?.version || 'v2.4.0';
+    const latestVersion = changelogList[0]?.version || 'v2.5.0';
     localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
     localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
     setHasUnreadChangelog(false);
