@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { GlossaryTerm } from '../../types';
+import { getLocalizedShortDesc, getLocalizedTermTitle } from '../../data/glossaryTranslationsEn';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface GlossaryPopoverModalProps {
@@ -137,7 +138,7 @@ export const GlossaryPopoverModal: React.FC<GlossaryPopoverModalProps> = ({
           </div>
 
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white pr-8 tracking-tight">
-            {term.term}
+            {getLocalizedTermTitle(term, lang)}
           </h3>
 
           {term.alias && term.alias.length > 0 && (
@@ -166,7 +167,7 @@ export const GlossaryPopoverModal: React.FC<GlossaryPopoverModalProps> = ({
               <span>{lang === 'en' ? 'In Plain English:' : '一句话通俗解读：'}</span>
             </div>
             <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-relaxed pl-6">
-              {term.shortDesc}
+              {getLocalizedShortDesc(term, lang)}
             </p>
           </div>
 

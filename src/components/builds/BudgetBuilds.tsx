@@ -10,6 +10,15 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { recommendedBuilds } from '../../data/builds';
+import {
+  getLocalizedBuildTitle,
+  getLocalizedBuildTagline,
+  getLocalizedBuildScenario,
+  getLocalizedBuildNotes,
+  getLocalizedPartName,
+  getLocalizedPartSpec,
+  getLocalizedUpgradeOption,
+} from '../../data/buildTranslationsEn';
 import { RecommendedBuild } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { copyTextToClipboard } from '../../utils/clipboard';
@@ -90,28 +99,28 @@ export const BudgetBuilds: React.FC = () => {
     const text =
       lang === 'en'
         ? [
-            `[SiliconWiki Recommended Build] ${build.title}`,
+            `[SiliconWiki Recommended Build] ${getLocalizedBuildTitle(build, lang)}`,
             `Target Budget: ¥${build.targetPrice} | ${appliedUpgrades.length > 0 ? `Customized Total: ¥${finalPrice} (${deltaSum >= 0 ? `+¥${deltaSum}` : `-¥${Math.abs(deltaSum)}`})` : `Components Total: ¥${build.totalPrice}`}`,
-            `Ideal Scenario: ${build.scenario}`,
+            `Ideal Scenario: ${getLocalizedBuildScenario(build, lang)}`,
             '--------------------------------',
             'Base Configuration BOM:',
             ...build.parts.map(
-              (p) =>
-                `${getLocalizedPartType(p.type).padEnd(12, ' ')}: ${p.name} (${p.spec}) — Approx. ¥${p.approxPrice}`
+              (p, idx) =>
+                `${getLocalizedPartType(p.type).padEnd(12, ' ')}: ${getLocalizedPartName(build.id, idx, p.name, lang)} (${getLocalizedPartSpec(build.id, idx, p.spec, lang)}) — Approx. ¥${p.approxPrice}`
             ),
             ...(appliedUpgrades.length > 0
               ? [
                   '--------------------------------',
                   'Applied Optional Upgrades & Customizations:',
-                  ...appliedUpgrades.map(
-                    (u) =>
-                      `• [${getLocalizedPartType(u.targetComponent)}] ${u.title} (${u.priceDelta >= 0 ? `+¥${u.priceDelta}` : `-¥${Math.abs(u.priceDelta)}`}): ${u.partName}`
-                  ),
+                  ...appliedUpgrades.map((u) => {
+                    const localizedU = getLocalizedUpgradeOption(build.id, u.id, u, lang);
+                    return `• [${getLocalizedPartType(u.targetComponent)}] ${localizedU.title} (${u.priceDelta >= 0 ? `+¥${u.priceDelta}` : `-¥${Math.abs(u.priceDelta)}`}): ${localizedU.partName}`;
+                  }),
                 ]
               : []),
             '--------------------------------',
             'Building Tips & Pairing Notes:',
-            ...build.notes.map((n) => `• ${n}`),
+            ...getLocalizedBuildNotes(build, lang).map((n) => `• ${n}`),
           ].join('\n')
         : [
             `【SiliconWiki 芯知推荐配置】${build.title}`,
@@ -197,14 +206,14 @@ export const BudgetBuilds: React.FC = () => {
                       {build.budgetLevel}
                     </span>
                     <span className="text-xs text-zinc-400 font-medium">
-                      {build.scenario}
+                      {getLocalizedBuildScenario(build, lang)}
                     </span>
                   </div>
                   <h3 className="text-xl font-black text-zinc-900 dark:text-white">
-                    {build.title}
+                    {getLocalizedBuildTitle(build, lang)}
                   </h3>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                    {build.tagline}
+                    {getLocalizedBuildTagline(build, lang)}
                   </p>
                 </div>
 
@@ -277,10 +286,10 @@ export const BudgetBuilds: React.FC = () => {
                           {getLocalizedPartType(part.type)}
                         </td>
                         <td className="py-3 font-medium text-zinc-900 dark:text-zinc-100">
-                          {part.name}
+                          {getLocalizedPartName(build.id, idx, part.name, lang)}
                         </td>
                         <td className="py-3 text-zinc-500 dark:text-zinc-400 hidden md:table-cell font-mono">
-                          {part.spec}
+                          {getLocalizedPartSpec(build.id, idx, part.spec, lang)}
                         </td>
                         <td className="py-3 text-right font-mono font-bold text-zinc-900 dark:text-white">
                           ￥{part.approxPrice}
@@ -336,6 +345,7 @@ export const BudgetBuilds: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {build.upgradeOptions.map((opt) => {
                       const isApplied = buildSelectedUpgradeIds.includes(opt.id);
+                      const localizedOpt = getLocalizedUpgradeOption(build.id, opt.id, opt, lang);
                       return (
                         <div
                           key={opt.id}
@@ -363,13 +373,13 @@ export const BudgetBuilds: React.FC = () => {
                               </span>
                             </div>
                             <h5 className="text-xs font-bold text-zinc-900 dark:text-white leading-snug">
-                              {opt.title}
+                              {localizedOpt.title}
                             </h5>
                             <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                              {opt.description}
+                              {localizedOpt.description}
                             </p>
                             <div className="text-[10px] text-zinc-400 font-mono truncate">
-                              {t('buildUpgradeReplaces')} <span className="text-zinc-700 dark:text-zinc-300 font-medium">{opt.partName}</span>
+                              {t('buildUpgradeReplaces')} <span className="text-zinc-700 dark:text-zinc-300 font-medium">{localizedOpt.partName}</span>
                             </div>
                           </div>
 
@@ -412,7 +422,7 @@ export const BudgetBuilds: React.FC = () => {
                   <span>{t('buildNotesTitle')}</span>
                 </div>
                 <ul className="space-y-1.5 text-zinc-600 dark:text-zinc-400 pl-5 list-disc">
-                  {build.notes.map((note, nIdx) => (
+                  {getLocalizedBuildNotes(build, lang).map((note, nIdx) => (
                     <li key={nIdx}>{note}</li>
                   ))}
                 </ul>

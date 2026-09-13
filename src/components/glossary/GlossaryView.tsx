@@ -16,6 +16,7 @@ import {
   Box,
 } from 'lucide-react';
 import { glossaryTerms } from '../../data/glossary';
+import { getLocalizedShortDesc, getLocalizedTermTitle } from '../../data/glossaryTranslationsEn';
 import { GlossaryCategory } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -42,16 +43,18 @@ export const GlossaryView: React.FC = () => {
       if (selectedCat !== 'all' && term.category !== selectedCat) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchTerm = term.term.toLowerCase().includes(q);
+        const localizedTitle = getLocalizedTermTitle(term, lang).toLowerCase();
+        const localizedDesc = getLocalizedShortDesc(term, lang).toLowerCase();
+        const matchTerm = term.term.toLowerCase().includes(q) || localizedTitle.includes(q);
         const matchAlias = term.alias?.some((a) => a.toLowerCase().includes(q));
-        const matchDesc = term.shortDesc.toLowerCase().includes(q);
+        const matchDesc = term.shortDesc.toLowerCase().includes(q) || localizedDesc.includes(q);
         const matchFull = term.fullExplanation.toLowerCase().includes(q);
         const matchTags = term.tags.some((t) => t.toLowerCase().includes(q));
         return matchTerm || matchAlias || matchDesc || matchFull || matchTags;
       }
       return true;
     });
-  }, [selectedCat, searchQuery]);
+  }, [selectedCat, searchQuery, lang]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -111,7 +114,7 @@ export const GlossaryView: React.FC = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-snug">
-                      {term.term}
+                      {getLocalizedTermTitle(term, lang)}
                     </h3>
                     {term.alias && term.alias.length > 0 && (
                       <div className="flex items-center space-x-1 mt-1 text-[11px] text-zinc-400">
@@ -133,7 +136,7 @@ export const GlossaryView: React.FC = () => {
                     <strong className="text-zinc-900 dark:text-white mr-1">
                       {t('termPlainLabel')}
                     </strong>
-                    {term.shortDesc}
+                    {getLocalizedShortDesc(term, lang)}
                   </div>
                 </div>
 

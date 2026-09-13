@@ -14,8 +14,25 @@ export function WikiIntro({ onNavigate }: { onNavigate: (tab: ActiveTab) => void
         <h1 id="wiki-title">{en ? <>Know your hardware.<br /><em>Build with confidence.</em></> : <>读懂每一块硬件。<br /><em>装出自己的答案。</em></>}</h1>
         <p className="page-description">{en ? 'Explore the specs, compare the performance, and understand how it all fits together. Your next build starts here.' : '从核心参数到性能差距，从选购思路到动手装机。把复杂的硬件知识，变成每一次选择的底气。'}</p>
         <div className="intro-actions">
-          <a href="#hardware-catalog" className="primary-action" onClick={(event) => { event.preventDefault(); document.getElementById('hardware-catalog')?.focus(); }}>{en ? 'Explore hardware' : '探索硬件库'}<ArrowDown size={16} /></a>
-          <button className="text-action" onClick={() => onNavigate('builds')}>{en ? 'Find your next build' : '按预算找配置'}<ArrowUpRight size={16} /></button>
+          <a
+            href="#hardware-catalog"
+            className="primary-action"
+            onClick={(event) => {
+              event.preventDefault();
+              const target = document.getElementById('hardware-catalog');
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                target.focus({ preventScroll: true });
+              }
+            }}
+          >
+            {en ? 'Explore hardware' : '探索硬件库'}
+            <ArrowDown size={16} />
+          </a>
+          <button className="text-action" onClick={() => onNavigate('builds')}>
+            {en ? 'Find your next build' : '按预算找配置'}
+            <ArrowUpRight size={16} />
+          </button>
         </div>
         <dl className="intro-stats">
           <div><dt>{en ? 'Hardware models' : '硬件型号'}</dt><dd>{hardwareList.length}<span>+</span></dd></div>

@@ -14,9 +14,11 @@ import {
 import { hardwareList } from '../../data/hardware';
 import { cpuRankings, gpuRankings } from '../../data/rankings';
 import { glossaryTerms } from '../../data/glossary';
+import { getLocalizedShortDesc, getLocalizedTermTitle } from '../../data/glossaryTranslationsEn';
 import { assemblyStepsData } from '../../data/assemblySteps';
 import { stepTranslationsEn } from '../../data/assemblyTranslationsEn';
 import { recommendedBuilds } from '../../data/builds';
+import { getLocalizedBuildTitle, getLocalizedBuildTagline, getLocalizedBuildScenario } from '../../data/buildTranslationsEn';
 import { ActiveTab } from '../../types';
 import { useCustomContent } from '../../context/CustomContentContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -201,14 +203,16 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
     // 3. Glossary terms
     glossaryTerms.forEach((g) => {
-      const matchTerm = g.term.toLowerCase().includes(searchKeyword);
+      const localizedTitle = getLocalizedTermTitle(g, lang);
+      const localizedDesc = getLocalizedShortDesc(g, lang);
+      const matchTerm = g.term.toLowerCase().includes(searchKeyword) || localizedTitle.toLowerCase().includes(searchKeyword);
       const matchAlias = g.alias?.some((a) => a.toLowerCase().includes(searchKeyword));
-      const matchDesc = g.shortDesc.toLowerCase().includes(searchKeyword);
+      const matchDesc = g.shortDesc.toLowerCase().includes(searchKeyword) || localizedDesc.toLowerCase().includes(searchKeyword);
       if (matchTerm || matchAlias || matchDesc) {
         items.push({
           id: `glossary-${g.id}`,
-          title: g.term,
-          subtitle: g.shortDesc,
+          title: localizedTitle,
+          subtitle: localizedDesc,
           category: lang === 'en' ? 'Glossary' : '名词术语',
           targetTab: 'glossary',
         });
@@ -237,19 +241,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
     // 5. Recommended builds
     recommendedBuilds.forEach((b) => {
-      const matchTitle = b.title.toLowerCase().includes(searchKeyword);
-      const matchTagline = b.tagline.toLowerCase().includes(searchKeyword);
+      const displayTitle = getLocalizedBuildTitle(b, lang);
+      const displayTagline = getLocalizedBuildTagline(b, lang);
+      const displayScenario = getLocalizedBuildScenario(b, lang);
+      const matchTitle = b.title.toLowerCase().includes(searchKeyword) || displayTitle.toLowerCase().includes(searchKeyword);
+      const matchTagline = b.tagline.toLowerCase().includes(searchKeyword) || displayTagline.toLowerCase().includes(searchKeyword);
       const matchPart = b.parts.some((p) => p.name.toLowerCase().includes(searchKeyword));
       if (matchTitle || matchTagline || matchPart) {
         items.push({
           id: `build-${b.id}`,
-          title: b.title,
+          title: displayTitle,
           subtitle:
             lang === 'en'
-              ? `${b.budgetLevel} · BOM Total ¥${b.totalPrice} · ${b.scenario}`
+              ? `${displayTagline} · BOM Total ¥${b.totalPrice} · ${displayScenario}`
               : `${b.budgetLevel} · 配件总计 ￥${b.totalPrice} · ${b.scenario}`,
-          category: lang === 'en' ? 'Builds' : '推荐配置',
+          category: lang === 'en' ? 'Builds' : '配置推荐',
           targetTab: 'builds',
+          badge: `¥${b.targetPrice}`,
         });
       }
     });

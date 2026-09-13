@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { glossaryTerms } from '../../data/glossary';
 import { HelpCircle, ExternalLink, ShieldCheck } from 'lucide-react';
 import { GlossaryTerm } from '../../types';
+import { getLocalizedShortDesc, getLocalizedTermTitle } from '../../data/glossaryTranslationsEn';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface SmartTooltipProps {
@@ -61,7 +62,7 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 w-72 sm:w-80 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl animate-in zoom-in-95 duration-150 text-left">
           <div className="flex items-start justify-between gap-2 mb-2">
             <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-              {matchedTerm.term}
+              {getLocalizedTermTitle(matchedTerm, lang)}
             </span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-cyan-400 font-medium shrink-0">
               {matchedTerm.category.toUpperCase()}
@@ -70,7 +71,7 @@ export const SmartTooltip: React.FC<SmartTooltipProps> = ({
 
           <div className="space-y-2 text-xs">
             <p className="text-slate-600 dark:text-slate-300 leading-snug">
-              {matchedTerm.shortDesc}
+              {getLocalizedShortDesc(matchedTerm, lang)}
             </p>
 
             {matchedTerm.buyingAdvice && (
