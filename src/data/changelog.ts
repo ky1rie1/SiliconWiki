@@ -13,7 +13,7 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'feature',
-        text: '真实物理级装配层级与确定性时间线：主板作为装配父级承载 CPU、A2/B2 双通道内存、30° 倾角 M.2 及散热器，并在第 5 步整体平滑移入机箱；规范显卡朝下及散热器后向风道。',
+        text: '装配层级与确定性时间线：主板作为装配父级承载 CPU、A2/B2 双通道内存、30° 倾角 M.2 及散热器，并在第 5 步整体平滑移入机箱；规范显卡朝下及散热器后向风道。',
       },
       {
         type: 'perf',
@@ -29,7 +29,7 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'data',
-        text: '硬件数据目录（HardwareCatalog）与字段级信源核验：建立规范化只读数据模型，严谨分离官方核验字段与编辑参考数据；完成 1428 条外链审计，实现全站技术文档零坏链。',
+        text: '硬件数据目录（HardwareCatalog）与字段级信源核验：建立规范化只读数据模型，严谨分离官方核验字段与编辑参考数据；完成外链审计并修复失效链接，持续跟踪技术文档可用性。',
       },
       {
         type: 'feature',
@@ -53,7 +53,7 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'price',
-        text: '2026 预算配置全面焕新：重新核对各价位硬件搭配与实时市价，确保总价精准无误差。',
+        text: '2026 预算配置全面焕新：核对各价位硬件搭配与参考市价估算。',
       },
       {
         type: 'fix',
@@ -61,7 +61,7 @@ export const changelogList: ChangelogItem[] = [
       },
       {
         type: 'feature',
-        text: '上线右下角轻量反馈系统：支持提交 Bug、数据更新建议，内置后台反馈汇总看板。',
+        text: '上线右下角轻量反馈系统：支持提交 Bug 与数据校准建议，提供 GitHub Issue 与本地草稿管理。',
       },
     ],
   },

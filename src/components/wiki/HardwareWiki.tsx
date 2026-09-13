@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Layers,
   Cpu,
@@ -51,24 +51,94 @@ interface SpecDimension {
 
 export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary, onNavigate }) => {
   const { t, lang } = useLanguage();
-  const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const url = new URL(window.location.href);
+        const cat = url.searchParams.get('category')?.toLowerCase();
+        const validCats: HardwareCategory[] = [
+          'cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'cooler', 'case', 'laptop'
+        ];
+        if (cat && validCats.includes(cat as HardwareCategory)) {
+          return cat as HardwareCategory;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return 'all';
+  });
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedSpecs, setSelectedSpecs] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'tdp'>('default');
   const [selectedDetailItem, setSelectedDetailItem] = useState<HardwareItem | null>(null);
-  useEffect(() => {
-    const openSharedHardware = () => {
+
+  const handleOpenDetail = useCallback((item: HardwareItem) => {
+    setSelectedDetailItem(item);
+    try {
       const url = new URL(window.location.href);
-      const id = url.searchParams.get('hardware') || url.hash.slice(1);
-      const shared = hardwareList.find(hardware => hardware.id === id);
-      if (shared) setSelectedDetailItem(shared);
-    };
-    openSharedHardware();
-    window.addEventListener('popstate', openSharedHardware);
-    window.addEventListener('hashchange', openSharedHardware);
-    return () => { window.removeEventListener('popstate', openSharedHardware); window.removeEventListener('hashchange', openSharedHardware); };
+      url.searchParams.set('hardware', item.id);
+      window.history.pushState({ hardware: item.id }, '', url.pathname + url.search + url.hash);
+    } catch {
+      // fallback
+    }
   }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setSelectedDetailItem(null);
+    try {
+      const url = new URL(window.location.href);
+      let changed = false;
+      if (url.searchParams.has('hardware')) {
+        url.searchParams.delete('hardware');
+        changed = true;
+      }
+      const rawHash = url.hash.replace(/^#\/?/, '').trim();
+      const tabNames = ['wiki', 'rankings', 'simulator3d', '3d', 'build', 'glossary', 'dict', 'builds', 'budget'];
+      if (rawHash && !tabNames.includes(rawHash)) {
+        url.hash = '#/wiki';
+        changed = true;
+      }
+      if (changed) {
+        window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      }
+    } catch {
+      // fallback
+    }
+  }, []);
+
+  useEffect(() => {
+    const syncHardwareFromUrl = () => {
+      try {
+        const url = new URL(window.location.href);
+        const hardwareParam = url.searchParams.get('hardware');
+        const rawHash = url.hash.replace(/^#\/?/, '').trim();
+        const tabNames = ['wiki', 'rankings', 'simulator3d', '3d', 'build', 'glossary', 'dict', 'builds', 'budget'];
+        const hashCandidate = rawHash && !tabNames.includes(rawHash) ? rawHash : null;
+
+        const candidateId = hardwareParam || hashCandidate;
+        if (candidateId) {
+          const found = hardwareList.find((h) => h.id === candidateId);
+          setSelectedDetailItem(found || null);
+        } else {
+          // Hardware param absent (e.g. browser Back was clicked) -> close modal cleanly
+          setSelectedDetailItem(null);
+        }
+      } catch {
+        // fallback
+      }
+    };
+
+    syncHardwareFromUrl();
+    window.addEventListener('popstate', syncHardwareFromUrl);
+    window.addEventListener('hashchange', syncHardwareFromUrl);
+    return () => {
+      window.removeEventListener('popstate', syncHardwareFromUrl);
+      window.removeEventListener('hashchange', syncHardwareFromUrl);
+    };
+  }, []);
+
   const [selectedGlossaryTerm, setSelectedGlossaryTerm] = useState<GlossaryTerm | null>(null);
   const [selectionTooltip, setSelectionTooltip] = useState<{
     text: string;
@@ -98,6 +168,17 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
     setSelectedCategory(newCat);
     setSelectedBrand('all');
     setSelectedSpecs({});
+    try {
+      const url = new URL(window.location.href);
+      if (newCat === 'all') {
+        url.searchParams.delete('category');
+      } else {
+        url.searchParams.set('category', newCat);
+      }
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch {
+      // ignore
+    }
   };
 
   // Listen for user text selection to trigger term explanation card
@@ -1800,7 +1881,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
           ) : viewMode === 'table' ? (
             <HardwareTableView
               items={filteredItems}
-              onOpenSpecs={(hardware) => setSelectedDetailItem(hardware)}
+              onOpenSpecs={handleOpenDetail}
               onOpenTerm={(term) => setSelectedGlossaryTerm(term)}
             />
           ) : (
@@ -1809,7 +1890,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                 <HardwareCard
                   key={item.id}
                   item={item}
-                  onOpenSpecs={(hardware) => setSelectedDetailItem(hardware)}
+                  onOpenSpecs={handleOpenDetail}
                   onOpenTerm={(term) => setSelectedGlossaryTerm(term)}
                 />
               ))}
@@ -1841,7 +1922,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
       {selectedDetailItem && (
         <HardwareDetailModal
           item={selectedDetailItem}
-          onClose={() => setSelectedDetailItem(null)}
+          onClose={handleCloseDetail}
         />
       )}
 

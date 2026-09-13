@@ -269,8 +269,8 @@ export const LaptopSection: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
               {lang === 'en'
-                ? 'Curated Benchmark Laptop Models & Live Pricing'
-                : '精选标杆笔记本系列与实时比价'}
+                ? 'Curated Benchmark Laptop Models & Spec Guides'
+                : '精选标杆笔记本系列与配置参考'}
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               {lang === 'en'

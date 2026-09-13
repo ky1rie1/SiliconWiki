@@ -271,6 +271,21 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       onClose();
       return;
     }
+
+    if (item.targetTab === 'wiki' && item.id.startsWith('hw-')) {
+      const hwId = item.id.replace(/^hw-/, '');
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', 'wiki');
+        url.searchParams.set('hardware', hwId);
+        url.hash = '';
+        window.history.pushState({ tab: 'wiki', hardware: hwId }, '', url.pathname + url.search);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      } catch {
+        // fallback
+      }
+    }
+
     onNavigate(item.targetTab);
     onClose();
   };

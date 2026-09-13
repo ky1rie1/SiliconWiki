@@ -12,17 +12,27 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState<Language>(() => {
-    const saved = localStorage.getItem('silicon_wiki_lang');
-    if (saved === 'zh' || saved === 'en') {
-      return saved;
+    try {
+      const saved = localStorage.getItem('silicon_wiki_lang');
+      if (saved === 'zh' || saved === 'en') {
+        return saved;
+      }
+    } catch {
+      // ignore storage access errors
     }
     // Check browser language
-    return navigator.language.startsWith('zh') ? 'zh' : 'en';
+    return typeof navigator !== 'undefined' && navigator.language?.startsWith('zh') ? 'zh' : 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('silicon_wiki_lang', lang);
-    document.documentElement.lang = lang;
+    try {
+      localStorage.setItem('silicon_wiki_lang', lang);
+    } catch {
+      // ignore storage access errors
+    }
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
   }, [lang]);
 
   const toggleLang = () => {

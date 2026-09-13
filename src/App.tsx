@@ -92,22 +92,47 @@ export default function App() {
   const [isChangelogOpen, setIsChangelogOpen] = useState(false);
   const [hasUnreadChangelog, setHasUnreadChangelog] = useState(true);
 
-  // Synchronize tab changes to URL hash or query cleanly
-  const handleTabChange = useCallback((newTab: ActiveTab, shouldScroll = true) => {
-    setActiveTab(newTab);
+  // Synchronize tab changes to URL hash or query cleanly with appropriate history semantics
+  const handleTabChange = useCallback((newTab: ActiveTab, options: { shouldScroll?: boolean; replace?: boolean } | boolean = true) => {
+    const shouldScroll = typeof options === 'boolean' ? options : (options.shouldScroll ?? true);
+    const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
 
-    try {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has('tab')) {
-        url.searchParams.set('tab', newTab);
-        url.hash = '';
-        window.history.replaceState(null, '', url.pathname + url.search);
-      } else {
-        window.history.replaceState(null, '', `#/${newTab}`);
+    setActiveTab((currentTab) => {
+      const isSameTab = currentTab === newTab;
+      try {
+        const url = new URL(window.location.href);
+        const hasTabParam = url.searchParams.has('tab');
+
+        if (hasTabParam) {
+          url.searchParams.set('tab', newTab);
+          // If leaving wiki tab, remove hardware-specific modal query param
+          if (newTab !== 'wiki') {
+            url.searchParams.delete('hardware');
+          }
+          url.hash = '';
+          const targetUrl = url.pathname + url.search;
+          if (replace || isSameTab) {
+            window.history.replaceState({ tab: newTab }, '', targetUrl);
+          } else {
+            window.history.pushState({ tab: newTab }, '', targetUrl);
+          }
+        } else {
+          if (url.searchParams.has('hardware') && newTab !== 'wiki') {
+            url.searchParams.delete('hardware');
+          }
+          const targetHash = `#/${newTab}`;
+          const targetUrl = (url.search ? url.pathname + url.search : '') + targetHash;
+          if (replace || isSameTab) {
+            window.history.replaceState({ tab: newTab }, '', targetUrl);
+          } else {
+            window.history.pushState({ tab: newTab }, '', targetUrl);
+          }
+        }
+      } catch {
+        window.location.hash = `#/${newTab}`;
       }
-    } catch {
-      window.location.hash = `#/${newTab}`;
-    }
+      return newTab;
+    });
 
     if (shouldScroll) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -131,20 +156,28 @@ export default function App() {
 
   // Check if current version announcement was already dismissed or seen by user
   useEffect(() => {
-    const latestVersion = changelogList[0]?.version || 'v2.5.0';
-    const seenVersion = localStorage.getItem('_sw_last_seen_changelog_ver');
-    if (seenVersion !== latestVersion) {
-      setHasUnreadChangelog(true);
-    } else {
+    try {
+      const latestVersion = changelogList[0]?.version || 'v2.5.0';
+      const seenVersion = localStorage.getItem('_sw_last_seen_changelog_ver');
+      if (seenVersion !== latestVersion) {
+        setHasUnreadChangelog(true);
+      } else {
+        setHasUnreadChangelog(false);
+      }
+    } catch {
       setHasUnreadChangelog(false);
     }
   }, []);
 
   const handleCloseChangelog = (dontShowAgain?: boolean) => {
     const latestVersion = changelogList[0]?.version || 'v2.5.0';
-    localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
-    if (dontShowAgain) {
-      localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
+    try {
+      localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
+      if (dontShowAgain) {
+        localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
+      }
+    } catch {
+      // ignore
     }
     setHasUnreadChangelog(false);
     setIsChangelogOpen(false);
@@ -152,8 +185,12 @@ export default function App() {
 
   const handleMarkAllAsRead = () => {
     const latestVersion = changelogList[0]?.version || 'v2.5.0';
-    localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
-    localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
+    try {
+      localStorage.setItem('_sw_last_seen_changelog_ver', latestVersion);
+      localStorage.setItem('silicon_wiki_dismissed_version', latestVersion);
+    } catch {
+      // ignore
+    }
     setHasUnreadChangelog(false);
   };
 

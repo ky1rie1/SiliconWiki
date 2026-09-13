@@ -133,8 +133,12 @@ export const QuickTextEditorModal: React.FC = () => {
   const handleDeleteFeedback = (id: string) => {
     const updated = feedbacks.filter((item) => item.id !== id);
     setFeedbacks(updated);
-    localStorage.setItem('_sw_feedback_list', JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+    try {
+      localStorage.setItem('_sw_feedback_list', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+    } catch {
+      // ignore storage errors
+    }
   };
 
   const handleToggleFeedbackStatus = (id: string) => {
@@ -148,8 +152,12 @@ export const QuickTextEditorModal: React.FC = () => {
       return item;
     });
     setFeedbacks(updated);
-    localStorage.setItem('_sw_feedback_list', JSON.stringify(updated));
-    window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+    try {
+      localStorage.setItem('_sw_feedback_list', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+    } catch {
+      // ignore storage errors
+    }
   };
 
   const handleClearAllFeedbacks = () => {
@@ -159,8 +167,12 @@ export const QuickTextEditorModal: React.FC = () => {
         : '确定要清空所有用户反馈记录吗？此操作不可恢复。';
     if (window.confirm(confirmMsg)) {
       setFeedbacks([]);
-      localStorage.removeItem('_sw_feedback_list');
-      window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+      try {
+        localStorage.removeItem('_sw_feedback_list');
+        window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
+      } catch {
+        // ignore storage errors
+      }
     }
   };
 
@@ -1005,8 +1017,8 @@ export const defaultTextOverrides: Record<string, BilingualOverride> = ${JSON.st
                               </div>
                               <p className="text-[11px] text-slate-400 max-w-sm">
                                 {lang === 'en'
-                                  ? 'User feedback submitted via the bottom-right floating button will be listed here in real-time.'
-                                  : '用户通过右下角「反馈建议」悬浮球提交的网页 Bug 与数据建议将实时汇总在此处。'}
+                                  ? 'Feedback drafts and submissions saved locally on this device will be listed here.'
+                                  : '当前设备保存在本地浏览器的反馈草稿与提交记录将展示在此处。'}
                               </p>
                             </div>
                           </div>
