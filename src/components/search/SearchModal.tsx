@@ -23,6 +23,7 @@ import { ActiveTab } from '../../types';
 import { useCustomContent } from '../../context/CustomContentContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { computeDetailOpenUrl } from '../../utils/navigation';
+import { formatHardwarePrice } from '../../utils/hardwareCatalog';
 
 const isDiagnosticsToken = (input: string) => {
   if (!input || input.length !== 10) return false;
@@ -188,7 +189,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         items.push({
           id: `hw-${h.id}`,
           title: h.name,
-          subtitle: `${h.brand} · ${h.category.toUpperCase()} · ￥${h.marketPriceRange[0]}~${h.marketPriceRange[1]}`,
+          subtitle: `${h.brand} · ${h.category.toUpperCase()} · ${formatHardwarePrice(h.marketPriceRange, lang)}`,
           category: lang === 'en' ? 'Hardware' : '硬件型号',
           targetTab: 'wiki',
           badge: h.badge,

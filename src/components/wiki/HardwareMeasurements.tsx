@@ -173,16 +173,24 @@ export function HardwareEvidence({
           }`}
         >
           {zh
-            ? `已核验 ${audit.verifiedFieldCount}/${audit.coreFieldTotal} 项标准核心字段`
-            : `${audit.verifiedFieldCount}/${audit.coreFieldTotal} benchmark fields checked`}
+            ? `已核验 ${audit.verifiedCoreCount}/${audit.coreFieldTotal} 项核心规格${
+                audit.verifiedFieldCount > audit.verifiedCoreCount
+                  ? `（另核验 ${audit.verifiedFieldCount - audit.verifiedCoreCount} 项扩展字段）`
+                  : ''
+              }`
+            : `${audit.verifiedCoreCount}/${audit.coreFieldTotal} core fields verified${
+                audit.verifiedFieldCount > audit.verifiedCoreCount
+                  ? ` (+${audit.verifiedFieldCount - audit.verifiedCoreCount} extra)`
+                  : ''
+              }`}
         </span>
       </div>
 
       <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
         {checked.length
           ? zh
-            ? `本条目共比对核验 ${checked.length} 项具体字段。分母基于该品类 ${audit.coreFieldTotal} 项核心基准参数计算。价格、跑分及选购文案未纳入官方核验范围。`
-            : `Verified ${checked.length} specific fields against sources. Denominator is fixed at ${audit.coreFieldTotal} category benchmark fields. Prices and scores remain references.`
+            ? `本条目共比对核验 ${checked.length} 项具体字段（其中 ${audit.verifiedCoreCount}/${audit.coreFieldTotal} 项归属于品类核心基准参数）。价格、跑分及选购文案未纳入官方核验范围。`
+            : `Verified ${checked.length} specific fields (${audit.verifiedCoreCount}/${audit.coreFieldTotal} core benchmark fields). Prices and scores remain references.`
           : zh
           ? `此型号尚未完成字段级官方核验（0/${audit.coreFieldTotal}），目前规格来自编辑整理或通用公开资料。`
           : `This model has not received a field-by-field check (0/${audit.coreFieldTotal}). Specs are currently editorial references.`}

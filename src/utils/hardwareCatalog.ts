@@ -15,14 +15,53 @@ import type {
 const finitePositive = (value: number | undefined | null): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value > 0;
 
-const safeLink = (value: { url: string }) => {
+export function isValidCheckDate(dateStr?: string | null): boolean {
+  if (!dateStr || typeof dateStr !== 'string') return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (y < 2000 || y > 2099 || m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const parsed = new Date(dateStr);
+  return !Number.isNaN(parsed.getTime());
+}
+
+export function isValidSourceUrl(urlStr?: string | null): boolean {
+  if (!urlStr || typeof urlStr !== 'string') return false;
   try {
-    const url = new URL(value.url);
-    return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password;
+    const u = new URL(urlStr);
+    return ['https:', 'http:'].includes(u.protocol) && !u.username && !u.password;
   } catch {
     return false;
   }
-};
+}
+
+const safeLink = (value: { url: string }) => isValidSourceUrl(value.url);
+
+export function formatHardwarePrice(
+  priceRange: [number, number] | undefined | null,
+  lang: 'zh' | 'en' = 'zh'
+): string {
+  if (!priceRange || (priceRange[0] <= 0 && priceRange[1] <= 0)) {
+    return lang === 'en' ? 'Price unrecorded' : '暂无参考价';
+  }
+  if (priceRange[0] === priceRange[1]) {
+    return `￥${priceRange[0]}`;
+  }
+  return `￥${priceRange[0]} ~ ￥${priceRange[1]}`;
+}
+
+export function formatHardwareTdp(
+  tdpWatts: number | undefined | null,
+  category?: HardwareCategory,
+  lang: 'zh' | 'en' = 'zh'
+): string {
+  if (typeof tdpWatts === 'number' && Number.isFinite(tdpWatts) && tdpWatts > 0) {
+    return `${tdpWatts}W`;
+  }
+  if (category === 'case') {
+    return lang === 'en' ? 'N/A' : '不适用';
+  }
+  return lang === 'en' ? 'Power unrecorded' : '功耗未记录';
+}
 
 export interface CoreFieldSpec {
   canonicalName: string;
@@ -175,9 +214,8 @@ function computeAuditSummary(
   const coreSpecs = CATEGORY_CORE_FIELDS[category] || [];
   const coreFieldTotal = coreSpecs.length;
 
-  const verifiedLabels = new Set(
-    specifications.filter((s) => s.verificationStatus === 'verified').map((s) => s.label)
-  );
+  const verifiedSpecs = specifications.filter((s) => s.verificationStatus === 'verified');
+  const verifiedLabels = new Set(verifiedSpecs.map((s) => s.label));
 
   const missingCoreFields: string[] = [];
   let verifiedCoreCount = 0;
@@ -191,20 +229,22 @@ function computeAuditSummary(
     }
   }
 
-  const verifiedFieldCount = specifications.filter((s) => s.verificationStatus === 'verified').length;
+  const verifiedFieldCount = verifiedSpecs.length;
   const verificationRate =
     coreFieldTotal > 0 ? Math.min(1, Math.round((verifiedCoreCount / coreFieldTotal) * 100) / 100) : 0;
 
-  const hasOfficialSource = sources.some((s) => s.kind === 'manufacturer');
+  const hasOfficialSource = sources.some(
+    (s) => s.kind === 'manufacturer' && isValidSourceUrl(s.url) && isValidCheckDate(s.checkedAt)
+  );
 
   let lastCheckedAt: string | null = null;
   for (const s of sources) {
-    if (s.checkedAt && (!lastCheckedAt || s.checkedAt > lastCheckedAt)) {
+    if (s.checkedAt && isValidCheckDate(s.checkedAt) && (!lastCheckedAt || s.checkedAt > lastCheckedAt)) {
       lastCheckedAt = s.checkedAt;
     }
   }
-  for (const spec of specifications) {
-    if (spec.checkedAt && (!lastCheckedAt || spec.checkedAt > lastCheckedAt)) {
+  for (const spec of verifiedSpecs) {
+    if (spec.checkedAt && isValidCheckDate(spec.checkedAt) && (!lastCheckedAt || spec.checkedAt > lastCheckedAt)) {
       lastCheckedAt = spec.checkedAt;
     }
   }
@@ -212,6 +252,7 @@ function computeAuditSummary(
   return {
     entityKind,
     verifiedFieldCount,
+    verifiedCoreCount,
     coreFieldTotal,
     verificationRate,
     hasOfficialSource,
@@ -244,20 +285,28 @@ export function createHardwareCatalog(
     const entityKind = detectEntityKind(item, verified);
     const variantDetails = extractVariantDetails(item, verified);
 
-    const sourceId = `${item.id}:manufacturer`;
-    const sources: HardwareRecord['sources'] = verified
-      ? [
-          {
-            id: sourceId,
-            title: verified.sourceTitle,
-            url: verified.sourceUrl,
-            checkedAt: verified.checkedAt,
-            kind: 'manufacturer',
-          },
-        ]
-      : [];
+    const mfgSourceId = `${item.id}:manufacturer`;
+    const sources: HardwareRecord['sources'] = [];
+    if (
+      verified &&
+      verified.sourceTitle &&
+      isValidSourceUrl(verified.sourceUrl) &&
+      isValidCheckDate(verified.checkedAt)
+    ) {
+      sources.push({
+        id: mfgSourceId,
+        title: verified.sourceTitle,
+        url: verified.sourceUrl,
+        checkedAt: verified.checkedAt,
+        kind: 'manufacturer',
+      });
+    }
 
-    if (verified?.zol) {
+    if (
+      verified?.zol &&
+      isValidSourceUrl(verified.zol.parameterUrl) &&
+      isValidCheckDate(verified.zol.checkedAt)
+    ) {
       sources.push({
         id: `${item.id}:zol`,
         title: 'ZOL product parameters',
@@ -267,30 +316,58 @@ export function createHardwareCatalog(
       });
     }
 
+    const validSourcesById = new Map(sources.map((s) => [s.id, s]));
+
     const specifications: SpecificationRecord[] = Object.entries(item.specs).map(([label, value]) => {
       const candidateFact = verified?.fields[label];
       const fact = candidateFact?.value === value ? candidateFact : undefined;
-      const isVerified = Boolean(fact);
-      const sourceKind: SourceKind = fact?.sourceKind || (isVerified ? 'manufacturer' : 'editorial');
-      const verificationStatus: VerificationStatus =
-        fact?.verificationStatus || (isVerified ? 'verified' : 'unverified');
+
+      let isEffectivelyVerified = false;
+      let effectiveSourceId: string | undefined;
+      let effectiveCheckedAt: string | undefined;
+      let sourceKind: SourceKind = 'editorial';
+
+      if (fact && fact.verificationStatus === 'verified') {
+        const checkDate = fact.checkedAt || verified?.checkedAt;
+        if (isValidCheckDate(checkDate)) {
+          const targetKind = fact.sourceKind || 'manufacturer';
+          const targetSource =
+            (fact.sourceId ? validSourcesById.get(fact.sourceId) : undefined) ||
+            sources.find((s) => s.kind === targetKind);
+
+          if (targetSource) {
+            isEffectivelyVerified = true;
+            effectiveSourceId = targetSource.id;
+            effectiveCheckedAt = checkDate;
+            sourceKind = targetKind;
+          }
+        }
+      }
+
+      const verificationStatus: VerificationStatus = isEffectivelyVerified ? 'verified' : 'unverified';
+      const evidence =
+        isEffectivelyVerified && sourceKind === 'manufacturer'
+          ? 'manufacturer-checked'
+          : 'editorial-reference';
 
       return {
         id: fact ? `${item.id}:${fact.fieldId}` : `catalog:${item.id}:${encodeURIComponent(label)}`,
         label,
         value,
-        evidence: isVerified ? 'manufacturer-checked' : 'editorial-reference',
-        sourceKind,
+        evidence,
+        sourceKind: isEffectivelyVerified ? sourceKind : (fact?.sourceKind || 'editorial'),
         verificationStatus,
-        ...(fact
+        ...(isEffectivelyVerified
           ? {
-              sourceId,
-              sourceField: fact.sourceField,
-              checkedAt: fact.checkedAt || verified?.checkedAt,
-              condition: fact.condition,
-              unit: fact.unit,
-              numericValue: fact.numericValue,
+              sourceId: effectiveSourceId,
+              sourceField: fact?.sourceField,
+              checkedAt: effectiveCheckedAt,
+              condition: fact?.condition,
+              unit: fact?.unit,
+              numericValue: fact?.numericValue,
             }
+          : fact?.condition
+          ? { condition: fact.condition }
           : {}),
       };
     });

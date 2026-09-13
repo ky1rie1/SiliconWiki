@@ -156,7 +156,7 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
               </span>
               <span
                 className={`text-xs px-2.5 py-0.5 rounded-full font-medium flex items-center space-x-1 border ${
-                  record.auditSummary.verifiedFieldCount > 0
+                  record.auditSummary.verifiedCoreCount > 0
                     ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
                 }`}
@@ -164,8 +164,8 @@ export const HardwareDetailModal: React.FC<HardwareDetailModalProps> = ({
                 <ShieldCheck className="w-3 h-3" />
                 <span>
                   {lang === 'en'
-                    ? `${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} Verified`
-                    : `已核验 ${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} 项`}
+                    ? `${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} Verified`
+                    : `已核验 ${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} 项`}
                 </span>
               </span>
               {item.badge && (

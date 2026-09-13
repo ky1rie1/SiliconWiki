@@ -144,7 +144,7 @@ export const DataCredibilityModal: React.FC<DataCredibilityModalProps> = ({ isOp
                 {Math.round(stats.overallVerificationRate * 100)}%
               </div>
               <span className="text-[10px] text-amber-700/70 dark:text-amber-400/70 block">
-                {zh ? '核心关键字段加权' : 'Core benchmark weighted'}
+                {zh ? '品类核心基准标准' : 'Category core benchmark standard'}
               </span>
             </div>
 

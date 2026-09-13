@@ -18,6 +18,7 @@ import { glossaryTerms } from '../../data/glossary';
 import { HardwareImage } from './HardwareImage';
 import { useLanguage } from '../../context/LanguageContext';
 import { hardwareCatalog } from '../../data/hardware';
+import { formatHardwarePrice, formatHardwareTdp } from '../../utils/hardwareCatalog';
 
 interface HardwareCardProps {
   item: HardwareItem;
@@ -128,13 +129,25 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                   {lang === 'en' ? 'Partner' : '非公变体'}
                 </span>
               )}
-              {record?.auditSummary.hasOfficialSource && record.auditSummary.verifiedFieldCount > 0 && (
+              {record?.auditSummary.hasOfficialSource && record.auditSummary.verifiedCoreCount > 0 && (
                 <span
                   className="text-[10px] px-1.5 py-0.5 rounded font-medium flex items-center space-x-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-                  title={lang === 'en' ? `${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} official fields verified` : `已核验 ${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} 项原厂关键参数`}
+                  title={
+                    lang === 'en'
+                      ? `${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} core fields verified${
+                          record.auditSummary.verifiedFieldCount > record.auditSummary.verifiedCoreCount
+                            ? ` (${record.auditSummary.verifiedFieldCount - record.auditSummary.verifiedCoreCount} extra verified)`
+                            : ''
+                        }`
+                      : `已核验 ${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} 项核心规格${
+                          record.auditSummary.verifiedFieldCount > record.auditSummary.verifiedCoreCount
+                            ? `（另有 ${record.auditSummary.verifiedFieldCount - record.auditSummary.verifiedCoreCount} 项扩展核验字段）`
+                            : ''
+                        }`
+                  }
                 >
                   <ShieldCheck className="w-2.5 h-2.5 shrink-0" />
-                  <span>{record.auditSummary.verifiedFieldCount}/{record.auditSummary.coreFieldTotal}</span>
+                  <span>{record.auditSummary.verifiedCoreCount}/{record.auditSummary.coreFieldTotal}</span>
                 </span>
               )}
               {item.badge && (
@@ -146,7 +159,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
             <div className="flex items-center space-x-1 text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>{item.tdpWatts > 0 ? `${item.tdpWatts}W` : (lang === 'en' ? 'Power unrecorded' : '功耗未记录')}</span>
+              <span>{formatHardwareTdp(item.tdpWatts, item.category, lang)}</span>
             </div>
           </div>
 
@@ -275,9 +288,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                 {t('marketPriceLabel')}
               </span>
               <div className="text-base font-bold text-slate-900 dark:text-[#F7D84A] font-mono">
-                {item.marketPriceRange[0] > 0 || item.marketPriceRange[1] > 0
-                  ? `￥${item.marketPriceRange[0]} ~ ￥${item.marketPriceRange[1]}`
-                  : (lang === 'en' ? 'Price unrecorded' : '暂无参考价')}
+                {formatHardwarePrice(item.marketPriceRange, lang)}
               </div>
             </div>
           </div>

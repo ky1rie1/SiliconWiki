@@ -18,6 +18,7 @@ export type HardwareSpecFieldId =
   | 'gpu.tensorGeneration'
   | 'gpu.aiTops'
   // GPU Physical & Board Partner Dimensions
+  | 'gpu.dimensions'
   | 'gpu.lengthMm'
   | 'gpu.slotThickness'
   | 'gpu.powerConnectors'
@@ -80,6 +81,7 @@ export interface VerifiedHardwareFact {
   numericValue?: number | null;
   condition?: string;
   sourceKind?: SourceKind;
+  sourceId?: string;
   verificationStatus?: VerificationStatus;
   checkedAt?: string;
 }
@@ -103,8 +105,8 @@ export interface HardwareVerification {
     powerConnectors?: string | null;
   };
   zol?: {
-    productId: string;
-    productUrl: string;
+    productId?: string;
+    productUrl?: string;
     parameterUrl: string;
     checkedAt: string;
   };

@@ -29,9 +29,10 @@ export interface SpecificationRecord {
 
 export interface HardwareAuditSummary {
   entityKind: EntityKind;
-  verifiedFieldCount: number; // X: actual fields verified against manufacturer or authoritative source
+  verifiedFieldCount: number; // 全部已核验字段数（包含扩展核验字段）
+  verifiedCoreCount: number;  // 已核验核心字段数（严格对应分母 Y）
   coreFieldTotal: number;     // Y: category standard core benchmark fields
-  verificationRate: number;   // X / Y (normalized 0 to 1)
+  verificationRate: number;   // verifiedCoreCount / coreFieldTotal (normalized 0 to 1)
   hasOfficialSource: boolean;
   lastCheckedAt: string | null;
   missingCoreFields: string[];

@@ -152,68 +152,69 @@
 - [x] **D. 透明核验口径与分母基准 ($X/Y$)**
   - 建立全品类 9 大核心规格标准基准（`CATEGORY_CORE_FIELDS`），严格固定分母 $Y$：
     - CPU: 7 项 | GPU: 8 项 | 主板: 6 项 | 内存: 5 项 | 存储: 5 项 | 电源: 5 项 | 散热: 4 项 | 机箱: 5 项 | 笔记本: 6 项；
-  - 动态计算分子 $X$（实际核对且来源有效的字段数），未核验的核心字段如实计入分母 $Y$ 并列入 `missingCoreFields`，彻底杜绝通过漏算未核验项虚标 100% 核验率；
-  - 详情页与汇总面板均清晰展示 “$X / Y$ 项核心规格已核验” 及百分比。
+  - **严谨分离全部已核验字段与核心已核验字段**：
+    - `computeAuditSummary` 分别返回 `verifiedFieldCount`（全量已核验字段数）、`verifiedCoreCount`（已核验核心字段数）与 `coreFieldTotal`（核心基准分母）；
+    - 核心徽标、核验率（`verificationRate = verifiedCoreCount / coreFieldTotal`）与缺失核心字段清单使用严格一致的统计口径；
+    - 典型示例：RTX 5090 核心核验准确核算为 4/8 项，另有 2 项额外已核验非核心字段（总核验 6 项），卡片与弹窗准确呈现为核心 4/8，彻底纠正此前误将总数 6 当作核心 6/8 的口径缺陷；
+  - 详情页与汇总面板文案与算法保持一致，明确采用品类核心基准标准计算。
 
-- [x] **E. 卡片与详情弹窗的可信度呈现**
-  - **硬件卡片 (`HardwareCard.tsx`)**：
-    - 呈现紧凑可信度标识（如已核验徽章及 $X/Y$ 进度）；
-    - 非公变体显示“品牌非公”标签；
-    - 未知功耗显示“功耗未记录”，未知价格显示“暂无参考价”；
-  - **详情弹窗 (`HardwareDetailModal.tsx` & `HardwareMeasurements.tsx`)**：
-    - 顶栏展示实体类别（芯片基准 / 原厂标准品 / 品牌非公变体）与核验等级；
-    - 规格表格各字段直接标明核验状态（已核验标绿打钩、未核验置灰）；
-    - 底部提供“数据来源与核验审计”展开面板，展示核验源清单、已核验字段明细、原始源字段名、核验日期及待核验字段列表。
+- [x] **E. 严密来源有效性校验与第三方来源解耦**
+  - **校验防御**：实现 `isValidSourceUrl`（限制 http/https 协议）与 `isValidCheckDate`（严格校验 YYYY-MM-DD 格式），来源 URL 无效或核验日期损坏时不得计入已核验；
+  - **真实状态判断**：杜绝仅凭 `Boolean(fact)` 判定为官方核验；显式标记 `status === 'unverified'` 的字段绝不产生已核验证据标签；
+  - **第三方来源独立绑定**：支持第三方事实记录（如 ZOL 中关村在线）关联至真实第三方来源对象，杜绝将第三方数据硬编码指向厂商官方来源。
 
-- [x] **F. 全站数据状态汇总面板 (`DataCredibilityModal.tsx`)**
-  - 在百科工具栏常驻“数据可信度”入口；
-  - 弹窗采用双层内嵌设计，实时展示：
-    - 全站收录统计（总收录数、芯片与基准系列、品牌非公变体）；
-    - 来源层级构成（原厂官方核验、第三方数据库、编辑参考整理）；
-    - 已知功耗与已知价格有效率；
-    - 9 大硬件分类的独立基准分母、已核验比例与覆盖表格；
-    - 明确的数据核验准则与免责说明，支持一键前往反馈修正。
+- [x] **F. 全入口未知值统一防御与安全排序**
+  - **全场景统一样式**：在 `src/utils/hardwareCatalog.ts` 中封装 `formatHardwarePrice` 与 `formatHardwareTdp`，在卡片、详情弹窗、尺寸面板、表格视图及全局搜索弹窗中统一应用；
+  - 未知价格绝不显示 `¥0~¥0` 或 `¥0`，统一显示“价格未记录”或“暂无参考价”；未知功耗绝不显示 `0W` 或虚标“标准功耗”，统一显示“功耗未记录”；
+  - **表格视图三态排序与末尾归并**：修复 `HardwareTableView.tsx` 价格与功耗列排序三态逻辑（降序 -> 升序 -> 取消），并保证在升序和降序两种状态下，未知值条目均稳定排在列表末尾，避免未知价格在升序排序中冲到顶部。
+
+- [x] **G. 非公品牌实测与物理规格严谨化**
+  - 修正七彩虹 RTX 4070 SUPER Ultra W OC 供电接口描述为 `16-pin (12VHPWR / 12V-2x6)`，与规格表严格对应；
+  - 完善显卡尺寸字段核验记录（`gpu.dimensions`，核验日期 `2026-09-11`）；
+  - 剔除未经实验室仪器测量的“实测”夸大用词，客观表述为“已依据七彩虹官方规格表核验”。
 
 ---
 
 ### 2. 自动化测试与质量验收
 
 - **测试套件执行**：`npm test`
-  - **20 个测试文件全部通过，共 143 个用例全部通过，0 失败**；
-  - 新增 `src/__tests__/hardwareCredibility.test.tsx`（11 个用例），覆盖：
-    1. 无重复 ID 且价格区间合法校验；
-    2. 9 大硬件分类核心分母 $Y$ 严格固定测试；
-    3. 未核验条目杜绝伪造日期与虚标测试；
-    4. 实体类型区分（芯片基准 vs 公版 vs 非公变体）与物理参数测试；
-    5. 未知功耗与价格 `null` 防御及安全排序测试（末尾归并，无 NaN/Infinity）；
-    6. `computeCatalogCredibilityStats` 全品类动态统计纯函数验证；
-    7. 真实 DOM 挂载与工具栏点击触发打开/关闭数据状态汇总面板；
-    8. 真实 DOM 挂载验证详情弹窗的字段核验徽章、非公物理规格提示与来源审计展开交互。
+  - **20 个测试文件全部通过，共 150 个用例全部通过，0 失败**；
+  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 18 个用例，包含针对提交 8a0b9f64 的 7 项专属回归测试：
+    1. 统计口径隔离：RTX 5090 核心字段 4/8，总核验字段 6 项；
+    2. 无效来源 URL（如 javascript: 伪协议）与损坏日期（非 YYYY-MM-DD）防御拦截；
+    3. 显式 unverified 字段不生成官方核验徽标；
+    4. 第三方事实记录正确绑定第三方数据源 ID；
+    5. 卡片、表格、搜索弹窗全入口未知价格统一格式化（无 ¥0 漏网）；
+    6. 表格升序与降序时未知价格均稳定置底；
+    7. 非公变体供电接口文案一致性与去虚构描述校验。
 - **生产构建验证**：`npm run build` (`tsc && vite build`)
-  - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
-  - 生产打包完整构建成功（产物位于 `dist/`）。
+  - TypeScript 严格类型检查 0 错误；
+  - Vite 生产打包 0 警告 0 错误（产物位于 `dist/`）。
 
 ---
 
 ### 3. 本阶段产出与修改文件汇总
 
 1. **类型定义与工具库**
-   - [修改] `src/types/hardwareSources.ts`：增加 `EntityKind`, `SourceKind`, `VerificationStatus`, 细化 `FieldVerification` 与物理规格字段 ID；
-   - [修改] `src/types/hardwareCatalog.ts`：扩展 `HardwareRecord`（`entityKind`, `variantDetails`, `auditSummary`, `power.isKnown`, `pricing.isKnownRange`）与 `SpecificationRecord`；
+   - [修改] `src/types/hardwareSources.ts`：增加 `EntityKind`, `SourceKind`, `VerificationStatus`，补充 `gpu.dimensions` 字段 ID 与 `sourceId`；
+   - [修改] `src/types/hardwareCatalog.ts`：扩展 `HardwareRecord`（`verifiedCoreCount`, `entityKind`, `variantDetails`, `auditSummary` 等）；
    - [新建] `src/utils/dataCredibilityStats.ts`：全品类可信度指标计算纯函数 `computeCatalogCredibilityStats`；
-   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`, `extractVariantDetails`, `safeSortHardwareByPrice`, `safeSortHardwareByTdp`；
+   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`（口径分离）、`formatHardwarePrice`、`formatHardwareTdp`、`isValidSourceUrl`、`isValidCheckDate`、`safeSortHardwareByPrice`、`safeSortHardwareByTdp`；
 2. **硬件数据底册**
-   - [修改] `src/data/sources/verifiedHardware.ts`：补充官方核验记录、拆分实体类型，新增 RTX 4070 Super 公版与七彩虹非公版物理核验数据；
+   - [修改] `src/data/sources/verifiedHardware.ts`：补充官方核验记录、拆分实体类型，完善尺寸核验与供电接口一致性，剔除“实测”浮夸文案；
    - [修改] `src/data/hardware/gpus.ts`：新增 `gpu-colorful-rtx4070s-ultra-w` 非公显卡条目；
 3. **界面呈现组件**
-   - [新建] `src/components/wiki/DataCredibilityModal.tsx`：全站数据可信度与核验状态汇总弹窗；
-   - [修改] `src/components/wiki/HardwareWiki.tsx`：接入“数据可信度”工具栏按钮与汇总弹窗，接入安全排序纯函数；
-   - [修改] `src/components/wiki/HardwareCard.tsx`：紧凑可信度进度、非公变体标签、未知功耗与未知价格友好展示；
-   - [修改] `src/components/wiki/HardwareMeasurements.tsx`：实体层级标签、字段级核验状态、折叠来源与待核验清单、未知价格防御；
-   - [修改] `src/components/wiki/HardwareDetailModal.tsx`：头部可信度徽章、表格字段打钩标示；
+   - [新建] `src/components/wiki/DataCredibilityModal.tsx`：全站数据可信度与核验状态汇总弹窗，文案对齐算法口径；
+   - [修改] `src/components/wiki/HardwareWiki.tsx`：接入“数据可信度”工具栏按钮与汇总弹窗；
+   - [修改] `src/components/wiki/HardwareTableView.tsx`：修复三态排序与未知值末尾归并，接入统一格式化器；
+   - [修改] `src/components/wiki/HardwareCard.tsx`：展示核心已核验比率，接入统一格式化器；
+   - [修改] `src/components/wiki/HardwareMeasurements.tsx`：实体层级标签、字段级核验状态、折叠来源与待核验清单、统一价格防御；
+   - [修改] `src/components/wiki/HardwareDetailModal.tsx`：头部可信度徽章口径对齐、表格字段打钩标示；
+   - [修改] `src/components/search/SearchModal.tsx`：接入统一价格格式化器，防止未知价格在搜索条目副标题显示 `¥0~¥0`；
 4. **自动化测试**
-   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件；
+   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件（18 个测试用例）；
 5. **项目文档**
    - [新建] `docs/PHASE_2_PLAN.md`：阶段 2 需求规范与实施计划；
-   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与验收记录。
+   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与审查修复验收记录。
+
 

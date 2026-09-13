@@ -20,6 +20,7 @@ import { glossaryTerms } from '../../data/glossary';
 import { HardwareImage } from './HardwareImage';
 import { HardwareCompareModal } from './HardwareCompareModal';
 import { useLanguage } from '../../context/LanguageContext';
+import { formatHardwarePrice, formatHardwareTdp } from '../../utils/hardwareCatalog';
 
 export interface HardwareTableViewProps {
   items: HardwareItem[];
@@ -48,8 +49,9 @@ export const HardwareTableView: React.FC<HardwareTableViewProps> = ({
   // Toggle column sorting
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      if (sortDirection === 'asc') {
-        setSortDirection('desc');
+      const defaultDir: SortDirection = field === 'model' ? 'asc' : 'desc';
+      if (sortDirection === defaultDir) {
+        setSortDirection(defaultDir === 'asc' ? 'desc' : 'asc');
       } else {
         setSortField(null);
         setSortDirection('asc');
@@ -67,15 +69,29 @@ export const HardwareTableView: React.FC<HardwareTableViewProps> = ({
 
     const list = [...items];
     list.sort((a, b) => {
-      let comparison = 0;
-      if (sortField === 'model') {
-        comparison = a.name.localeCompare(b.name, 'zh-CN');
-      } else if (sortField === 'price') {
-        comparison = a.marketPriceRange[0] - b.marketPriceRange[0];
-      } else if (sortField === 'tdp') {
-        comparison = a.tdpWatts - b.tdpWatts;
+      if (sortField === 'price') {
+        const aKnown = a.marketPriceRange[0] > 0 && a.marketPriceRange[1] >= a.marketPriceRange[0];
+        const bKnown = b.marketPriceRange[0] > 0 && b.marketPriceRange[1] >= b.marketPriceRange[0];
+        if (!aKnown && !bKnown) return 0;
+        if (!aKnown) return 1;
+        if (!bKnown) return -1;
+        const diff = a.marketPriceRange[0] - b.marketPriceRange[0];
+        return sortDirection === 'asc' ? diff : -diff;
       }
-      return sortDirection === 'asc' ? comparison : -comparison;
+      if (sortField === 'tdp') {
+        const aKnown = typeof a.tdpWatts === 'number' && Number.isFinite(a.tdpWatts) && a.tdpWatts > 0;
+        const bKnown = typeof b.tdpWatts === 'number' && Number.isFinite(b.tdpWatts) && b.tdpWatts > 0;
+        if (!aKnown && !bKnown) return 0;
+        if (!aKnown) return 1;
+        if (!bKnown) return -1;
+        const diff = a.tdpWatts - b.tdpWatts;
+        return sortDirection === 'asc' ? diff : -diff;
+      }
+      if (sortField === 'model') {
+        const comparison = a.name.localeCompare(b.name, 'zh-CN');
+        return sortDirection === 'asc' ? comparison : -comparison;
+      }
+      return 0;
     });
 
     return list;
@@ -406,7 +422,7 @@ export const HardwareTableView: React.FC<HardwareTableViewProps> = ({
                         }`}
                       />
                       <span className="font-semibold text-zinc-900 dark:text-white">
-                        {item.tdpWatts > 0 ? `${item.tdpWatts}W` : (lang === 'en' ? 'Standard' : '标准功耗')}
+                        {formatHardwareTdp(item.tdpWatts, item.category, lang)}
                       </span>
                     </div>
                   </td>
@@ -415,7 +431,7 @@ export const HardwareTableView: React.FC<HardwareTableViewProps> = ({
                   <td className="w-44 px-4 py-2.5 text-right font-mono">
                     <div>
                       <span className="font-bold text-zinc-900 dark:text-[#F7D84A] text-xs sm:text-sm">
-                        ￥{item.marketPriceRange[0]} ~ ￥{item.marketPriceRange[1]}
+                        {formatHardwarePrice(item.marketPriceRange, lang)}
                       </span>
                     </div>
                     {item.msrpRmb > 0 && (
