@@ -8,7 +8,7 @@
 
 | 阶段 | 阶段名称 | 状态 | 简述 |
 | :--- | :--- | :--- | :--- |
-| **阶段 1** | **修复真实性问题和基础交互** | **已完成** | 修复无后端伪装提交、完善 GitHub Issue 与复制降级路径、修复杂乱导航与详情弹窗 URL 同步、修正虚假宣传文案 |
+| **阶段 1** | **修复真实性问题和基础交互** | **已完成（含收尾修复）** | 修复无后端伪装提交、完善 GitHub Issue 与复制降级路径、修复 URL 导航与 History 语义、收紧隐私提示、修复存储异常边界 |
 | 阶段 2 | 完善结构化数据与可信度 | 未开始 | 区分芯片与具体商品、支持字段级来源快照、缺失字段标记为未知、数据状态面板 |
 | 阶段 3 | 自选装机配置器与兼容性检查 | 未开始 | 我的装机单、独立纯函数兼容性评估、可解释替代建议、预算与导入导出 |
 | 阶段 4 | 性能天梯与对比方法完善 | 未开始 | 区分测试场景与跑分来源、避免无序混排、支持差异高亮与合理对比 |
@@ -21,65 +21,88 @@
 
 ## 阶段 1：修复真实性问题和基础交互（已完成）
 
-### 1. 验收项核查结果
-- [x] **A. 检查并修复反馈提交**
-  - 代码核对确认项目为纯静态 SPA（部署于 Vercel / GitHub Pages），无任何中心化后端数据库；
-  - 移除了“反馈已成功提交！你的反馈已实时同步至后台管理看板”等误导性文案；
-  - 实现“填写反馈 → 前往 GitHub Issue 页面确认提交”轻量方案（按钮文案：“前往 GitHub 提交 / Continue to GitHub Issue”）；
-  - 点击后以结构化模板在新标签页打开 GitHub Issue，前端界面进入“请在 GitHub 页面确认提交”提示状态，说明需要用户点击「Submit new issue」完成最终提交，不冒充已提交成功；
-  - 提供“复制反馈文本”完整备选方案，剪贴板写入受阻时降级为可手动全选的文本框并弹出明确警示；
-  - 隐私保护：弹窗醒目展示隐私说明，禁止在公开 Issue 模版中带入联系方式（邮箱/微信）；联系方式仅作为当前设备本地草稿保留；
-  - 容错处理：本地草稿写入 LocalStorage 时捕获 QuotaExceededError / SecurityError，存储受限时弹出诚实提示，不伪装成功。
-- [x] **B. 检查基础导航和状态**
-  - 主动切换标签页（Navbar、Footer、WikiIntro 等）改用 `window.history.pushState`，用户点击浏览器后退可返回上一标签页；点击相同标签页保持 `replaceState` 避免历史栈重复堆叠；
-  - 打开硬件详情弹窗时，URL 自动同步追加 `hardware=<id>` 并记录 history，页面刷新后能精准恢复该硬件详情弹窗；
-  - 关闭硬件详情弹窗时，URL 自动移除 `hardware` 参数，保持界面与地址栏绝对一致；
-  - 监听 `popstate` / `hashchange`，浏览器点击后退或前进时，若 hardware 参数移除则自动关闭详情弹窗，完全符合用户心理预期；
-  - 完美兼容历史分享链接格式：`?tab=wiki&hardware=...`、`?hardware=...`、`#/hardware-id`、`#hardware-id`；
-  - 切换标签页离开百科时自动清理 `hardware` 详情参数，避免跨页参数污染；
-  - 全局搜索（Omnisearch）选中具体硬件型号时，直达该硬件详情弹窗；
-  - 分类切换状态（`category=gpu` 等）同步至 URL 查询参数并支持刷新恢复；
-  - 语言切换同步更新 `document.documentElement.lang`，且 `localStorage` 读写已包裹 try/catch 异常隔离。
-- [x] **C. 检查并修正不准确文案**
-  - `src/i18n/translations.ts`：将“科学装机配置单与实时行情比价”（英文“Verified Build BOMs & Live Price Tracking”、“Live Pricing”）修正为客观的“科学装机配置单与行情参考估算”（英文“Curated Build BOMs & Price References”、“Search Stores”）；
-  - `src/data/changelog.ts`：移除“真实物理级装配层级”（改为“装配层级与确定性时间线”）、“实现全站技术文档零坏链”（改为“完成外链审计并修复失效链接，持续跟踪技术文档可用性”）、“确保总价精准无误差”、“实时市价”等无事实依据的高调修饰；
-  - `src/data/hardware/ram.ts`：移除“零死机、零蓝屏、彻底告别不稳定”、“100% 兼容各类巨型双塔风冷”、“永不顶散热器”等绝对化承诺，修正为“遵循 JEDEC 原厂规范”、“低高度避让绝大多数双塔风冷”等客观工程描述；
-  - `src/components/wiki/LaptopSection.tsx`：将“精选标杆笔记本系列与实时比价”修正为“精选标杆笔记本系列与配置参考”。
-- [x] **D. 自动化测试与构建验证**
-  - 全量运行 `npm test`：17 个测试文件、106 个测试全部通过（新增 3 个测试套件，涵盖反馈生成/隐私过滤/剪贴板、导航状态与后退同步、真实文案约束）；
-  - 全量运行 `npm run build`：生产环境 TypeScript 编译与 Vite 生产打包零警告零错误通过。
+### 1. 核心修复点核查结果
 
-### 2. 主要修改文件与职责
-- [新建] `src/utils/feedback.ts`：反馈处理纯函数模块，负责构建结构化 GitHub Issue 链接、剔除敏感隐私信息、剪贴板 Markdown 格式化、本地安全读写。
-- [新建] `src/__tests__/feedback.test.ts`：反馈链接生成、隐私过滤与存储异常降级测试。
-- [新建] `src/__tests__/navigationAndState.test.ts`：详情弹窗 URL 联动、前进后退恢复、新旧分享链接兼容性测试。
-- [新建] `src/__tests__/truthfulCopy.test.ts`：全站夸大文案（实时/零坏链/物理级/绝对兼容）防退化回归测试。
-- [修改] `src/components/feedback/FeedbackModal.tsx`：重构反馈弹窗，移除虚假“已同步后台”，接入真实 GitHub Issue 跳转、复制备选及隐私保护提示。
-- [修改] `src/components/admin/QuickTextEditorModal.tsx`：澄清反馈列表为“当前设备本地记录”，为 LocalStorage 读写添加异常捕获。
-- [修改] `src/components/wiki/HardwareWiki.tsx`：打通详情弹窗与 URL `hardware` 参数双向绑定，支持浏览器前进后退开关弹窗，支持分类 URL 持久化。
-- [修改] `src/App.tsx`：完善导航 history 语义（标签切换 pushState，防重复堆栈，离开 wiki 清理详情参数），LocalStorage 安全处理。
-- [修改] `src/components/search/SearchModal.tsx`：修复搜索硬件后无法直达详情弹窗的问题。
-- [修改] `src/context/LanguageContext.tsx`：增加 LocalStorage 安全降级并同步 `document.documentElement.lang`。
-- [修改] `src/i18n/translations.ts`：修正“实时比价”、“实时行情”等文案。
-- [修改] `src/data/changelog.ts`：修正更新日志中的绝对化夸大用词。
-- [修改] `src/data/hardware/ram.ts`：修正内存规格中的“零死机/零蓝屏/100% 兼容”等不严谨描述。
-- [修改] `src/components/wiki/LaptopSection.tsx`：修正笔记本板块“实时比价”文案。
+- [x] **A. 检查并修复反馈提交与存储异常边界**
+  - **存储异常边界**：在 `src/utils/storage.ts` 中封装安全存储访问器（`getSafeLocalStorage`, `safeGetItem`, `safeSetItem`, `safeRemoveItem`），捕获沙盒 iframe、隐身隐私模式等场景下 `window.localStorage` getter 抛出的 `SecurityError` 以及容量满时的 `QuotaExceededError`；
+  - **默认参数陷阱**：在 `src/utils/feedback.ts` 中移除函数默认参数对 `window.localStorage` 的直接求值（默认参数求值发生在函数体执行前，其抛出的异常无法被函数体内部 try/catch 拦截）；
+  - **结构校验**：从 LocalStorage 读取本地草稿 JSON 时执行 `Array.isArray` 数组判定与 `isValidFeedbackItem` 字段结构校验，防止异常格式或非数组对象导致运行时异常；
+  - **状态文案如实呈现**：`FeedbackModal.tsx` 引入真实 `draftState: 'idle' | 'saved' | 'failed'`。本地草稿保存失败时明确提示“存储受限未保存”，绝不继续显示“草稿已安全保存”；保存失败不会阻断前往 GitHub Issue、文本复制或备用全选框；
+  - **GitHub 跳转友好性**：跳转确认界面保留原生安全外部链接（`<a target="_blank" rel="noopener noreferrer">`），避免浏览器安全策略下 `window.open` 弹窗被拦截后无直接入口，且不以 `window.open` 返回值是否为 null 误判（`noopener` 在新标准浏览器中即便正常打开也会返回 null）。
 
-### 3. 执行验证记录
-- `npm test`：
-  ```
-  Test Files  17 passed (17)
-       Tests  106 passed (106)
-  ```
-- `npm run build`：
-  ```
-  vite building for production...
-  ✓ built in 2.97s
-  ```
+- [x] **B. 导航 URL 构造与 History 语义修复**
+  - **无 tab 时的 URL 构造**：在 `src/utils/navigation.ts` 中提供统一的 `computeTabNavigationUrl`、`computeDetailOpenUrl`、`computeDetailCloseUrl`，基于完整 `pathname + search + hash` 构造。当 URL 仅含 `?hardware=...` 而无 `tab` 参数时，切换标签页或关闭详情不会退化为相对 hash（如 `#/rankings`），彻底消除地址栏残留 `?hardware=...#/rankings` 的相对路径陷阱；
+  - **StrictMode 副作用安全**：将 `history.pushState` / `replaceState` 移出 React `setActiveTab` 状态更新器函数，置于 `handleTabChange` 事件处理函数中。避免在 React StrictMode 开发模式下状态更新器多次触发执行导致的重复 history push；
+  - **详情弹窗关闭路径分流**：
+    - **应用内打开**（卡片点击或全局搜索）：记录内部打开标志，关闭详情弹窗时优先调用 `window.history.back()` 回退上一条历史，避免在历史栈中产生冗余重复的 `/wiki` 记录；
+    - **分享链接直接访问**：关闭详情弹窗时采用 `window.history.replaceState` 清理 `hardware` 参数并指向 `#/wiki`，防止用户按关闭按钮直接退出本站；
+  - **分类与详情状态双向同步**：监听 `popstate` / `hashchange` 事件，不仅恢复 `selectedDetailItem`，同时从 URL query 中同步 `selectedCategory`，消除浏览器前进/后退导致的分类选中状态脱节；
+  - **HardwareWiki viewMode 容错**：`viewMode` 初始化与切换读写使用 `safeGetItem` / `safeSetItem`，确保存储异常时稳定降级至默认 `'grid'` 视图。
 
-### 4. 边界与未完成说明
-- 本项目目前为纯前端静态站，无集中式后端与数据库。由于 GitHub Issue 需要用户拥有 GitHub 账号并在网页点击确认提交，因此针对无账号或无法访问 GitHub 的用户，本阶段提供了结构化复制到剪贴板的降级方案；
-- 硬件历史价格目前仍为参考区间估算，尚未接入第三方电商 API（阶段 2/3 将进一步规范字段级数据来源快照与未知字段标记）。
+- [x] **C. 搜索热搜推荐与精准详情命中**
+  - 在 `src/components/search/SearchModal.tsx` 的 `SearchResultItem` 接口中显式增加 `hardwareId?: string` 字段；
+  - 热门推荐硬件显式绑定数据中心标的：`sug-1` 显式关联 `cpu-amd-9800x3d`（AMD Ryzen 7 9800X3D），`sug-2` 显式关联 `gpu-nvidia-rtx4070super`（NVIDIA GeForce RTX 4070 Super），并在 `HardwareWiki.tsx` 中增加 `gpu-rtx-4070-super` 别名规范化映射；
+  - 点击或回车选中热搜硬件时，直接根据 `item.hardwareId` 切换并打开对应硬件详情弹窗，彻底弃用不稳定的字符串前缀猜测。
 
-### 5. 下一步任务
-- **阶段 2：完善结构化数据与可信度**（待用户明确指令后开启）。
+- [x] **D. 隐私提示收紧与 URL 脱敏**
+  - **客观隐私文案**：明确区分“独立联系方式输入框”与“详细问题描述输入框”。不在未对正文进行 NLP 正则脱敏的情况下妄称“系统已自动过滤所有联系方式”；清晰警示“本 Issue 为公开内容，所有用户均可查看。独立联系方式输入框已由系统剔除未带入；详细描述由用户直接输入，请自行确认描述中未包含密码、手机号、真实姓名或敏感个人隐私”；
+  - **URL 附带信息脱敏**：在 `src/utils/feedback.ts` 中实现 `sanitizePageUrl`，仅保留 `tab`、`hardware`、`category` 三个基础导航参数，彻底剥离可能残留于 URL 中的敏感 token、账号凭证及追踪参数（utm 等）。
+
+- [x] **E. 不准确文案修正**
+  - 修正“实时比价”、“实时行情”等夸大文案为“行情参考估算”、“搜寻在售店铺”；
+  - 修正更新日志中“零坏链”、“真实物理级装配层级”、“确保总价精准无误差”等缺乏事实依据的措辞；
+  - 修正内存等硬件条目中“零死机/零蓝屏/100% 兼容”等绝对化承诺，改为客观工程标准表述。
+
+---
+
+### 2. 自动化测试与验证情况
+
+> **测试覆盖与环境说明**：
+> 本项目的自动化测试运行于 Node.js (Vitest v2.1.9) 环境下。
+> 涉及真实浏览器历史栈行为（如多标签间前进后退、真实跨源 iframe 沙盒拦截）已在 Node 环境中通过针对生产纯函数逻辑以及 `window.history` / `localStorage` mock 契约进行单元与集成测试。真实环境的端到端浏览器交互建议后续通过 Playwright / Cypress 进行自动化集成验证。
+
+#### A. 自动化测试套件执行结果 (全量通过)
+- 执行命令：`npm test`
+- 测试统计：**18 个测试文件，127 个用例全部通过，0 失败**
+
+| 测试文件 | 用例数 | 覆盖要点 |
+| :--- | :--- | :--- |
+| `src/__tests__/storage.test.ts` | 9 | `SecurityError` 捕获降级、`QuotaExceededError` 降级、非数组或损坏 JSON 结构校验过滤 |
+| `src/__tests__/feedback.test.ts` | 9 | 结构化 Issue 模板、`sanitizePageUrl` 脱敏白名单、隐私警示真实性、本地草稿保存失败不阻断流程 |
+| `src/__tests__/navigationAndState.test.ts` | 20 | 仅含 hardware 参数时的 URL 清理、StrictMode 单次 push 保证、应用内关闭 (back) vs 分享链接关闭 (replaceState)、popstate 分类同步、热搜 hardwareId 直达 |
+| `src/__tests__/benchmarkLadder.test.ts` | 8 | 天梯榜数据解析、排序与归一化计算 |
+| `src/__tests__/hardwareCatalog.test.ts` | 4 | 硬件目录索引、规范化数据查找与分类检索 |
+| `src/__tests__/hardwareSearch.test.ts` | 19 | 硬件模糊搜索、缩写规范化匹配与权重评分 |
+| `src/__tests__/truthfulCopy.test.ts` | 3 | 全站防夸大文案回归断言（禁止出现“实时市价/零坏链/100%兼容/绝对兼容”等退化） |
+| 其余 11 个既有组件与数据测试 | 55 | 3D 装机动画、装机性能、翻译词条、配置清单等既有功能回归 |
+
+#### B. 生产环境构建验证 (零错误通过)
+- 执行命令：`npm run build` (`tsc && vite build`)
+- 编译输出：TypeScript 严格类型检查通过，Vite 打包构建通过（1659 modules transformed，dist 产物完整生成）。
+
+---
+
+### 3. 主要产出与修改文件汇总
+
+1. **基础库与工具函数**
+   - [新建] `src/utils/storage.ts`：异常安全的 LocalStorage 读写隔离层；
+   - [新建] `src/utils/navigation.ts`：规范化 URL 构造函数（`computeTabNavigationUrl`, `computeDetailOpenUrl`, `computeDetailCloseUrl` 等）；
+   - [修改] `src/utils/feedback.ts`：剔除默认参数存储读取、增加 `sanitizePageUrl`、结构校验与客观隐私声明；
+2. **业务组件**
+   - [修改] `src/components/feedback/FeedbackModal.tsx`：引入明确的保存状态机，区分保存成功/失败，补充原生外部链接备用方案，收紧隐私文案；
+   - [修改] `src/components/wiki/HardwareWiki.tsx`：完善详情弹窗历史栈逻辑（应用内 back / 外链 replaceState）、`popstate` 同步分类、安全读写 `viewMode`；
+   - [修改] `src/App.tsx`：将 history 副作用移出 React state updater（消除 StrictMode 重复 push），集成安全 URL 构造；
+   - [修改] `src/components/search/SearchModal.tsx`：`sug-1`、`sug-2` 及搜索硬件显式绑定 `hardwareId`，点击直达详情弹窗；
+3. **自动化测试**
+   - [新建] `src/__tests__/storage.test.ts`：存储异常边界与坏数据防御测试；
+   - [修改] `src/__tests__/feedback.test.ts`：完善隐私提示与 URL 脱敏测试；
+   - [修改] `src/__tests__/navigationAndState.test.ts`：覆盖 URL 构造边界、History 语义、分类同步与热搜直达；
+4. **实施记录**
+   - [修改] `docs/IMPLEMENTATION_STATUS.md`：记录阶段 1 收尾修复情况与测试覆盖指标。
+
+---
+
+### 4. 边界说明与后续规划
+
+- 本阶段已完成阶段 1 所有收尾与防御性修复，历史记录语义、存储异常降级、隐私规范及自动化测试全部就绪；
+- 遵循指令，**当前阶段 1 已彻底闭环，未进入阶段 2**；等待用户审查与下一步指令。

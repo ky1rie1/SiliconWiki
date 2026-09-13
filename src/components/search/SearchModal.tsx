@@ -22,6 +22,7 @@ import { getLocalizedBuildTitle, getLocalizedBuildTagline, getLocalizedBuildScen
 import { ActiveTab } from '../../types';
 import { useCustomContent } from '../../context/CustomContentContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { computeDetailOpenUrl } from '../../utils/navigation';
 
 const isDiagnosticsToken = (input: string) => {
   if (!input || input.length !== 10) return false;
@@ -33,19 +34,23 @@ const isDiagnosticsToken = (input: string) => {
   return (h >>> 0) === 3770793177;
 };
 
-interface SearchResultItem {
+export interface SearchResultItem {
   id: string;
   title: string;
   subtitle: string;
   category: string;
   targetTab: ActiveTab;
   badge?: string;
+  hardwareId?: string;
 }
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigate: (tab: ActiveTab) => void;
+  onNavigate: (
+    tab: ActiveTab,
+    options?: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string }
+  ) => void;
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
@@ -108,6 +113,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           category: lang === 'en' ? 'Hardware' : '硬件型号',
           targetTab: 'wiki',
           badge: lang === 'en' ? 'Hot' : '热门',
+          hardwareId: 'cpu-amd-9800x3d',
         },
         {
           id: 'sug-2',
@@ -116,6 +122,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           category: lang === 'en' ? 'Hardware' : '硬件型号',
           targetTab: 'wiki',
           badge: lang === 'en' ? 'Hot' : '热门',
+          hardwareId: 'gpu-nvidia-rtx4070super',
         },
         {
           id: 'sug-3',
@@ -180,6 +187,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           category: lang === 'en' ? 'Hardware' : '硬件型号',
           targetTab: 'wiki',
           badge: h.badge,
+          hardwareId: h.id,
         });
       }
     });
@@ -272,18 +280,18 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       return;
     }
 
-    if (item.targetTab === 'wiki' && item.id.startsWith('hw-')) {
-      const hwId = item.id.replace(/^hw-/, '');
+    if (item.hardwareId) {
+      const hwId = item.hardwareId;
       try {
-        const url = new URL(window.location.href);
-        url.searchParams.set('tab', 'wiki');
-        url.searchParams.set('hardware', hwId);
-        url.hash = '';
-        window.history.pushState({ tab: 'wiki', hardware: hwId }, '', url.pathname + url.search);
+        const targetUrl = computeDetailOpenUrl(window.location.href, hwId);
+        window.history.pushState({ swDetail: true, hardware: hwId }, '', targetUrl);
         window.dispatchEvent(new PopStateEvent('popstate'));
       } catch {
         // fallback
       }
+      onNavigate('wiki', { replace: true, shouldScroll: false });
+      onClose();
+      return;
     }
 
     onNavigate(item.targetTab);

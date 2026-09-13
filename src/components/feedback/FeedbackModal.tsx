@@ -34,6 +34,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
   const [content, setContent] = useState('');
   const [contact, setContact] = useState('');
   const [viewState, setViewState] = useState<'form' | 'confirm_github'>('form');
+  const [draftState, setDraftState] = useState<'idle' | 'saved' | 'failed'>('idle');
+  const [generatedIssueUrl, setGeneratedIssueUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [copiedStatus, setCopiedStatus] = useState<boolean | null>(null);
   const [storageWarning, setStorageWarning] = useState<string | null>(null);
@@ -65,7 +67,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     return true;
   };
 
-  const persistDraftLocally = () => {
+  const persistDraftLocally = (): boolean => {
     const newItem: FeedbackItem = {
       id: `fb_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       type,
@@ -78,13 +80,17 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
 
     const res = saveLocalFeedback(newItem);
     if (!res.success) {
+      setDraftState('failed');
       setStorageWarning(
         lang === 'en'
           ? 'Notice: Local draft could not be saved to this device (storage disabled or full).'
-          : '提示：由于浏览器存储受限，本地草稿未保存到当前设备，但不影响前往 GitHub 提交或复制。'
+          : '提示：由于浏览器存储受限，本地草稿未保存在当前设备，但不影响前往 GitHub 提交或复制。'
       );
+      return false;
     } else {
+      setDraftState('saved');
       setStorageWarning(null);
+      return true;
     }
   };
 
@@ -101,9 +107,14 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
       contact: contact.trim() || undefined,
       lang,
     });
+    setGeneratedIssueUrl(issueUrl);
 
     if (typeof window !== 'undefined') {
-      window.open(issueUrl, '_blank', 'noopener,noreferrer');
+      try {
+        window.open(issueUrl, '_blank', 'noopener,noreferrer');
+      } catch {
+        // window.open may throw in restricted sandboxes
+      }
     }
 
     setViewState('confirm_github');
@@ -139,6 +150,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     setContent('');
     setContact('');
     setViewState('form');
+    setDraftState('idle');
+    setGeneratedIssueUrl('');
     setErrorMsg('');
     setCopiedStatus(null);
     setStorageWarning(null);
@@ -217,7 +230,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                 {lang === 'en'
-                  ? 'Open-source project feedback is submitted publicly via GitHub Issues'
+                  ? 'Open-source static project; feedback is submitted publicly via GitHub Issue or copied'
                   : '开源静态项目，反馈将通过 GitHub Issue 公开提交或复制文本'}
               </p>
             </div>
@@ -256,26 +269,36 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                 </h4>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   {lang === 'en'
-                    ? 'A new browser tab has opened with your structured feedback template pre-filled. Please review and click "Submit new issue" on GitHub to complete the submission.'
-                    : '已为您打开 GitHub Issue 页面并预填了包含硬件与环境信息的反馈模板。请在 GitHub 页面核对后点击「Submit new issue」完成最终提交。'}
+                    ? 'SiliconWiki has prepared your structured issue in a new browser tab. If blocked by your browser, click below to open directly.'
+                    : '已为您生成结构化反馈模板并尝试在新标签页中打开。若浏览器拦截了新窗口，请点击下方按钮直接前往。'}
                 </p>
-                <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                  {lang === 'en'
-                    ? '（A draft has also been saved to this device.）'
-                    : '（草稿已安全保存在当前设备浏览器中）'}
-                </p>
+                {draftState === 'saved' && (
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                    {lang === 'en'
+                      ? '（A draft has also been saved to this device.）'
+                      : '（草稿已保存在当前设备浏览器中）'}
+                  </p>
+                )}
+                {draftState === 'failed' && (
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                    {lang === 'en'
+                      ? '（Notice: Local draft was not saved on this device.）'
+                      : '（提示：本地草稿存储受限未保存，但不影响前往 GitHub）'}
+                  </p>
+                )}
               </div>
 
               {/* Action Buttons in Confirmation */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2 w-full max-w-sm">
-                <button
-                  type="button"
-                  onClick={() => handleGoToGitHub()}
-                  className="w-full sm:w-auto flex-1 flex items-center justify-center space-x-1.5 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold transition-colors cursor-pointer"
+                <a
+                  href={generatedIssueUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto flex-1 flex items-center justify-center space-x-1.5 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold transition-colors cursor-pointer text-center no-underline"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{lang === 'en' ? 'Re-open GitHub' : '重新打开 GitHub'}</span>
-                </button>
+                  <span>{lang === 'en' ? 'Open GitHub Issue' : '打开 GitHub 页面'}</span>
+                </a>
                 <button
                   type="button"
                   onClick={handleCopyContent}
@@ -438,8 +461,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                 <Shield className="w-4 h-4 shrink-0 mt-0.5 text-blue-500" />
                 <span>
                   {lang === 'en'
-                    ? 'Privacy Notice: GitHub Issues are publicly visible to all. Do not include sensitive private data like passwords or personal addresses in the description.'
-                    : '隐私提示：GitHub Issue 属于公开讨论区。系统已自动剔除联系方式，请在描述中避免填写密码、住址等私密个人信息。'}
+                    ? 'Privacy Notice: GitHub Issues are public. The contact field is not included; please review your description to ensure no passwords or sensitive personal data are included.'
+                    : '隐私提示：GitHub Issue 属于公开讨论区。独立联系方式输入框已由系统剔除未带入；请自行检查详细描述，避免在正文中填写密码、手机号或敏感个人信息。'}
                 </span>
               </div>
 

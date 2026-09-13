@@ -1,4 +1,5 @@
 import { FeedbackItem } from '../types';
+import { getSafeLocalStorage } from './storage';
 
 export const GITHUB_REPO_ISSUES_URL = 'https://github.com/ky1rie1/SiliconWiki/issues/new';
 
@@ -8,6 +9,7 @@ export interface FeedbackSubmissionParams {
   content: string;
   contact?: string;
   lang?: 'zh' | 'en';
+  currentUrl?: string;
 }
 
 const TYPE_LABELS: Record<FeedbackItem['type'], { zh: string; en: string }> = {
@@ -22,11 +24,55 @@ export function getTypeLabel(type: FeedbackItem['type'], lang: 'zh' | 'en' = 'zh
 }
 
 /**
+ * Sanitizes a page URL for error reporting.
+ * Strips tracking query parameters, tokens, and arbitrary query strings.
+ * Retains only essential functional parameters: 'tab', 'hardware', 'category'.
+ */
+export function sanitizePageUrl(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    const sanitized = new URL(url.origin + url.pathname);
+    const allowedParams = ['tab', 'hardware', 'category'];
+    allowedParams.forEach((param) => {
+      const val = url.searchParams.get(param);
+      if (val) {
+        sanitized.searchParams.set(param, val);
+      }
+    });
+
+    if (url.hash) {
+      const cleanHash = url.hash.replace(/^#\/?/, '').trim();
+      const safeTabs = [
+        'wiki',
+        'rankings',
+        'simulator3d',
+        '3d',
+        'build',
+        'glossary',
+        'dict',
+        'builds',
+        'budget',
+      ];
+      if (safeTabs.includes(cleanHash)) {
+        sanitized.hash = `#/${cleanHash}`;
+      }
+    }
+
+    return sanitized.toString();
+  } catch {
+    return 'https://computer-wiki.vercel.app/#/wiki';
+  }
+}
+
+/**
  * Builds a GitHub Issue URL with pre-filled title and structured Markdown template.
- * PRIVACY REQUIREMENT: Contact info (email/wechat/phone) is NEVER included in the public GitHub Issue parameters.
+ * PRIVACY REQUIREMENT:
+ * - Contact info form field is NEVER included in the public GitHub Issue parameters.
+ * - Privacy notice explicitly alerts user that the issue is public and description is submitted as typed.
+ * - Page URL is sanitized to prevent leaking arbitrary query tokens or tracking parameters.
  */
 export function buildGitHubIssueUrl(params: FeedbackSubmissionParams): string {
-  const { type, target, content, lang = 'zh' } = params;
+  const { type, target, content, lang = 'zh', currentUrl } = params;
   const isZh = lang === 'zh';
   const typeLabel = getTypeLabel(type, lang);
 
@@ -36,7 +82,8 @@ export function buildGitHubIssueUrl(params: FeedbackSubmissionParams): string {
   const issueTitle = `[${typeLabel}] ${cleanTarget}${titleSummary}`;
 
   const now = new Date().toISOString();
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://computer-wiki.vercel.app';
+  const rawUrl = currentUrl || (typeof window !== 'undefined' ? window.location.href : 'https://computer-wiki.vercel.app');
+  const safeUrl = sanitizePageUrl(rawUrl);
   const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown';
 
   const bodyLines = [
@@ -52,14 +99,14 @@ export function buildGitHubIssueUrl(params: FeedbackSubmissionParams): string {
     '---',
     `### ${isZh ? '环境信息' : 'Environment Details'}`,
     `- **${isZh ? '提交来源' : 'Source'}**: SiliconWiki Web Client`,
-    `- **${isZh ? '当前页面' : 'Page URL'}**: ${currentUrl}`,
+    `- **${isZh ? '当前页面' : 'Page URL'}**: ${safeUrl}`,
     `- **${isZh ? '客户端' : 'User Agent'}**: \`${userAgent}\``,
     `- **${isZh ? '生成时间' : 'Timestamp'}**: ${now}`,
     '',
-    `> 🔒 **${isZh ? '隐私说明' : 'Privacy Notice'}**: ${
+    `> 🔒 **${isZh ? '公开 Issue 隐私提示' : 'Public Issue Privacy Notice'}**: ${
       isZh
-        ? '本 Issue 为公开内容，所有用户可见。个人联系方式已由系统在前端过滤，未带入此页面。'
-        : 'This issue is public. Contact details were filtered out locally and are not included.'
+        ? '本 Issue 为公开内容，所有用户均可查看。独立联系方式输入框已由系统剔除未带入；详细描述由用户直接输入，请自行确认描述中未包含密码、手机号、真实姓名或敏感个人隐私。'
+        : 'This issue is publicly visible. The separate contact form field was excluded; the description is submitted as typed. Please verify that no passwords, phone numbers, real names, or sensitive personal data are in the description.'
     }`,
   ];
 
@@ -101,26 +148,52 @@ export function formatFeedbackForClipboard(
 
 export const LOCAL_FEEDBACK_STORAGE_KEY = '_sw_feedback_list';
 
+function isValidFeedbackItem(item: unknown): item is FeedbackItem {
+  if (typeof item !== 'object' || item === null) return false;
+  const candidate = item as Record<string, unknown>;
+  return (
+    typeof candidate.id === 'string' &&
+    typeof candidate.type === 'string' &&
+    typeof candidate.content === 'string' &&
+    typeof candidate.createdAt === 'string'
+  );
+}
+
 /**
- * Safely saves a feedback item to localStorage with error handling.
+ * Safely saves a feedback item to localStorage with comprehensive error handling.
+ * Avoids evaluating `window.localStorage` in parameter defaults to prevent uncaught SecurityError.
  * Returns { success: true } or { success: false, error: string }.
  */
 export function saveLocalFeedback(
   item: FeedbackItem,
-  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null
+  storageOverride?: Storage | null
 ): { success: boolean; error?: string } {
-  if (!storage) {
-    return { success: false, error: 'Storage unavailable' };
-  }
-
   try {
+    const storage = storageOverride !== undefined ? storageOverride : getSafeLocalStorage();
+    if (!storage) {
+      return { success: false, error: 'Storage unavailable or access denied' };
+    }
+
     const raw = storage.getItem(LOCAL_FEEDBACK_STORAGE_KEY);
-    const list: FeedbackItem[] = raw ? JSON.parse(raw) : [];
+    let list: FeedbackItem[] = [];
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          list = parsed.filter(isValidFeedbackItem);
+        }
+      } catch {
+        list = [];
+      }
+    }
+
     list.unshift(item);
     storage.setItem(LOCAL_FEEDBACK_STORAGE_KEY, JSON.stringify(list));
+
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
       window.dispatchEvent(new CustomEvent('sw_feedback_updated'));
     }
+
     return { success: true };
   } catch (err) {
     return {
@@ -132,14 +205,19 @@ export function saveLocalFeedback(
 
 /**
  * Safely retrieves local feedback items from localStorage.
+ * Validates that parsed data is an array of valid FeedbackItem objects.
  */
-export function getLocalFeedbacks(
-  storage: Storage | null = typeof window !== 'undefined' ? window.localStorage : null
-): FeedbackItem[] {
-  if (!storage) return [];
+export function getLocalFeedbacks(storageOverride?: Storage | null): FeedbackItem[] {
   try {
+    const storage = storageOverride !== undefined ? storageOverride : getSafeLocalStorage();
+    if (!storage) return [];
+
     const raw = storage.getItem(LOCAL_FEEDBACK_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isValidFeedbackItem);
   } catch {
     return [];
   }

@@ -4,11 +4,37 @@ import {
   formatFeedbackForClipboard,
   saveLocalFeedback,
   getLocalFeedbacks,
+  sanitizePageUrl,
   LOCAL_FEEDBACK_STORAGE_KEY,
 } from '../utils/feedback';
 import { FeedbackItem } from '../types';
 
 describe('Feedback Utility Suite', () => {
+  describe('sanitizePageUrl', () => {
+    it('should strip tracking tokens and sensitive query params, keeping only tab, hardware, and category', () => {
+      const dirtyUrl = 'https://computer-wiki.vercel.app/?token=secret_token_123&utm_source=google&tab=wiki&hardware=cpu-amd-9800x3d&category=cpu&user=admin';
+      const clean = sanitizePageUrl(dirtyUrl);
+      const parsed = new URL(clean);
+
+      expect(parsed.searchParams.get('tab')).toBe('wiki');
+      expect(parsed.searchParams.get('hardware')).toBe('cpu-amd-9800x3d');
+      expect(parsed.searchParams.get('category')).toBe('cpu');
+      expect(parsed.searchParams.get('token')).toBeNull();
+      expect(parsed.searchParams.get('utm_source')).toBeNull();
+      expect(parsed.searchParams.get('user')).toBeNull();
+    });
+
+    it('should sanitize invalid hash and fall back gracefully on invalid URL', () => {
+      const invalidUrl = 'not-a-valid-url';
+      expect(sanitizePageUrl(invalidUrl)).toBe('https://computer-wiki.vercel.app/#/wiki');
+
+      const urlWithInvalidHash = 'https://computer-wiki.vercel.app/?tab=wiki#xss_payload';
+      const clean = sanitizePageUrl(urlWithInvalidHash);
+      const parsed = new URL(clean);
+      expect(parsed.hash).toBe('');
+    });
+  });
+
   describe('buildGitHubIssueUrl', () => {
     it('should generate a valid GitHub Issue URL with pre-filled title and template', () => {
       const urlString = buildGitHubIssueUrl({
@@ -39,7 +65,8 @@ describe('Feedback Utility Suite', () => {
       // The contact info MUST NOT be included in the public GitHub issue URL or body!
       expect(urlString).not.toContain('secret@domain.com');
       expect(body).not.toContain('secret@domain.com');
-      expect(body).toContain('隐私说明');
+      expect(body).toContain('公开 Issue 隐私提示');
+      expect(body).toContain('敏感个人隐私');
     });
 
     it('should handle English locale appropriately', () => {
@@ -58,7 +85,7 @@ describe('Feedback Utility Suite', () => {
       const body = url.searchParams.get('body') || '';
       expect(body).toContain('### Feedback Category');
       expect(body).toContain('Data Correction');
-      expect(body).toContain('Privacy Notice');
+      expect(body).toContain('Public Issue Privacy Notice');
     });
   });
 

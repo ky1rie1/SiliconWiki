@@ -1,4 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { safeGetItem, safeSetItem } from '../../utils/storage';
+import {
+  computeDetailOpenUrl,
+  computeDetailCloseUrl,
+  parseHardwareFromUrl,
+  parseCategoryFromUrl,
+  computeCategoryChangeUrl,
+} from '../../utils/navigation';
 import {
   Layers,
   Cpu,
@@ -51,22 +59,10 @@ interface SpecDimension {
 
 export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary, onNavigate }) => {
   const { t, lang } = useLanguage();
+  const hasInternalDetailPush = useRef(false);
+
   const [selectedCategory, setSelectedCategory] = useState<HardwareCategory | 'all'>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const url = new URL(window.location.href);
-        const cat = url.searchParams.get('category')?.toLowerCase();
-        const validCats: HardwareCategory[] = [
-          'cpu', 'gpu', 'motherboard', 'ram', 'storage', 'psu', 'cooler', 'case', 'laptop'
-        ];
-        if (cat && validCats.includes(cat as HardwareCategory)) {
-          return cat as HardwareCategory;
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return 'all';
+    return parseCategoryFromUrl(typeof window !== 'undefined' ? window.location.href : 'https://computer-wiki.vercel.app');
   });
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedSpecs, setSelectedSpecs] = useState<Record<string, string>>({});
@@ -75,11 +71,11 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
   const [selectedDetailItem, setSelectedDetailItem] = useState<HardwareItem | null>(null);
 
   const handleOpenDetail = useCallback((item: HardwareItem) => {
+    hasInternalDetailPush.current = true;
     setSelectedDetailItem(item);
     try {
-      const url = new URL(window.location.href);
-      url.searchParams.set('hardware', item.id);
-      window.history.pushState({ hardware: item.id }, '', url.pathname + url.search + url.hash);
+      const targetUrl = computeDetailOpenUrl(window.location.href, item.id);
+      window.history.pushState({ swDetail: true, hardware: item.id }, '', targetUrl);
     } catch {
       // fallback
     }
@@ -88,20 +84,18 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
   const handleCloseDetail = useCallback(() => {
     setSelectedDetailItem(null);
     try {
-      const url = new URL(window.location.href);
-      let changed = false;
-      if (url.searchParams.has('hardware')) {
-        url.searchParams.delete('hardware');
-        changed = true;
-      }
-      const rawHash = url.hash.replace(/^#\/?/, '').trim();
-      const tabNames = ['wiki', 'rankings', 'simulator3d', '3d', 'build', 'glossary', 'dict', 'builds', 'budget'];
-      if (rawHash && !tabNames.includes(rawHash)) {
-        url.hash = '#/wiki';
-        changed = true;
-      }
-      if (changed) {
-        window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      const isInternal =
+        hasInternalDetailPush.current ||
+        (typeof window !== 'undefined' && Boolean(window.history.state?.swDetail));
+
+      if (isInternal) {
+        // Opened within this session via pushState: use history.back() to pop the entry cleanly
+        hasInternalDetailPush.current = false;
+        window.history.back();
+      } else {
+        // Direct link or external entry: replace URL cleanly to avoid leaving the site
+        const targetUrl = computeDetailCloseUrl(window.location.href);
+        window.history.replaceState(null, '', targetUrl);
       }
     } catch {
       // fallback
@@ -109,33 +103,32 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
   }, []);
 
   useEffect(() => {
-    const syncHardwareFromUrl = () => {
+    const syncFromUrl = () => {
       try {
-        const url = new URL(window.location.href);
-        const hardwareParam = url.searchParams.get('hardware');
-        const rawHash = url.hash.replace(/^#\/?/, '').trim();
-        const tabNames = ['wiki', 'rankings', 'simulator3d', '3d', 'build', 'glossary', 'dict', 'builds', 'budget'];
-        const hashCandidate = rawHash && !tabNames.includes(rawHash) ? rawHash : null;
-
-        const candidateId = hardwareParam || hashCandidate;
+        const candidateId = parseHardwareFromUrl(window.location.href);
         if (candidateId) {
-          const found = hardwareList.find((h) => h.id === candidateId);
+          const normalizedId =
+            candidateId === 'gpu-rtx-4070-super' ? 'gpu-nvidia-rtx4070super' : candidateId;
+          const found = hardwareList.find((h) => h.id === normalizedId || h.id === candidateId);
           setSelectedDetailItem(found || null);
         } else {
-          // Hardware param absent (e.g. browser Back was clicked) -> close modal cleanly
+          hasInternalDetailPush.current = false;
           setSelectedDetailItem(null);
         }
+
+        const cat = parseCategoryFromUrl(window.location.href);
+        setSelectedCategory(cat);
       } catch {
         // fallback
       }
     };
 
-    syncHardwareFromUrl();
-    window.addEventListener('popstate', syncHardwareFromUrl);
-    window.addEventListener('hashchange', syncHardwareFromUrl);
+    syncFromUrl();
+    window.addEventListener('popstate', syncFromUrl);
+    window.addEventListener('hashchange', syncFromUrl);
     return () => {
-      window.removeEventListener('popstate', syncHardwareFromUrl);
-      window.removeEventListener('hashchange', syncHardwareFromUrl);
+      window.removeEventListener('popstate', syncFromUrl);
+      window.removeEventListener('hashchange', syncFromUrl);
     };
   }, []);
 
@@ -147,20 +140,14 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
     y: number;
   } | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('silicon_wiki_view_mode');
-      if (saved === 'table' || saved === 'grid') return saved;
-    }
+    const saved = safeGetItem('silicon_wiki_view_mode');
+    if (saved === 'table' || saved === 'grid') return saved;
     return 'grid';
   });
 
   const handleViewModeChange = (mode: 'grid' | 'table') => {
     setViewMode(mode);
-    try {
-      localStorage.setItem('silicon_wiki_view_mode', mode);
-    } catch {
-      // Ignore storage errors in private browsing/sandboxes
-    }
+    safeSetItem('silicon_wiki_view_mode', mode);
   };
 
   // When category changes, reset brand and specs to prevent 0-result trap
@@ -169,13 +156,8 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
     setSelectedBrand('all');
     setSelectedSpecs({});
     try {
-      const url = new URL(window.location.href);
-      if (newCat === 'all') {
-        url.searchParams.delete('category');
-      } else {
-        url.searchParams.set('category', newCat);
-      }
-      window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      const targetUrl = computeCategoryChangeUrl(window.location.href, newCat);
+      window.history.replaceState(null, '', targetUrl);
     } catch {
       // ignore
     }
