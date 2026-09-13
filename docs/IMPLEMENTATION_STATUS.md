@@ -8,8 +8,8 @@
 
 | 阶段 | 阶段名称 | 状态 | 简述 |
 | :--- | :--- | :--- | :--- |
-| **阶段 1** | **修复真实性问题和基础交互** | **已完成（含 0db9e9ac 遗漏修复）** | 修复无后端伪装提交、完善 GitHub Issue 与复制降级路径、修复 ThemeContext 存储异常与入口安全、统一导航 History 状态写入并防止元数据丢失、收紧隐私提示 |
-| 阶段 2 | 完善结构化数据与可信度 | 未开始 | 区分芯片与具体商品、支持字段级来源快照、缺失字段标记为未知、数据状态面板 |
+| **阶段 1** | **修复真实性问题和基础交互** | **已完成（源码审查认可、真实浏览器验证待补）** | 修复无后端伪装提交、完善 GitHub Issue 与复制降级路径、修复 ThemeContext 存储异常与入口安全、统一导航 History 状态写入并防止元数据丢失、收紧隐私提示 |
+| **阶段 2** | **完善结构化数据与可信度** | **已完成（全量测试与构建通过）** | 区分芯片核心与具体商品变体、来源类别与核验状态分离、未知字段严谨化、数据状态汇总面板（详见 docs/PHASE_2_PLAN.md） |
 | 阶段 3 | 自选装机配置器与兼容性检查 | 未开始 | 我的装机单、独立纯函数兼容性评估、可解释替代建议、预算与导入导出 |
 | 阶段 4 | 性能天梯与对比方法完善 | 未开始 | 区分测试场景与跑分来源、避免无序混排、支持差异高亮与合理对比 |
 | 阶段 5 | 旧电脑升级助手 | 未开始 | 导入/选择旧机配件、锁定保留部件、升级瓶颈与成本评估 |
@@ -117,5 +117,103 @@
 
 ### 4. 边界说明与后续规划
 
-- 阶段 1 所有收尾与防御性修复已彻底闭环并通过自动化回归验证；
-- 遵循指令，**本轮只处理阶段 1 收尾修复，不自动进入阶段 2**；等待用户审查与下一步指令。
+- **阶段 1 收尾确认**：所有源码审查问题与自动化测试已彻底闭环并通过回归验证，状态标记为“已完成（源码审查认可、真实浏览器验证待补）”，剩余真实跨浏览器与移动端真机实操已记录入待办，不再反复重构已稳定代码；
+- **阶段 2 交付确认**：阶段 2（完善结构化数据与可信度建设）已全面实施并通过自动化测试与生产构建验证，详见下方“阶段 2”章节。
+
+---
+
+## 阶段 2：完善结构化数据与可信度建设（已完成）
+
+详细需求与数据模型规范保存在 [`docs/PHASE_2_PLAN.md`](./PHASE_2_PLAN.md)。本阶段所有产出已全部通过全量自动化回归测试与生产编译打包。
+
+### 1. 核心改进项核查结果
+
+- [x] **A. 实体层级建模（芯片架构 vs 公版参考品 vs 非公商品变体）**
+  - 在 `src/types/hardwareSources.ts` 中引入 `EntityKind = 'chip' | 'reference-product' | 'partner-variant'`，彻底消除此前将“核心代号/芯片规格”与“具体零售长宽高/供电接口”混杂的架构缺陷；
+  - 在 `src/types/hardwareCatalog.ts` 中扩展 `HardwareRecord.entityKind` 与 `variantDetails`（包含长宽高 mm、PCIe 槽厚、辅助供电接口形态、原厂建议整机电源功率）；
+  - 将公版卡与非公卡解耦：
+    - `gpu-nvidia-rtx4070super`（NVIDIA GeForce RTX 4070 Super）定性为 `reference-product`，规格源自原厂官方白皮书；
+    - 新增独立硬件条目 `gpu-colorful-rtx4070s-ultra-w`（七彩虹 iGame GeForce RTX 4070 SUPER Ultra W OC），定性为 `partner-variant`，明确记录其实测 313.5mm 长度、2.5 槽厚度及 16-pin (12VHPWR/12V-2x6) 供电规格；
+    - 在详情页中明确提示“具体非公显卡的长宽高、厚度与供电接口可能不同，请以具体品牌型号为准”。
+
+- [x] **B. 来源类别与核验状态完全分离（防虚构核验日期）**
+  - 在 `src/types/hardwareSources.ts` 中定义独立枚举：
+    - `SourceKind = 'manufacturer' | 'product-database' | 'editorial' | 'unknown'`；
+    - `VerificationStatus = 'verified' | 'unverified'`；
+  - 每个事实记录包含明确的 `checkedAt`（YYYY-MM-DD）。对于编辑经验条目或未核验项，**绝对禁止自动填入当天日期或硬编码假日期**；
+  - 详情页字段呈现上，已核验项显示绿色徽标（`✓ 已官方核验 · 2024-11-07`），未核验项显示黄色虚线徽章（`待核验`），杜绝混淆。
+
+- [x] **C. 未知字段严谨化与安全排序**
+  - **数值型未知值防御**：缺失功耗或 `tdpWatts <= 0` 统一处理为 `watts: null, isKnown: false`，界面显示“功耗未记录”，杜绝未核验配件变成 `0W`“超低功耗神器”；
+  - **价格未知值防御**：缺失价格或零区间统一处理为 `min: null, max: null, isKnownRange: false`，卡片与详情均显示“暂无价格参考”，杜绝出现 `¥0`“免费神卡”；
+  - **尺寸未知值防御**：未核验具体长宽高的芯片核心不伪造尺寸，防止兼容性引擎误判“肯定装得下”；
+  - **安全排序纯函数**：在 `src/utils/hardwareCatalog.ts` 中实现 `safeSortHardwareByPrice` 与 `safeSortHardwareByTdp`，将未知功耗与未知价格的条目稳定归入末尾（排在已知项之后），杜绝 `NaN`、`Infinity` 导致的排序错乱与列表崩溃。
+
+- [x] **D. 透明核验口径与分母基准 ($X/Y$)**
+  - 建立全品类 9 大核心规格标准基准（`CATEGORY_CORE_FIELDS`），严格固定分母 $Y$：
+    - CPU: 7 项 | GPU: 8 项 | 主板: 6 项 | 内存: 5 项 | 存储: 5 项 | 电源: 5 项 | 散热: 4 项 | 机箱: 5 项 | 笔记本: 6 项；
+  - 动态计算分子 $X$（实际核对且来源有效的字段数），未核验的核心字段如实计入分母 $Y$ 并列入 `missingCoreFields`，彻底杜绝通过漏算未核验项虚标 100% 核验率；
+  - 详情页与汇总面板均清晰展示 “$X / Y$ 项核心规格已核验” 及百分比。
+
+- [x] **E. 卡片与详情弹窗的可信度呈现**
+  - **硬件卡片 (`HardwareCard.tsx`)**：
+    - 呈现紧凑可信度标识（如已核验徽章及 $X/Y$ 进度）；
+    - 非公变体显示“品牌非公”标签；
+    - 未知功耗显示“功耗未记录”，未知价格显示“暂无参考价”；
+  - **详情弹窗 (`HardwareDetailModal.tsx` & `HardwareMeasurements.tsx`)**：
+    - 顶栏展示实体类别（芯片基准 / 原厂标准品 / 品牌非公变体）与核验等级；
+    - 规格表格各字段直接标明核验状态（已核验标绿打钩、未核验置灰）；
+    - 底部提供“数据来源与核验审计”展开面板，展示核验源清单、已核验字段明细、原始源字段名、核验日期及待核验字段列表。
+
+- [x] **F. 全站数据状态汇总面板 (`DataCredibilityModal.tsx`)**
+  - 在百科工具栏常驻“数据可信度”入口；
+  - 弹窗采用双层内嵌设计，实时展示：
+    - 全站收录统计（总收录数、芯片与基准系列、品牌非公变体）；
+    - 来源层级构成（原厂官方核验、第三方数据库、编辑参考整理）；
+    - 已知功耗与已知价格有效率；
+    - 9 大硬件分类的独立基准分母、已核验比例与覆盖表格；
+    - 明确的数据核验准则与免责说明，支持一键前往反馈修正。
+
+---
+
+### 2. 自动化测试与质量验收
+
+- **测试套件执行**：`npm test`
+  - **20 个测试文件全部通过，共 143 个用例全部通过，0 失败**；
+  - 新增 `src/__tests__/hardwareCredibility.test.tsx`（11 个用例），覆盖：
+    1. 无重复 ID 且价格区间合法校验；
+    2. 9 大硬件分类核心分母 $Y$ 严格固定测试；
+    3. 未核验条目杜绝伪造日期与虚标测试；
+    4. 实体类型区分（芯片基准 vs 公版 vs 非公变体）与物理参数测试；
+    5. 未知功耗与价格 `null` 防御及安全排序测试（末尾归并，无 NaN/Infinity）；
+    6. `computeCatalogCredibilityStats` 全品类动态统计纯函数验证；
+    7. 真实 DOM 挂载与工具栏点击触发打开/关闭数据状态汇总面板；
+    8. 真实 DOM 挂载验证详情弹窗的字段核验徽章、非公物理规格提示与来源审计展开交互。
+- **生产构建验证**：`npm run build` (`tsc && vite build`)
+  - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
+  - 生产打包完整构建成功（产物位于 `dist/`）。
+
+---
+
+### 3. 本阶段产出与修改文件汇总
+
+1. **类型定义与工具库**
+   - [修改] `src/types/hardwareSources.ts`：增加 `EntityKind`, `SourceKind`, `VerificationStatus`, 细化 `FieldVerification` 与物理规格字段 ID；
+   - [修改] `src/types/hardwareCatalog.ts`：扩展 `HardwareRecord`（`entityKind`, `variantDetails`, `auditSummary`, `power.isKnown`, `pricing.isKnownRange`）与 `SpecificationRecord`；
+   - [新建] `src/utils/dataCredibilityStats.ts`：全品类可信度指标计算纯函数 `computeCatalogCredibilityStats`；
+   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`, `extractVariantDetails`, `safeSortHardwareByPrice`, `safeSortHardwareByTdp`；
+2. **硬件数据底册**
+   - [修改] `src/data/sources/verifiedHardware.ts`：补充官方核验记录、拆分实体类型，新增 RTX 4070 Super 公版与七彩虹非公版物理核验数据；
+   - [修改] `src/data/hardware/gpus.ts`：新增 `gpu-colorful-rtx4070s-ultra-w` 非公显卡条目；
+3. **界面呈现组件**
+   - [新建] `src/components/wiki/DataCredibilityModal.tsx`：全站数据可信度与核验状态汇总弹窗；
+   - [修改] `src/components/wiki/HardwareWiki.tsx`：接入“数据可信度”工具栏按钮与汇总弹窗，接入安全排序纯函数；
+   - [修改] `src/components/wiki/HardwareCard.tsx`：紧凑可信度进度、非公变体标签、未知功耗与未知价格友好展示；
+   - [修改] `src/components/wiki/HardwareMeasurements.tsx`：实体层级标签、字段级核验状态、折叠来源与待核验清单、未知价格防御；
+   - [修改] `src/components/wiki/HardwareDetailModal.tsx`：头部可信度徽章、表格字段打钩标示；
+4. **自动化测试**
+   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件；
+5. **项目文档**
+   - [新建] `docs/PHASE_2_PLAN.md`：阶段 2 需求规范与实施计划；
+   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与验收记录。
+

@@ -24,6 +24,7 @@ import {
   X,
   LayoutGrid,
   Table,
+  ShieldCheck,
 } from 'lucide-react';
 import { hardwareList } from '../../data/hardware';
 import { glossaryTerms } from '../../data/glossary';
@@ -32,6 +33,7 @@ import { WikiIntro } from './WikiIntro';
 import { HardwareTableView } from './HardwareTableView';
 import { LaptopSection } from './LaptopSection';
 import { HardwareDetailModal } from './HardwareDetailModal';
+import { DataCredibilityModal } from './DataCredibilityModal';
 import { GlossaryPopoverModal } from '../common/GlossaryPopoverModal';
 import { ActiveTab, HardwareCategory, HardwareItem, GlossaryTerm } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
@@ -39,6 +41,10 @@ import {
   matchHardwareFuzzy,
   calculateHardwareSearchScore,
 } from '../../utils/hardwareSearch';
+import {
+  safeSortHardwareByPrice,
+  safeSortHardwareByTdp,
+} from '../../utils/hardwareCatalog';
 
 interface HardwareWikiProps {
   onNavigate: (tab: ActiveTab) => void;
@@ -144,6 +150,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
     if (saved === 'table' || saved === 'grid') return saved;
     return 'grid';
   });
+  const [isCredibilityModalOpen, setIsCredibilityModalOpen] = useState(false);
 
   const handleViewModeChange = (mode: 'grid' | 'table') => {
     setViewMode(mode);
@@ -1464,7 +1471,7 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
 
   // Filter and sort items with strict category isolation & advanced fuzzy search
   const filteredItems = useMemo(() => {
-    const result = hardwareList.filter((item) => {
+    let result = hardwareList.filter((item) => {
       // 1. Strict Category filter (Prevents cross-category leakage)
       if (selectedCategory !== 'all') {
         if (item.category !== selectedCategory) {
@@ -1502,11 +1509,11 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
 
     // Sorting
     if (sortBy === 'price-asc') {
-      result.sort((a, b) => a.marketPriceRange[0] - b.marketPriceRange[0]);
+      result = safeSortHardwareByPrice(result, true);
     } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => b.marketPriceRange[0] - a.marketPriceRange[0]);
+      result = safeSortHardwareByPrice(result, false);
     } else if (sortBy === 'tdp') {
-      result.sort((a, b) => b.tdpWatts - a.tdpWatts);
+      result = safeSortHardwareByTdp(result);
     } else if (sortBy === 'default' && searchQuery.trim()) {
       result.sort(
         (a, b) =>
@@ -1647,6 +1654,17 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
                     <span>{t('viewTable')}</span>
                   </button>
                 </div>
+
+                {/* Data Credibility Audit Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsCredibilityModalOpen(true)}
+                  className="flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all duration-200 cursor-pointer shrink-0"
+                  title={lang === 'en' ? 'Data Credibility & Verification Audit' : '数据可信度与规格核验状态汇总'}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="hidden sm:inline">{lang === 'en' ? 'Credibility Stats' : '数据可信度'}</span>
+                </button>
               </div>
             </div>
 
@@ -1917,6 +1935,12 @@ export const HardwareWiki: React.FC<HardwareWikiProps> = ({ onNavigateToGlossary
           onNavigateToGlossary={onNavigateToGlossary}
         />
       )}
+
+      {/* Data Credibility & Verification Audit Modal */}
+      <DataCredibilityModal
+        isOpen={isCredibilityModalOpen}
+        onClose={() => setIsCredibilityModalOpen(false)}
+      />
     </div>
   );
 };

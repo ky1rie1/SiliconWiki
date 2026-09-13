@@ -11,11 +11,13 @@ import {
   ShoppingBag,
   Sparkles,
   HelpCircle,
+  ShieldCheck,
 } from 'lucide-react';
 import { HardwareItem, GlossaryTerm } from '../../types';
 import { glossaryTerms } from '../../data/glossary';
 import { HardwareImage } from './HardwareImage';
 import { useLanguage } from '../../context/LanguageContext';
+import { hardwareCatalog } from '../../data/hardware';
 
 interface HardwareCardProps {
   item: HardwareItem;
@@ -25,6 +27,8 @@ interface HardwareCardProps {
 
 export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, onOpenTerm }) => {
   const { t, lang } = useLanguage();
+  const record = hardwareCatalog.byId.get(item.id);
+
 
   const matchedTerms = useMemo(() => {
     const textCorpus = [
@@ -119,6 +123,20 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
               <span className="text-xs px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
                 {item.releaseYear}{lang === 'en' ? '' : ' 年'}
               </span>
+              {record?.entityKind === 'partner-variant' && (
+                <span className="text-[10px] px-2 py-0.5 rounded font-mono font-medium bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  {lang === 'en' ? 'Partner' : '非公变体'}
+                </span>
+              )}
+              {record?.auditSummary.hasOfficialSource && record.auditSummary.verifiedFieldCount > 0 && (
+                <span
+                  className="text-[10px] px-1.5 py-0.5 rounded font-medium flex items-center space-x-0.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                  title={lang === 'en' ? `${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} official fields verified` : `已核验 ${record.auditSummary.verifiedFieldCount}/${record.auditSummary.coreFieldTotal} 项原厂关键参数`}
+                >
+                  <ShieldCheck className="w-2.5 h-2.5 shrink-0" />
+                  <span>{record.auditSummary.verifiedFieldCount}/{record.auditSummary.coreFieldTotal}</span>
+                </span>
+              )}
               {item.badge && (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-[#F7D84A]/20 text-amber-900 dark:text-[#F7D84A] font-medium">
                   {item.badge}
@@ -128,7 +146,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
 
             <div className="flex items-center space-x-1 text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-850 px-2 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>{item.tdpWatts > 0 ? `${item.tdpWatts}W` : (lang === 'en' ? 'Standard TDP' : '标准功耗')}</span>
+              <span>{item.tdpWatts > 0 ? `${item.tdpWatts}W` : (lang === 'en' ? 'Power unrecorded' : '功耗未记录')}</span>
             </div>
           </div>
 
@@ -248,7 +266,7 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                 {t('msrpLabel')}
               </span>
               <span className="text-xs text-slate-400 dark:text-slate-500 line-through">
-                ￥{item.msrpRmb}
+                {item.msrpRmb > 0 ? `￥${item.msrpRmb}` : (lang === 'en' ? 'Unrecorded' : '未记录')}
               </span>
             </div>
 
@@ -257,7 +275,9 @@ export const HardwareCard: React.FC<HardwareCardProps> = ({ item, onOpenSpecs, o
                 {t('marketPriceLabel')}
               </span>
               <div className="text-base font-bold text-slate-900 dark:text-[#F7D84A] font-mono">
-                ￥{item.marketPriceRange[0]} ~ ￥{item.marketPriceRange[1]}
+                {item.marketPriceRange[0] > 0 || item.marketPriceRange[1] > 0
+                  ? `￥${item.marketPriceRange[0]} ~ ￥${item.marketPriceRange[1]}`
+                  : (lang === 'en' ? 'Price unrecorded' : '暂无参考价')}
               </div>
             </div>
           </div>
