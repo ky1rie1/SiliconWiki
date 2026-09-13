@@ -98,20 +98,34 @@ export default function App() {
   const handleTabChange = useCallback(
     (
       newTab: ActiveTab,
-      options: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string } | boolean = true
+      options: {
+        shouldScroll?: boolean;
+        replace?: boolean;
+        targetUrl?: string;
+        historyState?: Record<string, unknown>;
+      } | boolean = true
     ) => {
       const shouldScroll = typeof options === 'boolean' ? options : (options.shouldScroll ?? true);
       const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
       const customTargetUrl = typeof options === 'object' ? options.targetUrl : undefined;
+      const customHistoryState = typeof options === 'object' ? options.historyState : undefined;
 
       try {
         const isSameTab = activeTab === newTab;
         const targetUrl = customTargetUrl || computeTabNavigationUrl(window.location.href, newTab);
 
+        // Preserve metadata (e.g. swDetail) on replace or apply custom state; normal navigation uses clean tab state
+        const currentHistoryState = (typeof window !== 'undefined' && window.history.state) || {};
+        const stateToSave = customHistoryState
+          ? { ...customHistoryState, tab: newTab }
+          : replace
+          ? { ...currentHistoryState, tab: newTab }
+          : { tab: newTab };
+
         if (replace || (isSameTab && !customTargetUrl)) {
-          window.history.replaceState({ tab: newTab }, '', targetUrl);
+          window.history.replaceState(stateToSave, '', targetUrl);
         } else {
-          window.history.pushState({ tab: newTab }, '', targetUrl);
+          window.history.pushState(stateToSave, '', targetUrl);
         }
       } catch {
         window.location.hash = `#/${newTab}`;

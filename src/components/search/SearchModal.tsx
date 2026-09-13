@@ -49,7 +49,12 @@ interface SearchModalProps {
   onClose: () => void;
   onNavigate: (
     tab: ActiveTab,
-    options?: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string }
+    options?: {
+      shouldScroll?: boolean;
+      replace?: boolean;
+      targetUrl?: string;
+      historyState?: Record<string, unknown>;
+    }
   ) => void;
 }
 
@@ -284,12 +289,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       const hwId = item.hardwareId;
       try {
         const targetUrl = computeDetailOpenUrl(window.location.href, hwId);
-        window.history.pushState({ swDetail: true, hardware: hwId }, '', targetUrl);
+        onNavigate('wiki', {
+          targetUrl,
+          historyState: { swDetail: true, hardware: hwId },
+          shouldScroll: false,
+        });
         window.dispatchEvent(new PopStateEvent('popstate'));
       } catch {
         // fallback
       }
-      onNavigate('wiki', { replace: true, shouldScroll: false });
       onClose();
       return;
     }

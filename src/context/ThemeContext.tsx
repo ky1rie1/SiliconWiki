@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { safeGetItem, safeSetItem } from '../utils/storage';
 
 type Theme = 'dark' | 'light';
 
@@ -12,21 +13,34 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem('silicon_wiki_theme');
+    const saved = safeGetItem('silicon_wiki_theme');
     if (saved === 'dark' || saved === 'light') {
       return saved;
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+    } catch {
+      // fallback
+    }
+    return 'dark';
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    try {
+      const root = typeof document !== 'undefined' ? document.documentElement : null;
+      if (root) {
+        if (theme === 'dark') {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      }
+    } catch {
+      // fallback
     }
-    localStorage.setItem('silicon_wiki_theme', theme);
+    safeSetItem('silicon_wiki_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
