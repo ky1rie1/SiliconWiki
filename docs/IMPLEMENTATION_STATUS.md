@@ -59,38 +59,37 @@
 
 ---
 
-### 2. 自动化测试与验证情况
+### 2. 自动化测试与多层级验证情况
 
-> **测试覆盖与环境说明**：
-> 本项目的自动化测试运行于 Node.js (Vitest v2.1.9) 环境下。
-> - **纯函数与异常边界测试**：针对生产纯函数逻辑以及模拟受限 `localStorage` / `window.history` 契约进行单元断言；
-> - **真实组件集成测试**：通过 Vitest 的 `happy-dom` 真实模拟 DOM 环境，直接挂载和调用生产组件（`ThemeProvider`, `App`, `SearchModal`, `HardwareWiki`），杜绝在测试文件中伪造模拟处理函数；
-> - **真实浏览器人工验证**：在未进行跨设备/跨浏览器物理手测前，严格标注为**未验证 / 待人工验证**，不作虚假背书。
+> **测试分层与验收边界说明**：
+> 严格区分“服务端渲染检查”、“客户端组件测试”与“真实浏览器测试”，只有实际执行并完全通过验证的项目才标记为已验收：
+> - **服务端渲染检查 (SSR Check)**：使用 `renderToString` 进行无 DOM 阶段的防御性安全检查，确保根级组件在环境受限（如 storage getter 抛 `SecurityError`）时不抛出未捕获异常导致整站崩溃；
+> - **客户端组件测试 (Client-Side Component DOM Testing)**：基于 `happy-dom` 环境使用 React 18 官方标准的 `createRoot` + `act` 渲染生产 `<App />` 根组件，**禁止在测试代码中复制业务处理函数**，完全通过真实 DOM 事件（点击搜索、输入关键词、选择搜索项、点击关闭按钮、点击导航标签、点击主题切换按钮）驱动生产状态机，断言可见 DOM 节点生命周期（`[role="dialog"]` 出现与销毁、`document.documentElement` 主题 class 真实反转）以及 `window.history.state` 与 URL 契约；
+> - **测试有效性逆向验证 (Red-Green Verification)**：在临时破坏性实验中证实，移除 `SearchModal` 中的 `swDetail` 传递会导致导航回退测试断言失败，恢复 `ThemeContext` 的裸 `localStorage.getItem` 会导致受限存储挂载测试报错，证明测试用例真实有效且具备防御性回归拦截能力；
+> - **真实浏览器测试 (Real Browser Testing)**：涉及真实浏览器物理前进/后退手势、多标签页历史出栈、移动端真实手势等物理特性，明确记录环境边界，**不把 happy-dom 的模拟行为或 history.back 调用直接等同于跨平台真实浏览器回退成功**，标记为待人工/端到端浏览器实测。
 
 #### A. 自动化测试套件执行结果 (全量通过)
 - 执行命令：`npm test`
-- 测试统计：**19 个测试文件，133 个用例全部通过，0 失败**
+- 测试统计：**19 个测试文件，132 个用例全部通过，0 失败**
 
-| 测试文件 | 用例数 | 覆盖要点 |
-| :--- | :--- | :--- |
-| `src/__tests__/componentRegression.test.tsx` | 10 | **生产组件级联动测试**：ThemeContext 异常与 App 根入口挂载安全、存储失败时主题平滑切换、卡片打开/关闭 back 回退、热门推荐打开/关闭 swDetail 保持、关键词搜索打开/关闭、跨标签页（天梯榜到百科）搜索直达与回退、分享链接进入 replaceState 兜底（不退出本站）、浏览器前进后退 popstate 状态同步、普通导航 swDetail 隔离 |
-| `src/__tests__/storage.test.ts` | 9 | `SecurityError` 捕获降级、`QuotaExceededError` 降级、非数组或损坏 JSON 结构校验过滤 |
-| `src/__tests__/feedback.test.ts` | 9 | 结构化 Issue 模板、`sanitizePageUrl` 脱敏白名单、隐私警示真实性、本地草稿保存失败不阻断流程 |
-| `src/__tests__/navigationAndState.test.ts` | 16 | 仅含 hardware 参数时的 URL 构造清理、相对 Hash 消除、分类解析与切换 URL、热搜推荐 hardwareId 校验 |
-| `src/__tests__/benchmarkLadder.test.ts` | 8 | 天梯榜数据解析、排序与归一化计算 |
-| `src/__tests__/hardwareCatalog.test.ts` | 4 | 硬件目录索引、规范化数据查找与分类检索 |
-| `src/__tests__/hardwareSearch.test.ts` | 19 | 硬件模糊搜索、缩写规范化匹配与权重评分 |
-| `src/__tests__/truthfulCopy.test.ts` | 3 | 全站防夸大文案回归断言（禁止出现“实时市价/零坏链/100%兼容/绝对兼容”等退化） |
-| 其余 11 个既有组件与数据测试 | 45 | 3D 装机动画、装机性能、翻译词条、配置清单等既有功能回归 |
+| 测试层级 / 类别 | 文件 | 用例数 | 验收状态 | 覆盖要点与验证边界 |
+| :--- | :--- | :--- | :--- | :--- |
+| **服务端渲染检查** | `src/__tests__/componentRegression.test.tsx` | 1 | **已通过** | `renderToString(<App />)` 在 `localStorage` 抛出 `SecurityError` 时的安全初始化检查 |
+| **客户端组件交互测试** | `src/__tests__/componentRegression.test.tsx` | 8 | **已通过** | **真实生产组件挂载与 DOM 交互**：<br>1. 客户端受限存储挂载安全（`createRoot` + `act` 挂载 `App`，验证导航与品牌 DOM 正常渲染）；<br>2. 真实主题切换按钮点击测试（`setItem` 失败时点击实际 DOM 按钮，断言 `document.documentElement` class 真实改变为浅色/深色，无未捕获异常）；<br>3. **Flow 1**：百科 → 热门硬件推荐 → 详情 DOM 出现 → 点击关闭按钮 → 详情 DOM 销毁，`history.state` 干净出栈；<br>4. **Flow 2**：百科 → 输入关键词 "4070" → 选择硬件项 → 详情出现 → 点击关闭；<br>5. **Flow 3**：天梯榜 → 打开搜索选择硬件 → 详情出现（跨 Tab 导航）→ 关闭后准确返回天梯榜 DOM 状态；<br>6. **Flow 4**：直接分享链接进入（null state）→ 点击关闭后执行 `replaceState` 留在本站，断言不触发 `history.back()`；<br>7. **Flow 5**：从打开详情状态切换到普通标签页，断言 `swDetail` 完全隔离不被继承；<br>8. **Flow 6**：硬件卡片实际点击 → 详情出现 → 点击关闭。 |
+| **纯函数与存储契约** | `src/__tests__/storage.test.ts` | 9 | **已通过** | `SecurityError` 捕获降级、`QuotaExceededError` 降级、非数组与损坏 JSON 结构校验过滤 |
+| **反馈逻辑与脱敏** | `src/__tests__/feedback.test.ts` | 9 | **已通过** | 结构化 Issue 模板、`sanitizePageUrl` 白名单、隐私警示文案、本地保存失败不阻断流程 |
+| **导航工具与状态** | `src/__tests__/navigationAndState.test.ts` | 16 | **已通过** | 仅含 hardware 参数时的规范化 URL 清理、相对 Hash 消除、分类解析与切换 URL、热搜推荐 hardwareId 校验 |
+| **业务计算与检索** | 其余 14 个测试套件 | 89 | **已通过** | 天梯榜归一化、目录索引、硬件模糊搜索、防夸大文案审查、3D 模拟性能与词汇表翻译等 |
 
 #### B. 生产环境构建验证 (零错误通过)
 - 执行命令：`npm run build` (`tsc && vite build`)
-- 编译输出：TypeScript 严格类型检查通过（0 error, 0 warning），Vite 打包构建通过（1659 modules transformed，dist 产物完整生成）。
+- 编译输出：TypeScript 严格类型检查通过（0 error, 0 warning），Vite 生产打包构建通过（1659 modules transformed，dist 产物完整生成）。
 
-#### C. 人工与多端验证状态说明
-- [x] Node.js / happy-dom 自动化单元与集成测试：**已验证通过**；
-- [ ] 真实浏览器（Chrome / Safari / Firefox / Edge）手动全路径实操：**待人工验证**；
-- [ ] 移动端真机（iOS Safari / Android Chrome）分享链接与历史后退手势：**待人工验证**。
+#### C. 测试层级与人工核验状态
+- [x] **服务端渲染检查 (SSR Check)**：已验证通过；
+- [x] **客户端组件测试 (happy-dom + React 18 createRoot/act)**：已验证通过；
+- [ ] **真实浏览器跨设备测试 (Chrome / Safari / Firefox / Edge)**：待人工验证；
+- [ ] **移动端手势与原生分享进入退出 (iOS Safari / Android Chrome)**：待人工验证。
 
 ---
 

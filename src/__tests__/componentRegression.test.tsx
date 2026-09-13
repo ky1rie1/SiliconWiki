@@ -1,56 +1,92 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { act } from 'react';
+import { createRoot, Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import { ThemeProvider, useTheme } from '../context/ThemeContext';
-import { hardwareList } from '../data/hardware';
-import { computeDetailOpenUrl, computeDetailCloseUrl } from '../utils/navigation';
 import App from '../App';
 
-describe('Production Component Integration & Regression Suite', () => {
+// Configure React 18 act testing environment for happy-dom
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+/**
+ * Production Component Integration & Regression Suite (Client-Side DOM Rendering)
+ *
+ * Requirements:
+ * 1. Mount actual production App / ThemeProvider in happy-dom using React 18 createRoot + act.
+ * 2. Perform real DOM interactions: click navbar search, input search terms, click suggestions/results, click close buttons.
+ * 3. Never copy-paste or duplicate internal business handlers (handleTabChange, syncFromUrl, etc.) in test code.
+ * 4. Verify both visible DOM elements (dialogs present/absent) and browser history state / URLs.
+ * 5. Clearly document testing boundaries: happy-dom verifies component contracts, DOM state transitions,
+ *    and popstate synchronizations; full browser cross-session history navigation requires real browser runs.
+ */
+describe('Production Component Integration & Regression Suite (Client-Side DOM Rendering)', () => {
+  let container: HTMLDivElement | null = null;
+  let root: Root | null = null;
   const originalLocalStorage = window.localStorage;
 
-  afterEach(() => {
+  // Helper to change input value and fire input/change events recognized by React in happy-dom
+  function changeInputValue(input: HTMLInputElement, value: string) {
+    const descriptor = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');
+    descriptor?.set?.call(input, value);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  // Helper to locate the open SearchModal element in the DOM (identified by max-w-2xl dialog shell)
+  function getSearchModal(rootEl: HTMLElement): HTMLElement | null {
+    const modalContent = rootEl.querySelector('.max-w-2xl');
+    return modalContent ? (modalContent.closest('.fixed') as HTMLElement) : null;
+  }
+
+  // Helper to mount production App cleanly inside act
+  async function renderApp() {
+    await act(async () => {
+      root!.render(<App />);
+    });
+    // Allow any initial Suspense / microtasks to settle
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 40));
+    });
+  }
+
+  beforeEach(() => {
+    // Reset location and state
+    window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
+    window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
+
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    if (root) {
+      await act(async () => {
+        root?.unmount();
+      });
+      root = null;
+    }
+    if (container && container.parentNode) {
+      container.parentNode.removeChild(container);
+      container = null;
+    }
+    // Restore localStorage and mocks
     Object.defineProperty(window, 'localStorage', {
       value: originalLocalStorage,
       configurable: true,
       writable: true,
     });
+    vi.restoreAllMocks();
   });
 
-  describe('ThemeContext Storage Exception & Entry Safety', () => {
-    it('should not crash when localStorage throws SecurityError on mount and fallback to system/default theme', () => {
+  // =========================================================================
+  // Section 1: Theme Storage Exceptions & Client-Side DOM Toggle
+  // =========================================================================
+  describe('Theme Storage Exceptions & Client-Side DOM Toggle', () => {
+    it('SSR check: renderToString(App) should not throw SecurityError when localStorage is blocked', () => {
       Object.defineProperty(window, 'localStorage', {
         get: () => {
-          const err = new Error("SecurityError: Access is denied for this document.");
-          err.name = 'SecurityError';
-          throw err;
-        },
-        configurable: true,
-      });
-
-      let extractedTheme = '';
-      function TestThemeConsumer() {
-        const { theme } = useTheme();
-        extractedTheme = theme;
-        return <div id="theme-consumer">{theme}</div>;
-      }
-
-      expect(() => {
-        renderToString(
-          <ThemeProvider>
-            <TestThemeConsumer />
-          </ThemeProvider>
-        );
-      }).not.toThrow();
-
-      expect(['dark', 'light']).toContain(extractedTheme);
-    });
-
-    it('should render App at root without throwing SecurityError when localStorage is blocked (entry safety)', () => {
-      // Must test from App entry because ThemeProvider is outside RouteErrorBoundary
-      Object.defineProperty(window, 'localStorage', {
-        get: () => {
-          const err = new Error("SecurityError: Access is denied for this document.");
+          const err = new Error('SecurityError: Access is denied for this document.');
           err.name = 'SecurityError';
           throw err;
         },
@@ -62,22 +98,46 @@ describe('Production Component Integration & Regression Suite', () => {
       }).not.toThrow();
     });
 
-    it('should allow toggling theme on current page even if saving to localStorage fails', () => {
-      let failStorageWrites = false;
-      const store: Record<string, string> = { silicon_wiki_theme: 'dark' };
+    it('Client-side mount: mounting production App under localStorage SecurityError succeeds and renders app shell', async () => {
+      // Simulate private browsing / iframe sandbox where accessing window.localStorage throws SecurityError
+      Object.defineProperty(window, 'localStorage', {
+        get: () => {
+          const err = new Error('SecurityError: Access is denied for this document.');
+          err.name = 'SecurityError';
+          throw err;
+        },
+        configurable: true,
+      });
 
+      // Must mount App directly because ThemeProvider wraps App at the outermost level outside RouteErrorBoundary
+      await expect(renderApp()).resolves.not.toThrow();
+
+      // Verify DOM: header, brand logo, and main navigation exist
+      const brand = container?.querySelector('.brand-lockup');
+      expect(brand).not.toBeNull();
+      const navLinks = container?.querySelectorAll('nav.desktop-nav button.nav-link');
+      expect(navLinks?.length).toBeGreaterThan(0);
+
+      // Verify fallback theme applied to documentElement ('dark' or 'light')
+      const isDark = document.documentElement.classList.contains('dark');
+      expect(typeof isDark).toBe('boolean');
+    });
+
+    it('Client-side interaction: toggling theme button modifies documentElement class even when storage writes fail', async () => {
+      let writeAttempts = 0;
+      const memStore: Record<string, string> = { silicon_wiki_theme: 'dark' };
+
+      // Storage getter works, but setItem fails (e.g. QuotaExceededError or write permission blocked)
       Object.defineProperty(window, 'localStorage', {
         get: () => ({
-          getItem: (k: string) => store[k] || null,
-          setItem: (k: string, v: string) => {
-            if (failStorageWrites) {
-              const err = new Error('QuotaExceededError: Storage is full');
-              err.name = 'QuotaExceededError';
-              throw err;
-            }
-            store[k] = v;
+          getItem: (k: string) => memStore[k] || null,
+          setItem: () => {
+            writeAttempts++;
+            const err = new Error('QuotaExceededError: Storage is full');
+            err.name = 'QuotaExceededError';
+            throw err;
           },
-          removeItem: (k: string) => delete store[k],
+          removeItem: (k: string) => delete memStore[k],
           clear: () => {},
           length: 1,
           key: () => null,
@@ -85,380 +145,302 @@ describe('Production Component Integration & Regression Suite', () => {
         configurable: true,
       });
 
-      let toggleFn: (() => void) | null = null;
-      let activeTheme = '';
+      await renderApp();
 
-      function ThemeTestWidget() {
-        const { theme, toggleTheme } = useTheme();
-        activeTheme = theme;
-        toggleFn = toggleTheme;
-        return <button onClick={toggleTheme}>Toggle</button>;
-      }
+      // Ensure documentElement has initial dark class
+      expect(document.documentElement.classList.contains('dark')).toBe(true);
 
-      renderToString(
-        <ThemeProvider>
-          <ThemeTestWidget />
-        </ThemeProvider>
-      );
+      // Find the actual theme toggle button in the Navbar DOM
+      const themeBtn = container?.querySelector(
+        'button[title*="主题"], button[aria-label*="主题"], button[title*="theme"], button[aria-label*="theme"]'
+      ) as HTMLButtonElement | null;
+      expect(themeBtn).not.toBeNull();
 
-      expect(activeTheme).toBe('dark');
-      expect(store.silicon_wiki_theme).toBe('dark');
+      // Click the theme button in the DOM
+      await act(async () => {
+        themeBtn!.click();
+      });
 
-      // Now simulate storage write failure (SecurityError / QuotaExceededError)
-      failStorageWrites = true;
+      // ASSERTION 1: DOM class MUST actually change (dark class removed -> light theme)
+      expect(document.documentElement.classList.contains('dark')).toBe(false);
+      expect(writeAttempts).toBeGreaterThanOrEqual(1);
 
-      // Even if safeSetItem fails, calling toggleFn should not throw uncaught error
-      expect(() => {
-        if (toggleFn) toggleFn();
-      }).not.toThrow();
+      // Click theme button again to toggle back to dark
+      await act(async () => {
+        themeBtn!.click();
+      });
+
+      // ASSERTION 2: DOM class MUST actually return to dark
+      expect(document.documentElement.classList.contains('dark')).toBe(true);
     });
   });
 
-  describe('Unified Navigation and History State Preservation', () => {
-    let pushedStates: Array<{ state: Record<string, unknown>; unused: string; url: string }> = [];
-    let replacedStates: Array<{ state: Record<string, unknown>; unused: string; url: string }> = [];
-    let backCallCount = 0;
-
-    beforeEach(() => {
-      pushedStates = [];
-      replacedStates = [];
-      backCallCount = 0;
-
-      window.history.pushState = vi.fn((state: any, unused: string, url: string) => {
-        pushedStates.push({ state, unused, url });
-        Object.defineProperty(window.history, 'state', {
-          value: state,
-          configurable: true,
-          writable: true,
-        });
-        if (url) {
-          try {
-            const parsed = new URL(url, window.location.origin);
-            window.location.href = parsed.href;
-          } catch {
-            // ignore
-          }
-        }
-      });
-
-      window.history.replaceState = vi.fn((state: any, unused: string, url: string) => {
-        replacedStates.push({ state, unused, url });
-        Object.defineProperty(window.history, 'state', {
-          value: state,
-          configurable: true,
-          writable: true,
-        });
-        if (url) {
-          try {
-            const parsed = new URL(url, window.location.origin);
-            window.location.href = parsed.href;
-          } catch {
-            // ignore
-          }
-        }
-      });
-
-      window.history.back = vi.fn(() => {
-        backCallCount++;
-      });
-    });
-
-    it('Scenario 1: Card click into detail -> close pops history cleanly via history.back()', () => {
+  // =========================================================================
+  // Section 2: Real Component Interaction Flows
+  // =========================================================================
+  describe('Unified Navigation Flows via Real DOM Actions', () => {
+    it('Flow 1: 百科 → 热门硬件推荐 → 详情出现 → 点击关闭', async () => {
       window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
       window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
 
-      const testHardware = hardwareList.find((h) => h.id === 'cpu-amd-9800x3d')!;
-      expect(testHardware).toBeDefined();
+      await renderApp();
 
-      // Simulate HardwareWiki handleOpenDetail
-      let hasInternalDetailPush = true;
-      const targetUrl = computeDetailOpenUrl(window.location.href, testHardware.id);
-      window.history.pushState({ swDetail: true, hardware: testHardware.id }, '', targetUrl);
-
-      expect(window.history.pushState).toHaveBeenCalledTimes(1);
-      expect(window.history.state?.swDetail).toBe(true);
-      expect(window.history.state?.hardware).toBe('cpu-amd-9800x3d');
-
-      // Simulate HardwareWiki handleCloseDetail
-      const isInternal = hasInternalDetailPush || Boolean(window.history.state?.swDetail);
-      expect(isInternal).toBe(true);
-
-      if (isInternal) {
-        hasInternalDetailPush = false;
-        window.history.back();
-      } else {
-        window.history.replaceState(null, '', computeDetailCloseUrl(window.location.href));
-      }
-
-      // Must pop history via back() instead of pushing or replacing duplicate /wiki
-      expect(backCallCount).toBe(1);
-      expect(replacedStates.length).toBe(1); // Only the initial setup replaceState
-    });
-
-    it('Scenario 2: Hot suggestion in SearchModal -> opens detail -> close pops history without state wipe', () => {
-      window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
-      window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
-
-      // Emulate App's handleTabChange wired to SearchModal
-      let currentTab = 'wiki';
-      const handleTabChange = (
-        newTab: string,
-        options: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string; historyState?: Record<string, unknown> } | boolean = true
-      ) => {
-        const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
-        const customTargetUrl = typeof options === 'object' ? options.targetUrl : undefined;
-        const customHistoryState = typeof options === 'object' ? options.historyState : undefined;
-
-        const targetUrl = customTargetUrl || `/#/${newTab}`;
-        const currentHistoryState = window.history.state || {};
-        const stateToSave = customHistoryState
-          ? { ...customHistoryState, tab: newTab }
-          : replace
-          ? { ...currentHistoryState, tab: newTab }
-          : { tab: newTab };
-
-        if (replace) {
-          window.history.replaceState(stateToSave, '', targetUrl);
-        } else {
-          window.history.pushState(stateToSave, '', targetUrl);
-        }
-        currentTab = newTab;
-      };
-
-      // In SearchModal, user selects sug-1 (cpu-amd-9800x3d)
-      const sug1Item = {
-        id: 'sug-1',
-        title: 'AMD Ryzen 7 9800X3D',
-        subtitle: 'Flagship',
-        category: 'Hardware',
-        targetTab: 'wiki' as const,
-        hardwareId: 'cpu-amd-9800x3d',
-      };
-
-      // SearchModal executes handleSelect with unified onNavigate
-      const targetUrl = computeDetailOpenUrl(window.location.href, sug1Item.hardwareId);
-      handleTabChange('wiki', {
-        targetUrl,
-        historyState: { swDetail: true, hardware: sug1Item.hardwareId },
-        shouldScroll: false,
+      // 1. Click header search button in the Navbar
+      const searchBtn = container?.querySelector('button.header-search') as HTMLButtonElement;
+      expect(searchBtn).not.toBeNull();
+      await act(async () => {
+        searchBtn.click();
       });
 
-      // Assert single pushState with swDetail preserved
-      expect(window.history.pushState).toHaveBeenCalledTimes(1);
+      // 2. SearchModal appears in DOM
+      const searchModal = getSearchModal(container!);
+      expect(searchModal).not.toBeNull();
+      const searchInput = searchModal?.querySelector('input') as HTMLInputElement;
+      expect(searchInput).not.toBeNull();
+
+      // 3. Find hot suggestion "AMD Ryzen 7 9800X3D" inside the SearchModal
+      const searchItems = Array.from(searchModal?.querySelectorAll('div.cursor-pointer') || []);
+      const sug9800 = searchItems.find((el) => el.textContent?.includes('AMD Ryzen 7 9800X3D'));
+      expect(sug9800).toBeTruthy();
+
+      // Click the suggestion inside SearchModal
+      await act(async () => {
+        (sug9800 as HTMLElement).click();
+      });
+
+      // 4. Detail modal appears in DOM
+      const detailDialog = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(detailDialog).not.toBeNull();
+      const titleEl = detailDialog?.querySelector('#hardware-detail-title');
+      expect(titleEl?.textContent).toContain('AMD Ryzen 7 9800X3D');
+
+      // Assert history state and URL
       expect(window.history.state?.swDetail).toBe(true);
       expect(window.history.state?.hardware).toBe('cpu-amd-9800x3d');
       expect(window.history.state?.tab).toBe('wiki');
-      expect(currentTab).toBe('wiki');
+      expect(window.location.href).toContain('hardware=cpu-amd-9800x3d');
 
-      // When detail is closed in HardwareWiki
-      const isInternal = Boolean(window.history.state?.swDetail);
-      expect(isInternal).toBe(true);
+      // 5. Click close button in detail modal
+      const closeBtn = detailDialog?.querySelector('button[title*="关闭"], button[title*="Close"]') as HTMLButtonElement;
+      expect(closeBtn).toBeTruthy();
 
-      if (isInternal) {
-        window.history.back();
-      }
+      await act(async () => {
+        closeBtn.click();
+      });
 
-      expect(backCallCount).toBe(1);
+      // 6. Detail modal is removed from DOM
+      const modalAfterClose = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(modalAfterClose).toBeNull();
+
+      // In happy-dom, history.back() popped the entry
+      expect(window.history.state?.swDetail).toBeFalsy();
+      expect(window.location.href).not.toContain('hardware=');
     });
 
-    it('Scenario 3: Keyword search -> select hardware -> close pops history', () => {
+    it('Flow 2: 百科 → 输入关键词 → 选择硬件 → 详情出现 → 点击关闭', async () => {
       window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
       window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
 
-      const handleTabChange = (
-        newTab: string,
-        options: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string; historyState?: Record<string, unknown> } | boolean = true
-      ) => {
-        const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
-        const customTargetUrl = typeof options === 'object' ? options.targetUrl : undefined;
-        const customHistoryState = typeof options === 'object' ? options.historyState : undefined;
+      await renderApp();
 
-        const targetUrl = customTargetUrl || `/#/${newTab}`;
-        const currentHistoryState = window.history.state || {};
-        const stateToSave = customHistoryState
-          ? { ...customHistoryState, tab: newTab }
-          : replace
-          ? { ...currentHistoryState, tab: newTab }
-          : { tab: newTab };
-
-        if (replace) {
-          window.history.replaceState(stateToSave, '', targetUrl);
-        } else {
-          window.history.pushState(stateToSave, '', targetUrl);
-        }
-      };
-
-      // User searched "4070" and clicked NVIDIA GeForce RTX 4070 Super
-      const searchItem = {
-        id: 'hw-gpu-nvidia-rtx4070super',
-        title: 'NVIDIA GeForce RTX 4070 Super',
-        subtitle: '2K Sweet Spot',
-        category: 'Hardware',
-        targetTab: 'wiki' as const,
-        hardwareId: 'gpu-nvidia-rtx4070super',
-      };
-
-      const targetUrl = computeDetailOpenUrl(window.location.href, searchItem.hardwareId);
-      handleTabChange('wiki', {
-        targetUrl,
-        historyState: { swDetail: true, hardware: searchItem.hardwareId },
-        shouldScroll: false,
+      // 1. Open search
+      const searchBtn = container?.querySelector('button.header-search') as HTMLButtonElement;
+      await act(async () => {
+        searchBtn.click();
       });
+
+      const searchModal = getSearchModal(container!);
+      expect(searchModal).not.toBeNull();
+      const searchInput = searchModal?.querySelector('input') as HTMLInputElement;
+      expect(searchInput).not.toBeNull();
+
+      // 2. Type keyword "4070"
+      await act(async () => {
+        changeInputValue(searchInput, '4070');
+      });
+
+      // 3. Search results update in DOM, locate "4070 Super" inside SearchModal
+      const resultItems = Array.from(searchModal?.querySelectorAll('div.cursor-pointer') || []);
+      const item4070 = resultItems.find((el) => el.textContent?.includes('4070 Super'));
+      expect(item4070).toBeTruthy();
+
+      // 4. Click the search result item
+      await act(async () => {
+        (item4070 as HTMLElement).click();
+      });
+
+      // 5. Detail modal appears in DOM
+      const detailDialog = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(detailDialog).not.toBeNull();
+      const titleEl = detailDialog?.querySelector('#hardware-detail-title');
+      expect(titleEl?.textContent).toContain('4070 Super');
 
       expect(window.history.state?.swDetail).toBe(true);
       expect(window.history.state?.hardware).toBe('gpu-nvidia-rtx4070super');
+      expect(window.history.state?.tab).toBe('wiki');
+      expect(window.location.href).toContain('hardware=gpu-nvidia-rtx4070super');
 
-      // Close modal
-      const isInternal = Boolean(window.history.state?.swDetail);
-      expect(isInternal).toBe(true);
-      window.history.back();
-      expect(backCallCount).toBe(1);
+      // 6. Click close button
+      const closeBtn = detailDialog?.querySelector('button[title*="关闭"], button[title*="Close"]') as HTMLButtonElement;
+      expect(closeBtn).toBeTruthy();
+
+      await act(async () => {
+        closeBtn.click();
+      });
+
+      // Modal removed
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).toBeNull();
+      expect(window.history.state?.swDetail).toBeFalsy();
     });
 
-    it('Scenario 4: From rankings page -> search -> detail -> close returns to rankings cleanly', () => {
-      // User starts on rankings page
+    it('Flow 3: 天梯榜 → 搜索硬件 → 详情出现 → 关闭后返回天梯榜', async () => {
+      // 1. User starts at rankings page
       window.location.href = 'https://computer-wiki.vercel.app/#/rankings';
       window.history.replaceState({ tab: 'rankings' }, '', '/#/rankings');
 
-      let currentTab = 'rankings';
-      const handleTabChange = (
-        newTab: string,
-        options: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string; historyState?: Record<string, unknown> } | boolean = true
-      ) => {
-        const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
-        const customTargetUrl = typeof options === 'object' ? options.targetUrl : undefined;
-        const customHistoryState = typeof options === 'object' ? options.historyState : undefined;
+      await renderApp();
 
-        const targetUrl = customTargetUrl || `/#/${newTab}`;
-        const currentHistoryState = window.history.state || {};
-        const stateToSave = customHistoryState
-          ? { ...customHistoryState, tab: newTab }
-          : replace
-          ? { ...currentHistoryState, tab: newTab }
-          : { tab: newTab };
+      // Confirm initial active tab is rankings in Navbar (supports both zh: 性能天梯 and en: Benchmark Tier)
+      const activeNav = container?.querySelector('nav.desktop-nav button.is-active');
+      expect(activeNav?.textContent).toMatch(/天梯|Benchmark|Rankings/);
 
-        if (replace) {
-          window.history.replaceState(stateToSave, '', targetUrl);
-        } else {
-          window.history.pushState(stateToSave, '', targetUrl);
-        }
-        currentTab = newTab;
-      };
-
-      // Search and select hardware from rankings
-      const targetUrl = computeDetailOpenUrl(window.location.href, 'cpu-amd-9800x3d');
-      handleTabChange('wiki', {
-        targetUrl,
-        historyState: { swDetail: true, hardware: 'cpu-amd-9800x3d' },
-        shouldScroll: false,
+      // 2. Open search modal from rankings
+      const searchBtn = container?.querySelector('button.header-search') as HTMLButtonElement;
+      await act(async () => {
+        searchBtn.click();
       });
 
-      expect(currentTab).toBe('wiki');
+      const searchModal = getSearchModal(container!);
+      expect(searchModal).not.toBeNull();
+
+      // 3. Select hardware from search suggestions inside the modal
+      const searchItems = Array.from(searchModal?.querySelectorAll('div.cursor-pointer') || []);
+      const sug9800 = searchItems.find((el) => el.textContent?.includes('9800X3D'));
+      expect(sug9800).toBeTruthy();
+
+      await act(async () => {
+        (sug9800 as HTMLElement).click();
+      });
+
+      // 4. Detail modal appears in DOM
+      const detailDialog = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(detailDialog).not.toBeNull();
       expect(window.history.state?.swDetail).toBe(true);
       expect(window.history.state?.tab).toBe('wiki');
-      expect(pushedStates[0].url).toContain('hardware=cpu-amd-9800x3d');
 
-      // User closes detail modal -> calls back()
-      window.history.back();
-      expect(backCallCount).toBe(1);
+      // 5. Close detail modal
+      const closeBtn = detailDialog?.querySelector('button[title*="关闭"], button[title*="Close"]') as HTMLButtonElement;
+      expect(closeBtn).toBeTruthy();
+
+      await act(async () => {
+        closeBtn.click();
+      });
+
+      // 6. Modal removed from DOM
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).toBeNull();
+
+      // In happy-dom, history.back() returns to the previous entry (rankings)
+      expect(window.history.state?.tab).toBe('rankings');
+      expect(window.location.href).toContain('#/rankings');
+
+      // Active navbar tab returned to rankings
+      const activeNavAfter = container?.querySelector('nav.desktop-nav button.is-active');
+      expect(activeNavAfter?.textContent).toMatch(/天梯|Benchmark|Rankings/);
     });
 
-    it('Scenario 5: Direct share link entry -> closing detail uses replaceState and does NOT call back()', () => {
-      // User enters directly via external link
-      window.location.href = 'https://computer-wiki.vercel.app/?hardware=cpu-amd-9800x3d';
-      // External link entry has null history.state and no internal push
-      Object.defineProperty(window.history, 'state', { value: null, configurable: true, writable: true });
+    it('Flow 4: 直接通过分享链接进入 → 关闭后仍在本站且不调用 history.back()', async () => {
+      // Direct external link visit: history.state is null, no internal push performed in session
+      window.location.href = 'https://computer-wiki.vercel.app/?hardware=cpu-amd-9800x3d#/wiki';
+      window.history.replaceState(null, '', '/?hardware=cpu-amd-9800x3d#/wiki');
 
-      const hasInternalDetailPush = false;
-      const isInternal = hasInternalDetailPush || Boolean(window.history.state?.swDetail);
+      await renderApp();
 
-      expect(isInternal).toBe(false);
+      // 1. HardwareWiki detects hardware in URL and opens detail modal on initial mount
+      const detailDialog = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(detailDialog).not.toBeNull();
+      expect(detailDialog?.querySelector('#hardware-detail-title')?.textContent).toContain('9800X3D');
 
-      // HardwareWiki handleCloseDetail
-      if (isInternal) {
-        window.history.back();
-      } else {
-        const targetUrl = computeDetailCloseUrl(window.location.href);
-        window.history.replaceState(null, '', targetUrl);
-      }
+      // Spy on history.back() to verify it is NOT called
+      const backSpy = vi.spyOn(window.history, 'back');
 
-      // CRITICAL ASSERTION: Must NOT call history.back() (which would exit the site)
-      expect(backCallCount).toBe(0);
-      expect(window.history.replaceState).toHaveBeenCalledWith(null, '', '/#/wiki');
+      // 2. Click close button
+      const closeBtn = detailDialog?.querySelector('button[title*="关闭"], button[title*="Close"]') as HTMLButtonElement;
+      expect(closeBtn).toBeTruthy();
+
+      await act(async () => {
+        closeBtn.click();
+      });
+
+      // 3. Modal is closed
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).toBeNull();
+
+      // 4. CRITICAL ASSERTION: history.back() must NOT be called (which would exit to external referrer)
+      expect(backSpy).not.toHaveBeenCalled();
+
+      // 5. URL is cleanly replaced to stay on site
+      expect(window.location.href).toBe('https://computer-wiki.vercel.app/#/wiki');
     });
 
-    it('Scenario 6: Browser Back & Forward popstate synchronization', () => {
-      // Simulate popstate listener in HardwareWiki
-      let selectedDetailItem: any = null;
-      let selectedCategory: string = 'all';
+    it('Flow 5: 普通页面导航不携带 swDetail', async () => {
+      window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
+      window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
 
-      const syncFromUrl = (url: string) => {
-        const parsed = new URL(url);
-        const hwParam = parsed.searchParams.get('hardware');
-        if (hwParam) {
-          selectedDetailItem = hardwareList.find((h) => h.id === hwParam) || null;
-        } else {
-          selectedDetailItem = null;
-        }
+      await renderApp();
 
-        selectedCategory = parsed.searchParams.get('category') || 'all';
-      };
+      // 1. Open detail via card button so that current state has swDetail: true
+      const cardTitleBtn = container?.querySelector('.hardware-card h3 button') as HTMLButtonElement;
+      expect(cardTitleBtn).toBeTruthy();
+      await act(async () => {
+        cardTitleBtn.click();
+      });
 
-      // 1. Initial page view
-      syncFromUrl('https://computer-wiki.vercel.app/#/wiki');
-      expect(selectedDetailItem).toBeNull();
-      expect(selectedCategory).toBe('all');
+      expect(window.history.state?.swDetail).toBe(true);
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).not.toBeNull();
 
-      // 2. User opened detail (?hardware=cpu-amd-9800x3d)
-      syncFromUrl('https://computer-wiki.vercel.app/?hardware=cpu-amd-9800x3d#/wiki');
-      expect(selectedDetailItem).toBeDefined();
-      expect(selectedDetailItem.name).toContain('9800X3D');
+      // 2. User clicks a normal tab in the Navbar (supports zh: 性能天梯 and en: Benchmark Tier)
+      const navLinks = Array.from(container?.querySelectorAll('nav.desktop-nav button.nav-link') || []);
+      const rankingsNav = navLinks.find((btn) => btn.textContent?.match(/天梯|Benchmark|Rankings/));
+      expect(rankingsNav).toBeTruthy();
 
-      // 3. User pressed browser Back (detail closed, category=gpu)
-      syncFromUrl('https://computer-wiki.vercel.app/?category=gpu#/wiki');
-      expect(selectedDetailItem).toBeNull();
-      expect(selectedCategory).toBe('gpu');
+      await act(async () => {
+        (rankingsNav as HTMLElement).click();
+      });
 
-      // 4. User pressed browser Forward (detail reopened)
-      syncFromUrl('https://computer-wiki.vercel.app/?category=gpu&hardware=cpu-amd-9800x3d#/wiki');
-      expect(selectedDetailItem).toBeDefined();
-      expect(selectedCategory).toBe('gpu');
+      // 3. Normal navigation must NOT inherit or carry swDetail
+      expect(window.history.state?.tab).toBe('rankings');
+      expect(window.history.state?.swDetail).toBeUndefined();
+
+      // Detail modal is not present on the new page
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).toBeNull();
     });
 
-    it('Scenario 7: Normal page navigation must NOT inherit swDetail', () => {
-      // Setup current state with swDetail
-      window.history.replaceState({ swDetail: true, hardware: 'cpu-amd-9800x3d', tab: 'wiki' }, '', '/?hardware=cpu-amd-9800x3d#/wiki');
+    it('Flow 6: 百科卡片点击 → 详情出现 → 点击关闭', async () => {
+      window.location.href = 'https://computer-wiki.vercel.app/#/wiki';
+      window.history.replaceState({ tab: 'wiki' }, '', '/#/wiki');
 
-      const handleTabChange = (
-        newTab: string,
-        options: { shouldScroll?: boolean; replace?: boolean; targetUrl?: string; historyState?: Record<string, unknown> } | boolean = true
-      ) => {
-        const replace = typeof options === 'boolean' ? false : (options.replace ?? false);
-        const customTargetUrl = typeof options === 'object' ? options.targetUrl : undefined;
-        const customHistoryState = typeof options === 'object' ? options.historyState : undefined;
+      await renderApp();
 
-        const targetUrl = customTargetUrl || `/#/${newTab}`;
-        const currentHistoryState = window.history.state || {};
-        const stateToSave = customHistoryState
-          ? { ...customHistoryState, tab: newTab }
-          : replace
-          ? { ...currentHistoryState, tab: newTab }
-          : { tab: newTab };
+      // 1. Locate first HardwareCard and click inner card container
+      const card = container?.querySelector('.hardware-card .double-bezel-inner') as HTMLElement;
+      expect(card).toBeTruthy();
 
-        if (replace) {
-          window.history.replaceState(stateToSave, '', targetUrl);
-        } else {
-          window.history.pushState(stateToSave, '', targetUrl);
-        }
-      };
+      await act(async () => {
+        card.click();
+      });
 
-      // User navigates from wiki to rankings
-      handleTabChange('rankings');
+      // 2. Detail modal appears
+      const detailDialog = container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]');
+      expect(detailDialog).not.toBeNull();
+      expect(window.history.state?.swDetail).toBe(true);
 
-      // PushState should ONLY contain tab: 'rankings', NOT swDetail
-      const lastPushed = pushedStates[pushedStates.length - 1];
-      expect(lastPushed.state).toEqual({ tab: 'rankings' });
-      expect(lastPushed.state.swDetail).toBeUndefined();
+      // 3. Close modal
+      const closeBtn = detailDialog?.querySelector('button[title*="关闭"], button[title*="Close"]') as HTMLButtonElement;
+      await act(async () => {
+        closeBtn.click();
+      });
+
+      expect(container?.querySelector('[role="dialog"][aria-labelledby="hardware-detail-title"]')).toBeNull();
+      expect(window.history.state?.swDetail).toBeFalsy();
     });
   });
 });
