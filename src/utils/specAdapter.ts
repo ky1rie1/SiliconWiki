@@ -14,6 +14,25 @@ export interface FieldExtractionResult<T> {
   rawText?: string;
 }
 
+import { SpecificationRecord } from '../types/hardwareCatalog';
+
+/** Helper to find underlying SpecificationRecord */
+function getSpecificationRecord(
+  item: HardwareItem | HardwareRecord | null,
+  keys: string[]
+): SpecificationRecord | null {
+  if (!item) return null;
+  if ('specifications' in item && item.schemaVersion === 1) {
+    for (const key of keys) {
+      const found = item.specifications.find(
+        (s) => s.id === key || s.label === key || s.id.endsWith(`:${key}`)
+      );
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 /** Helper to get either HardwareRecord or fallback to HardwareItem */
 function getSpecsMap(item: HardwareItem | HardwareRecord | null): Record<string, string> {
   if (!item) return {};
@@ -55,6 +74,7 @@ export function extractCpuSocket(item: HardwareItem | HardwareRecord | null): Fi
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'cpu.socket' };
   }
+  const specRec = getSpecificationRecord(item, ['cpu.socket', '插槽接口', '插槽类型', '接口']);
   const specs = getSpecsMap(item);
   const raw = specs['cpu.socket'] || specs['插槽接口'] || specs['插槽类型'] || specs['接口'] || '';
 
@@ -71,36 +91,67 @@ export function extractCpuSocket(item: HardwareItem | HardwareRecord | null): Fi
     isKnown: socket !== null,
     value: socket,
     fieldId: 'cpu.socket',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
     rawText: raw || undefined,
   };
 }
 
 /**
  * 2. 主板插槽提取
+ * 明确规格优先于名称猜测，出现矛盾返回待核实
  */
 export function extractMotherboardSocket(item: HardwareItem | HardwareRecord | null): FieldExtractionResult<string> {
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'motherboard.socket' };
   }
+  const specRec = getSpecificationRecord(item, ['motherboard.socket', 'CPU 插槽', '插槽接口', 'CPU插槽']);
   const specs = getSpecsMap(item);
   const name = getItemName(item);
   const raw = specs['motherboard.socket'] || specs['CPU 插槽'] || specs['插槽接口'] || specs['CPU插槽'] || '';
-  const text = `${name} ${raw}`;
 
-  let socket: string | null = null;
-  if (/AM5/i.test(text) || /X870|B850|X670|B650|A620/i.test(text)) socket = 'AM5';
-  else if (/AM4/i.test(text) || /X570|B550|B450|A520|A320/i.test(text)) socket = 'AM4';
-  else if (/LGA\s*1851/i.test(text) || /Z890|B860/i.test(text)) socket = 'LGA1851';
-  else if (/LGA\s*1700/i.test(text) || /Z790|B760|H610|Z690|B660/i.test(text)) socket = 'LGA1700';
-  else if (/LGA\s*1200/i.test(text) || /Z590|B560|H510|Z490|B460/i.test(text)) socket = 'LGA1200';
-  else if (/LGA\s*1151/i.test(text) || /Z390|B365|B360|H310/i.test(text)) socket = 'LGA1151';
-  else if (/sTR5/i.test(text) || /TRX50|WRX90/i.test(text)) socket = 'sTR5';
+  let socketFromSpec: string | null = null;
+  if (/AM5/i.test(raw)) socketFromSpec = 'AM5';
+  else if (/AM4/i.test(raw)) socketFromSpec = 'AM4';
+  else if (/LGA\s*1851/i.test(raw)) socketFromSpec = 'LGA1851';
+  else if (/LGA\s*1700/i.test(raw)) socketFromSpec = 'LGA1700';
+  else if (/LGA\s*1200/i.test(raw)) socketFromSpec = 'LGA1200';
+  else if (/LGA\s*1151/i.test(raw)) socketFromSpec = 'LGA1151';
+  else if (/sTR5/i.test(raw)) socketFromSpec = 'sTR5';
+
+  let socketFromName: string | null = null;
+  if (/AM5/i.test(name) || /X870|B850|X670|B650|A620/i.test(name)) socketFromName = 'AM5';
+  else if (/AM4/i.test(name) || /X570|B550|B450|A520|A320/i.test(name)) socketFromName = 'AM4';
+  else if (/LGA\s*1851/i.test(name) || /Z890|B860/i.test(name)) socketFromName = 'LGA1851';
+  else if (/LGA\s*1700/i.test(name) || /Z790|B760|H610|Z690|B660/i.test(name)) socketFromName = 'LGA1700';
+  else if (/LGA\s*1200/i.test(name) || /Z590|B560|H510|Z490|B460/i.test(name)) socketFromName = 'LGA1200';
+  else if (/LGA\s*1151/i.test(name) || /Z390|B365|B360|H310/i.test(name)) socketFromName = 'LGA1151';
+  else if (/sTR5/i.test(name) || /TRX50|WRX90/i.test(name)) socketFromName = 'sTR5';
+
+  // 矛盾检测：当显式规格与名称识别发生冲突时，严禁静默放行，标记为矛盾待核实
+  if (socketFromSpec && socketFromName && socketFromSpec !== socketFromName) {
+    return {
+      isKnown: false,
+      value: null,
+      fieldId: 'motherboard.socket',
+      condition: `主板名称 (${name}) 与明确规格 (${raw}) 存在插槽接口矛盾待核实`,
+      sourceKind: specRec?.sourceKind,
+      verificationStatus: specRec?.verificationStatus,
+      rawText: raw,
+    };
+  }
+
+  const socket = socketFromSpec || socketFromName;
 
   return {
     isKnown: socket !== null,
     value: socket,
     fieldId: 'motherboard.socket',
-    rawText: raw || text || undefined,
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
+    rawText: raw || name || undefined,
   };
 }
 
@@ -180,13 +231,14 @@ export function extractCaseSupportedFormFactors(item: HardwareItem | HardwareRec
 
 /**
  * 5. 内存规格提取
+ * 严格准入：不得默认补出代际、内存形态（U-DIMM）和套条条数
  */
 export interface RamSpecsInfo {
   generation: 'DDR4' | 'DDR5';
-  formFactor: 'U-DIMM' | 'SO-DIMM';
+  formFactor: 'U-DIMM' | 'SO-DIMM' | null;
   packageCount: number; // 购买套数
-  sticksPerPackage: number; // 单套条数（如 2 根）
-  totalSticks: number;
+  sticksPerPackage: number | null; // 单套条数（如 2 根，未知为 null）
+  totalSticks: number | null;
   totalCapacityGb: number | null;
 }
 
@@ -194,26 +246,43 @@ export function extractRamSpecs(item: HardwareItem | HardwareRecord | null, quan
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'ram.specs' };
   }
+  const specRec = getSpecificationRecord(item, ['ram.frequency', 'ram.capacity', '标称频率', '容量与套条', '容量']);
   const specs = getSpecsMap(item);
   const name = getItemName(item);
   const rawFreq = specs['ram.frequency'] || specs['标称频率'] || '';
   const rawCap = specs['ram.capacity'] || specs['容量与套条'] || specs['容量'] || '';
-  const textCorpus = `${name} ${rawFreq} ${rawCap}`;
+  const textCorpus = `${name} ${rawFreq} ${rawCap}`.trim();
 
-  let generation: 'DDR4' | 'DDR5' = 'DDR5';
-  if (/DDR4/i.test(textCorpus)) generation = 'DDR4';
-  else if (/DDR5/i.test(textCorpus)) generation = 'DDR5';
-  else {
-    return { isKnown: false, value: null, fieldId: 'ram.specs', rawText: textCorpus };
+  let generation: 'DDR4' | 'DDR5' | null = null;
+  if (/DDR5/i.test(textCorpus)) generation = 'DDR5';
+  else if (/DDR4/i.test(textCorpus)) generation = 'DDR4';
+
+  // 代际未知时，直接返回 unknown，严禁默认当作 DDR5！
+  if (!generation) {
+    return {
+      isKnown: false,
+      value: null,
+      fieldId: 'ram.specs',
+      sourceKind: specRec?.sourceKind,
+      verificationStatus: specRec?.verificationStatus,
+      rawText: textCorpus || undefined,
+    };
   }
 
-  const formFactor: 'U-DIMM' | 'SO-DIMM' = /SO-DIMM|笔记本/i.test(textCorpus) ? 'SO-DIMM' : 'U-DIMM';
+  let formFactor: 'U-DIMM' | 'SO-DIMM' | null = null;
+  if (/SO-DIMM|笔记本/i.test(textCorpus)) {
+    formFactor = 'SO-DIMM';
+  } else if (/U-DIMM|台式机|Desktop/i.test(textCorpus)) {
+    formFactor = 'U-DIMM';
+  }
 
-  // 解析每套条数：如 16Gx2, 8G*2, 32GB (16GBx2)
-  let sticksPerPackage = 1;
-  const matchSticks = textCorpus.match(/[x*×](\d+)/i) || textCorpus.match(/(\d+)\s*条/);
+  // 解析每套条数：如 16Gx2, 8G*2, 32GB (16GBx2), 2条装
+  let sticksPerPackage: number | null = null;
+  const matchSticks = textCorpus.match(/[x*×](\d+)/i) || textCorpus.match(/(\d+)\s*条装/) || textCorpus.match(/(\d+)\s*条/);
   if (matchSticks) {
-    sticksPerPackage = parseInt(matchSticks[1], 10) || 1;
+    sticksPerPackage = parseInt(matchSticks[1], 10) || null;
+  } else if (/单条/i.test(textCorpus)) {
+    sticksPerPackage = 1;
   }
 
   // 解析单套总容量：如 32GB, 16GB, 64GB
@@ -224,6 +293,8 @@ export function extractRamSpecs(item: HardwareItem | HardwareRecord | null, quan
   }
 
   const validQuantity = Math.max(1, Math.floor(quantity));
+  const totalSticks = sticksPerPackage !== null ? validQuantity * sticksPerPackage : null;
+
   return {
     isKnown: true,
     value: {
@@ -231,20 +302,24 @@ export function extractRamSpecs(item: HardwareItem | HardwareRecord | null, quan
       formFactor,
       packageCount: validQuantity,
       sticksPerPackage,
-      totalSticks: validQuantity * sticksPerPackage,
+      totalSticks,
       totalCapacityGb: totalCapacityGb ? totalCapacityGb * validQuantity : null,
     },
     fieldId: 'ram.specs',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
     rawText: textCorpus,
   };
 }
 
 /**
  * 6. 主板内存规格提取
+ * 严格准入：插槽数量未记录时严禁默认填 4 槽
  */
 export interface MotherboardRamSupportInfo {
   supportedGenerations: ('DDR4' | 'DDR5')[];
-  totalSlots: number;
+  totalSlots: number | null; // 未记录为 null
   maxCapacityGb: number | null;
 }
 
@@ -252,18 +327,21 @@ export function extractMotherboardRamSupport(item: HardwareItem | HardwareRecord
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'motherboard.ramSupport' };
   }
+  const specRec = getSpecificationRecord(item, ['motherboard.ram', 'motherboard.memorySlots', '内存规格', '内存插槽']);
   const specs = getSpecsMap(item);
-  const raw = specs['motherboard.ram'] || specs['内存规格'] || specs['内存插槽'] || '';
+  const raw = specs['motherboard.ram'] || specs['motherboard.memorySlots'] || specs['内存规格'] || specs['内存插槽'] || '';
 
   const gens: ('DDR4' | 'DDR5')[] = [];
   if (/DDR5/i.test(raw)) gens.push('DDR5');
   if (/DDR4/i.test(raw)) gens.push('DDR4');
 
   // 插槽数，通常为 2 或 4 槽，如 4x DDR5 或 2x DDR4
-  let totalSlots = 4;
-  const matchSlots = raw.match(/(\d+)\s*[x*×]?\s*DDR/i) || raw.match(/(\d+)\s*个?内存插槽/);
+  let totalSlots: number | null = null;
+  const matchSlots = raw.match(/(\d+)\s*[x*×]?\s*DDR/i) || raw.match(/(\d+)\s*个?内存插槽/) || raw.match(/(\d+)\s*条内存/);
   if (matchSlots) {
-    totalSlots = parseInt(matchSlots[1], 10) || 4;
+    totalSlots = parseInt(matchSlots[1], 10) || null;
+  } else if (/4\s*槽|四槽/i.test(raw)) {
+    totalSlots = 4;
   } else if (/2\s*槽|双槽/i.test(raw)) {
     totalSlots = 2;
   }
@@ -275,10 +353,14 @@ export function extractMotherboardRamSupport(item: HardwareItem | HardwareRecord
     maxCap = parseInt(matchMaxCap[1], 10) || null;
   }
 
+  const isKnown = gens.length > 0;
   return {
-    isKnown: gens.length > 0,
-    value: gens.length > 0 ? { supportedGenerations: gens, totalSlots, maxCapacityGb: maxCap } : null,
+    isKnown,
+    value: isKnown ? { supportedGenerations: gens, totalSlots, maxCapacityGb: maxCap } : null,
     fieldId: 'motherboard.ramSupport',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
     rawText: raw || undefined,
   };
 }
@@ -290,9 +372,10 @@ export function extractCpuRamSupport(item: HardwareItem | HardwareRecord | null)
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'cpu.ramSupport' };
   }
+  const specRec = getSpecificationRecord(item, ['cpu.ramSupport', 'memory.support', '内存支持']);
   const socketRes = extractCpuSocket(item);
   const specs = getSpecsMap(item);
-  const raw = specs['cpu.ramSupport'] || specs['内存支持'] || '';
+  const raw = specs['cpu.ramSupport'] || specs['memory.support'] || specs['内存支持'] || '';
 
   const gens: ('DDR4' | 'DDR5')[] = [];
   if (/DDR5/i.test(raw)) gens.push('DDR5');
@@ -313,6 +396,9 @@ export function extractCpuRamSupport(item: HardwareItem | HardwareRecord | null)
     isKnown: gens.length > 0,
     value: gens.length > 0 ? gens : null,
     fieldId: 'cpu.ramSupport',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
     rawText: raw || undefined,
   };
 }
@@ -401,25 +487,64 @@ export function extractCoolerDimensions(item: HardwareItem | HardwareRecord | nu
 
 /**
  * 10. 机箱限长限高与冷排支持提取
+ * 保留多条件限长与具体冷排安装位空间条件
  */
+export interface ConditionalGpuLimit {
+  condition: string;
+  maxGpuLengthMm: number;
+}
+
+export interface RadiatorPositionSupport {
+  position: 'top' | 'front' | 'rear' | 'side' | 'bottom';
+  sizesMm: number[];
+}
+
 export interface CaseClearanceInfo {
   maxGpuLengthMm: number | null;
+  conditionalGpuLimits?: ConditionalGpuLimit[];
   maxCoolerHeightMm: number | null;
   supportedRadiatorsMm: number[];
+  radiatorPositions?: RadiatorPositionSupport[];
 }
 
 export function extractCaseClearance(item: HardwareItem | HardwareRecord | null): FieldExtractionResult<CaseClearanceInfo> {
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'case.clearance' };
   }
+  const specRec = getSpecificationRecord(item, ['case.maxGpuLength', 'case.maxCoolerHeight', 'case.radiatorSupport', '显卡限长', 'CPU 散热器限高', '散热器限高', '冷排支持']);
   const specs = getSpecsMap(item);
   const rawGpu = specs['case.maxGpuLength'] || specs['显卡限长'] || '';
   const rawCooler = specs['case.maxCoolerHeight'] || specs['CPU 散热器限高'] || specs['散热器限高'] || '';
   const rawRad = specs['case.radiatorSupport'] || specs['冷排支持'] || '';
 
   let maxGpuLengthMm: number | null = null;
+  const conditionalGpuLimits: ConditionalGpuLimit[] = [];
+
+  // 解析多条件显卡限长（如：前置水冷 330mm，无前置水冷 380mm）
+  if (rawGpu.includes('，') || rawGpu.includes(',') || rawGpu.includes('/') || rawGpu.includes(';')) {
+    const clauses = rawGpu.split(/[，,;/]/);
+    for (const clause of clauses) {
+      const matchClause = clause.match(/(\d+(\.\d+)?)\s*mm/i);
+      if (matchClause) {
+        const limit = parseFloat(matchClause[1]);
+        const cond = clause.replace(matchClause[0], '').replace(/[：:\s]/g, '').trim() || '特定条件';
+        conditionalGpuLimits.push({ condition: cond, maxGpuLengthMm: limit });
+      }
+    }
+  }
+
   const matchGpu = rawGpu.match(/(\d+(\.\d+)?)\s*mm/i);
-  if (matchGpu) maxGpuLengthMm = parseFloat(matchGpu[1]);
+  if (matchGpu) {
+    maxGpuLengthMm = parseFloat(matchGpu[1]);
+  }
+
+  // 若存在多条件限制，默认基准取严格的保守下限
+  if (conditionalGpuLimits.length > 0) {
+    const minLimit = Math.min(...conditionalGpuLimits.map((c) => c.maxGpuLengthMm));
+    if (minLimit > 0) {
+      maxGpuLengthMm = minLimit;
+    }
+  }
 
   let maxCoolerHeightMm: number | null = null;
   const matchCooler = rawCooler.match(/(\d+(\.\d+)?)\s*mm/i);
@@ -432,25 +557,89 @@ export function extractCaseClearance(item: HardwareItem | HardwareRecord | null)
     }
   }
 
+  // 解析具体冷排安装位空间
+  const radiatorPositions: RadiatorPositionSupport[] = [];
+  const parsePos = (posName: 'top' | 'front' | 'rear' | 'side' | 'bottom', regex: RegExp) => {
+    const matchPos = rawRad.match(regex);
+    if (matchPos) {
+      const sizes: number[] = [];
+      for (const rad of [120, 140, 240, 280, 360, 420]) {
+        if (new RegExp(String(rad)).test(matchPos[0])) sizes.push(rad);
+      }
+      if (sizes.length > 0) {
+        radiatorPositions.push({ position: posName, sizesMm: sizes });
+      }
+    }
+  };
+
+  parsePos('top', /顶部[^，,;]*?(?:120|140|240|280|360|420)/i);
+  parsePos('front', /前置[^，,;]*?(?:120|140|240|280|360|420)/i);
+  parsePos('rear', /后置[^，,;]*?(?:120|140)/i);
+  parsePos('side', /(?:侧面|侧置)[^，,;]*?(?:120|240|280|360)/i);
+
   return {
     isKnown: maxGpuLengthMm !== null || maxCoolerHeightMm !== null || supportedRadiatorsMm.length > 0,
     value: {
       maxGpuLengthMm,
+      conditionalGpuLimits: conditionalGpuLimits.length > 0 ? conditionalGpuLimits : undefined,
       maxCoolerHeightMm,
       supportedRadiatorsMm,
+      radiatorPositions: radiatorPositions.length > 0 ? radiatorPositions : undefined,
     },
     fieldId: 'case.clearance',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
+    rawText: `${rawGpu} ${rawCooler} ${rawRad}`.trim() || undefined,
   };
 }
 
 /**
  * 11. 显卡尺寸与供电接口提取
- * 严格注意：非公显卡不得自动沿用公版参考设计的物理长宽高！
+ * 严格解析必要供电接口（16-pin / 8-pin / 6-pin 具体数量）
  */
+export interface GpuPowerConnectorInfo {
+  count16Pin: number;
+  count8Pin: number;
+  count6Pin: number;
+  rawText?: string;
+}
+
 export interface GpuDimensionsInfo {
   lengthMm: number | null;
   slotThickness: number | null;
   powerConnectors: string | null;
+  parsedConnectors?: GpuPowerConnectorInfo;
+}
+
+export function parseGpuPowerConnectors(raw: string | null): GpuPowerConnectorInfo | undefined {
+  if (!raw || !raw.trim()) return undefined;
+  let count16Pin = 0;
+  let count8Pin = 0;
+  let count6Pin = 0;
+
+  const m16 = raw.match(/(\d+)\s*[x*×]?\s*(?:16-pin|12VHPWR|12V-2x6)/i);
+  if (m16) {
+    count16Pin = parseInt(m16[1], 10) || 1;
+  } else if (/16-pin|12VHPWR|12V-2x6/i.test(raw)) {
+    count16Pin = 1;
+  }
+
+  const m8 = raw.match(/(\d+)\s*[x*×]?\s*(?:8-pin|8P|6\+2-pin)/i);
+  if (m8) {
+    count8Pin = parseInt(m8[1], 10) || 1;
+  } else if (/8-pin|8P|6\+2-pin/i.test(raw) && !/16-pin/i.test(raw)) {
+    count8Pin = 1;
+  }
+
+  const m6 = raw.match(/(\d+)\s*[x*×]?\s*(?:6-pin|6P)/i);
+  if (m6) {
+    count6Pin = parseInt(m6[1], 10) || 1;
+  } else if (/6-pin|6P/i.test(raw)) {
+    count6Pin = 1;
+  }
+
+  return { count16Pin, count8Pin, count6Pin, rawText: raw };
 }
 
 export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null): FieldExtractionResult<GpuDimensionsInfo> {
@@ -463,11 +652,12 @@ export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null)
     if (item.entityKind === 'partner-variant' && item.variantDetails) {
       const v = item.variantDetails;
       return {
-        isKnown: typeof v.lengthMm === 'number',
+        isKnown: typeof v.lengthMm === 'number' || Boolean(v.powerConnectors),
         value: {
           lengthMm: v.lengthMm ?? null,
           slotThickness: v.slotThickness ?? null,
           powerConnectors: v.powerConnectors ?? null,
+          parsedConnectors: parseGpuPowerConnectors(v.powerConnectors ?? null),
         },
         fieldId: 'gpu.dimensions',
         variantModel: v.modelVariant,
@@ -483,13 +673,14 @@ export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null)
       };
     }
     // reference-product
-    if (item.variantDetails?.lengthMm) {
+    if (item.variantDetails?.lengthMm || item.variantDetails?.powerConnectors) {
       return {
         isKnown: true,
         value: {
-          lengthMm: item.variantDetails.lengthMm,
+          lengthMm: item.variantDetails.lengthMm ?? null,
           slotThickness: item.variantDetails.slotThickness ?? null,
           powerConnectors: item.variantDetails.powerConnectors ?? null,
+          parsedConnectors: parseGpuPowerConnectors(item.variantDetails.powerConnectors ?? null),
         },
         fieldId: 'gpu.dimensions',
         condition: '公版参考设计规格',
@@ -509,11 +700,12 @@ export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null)
   }
 
   return {
-    isKnown: lengthMm !== null,
+    isKnown: lengthMm !== null || Boolean(rawPower),
     value: {
       lengthMm,
       slotThickness: null,
       powerConnectors: rawPower || null,
+      parsedConnectors: parseGpuPowerConnectors(rawPower || null),
     },
     fieldId: 'gpu.dimensions',
     rawText: rawDim || undefined,
@@ -522,17 +714,19 @@ export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null)
 
 /**
  * 12. 电源额定功率与接口规格提取
+ * 严禁无据默认 2 组 8-pin 模组线
  */
 export interface PsuSpecsInfo {
   ratedWattage: number | null;
   native12VhpwrCount: number;
-  pcie8PinCount: number;
+  pcie8PinCount: number | null; // 未明确记录时为 null
 }
 
 export function extractPsuSpecs(item: HardwareItem | HardwareRecord | null): FieldExtractionResult<PsuSpecsInfo> {
   if (!item) {
     return { isKnown: false, value: null, fieldId: 'psu.specs' };
   }
+  const specRec = getSpecificationRecord(item, ['psu.wattage', 'psu.connectors', '额定功率', '显卡原生接口', '线材模组']);
   const specs = getSpecsMap(item);
   const name = getItemName(item);
   const rawRated = specs['psu.wattage'] || specs['额定功率'] || '';
@@ -549,7 +743,17 @@ export function extractPsuSpecs(item: HardwareItem | HardwareRecord | null): Fie
   }
 
   const native12VhpwrCount = /16-pin|12VHPWR|12V-2x6/i.test(rawConn) ? 1 : 0;
-  const pcie8PinCount = /8-pin|PCIe\s*8/i.test(rawConn) ? 2 : 2; // default typical modular 2+
+
+  // 严格解析 PCIe 8-pin 数量（禁止假定标配 2 组）
+  let pcie8PinCount: number | null = null;
+  const match8Pin =
+    rawConn.match(/(\d+)\s*[x*×]?\s*(?:PCIe\s*)?(?:8-pin|6\+2-pin|8P)/i) ||
+    rawConn.match(/(?:8-pin|6\+2-pin)\s*[x*×]?\s*(\d+)/i);
+  if (match8Pin) {
+    pcie8PinCount = parseInt(match8Pin[1], 10) || null;
+  } else if (/8-pin|6\+2-pin/i.test(rawConn)) {
+    pcie8PinCount = 1;
+  }
 
   return {
     isKnown: ratedWattage !== null && ratedWattage > 0,
@@ -559,11 +763,16 @@ export function extractPsuSpecs(item: HardwareItem | HardwareRecord | null): Fie
       pcie8PinCount,
     },
     fieldId: 'psu.specs',
+    sourceKind: specRec?.sourceKind,
+    verificationStatus: specRec?.verificationStatus,
+    condition: specRec?.condition,
+    rawText: `${rawRated} ${rawConn}`.trim() || undefined,
   };
 }
 
 /**
  * 13. 显示输出可用性提取与检查
+ * 严禁以普通 Type-C 替代明确的视频输出能力
  */
 export interface DisplayOutputInfo {
   hasDedicatedGpu: boolean;
@@ -606,10 +815,17 @@ export function extractDisplayOutputInfo(
   if (mb) {
     const mbSpecs = getSpecsMap(mb);
     const rawIo = mbSpecs['后置 I/O'] || mbSpecs['视频输出'] || mbSpecs['显示接口'] || '';
-    if (/HDMI|DisplayPort|DP|Type-C/i.test(rawIo)) {
+    // 严格检查：普通 Type-C 不作为视频输出，仅当标明 DP Alt / DisplayPort / 视频输出时才认可
+    const hasExplicitVideoPort =
+      /HDMI|DisplayPort|\bDP\b|VGA|DVI/i.test(rawIo) ||
+      (/Type-C|USB-C/i.test(rawIo) && /DP\s*Alt|DisplayPort|视频输出/i.test(rawIo));
+
+    if (hasExplicitVideoPort) {
       mbHasVideoPorts = true;
+    } else if (/无视频输出|不含显示接口/i.test(rawIo) || (rawIo.trim().length > 0 && !hasExplicitVideoPort)) {
+      mbHasVideoPorts = false;
     } else {
-      mbHasVideoPorts = null; // 无法确定
+      mbHasVideoPorts = null;
     }
   }
 
@@ -619,3 +835,4 @@ export function extractDisplayOutputInfo(
     mbHasVideoPorts,
   };
 }
+

@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { HardwareItem } from '../../types';
 import { HardwareRecord } from '../../types/hardwareCatalog';
-import { BuildSlotType, CustomBuild } from '../../types/pcBuilder';
-import { checkBuildCompatibility } from '../../utils/pcCompatibility';
+import { BuildSlotType, CustomBuild, CustomBuildSlotItem } from '../../types/pcBuilder';
+import { checkBuildCompatibility, updateOrInsertSlot } from '../../utils/pcCompatibility';
 import { formatHardwarePrice } from '../../utils/hardwareCatalog';
 import { hardwareCatalog } from '../../data/hardware';
 import { useLanguage } from '../../context/LanguageContext';
@@ -126,21 +126,17 @@ export const PartSelectModal: React.FC<PartSelectModalProps> = ({
     const map = new Map<string, { status: 'pass' | 'warning' | 'error' | 'unknown'; reason?: string }>();
 
     for (const item of categoryItems) {
-      // 沙盒克隆装机单
-      const sandboxBuild: CustomBuild = {
-        ...currentBuild,
-        slots: currentBuild.slots.map((s) => {
-          if (s.type === slotType) {
-            return {
-              ...s,
-              hardwareId: item.id,
-              customName: undefined,
-              userPrice: null,
-            };
-          }
-          return s;
-        }),
+      // 沙盒克隆装机单：使用统一的 updateOrInsertSlot 保证即使槽位曾被删除也能正确注入
+      const existingSlot = currentBuild.slots.find((s) => s.type === slotType);
+      const sandboxSlot: CustomBuildSlotItem = {
+        slotId: existingSlot?.slotId || `slot-${slotType}`,
+        type: slotType,
+        hardwareId: item.id,
+        quantity: existingSlot?.quantity || 1,
+        userPrice: null,
+        isExplicitZeroPrice: false,
       };
+      const sandboxBuild = updateOrInsertSlot(currentBuild, sandboxSlot);
 
       const report = checkBuildCompatibility(sandboxBuild, catalog);
 

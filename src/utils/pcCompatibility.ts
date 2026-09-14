@@ -8,7 +8,9 @@ import {
   CompatibilityRuleResult,
   CompatibilityReport,
   PowerEstimate,
+  GpuPowerScenario,
   CostSummary,
+  BudgetStatus,
   ReplacementCandidate,
 } from '../types/pcBuilder';
 import {
@@ -43,7 +45,7 @@ export type CatalogInput =
   | Map<string, HardwareItem | HardwareRecord>;
 
 /** Convert catalog input to lookup map */
-function createCatalogMap(catalog: CatalogInput): Map<string, HardwareItem | HardwareRecord> {
+export function createCatalogMap(catalog: CatalogInput): Map<string, HardwareItem | HardwareRecord> {
   if (catalog instanceof Map) {
     return catalog;
   }
@@ -197,7 +199,9 @@ export function checkBuildCompatibility(
   }
 
   // ========================================================
+  // ========================================================
   // 规则 2: 主板 CPU 支持与 BIOS 条件 (rule_bios_support)
+  // 严格准入：缺少出厂 BIOS 支持依据时不得默认原生通过，必须返回 unknown
   // ========================================================
   if (cpu && mb) {
     const cpuName = getItemName(cpu);
@@ -206,6 +210,25 @@ export function checkBuildCompatibility(
     // 典型跨代 BIOS 需求判断
     const isRyzen9000On600Series = /Ryzen\s*[79]\s*9\d{3}/i.test(cpuName) && /B650|X670|A620/i.test(mbName);
     const isIntel14thOn600Series = /i[3579]-14\d{3}/i.test(cpuName) && /B660|Z690|H610/i.test(mbName);
+    const isRyzen5000On300400Series = /Ryzen\s*[579]\s*5\d{3}/i.test(cpuName) && /B450|X470|B350|A320/i.test(mbName);
+
+    // 确认已知原生同世代组合
+    const isRyzen7000On600Series = /Ryzen\s*[579]\s*7\d{3}/i.test(cpuName) && /B650|X670|A620/i.test(mbName);
+    const isRyzen9000On800Series = /Ryzen\s*[79]\s*9\d{3}/i.test(cpuName) && /X870|B850/i.test(mbName);
+    const isRyzen5000On500Series = /Ryzen\s*[579]\s*5\d{3}/i.test(cpuName) && /B550|X570|A520/i.test(mbName);
+    const isIntel12thOn600700Series = /i[3579]-12\d{3}/i.test(cpuName) && /B660|Z690|H610|B760|Z790/i.test(mbName);
+    const isIntel13thOn700Series = /i[3579]-13\d{3}/i.test(cpuName) && /B760|Z790/i.test(mbName);
+    const isIntel14thOn700Series = /i[3579]-14\d{3}/i.test(cpuName) && /B760|Z790/i.test(mbName);
+    const isCoreUltraOn800Series = /Ultra\s*[579]\s*2\d{2}/i.test(cpuName) && /Z890|B860/i.test(mbName);
+
+    const isExplicitNativeMatch =
+      isRyzen7000On600Series ||
+      isRyzen9000On800Series ||
+      isRyzen5000On500Series ||
+      isIntel12thOn600700Series ||
+      isIntel13thOn700Series ||
+      isIntel14thOn700Series ||
+      isCoreUltraOn800Series;
 
     if (isRyzen9000On600Series) {
       rules.push({
@@ -231,16 +254,41 @@ export function checkBuildCompatibility(
         involvedSlotTypes: ['cpu', 'motherboard'],
         involvedHardwareIds: [getItemId(cpu), getItemId(mb)],
       });
-    } else {
+    } else if (isRyzen5000On300400Series) {
+      rules.push({
+        ruleId: 'rule_bios_support',
+        category: 'BIOS 与微码',
+        status: 'warning',
+        title: '需要确认主板 BIOS 版本',
+        message: 'B450/A320 系列早期主板搭配锐龙 5000 系列处理器通常需要刷新支持 Vermeer/Cezanne 微码的 BIOS。',
+        basis: '主板芯片组早于 CPU 架构发布',
+        condition: '出厂预刷或手动升级最新 BIOS',
+        involvedSlotTypes: ['cpu', 'motherboard'],
+        involvedHardwareIds: [getItemId(cpu), getItemId(mb)],
+      });
+    } else if (isExplicitNativeMatch) {
       rules.push({
         ruleId: 'rule_bios_support',
         category: 'BIOS 与微码',
         status: 'pass',
-        title: '主板与 CPU 芯片组世代匹配',
-        message: '主板芯片组与 CPU 所属同世代或原生支持，通常出厂即可直接点亮无需特殊刷机。',
+        title: '主板与 CPU 芯片组世代原生匹配',
+        message: '主板芯片组与 CPU 所属同世代或主流开箱原生支持，通常出厂即可直接点亮。',
         basis: '主板芯片组原生支持当前 CPU 世代',
         involvedSlotTypes: ['cpu', 'motherboard'],
         involvedHardwareIds: [getItemId(cpu), getItemId(mb)],
+      });
+    } else {
+      // 缺少具体主板 BIOS 或芯片组代际验证依据，严禁静默 pass，返回 unknown
+      rules.push({
+        ruleId: 'rule_bios_support',
+        category: 'BIOS 与微码',
+        status: 'unknown',
+        title: '主板 BIOS 支持待核查',
+        message: '配件库未包含该主板对该型号 CPU 的具体出厂 BIOS 版本或微码支持记录，无法确认出厂是否能直接点亮。',
+        basis: '缺少出厂 BIOS 支持依据',
+        involvedSlotTypes: ['cpu', 'motherboard'],
+        involvedHardwareIds: [getItemId(cpu), getItemId(mb)],
+        missingFields: ['motherboard.biosVersion', 'cpu.microcode'],
       });
     }
   } else {
@@ -258,29 +306,30 @@ export function checkBuildCompatibility(
 
   // ========================================================
   // 规则 3: 内存代际 ↔ 主板与 CPU (rule_ram_type_match)
+  // 严格准入：CPU 或主板内存支持资料缺失时不能默认通过
   // ========================================================
   if (ram && (mb || cpu)) {
     const ramRes = extractRamSpecs(ram, ramSlot.slot?.quantity ?? 1);
     const mbRamRes = extractMotherboardRamSupport(mb);
     const cpuRamRes = extractCpuRamSupport(cpu);
 
-    if (ramRes.isKnown) {
+    if (ramRes.isKnown && ramRes.value) {
       let isMismatch = false;
       let mismatchReason = '';
 
-      // 校验主板
+      // 校验主板代际
       if (mbRamRes.isKnown && mbRamRes.value) {
-        if (!mbRamRes.value.supportedGenerations.includes(ramRes.value!.generation)) {
+        if (!mbRamRes.value.supportedGenerations.includes(ramRes.value.generation)) {
           isMismatch = true;
-          mismatchReason = `主板仅支持 ${mbRamRes.value.supportedGenerations.join('/')}，但所选为 ${ramRes.value!.generation} 内存。防呆卡口缺口位置不同，物理无法插入！`;
+          mismatchReason = `主板仅支持 ${mbRamRes.value.supportedGenerations.join('/')}，但所选为 ${ramRes.value.generation} 内存。防呆卡口缺口位置不同，物理无法插入！`;
         }
       }
 
-      // 校验 CPU
+      // 校验 CPU 代际
       if (!isMismatch && cpuRamRes.isKnown && cpuRamRes.value) {
-        if (!cpuRamRes.value.includes(ramRes.value!.generation)) {
+        if (!cpuRamRes.value.includes(ramRes.value.generation)) {
           isMismatch = true;
-          mismatchReason = `当前 CPU 仅支持 ${cpuRamRes.value.join('/')} 内存，无法搭配 ${ramRes.value!.generation}。`;
+          mismatchReason = `当前 CPU 仅支持 ${cpuRamRes.value.join('/')} 内存，无法搭配 ${ramRes.value.generation}。`;
         }
       }
 
@@ -291,10 +340,36 @@ export function checkBuildCompatibility(
           status: 'error',
           title: '内存代际冲突 (DDR4 / DDR5 不通用)',
           message: mismatchReason,
-          basis: `内存: ${ramRes.value!.generation}; 主板支持: ${mbRamRes.value?.supportedGenerations.join('/') ?? '未知'}; CPU支持: ${cpuRamRes.value?.join('/') ?? '未知'}`,
+          basis: `内存: ${ramRes.value.generation}; 主板支持: ${mbRamRes.value?.supportedGenerations.join('/') ?? '未知'}; CPU支持: ${cpuRamRes.value?.join('/') ?? '未知'}`,
           involvedSlotTypes: ['ram', ...(mb ? ['motherboard' as BuildSlotType] : []), ...(cpu ? ['cpu' as BuildSlotType] : [])],
           involvedHardwareIds: [getItemId(ram), getItemId(mb), getItemId(cpu)].filter(Boolean),
           suggestedFix: `更换为适配主板与 CPU 的 ${mbRamRes.value?.supportedGenerations[0] || '兼容'} 内存。`,
+        });
+      } else if (!mbRamRes.isKnown && !cpuRamRes.isKnown) {
+        // 主板与 CPU 内存支持均未知
+        rules.push({
+          ruleId: 'rule_ram_type_match',
+          category: '内存兼容性',
+          status: 'unknown',
+          title: '主板与 CPU 内存支持代际待核验',
+          message: '无法确认主板与 CPU 是否支持当前内存代际（DDR4/DDR5）。',
+          basis: '内存支持参数缺失',
+          involvedSlotTypes: ['ram', ...(mb ? ['motherboard' as BuildSlotType] : []), ...(cpu ? ['cpu' as BuildSlotType] : [])],
+          involvedHardwareIds: [getItemId(ram), getItemId(mb), getItemId(cpu)].filter(Boolean),
+          missingFields: ['motherboard.ram', 'cpu.ramSupport'],
+        });
+      } else if (mb && !mbRamRes.isKnown) {
+        // 主板内存规格未记录
+        rules.push({
+          ruleId: 'rule_ram_type_match',
+          category: '内存兼容性',
+          status: 'unknown',
+          title: '主板支持内存代际待核验',
+          message: `配件库未记录该主板的内存代际支持规格，无法断定是否支持 ${ramRes.value.generation}。`,
+          basis: '主板内存参数缺失',
+          involvedSlotTypes: ['ram', 'motherboard'],
+          involvedHardwareIds: [getItemId(ram), getItemId(mb)],
+          missingFields: ['motherboard.ram'],
         });
       } else {
         rules.push({
@@ -302,8 +377,8 @@ export function checkBuildCompatibility(
           category: '内存兼容性',
           status: 'pass',
           title: '内存代际匹配一致',
-          message: `内存类型 (${ramRes.value!.generation}) 与主板及 CPU 支持的内存规格匹配一致。`,
-          basis: `内存代际: ${ramRes.value!.generation}`,
+          message: `内存类型 (${ramRes.value.generation}) 与主板及 CPU 支持的内存规格匹配一致。`,
+          basis: `内存代际: ${ramRes.value.generation}`,
           involvedSlotTypes: ['ram', ...(mb ? ['motherboard' as BuildSlotType] : []), ...(cpu ? ['cpu' as BuildSlotType] : [])],
           involvedHardwareIds: [getItemId(ram), getItemId(mb), getItemId(cpu)].filter(Boolean),
         });
@@ -336,6 +411,7 @@ export function checkBuildCompatibility(
 
   // ========================================================
   // 规则 4: 内存形态与插槽数量 (rule_ram_form_and_slots)
+  // 严格独立评估：插槽未知不掩盖代际冲突，亦不得默认 pass
   // ========================================================
   if (ram && mb) {
     const ramRes = extractRamSpecs(ram, ramSlot.slot?.quantity ?? 1);
@@ -353,7 +429,44 @@ export function checkBuildCompatibility(
           involvedSlotTypes: ['ram', 'motherboard'],
           involvedHardwareIds: [getItemId(ram), getItemId(mb)],
         });
-      } else if (mbRamRes.isKnown && mbRamRes.value) {
+      } else if (!mbRamRes.isKnown || !mbRamRes.value) {
+        rules.push({
+          ruleId: 'rule_ram_form_and_slots',
+          category: '内存兼容性',
+          status: 'unknown',
+          title: '主板内存规格待核验',
+          message: '配件库未包含该主板的完整内存规格记录，无法核验可用插槽数。',
+          basis: '主板内存规格缺失',
+          involvedSlotTypes: ['ram', 'motherboard'],
+          involvedHardwareIds: [getItemId(ram), getItemId(mb)],
+          missingFields: ['motherboard.ramSupport'],
+        });
+      } else if (mbRamRes.value.totalSlots === null) {
+        // 主板插槽数量未知，不得默认 4 槽！
+        rules.push({
+          ruleId: 'rule_ram_form_and_slots',
+          category: '内存兼容性',
+          status: 'unknown',
+          title: '主板物理内存插槽数待核验',
+          message: '配件库未记录该主板的物理插槽数量，无法核实能否全部插入。',
+          basis: '主板插槽数缺失',
+          involvedSlotTypes: ['ram', 'motherboard'],
+          involvedHardwareIds: [getItemId(ram), getItemId(mb)],
+          missingFields: ['motherboard.memorySlots'],
+        });
+      } else if (ramRes.value.totalSticks === null) {
+        rules.push({
+          ruleId: 'rule_ram_form_and_slots',
+          category: '内存兼容性',
+          status: 'unknown',
+          title: '内存套条条数待核验',
+          message: '无法解析所选内存的单套条数，无法计算占用插槽数。',
+          basis: '内存条数缺失',
+          involvedSlotTypes: ['ram', 'motherboard'],
+          involvedHardwareIds: [getItemId(ram), getItemId(mb)],
+          missingFields: ['ram.sticksPerPackage'],
+        });
+      } else {
         const totalSticks = ramRes.value.totalSticks;
         const totalSlots = mbRamRes.value.totalSlots;
 
@@ -393,17 +506,6 @@ export function checkBuildCompatibility(
             involvedHardwareIds: [getItemId(ram), getItemId(mb)],
           });
         }
-      } else {
-        rules.push({
-          ruleId: 'rule_ram_form_and_slots',
-          category: '内存兼容性',
-          status: 'pass',
-          title: '内存形态为台式机标准条',
-          message: '内存为台式机 U-DIMM 标准条，插槽占用未见异常。',
-          basis: '内存形态: U-DIMM',
-          involvedSlotTypes: ['ram', 'motherboard'],
-          involvedHardwareIds: [getItemId(ram), getItemId(mb)],
-        });
       }
     } else {
       rules.push({
@@ -415,6 +517,7 @@ export function checkBuildCompatibility(
         basis: '内存参数不完整',
         involvedSlotTypes: ['ram'],
         involvedHardwareIds: [getItemId(ram)],
+        missingFields: ['ram.specs'],
       });
     }
   } else {
@@ -753,50 +856,139 @@ export function checkBuildCompatibility(
 
   // ========================================================
   // 规则 9: 显卡必要供电接口 ↔ 电源线材 (rule_gpu_power_connectors)
+  // 严格供求核验：供不应求为 error，参数不足为 unknown，不假定附赠转接线
   // ========================================================
   if (gpu && psu) {
     const gpuDim = extractGpuDimensions(gpu);
     const psuSpecs = extractPsuSpecs(psu);
 
-    const gpuConn = gpuDim.value?.powerConnectors || '';
-    const is16PinGpu = /16-pin|12VHPWR|12V-2x6/i.test(gpuConn);
+    const parsedGpu = gpuDim.value?.parsedConnectors;
+    const psu16 = psuSpecs.value?.native12VhpwrCount ?? 0;
+    const psu8 = psuSpecs.value?.pcie8PinCount ?? null;
 
-    if (is16PinGpu) {
-      if (psuSpecs.value && psuSpecs.value.native12VhpwrCount > 0) {
-        rules.push({
-          ruleId: 'rule_gpu_power_connectors',
-          category: '电源与供电',
-          status: 'pass',
-          title: '具备原生 16-pin (12V-2x6 / 12VHPWR) 供电线',
-          message: '显卡采用 16-pin 接口，电源配备原生 12V-2x6 模组线，直插连接美观且能承受瞬时高负荷。',
-          basis: '电源具备原生 16-pin 输出',
-          involvedSlotTypes: ['gpu', 'psu'],
-          involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
-        });
-      } else {
-        rules.push({
-          ruleId: 'rule_gpu_power_connectors',
-          category: '电源与供电',
-          status: 'warning',
-          title: '需使用转接线连接显卡供电',
-          message: '显卡需要 16-pin (12VHPWR / 12V-2x6) 供电，但电源未标配原生 16-pin 线材，需使用显卡包装内附赠的 2~3 个传统 PCIe 8-pin 转 16-pin 转接线连接。走线稍显拥挤，请务必完全插紧防虚接。',
-          basis: '传统 ATX 2.0 / 缺少原生 16-pin 模组线',
-          condition: '使用显卡附赠转接线',
-          involvedSlotTypes: ['gpu', 'psu'],
-          involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
-        });
-      }
-    } else {
+    // 显卡接口需求未知
+    if (
+      !parsedGpu ||
+      (parsedGpu.count16Pin === 0 && parsedGpu.count8Pin === 0 && parsedGpu.count6Pin === 0 && !parsedGpu.rawText)
+    ) {
       rules.push({
         ruleId: 'rule_gpu_power_connectors',
         category: '电源与供电',
-        status: 'pass',
-        title: '传统 PCIe 8-pin / 6-pin 供电接口满足要求',
-        message: '显卡采用标准 PCIe 供电接口，主流电源标配模组线可直接供电。',
-        basis: '标准 PCIe 供电线材',
+        status: 'unknown',
+        title: '显卡供电接口需求待核实',
+        message: '配件库未记录该具体型号显卡的辅助供电接口需求，无法核实电源线材是否充足。',
+        basis: '显卡供电接口数据缺失',
         involvedSlotTypes: ['gpu', 'psu'],
         involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+        missingFields: ['gpu.powerConnectors'],
       });
+    } else if (!psuSpecs.isKnown || (psu8 === null && psu16 === 0)) {
+      // 电源线材供给未知
+      rules.push({
+        ruleId: 'rule_gpu_power_connectors',
+        category: '电源与供电',
+        status: 'unknown',
+        title: '电源供电线材接口数量待核实',
+        message: '配件库未明确记录该电源配备的 PCIe 8-pin 模组线或 16-pin 接口数量，无法核实供给能力。',
+        basis: '电源线材规格缺失',
+        involvedSlotTypes: ['gpu', 'psu'],
+        involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+        missingFields: ['psu.connectors'],
+      });
+    } else {
+      // 双方参数明确，开始核验
+      if (parsedGpu.count16Pin > 0) {
+        if (psu16 >= parsedGpu.count16Pin) {
+          rules.push({
+            ruleId: 'rule_gpu_power_connectors',
+            category: '电源与供电',
+            status: 'pass',
+            title: '具备原生 16-pin (12V-2x6 / 12VHPWR) 供电线',
+            message: '显卡采用 16-pin 接口，电源配备原生 12V-2x6 模组线，直插连接美观且能承受瞬时高负荷。',
+            basis: '电源具备原生 16-pin 输出',
+            involvedSlotTypes: ['gpu', 'psu'],
+            involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+          });
+        } else {
+          // 无原生 16-pin，检查是否有足够 8-pin 供转接线使用（转接线至少需要 2 组以上）
+          if (psu8 !== null && psu8 < 2) {
+            rules.push({
+              ruleId: 'rule_gpu_power_connectors',
+              category: '电源与供电',
+              status: 'error',
+              title: '电源供电接口严重不足以驱动 16-pin 显卡',
+              message: `显卡明确需要 16-pin 供电，电源无原生 16-pin 且仅有 ${psu8} 组 PCIe 8-pin 接口（转接线至少需要 2 组独立 8-pin 供电），物理接口严重不足无法点亮！`,
+              basis: `需求: 16-pin; 供给: 仅 ${psu8}x 8-pin 且无原生 16-pin`,
+              involvedSlotTypes: ['gpu', 'psu'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+              suggestedFix: '更换具备原生 12V-2x6 / 16-pin 接口或更多独立 8-pin 接口的电源。',
+            });
+          } else if (psu8 !== null && psu8 >= 2) {
+            rules.push({
+              ruleId: 'rule_gpu_power_connectors',
+              category: '电源与供电',
+              status: 'warning',
+              title: '需通过转接线连接显卡 16-pin 供电',
+              message: `显卡需要 16-pin 供电，电源无原生 16-pin 接口，但提供 ${psu8} 组 PCIe 8-pin 供电。请确认显卡包装附送相应转接线，并使用独立线材连接，避免单线分接导致接头过热。`,
+              basis: `电源提供 ${psu8} 组 8-pin 接口，可通过转接线驱动`,
+              condition: '需显卡包装附赠转接线且使用独立分线连接',
+              involvedSlotTypes: ['gpu', 'psu'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+            });
+          } else {
+            rules.push({
+              ruleId: 'rule_gpu_power_connectors',
+              category: '电源与供电',
+              status: 'unknown',
+              title: '电源 8-pin 数量待核实（供转接线使用）',
+              message: '显卡需 16-pin 供电，电源无原生 16-pin，且电源 8-pin 接口数量未完全明确，无法确定是否满足转接方案需求。',
+              basis: '转接条件不足',
+              involvedSlotTypes: ['gpu', 'psu'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+            });
+          }
+        }
+      } else {
+        // 传统 PCIe 8-pin / 6-pin
+        const needed8Pin = Math.max(1, parsedGpu.count8Pin + (parsedGpu.count6Pin > 0 ? 1 : 0));
+        if (psu8 !== null) {
+          if (psu8 < needed8Pin) {
+            rules.push({
+              ruleId: 'rule_gpu_power_connectors',
+              category: '电源与供电',
+              status: 'error',
+              title: '电源 PCIe 辅助供电接口不足',
+              message: `显卡明确需要 ${needed8Pin} 组辅助供电接口（${parsedGpu.rawText || `${needed8Pin}x 8-pin`}），但电源仅配备 ${psu8} 组 PCIe 接口，接口数量缺失无法正常点亮！`,
+              basis: `需求: ${needed8Pin}x 8-pin; 供给: ${psu8}x 8-pin`,
+              involvedSlotTypes: ['gpu', 'psu'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+              suggestedFix: `更换为提供至少 ${needed8Pin} 组独立 PCIe 8-pin 供电线的电源。`,
+            });
+          } else {
+            rules.push({
+              ruleId: 'rule_gpu_power_connectors',
+              category: '电源与供电',
+              status: 'pass',
+              title: '传统 PCIe 辅助供电接口充足',
+              message: `显卡供电需求 (${parsedGpu.rawText || `${needed8Pin} 组接口`}) 与电源可用接口 (${psu8} 组) 匹配满足。`,
+              basis: `需求: ${needed8Pin} 组; 供给: ${psu8} 组`,
+              involvedSlotTypes: ['gpu', 'psu'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+            });
+          }
+        } else {
+          rules.push({
+            ruleId: 'rule_gpu_power_connectors',
+            category: '电源与供电',
+            status: 'unknown',
+            title: '电源 PCIe 接口数量待核实',
+            message: `显卡明确需要辅助供电（${parsedGpu.rawText || '8-pin'}），但电源模组线数量未明确记录。`,
+            basis: '电源线材数量缺失',
+            involvedSlotTypes: ['gpu', 'psu'],
+            involvedHardwareIds: [getItemId(gpu), getItemId(psu)],
+          });
+        }
+      }
     }
   } else {
     rules.push({
@@ -1050,67 +1242,128 @@ export function calculateBuildPower(
 ): PowerEstimate {
   const catalogMap = createCatalogMap(catalog);
 
-  const getPart = (type: BuildSlotType): HardwareItem | HardwareRecord | null => {
-    const slot = build.slots.find((s) => s.type === type && s.hardwareId);
-    if (!slot || !slot.hardwareId) return null;
-    return catalogMap.get(slot.hardwareId) || null;
+  const getSlot = (type: BuildSlotType): CustomBuildSlotItem | null => {
+    return build.slots.find((s) => s.type === type) || null;
   };
 
-  const cpu = getPart('cpu');
-  const gpu = getPart('gpu');
-  const psu = getPart('psu');
+  const cpuSlot = getSlot('cpu');
+  const gpuSlot = getSlot('gpu');
+  const psuSlot = getSlot('psu');
+
+  const cpu = cpuSlot?.hardwareId ? catalogMap.get(cpuSlot.hardwareId) || null : null;
+  const gpu = gpuSlot?.hardwareId ? catalogMap.get(gpuSlot.hardwareId) || null : null;
+  const psu = psuSlot?.hardwareId ? catalogMap.get(psuSlot.hardwareId) || null : null;
 
   const missingInputs: string[] = [];
   const notes: string[] = [];
 
   // CPU 功耗
   let cpuWatts: number | null = null;
-  if (cpu) {
-    if ('power' in cpu && cpu.power.isKnown && typeof cpu.power.watts === 'number' && cpu.power.watts > 0) {
-      cpuWatts = cpu.power.watts;
-    } else if ('tdpWatts' in cpu && typeof cpu.tdpWatts === 'number' && cpu.tdpWatts > 0) {
-      cpuWatts = cpu.tdpWatts;
+  if (cpuSlot) {
+    if (cpu) {
+      if ('power' in cpu && cpu.power?.isKnown && typeof cpu.power.watts === 'number' && cpu.power.watts > 0) {
+        cpuWatts = cpu.power.watts;
+      } else if ('tdpWatts' in cpu && typeof cpu.tdpWatts === 'number' && cpu.tdpWatts > 0) {
+        cpuWatts = cpu.tdpWatts;
+      } else {
+        missingInputs.push('CPU 标称功耗');
+      }
+    } else if (cpuSlot.customName) {
+      missingInputs.push('自填 CPU 功耗');
+    } else if (cpuSlot.hardwareId) {
+      missingInputs.push('未收录 CPU 功耗');
     } else {
-      missingInputs.push('CPU 标称功耗');
+      missingInputs.push('CPU');
     }
   } else {
     missingInputs.push('CPU');
   }
 
-  // GPU 功耗
+  // GPU 功耗及 4 种情形
   let gpuWatts: number | null = null;
+  let gpuScenario: GpuPowerScenario = 'none';
   let manufacturerPsuRecommendationWatts: number | null = null;
+  let manufacturerPsuSource: PowerEstimate['manufacturerPsuSource'] = null;
 
-  if (gpu) {
-    if ('power' in gpu && gpu.power.isKnown && typeof gpu.power.watts === 'number' && gpu.power.watts > 0) {
-      gpuWatts = gpu.power.watts;
-    } else if ('tdpWatts' in gpu && typeof gpu.tdpWatts === 'number' && gpu.tdpWatts > 0) {
-      gpuWatts = gpu.tdpWatts;
+  if (!gpuSlot || (!gpuSlot.hardwareId && !gpuSlot.customName)) {
+    // 明确未选配独立显卡
+    gpuScenario = 'none';
+    gpuWatts = 0;
+  } else if (gpuSlot.customName && !gpuSlot.hardwareId) {
+    // 自填/二手未收录型号
+    gpuScenario = 'custom';
+    gpuWatts = null;
+    missingInputs.push('自填显卡功耗');
+  } else if (gpuSlot.hardwareId) {
+    if (!gpu) {
+      // 提供了 hardwareId 但配件库中不存在
+      gpuScenario = 'unrecognized';
+      gpuWatts = null;
+      missingInputs.push('未收录显卡功耗');
     } else {
-      missingInputs.push('显卡功耗');
-    }
+      // 配件库已知型号
+      gpuScenario = 'known';
+      if ('power' in gpu && gpu.power?.isKnown && typeof gpu.power.watts === 'number' && gpu.power.watts > 0) {
+        gpuWatts = gpu.power.watts;
+      } else if ('tdpWatts' in gpu && typeof gpu.tdpWatts === 'number' && gpu.tdpWatts > 0) {
+        gpuWatts = gpu.tdpWatts;
+      } else {
+        missingInputs.push('显卡标称功耗');
+      }
 
-    // 尝试提取厂商官方建议电源
-    const item = getAsHardwareItem(gpu);
-    const corpus = `${item?.cons.join(' ') || ''} ${item?.pairingAdvice || ''}`;
-    const matchMfg = corpus.match(/建议(?:系统)?电源\s*(\d{3,4})\s*W/i);
-    if (matchMfg) {
-      manufacturerPsuRecommendationWatts = parseInt(matchMfg[1], 10);
+      // 提取厂商官方建议电源：优先从 specifications 中结构化提取
+      if ('specifications' in gpu && Array.isArray(gpu.specifications)) {
+        const psuSpec = gpu.specifications.find(
+          (s) =>
+            s.id === 'gpu.recommendedPsu' ||
+            s.id.includes('recommendedPsu') ||
+            (typeof s.label === 'string' && (s.label.includes('建议') && s.label.includes('供电') || s.label.includes('建议电源')))
+        );
+        if (psuSpec) {
+          const num = typeof psuSpec.numericValue === 'number' && psuSpec.numericValue > 0
+            ? psuSpec.numericValue
+            : parseInt(String(psuSpec.value || '').replace(/[^\d]/g, ''), 10);
+          if (num > 0) {
+            manufacturerPsuRecommendationWatts = num;
+            manufacturerPsuSource = {
+              valueWatts: num,
+              sourceKind: psuSpec.sourceKind,
+              condition: psuSpec.condition,
+            };
+          }
+        }
+      }
+
+      // 若结构化字段未命中，回退到文本特征匹配
+      if (manufacturerPsuRecommendationWatts === null) {
+        const item = getAsHardwareItem(gpu);
+        const corpus = `${item?.cons?.join(' ') || ''} ${item?.pairingAdvice || ''}`;
+        const matchMfg = corpus.match(/建议(?:系统)?电源\s*(\d{3,4})\s*W/i);
+        if (matchMfg) {
+          const num = parseInt(matchMfg[1], 10);
+          manufacturerPsuRecommendationWatts = num;
+          manufacturerPsuSource = {
+            valueWatts: num,
+            condition: undefined,
+          };
+        }
+      }
     }
-  } else {
-    gpuWatts = 0; // 无独显时显卡功耗为 0W
   }
 
   // 平台基底功耗：经验假设 60W
   const basePlatformWatts = 60;
-  const basePlatformAssumptionText = '主板芯片组、双通道内存、NVMe SSD 及机箱散热风扇日常运作基底（经验假设值 50W~70W，取中值 60W，非实测数据）';
+  const basePlatformAssumptionText =
+    '主板芯片组、双通道内存、NVMe SSD 及机箱散热风扇日常运作基底（经验假设值 50W~70W，取中值 60W，非实测数据）';
+  const empiricalEstimateNotice =
+    '注：整机预估峰值基于经验公式（CPU 1.15倍 + 显卡 1.1倍瞬态裕量 + 60W平台基底），仅供配置参考，非实测数据。';
 
-  // 检查是否完整
-  const isFullyKnown = missingInputs.length === 0;
+  // 检查关键输入是否齐全
+  const isFullyKnown = missingInputs.length === 0 && cpuWatts !== null && gpuWatts !== null;
 
   let estimatedPeakWatts: number | null = null;
   if (isFullyKnown && cpuWatts !== null && gpuWatts !== null) {
-    // 峰值功耗估算：CPU 按 1.15 倍瞬态冗余，显卡按 1.1 倍，加基底
+    // 峰值功耗估算：CPU 1.15倍 + 显卡 1.1倍 + 基底 60W
     estimatedPeakWatts = Math.round(cpuWatts * 1.15 + gpuWatts * 1.1 + basePlatformWatts);
   }
 
@@ -1126,13 +1379,16 @@ export function calculateBuildPower(
   let status: 'pass' | 'warning' | 'error' | 'unknown' = 'pass';
   if (!isFullyKnown || psuRatedWatts === null) {
     status = 'unknown';
-    notes.push('输入功耗或电源额定功率数据不全，当前功耗估算不完整，无法计算精确冗余百分比。');
+    notes.push('输入功耗或电源额定功率数据不全，当前功耗估算不完整，无法精确计算冗余裕量。');
   } else if (headroomWatts !== null && headroomWatts < 0) {
     status = 'error';
-    notes.push(`系统预估峰值负载 (${estimatedPeakWatts}W) 超过电源额定容量 (${psuRatedWatts}W)，高负载有掉电风险！`);
+    notes.push(`系统预估峰值负载 (${estimatedPeakWatts}W) 超过电源额定容量 (${psuRatedWatts}W)，高负载运行存在触发过载保护或掉电风险。`);
+  } else if (manufacturerPsuRecommendationWatts && psuRatedWatts < manufacturerPsuRecommendationWatts) {
+    status = 'warning';
+    notes.push(`电源额定容量 (${psuRatedWatts}W) 低于显卡官方建议的 ${manufacturerPsuRecommendationWatts}W 系统电源。高负载瞬态尖峰下可能接近电源限值。`);
   } else if (headroomWatts !== null && headroomWatts < estimatedPeakWatts! * 0.2) {
     status = 'warning';
-    notes.push(`电源余量仅 ${headroomWatts}W，瞬态抗冲击能力偏紧，建议搭配更大瓦数电源。`);
+    notes.push(`电源余量仅 ${headroomWatts}W，瞬态抗冲击能力偏紧，建议留出 20%~30% 裕量。`);
   } else {
     status = 'pass';
     notes.push(`电源容量充裕，预估负载处于电源 50%~80% 黄金能效区间。`);
@@ -1141,17 +1397,20 @@ export function calculateBuildPower(
   return {
     cpuWatts,
     gpuWatts,
+    gpuScenario,
     basePlatformWatts,
     basePlatformAssumptionText,
     otherWatts: 0,
     estimatedPeakWatts,
     manufacturerPsuRecommendationWatts,
+    manufacturerPsuSource,
     psuRatedWatts,
     headroomWatts,
     isFullyKnown,
     missingInputs,
     status,
     notes,
+    empiricalEstimateNotice,
   };
 }
 
@@ -1164,13 +1423,15 @@ export function calculateBuildCost(
 ): CostSummary {
   const catalogMap = createCatalogMap(catalog);
 
-  let knownTotalCost = 0;
+  let knownSubtotalMin = 0;
+  let knownSubtotalMax = 0;
   let hasUnknownPrices = false;
   let unknownPriceSlotCount = 0;
   let userOverrideCount = 0;
   let catalogReferenceCount = 0;
   let zeroPriceCount = 0;
   let unknownCount = 0;
+  let launchPriceOnlyCount = 0;
   let filledSlotsCount = 0;
 
   for (const slot of build.slots) {
@@ -1186,35 +1447,52 @@ export function calculateBuildCost(
     }
 
     if (typeof slot.userPrice === 'number' && slot.userPrice > 0) {
-      knownTotalCost += slot.userPrice * qty;
+      knownSubtotalMin += slot.userPrice * qty;
+      knownSubtotalMax += slot.userPrice * qty;
       userOverrideCount++;
       continue;
     }
 
     // 尝试读取目录价格
     const item = slot.hardwareId ? catalogMap.get(slot.hardwareId) : null;
-    let itemPrice: number | null = null;
+    let marketMin: number | null = null;
+    let marketMax: number | null = null;
+    let launchPrice: number | null = null;
 
     if (item) {
-      if ('pricing' in item) {
-        if (item.pricing.isKnownRange && typeof item.pricing.referenceRange.min === 'number') {
-          itemPrice = item.pricing.referenceRange.min;
-        } else if (typeof item.pricing.launchReference === 'number' && item.pricing.launchReference > 0) {
-          itemPrice = item.pricing.launchReference;
+      if ('pricing' in item && item.pricing) {
+        if (item.pricing.isKnownRange && typeof item.pricing.referenceRange?.min === 'number' && item.pricing.referenceRange.min > 0) {
+          marketMin = item.pricing.referenceRange.min;
+          marketMax = typeof item.pricing.referenceRange.max === 'number' && item.pricing.referenceRange.max > 0
+            ? item.pricing.referenceRange.max
+            : marketMin;
         }
-      } else {
-        const hItem = item as HardwareItem;
-        if (isValidPriceRange(hItem.marketPriceRange)) {
-          itemPrice = hItem.marketPriceRange[0];
-        } else if (typeof hItem.msrpRmb === 'number' && hItem.msrpRmb > 0) {
-          itemPrice = hItem.msrpRmb;
+        if (typeof item.pricing.launchReference === 'number' && item.pricing.launchReference > 0) {
+          launchPrice = item.pricing.launchReference;
+        }
+      }
+      if (marketMin === null) {
+        const hItem = getAsHardwareItem(item);
+        if (hItem && isValidPriceRange(hItem.marketPriceRange)) {
+          marketMin = hItem.marketPriceRange[0];
+          marketMax = hItem.marketPriceRange[1] > 0 ? hItem.marketPriceRange[1] : marketMin;
+        }
+        if (hItem && typeof hItem.msrpRmb === 'number' && hItem.msrpRmb > 0) {
+          launchPrice = hItem.msrpRmb;
         }
       }
     }
 
-    if (itemPrice !== null && itemPrice > 0) {
-      knownTotalCost += itemPrice * qty;
+    if (marketMin !== null && marketMin > 0) {
+      knownSubtotalMin += marketMin * qty;
+      knownSubtotalMax += (marketMax ?? marketMin) * qty;
       catalogReferenceCount++;
+    } else if (launchPrice !== null && launchPrice > 0) {
+      // 发售参考价不自动降级为当前市场报价
+      launchPriceOnlyCount++;
+      hasUnknownPrices = true;
+      unknownPriceSlotCount++;
+      unknownCount++;
     } else {
       hasUnknownPrices = true;
       unknownPriceSlotCount++;
@@ -1222,17 +1500,55 @@ export function calculateBuildCost(
     }
   }
 
+  const isRange = knownSubtotalMin !== knownSubtotalMax;
+  const knownTotalCost = knownSubtotalMin; // 固定基线含义（下限）
   const budget = build.targetBudget;
-  const budgetDifference = budget !== null ? knownTotalCost - budget : null;
-  const isBudgetExceeded = budget !== null ? knownTotalCost > budget : false;
+  const hasLaunchPriceFallback = launchPriceOnlyCount > 0;
+  const launchPriceFallbackCount = launchPriceOnlyCount;
+
+  let budgetDifferenceMin: number | null = null;
+  let budgetDifferenceMax: number | null = null;
+  let budgetDifference: number | null = null;
+  let isBudgetExceeded = false;
+  let budgetStatus: BudgetStatus = 'unspecified';
+
+  if (budget !== null && budget > 0) {
+    budgetDifferenceMin = knownSubtotalMin - budget;
+    budgetDifferenceMax = knownSubtotalMax - budget;
+    budgetDifference = budgetDifferenceMin;
+    isBudgetExceeded = knownSubtotalMin > budget;
+
+    if (knownSubtotalMin > budget) {
+      // 哪怕有未知价格，已知下限已超预算，亦算 exceeded（但提示有未报价配件）
+      budgetStatus = 'exceeded';
+    } else if (isRange && knownSubtotalMin <= budget && knownSubtotalMax >= budget) {
+      // 区间跨越预算线
+      budgetStatus = 'spans-budget';
+    } else if (hasUnknownPrices) {
+      // 有未知价格且已知小计低于预算，不得显示 within，必须标 unknown
+      budgetStatus = 'unknown';
+    } else {
+      budgetStatus = 'within';
+    }
+  } else {
+    budgetStatus = 'unspecified';
+  }
 
   return {
     knownTotalCost,
+    knownSubtotalMin,
+    knownSubtotalMax,
+    isRange,
     targetBudget: budget,
+    budgetDifferenceMin,
+    budgetDifferenceMax,
     budgetDifference,
     isBudgetExceeded,
+    budgetStatus,
     hasUnknownPrices,
     unknownPriceSlotCount,
+    hasLaunchPriceFallback,
+    launchPriceFallbackCount,
     totalSlotsCount: build.slots.length,
     filledSlotsCount,
     priceSourceBreakdown: {
@@ -1240,7 +1556,30 @@ export function calculateBuildCost(
       catalogReferenceCount,
       zeroPriceCount,
       unknownCount,
+      launchPriceOnlyCount,
     },
+  };
+}
+
+/**
+ * 槽位添加或更新纯函数
+ * 若已存在该品类槽位则更新替换；若该槽位此前被删除/不存在则补入
+ */
+export function updateOrInsertSlot(
+  build: CustomBuild,
+  slotItem: CustomBuildSlotItem
+): CustomBuild {
+  const existingIdx = build.slots.findIndex((s) => s.type === slotItem.type);
+  let newSlots: CustomBuildSlotItem[];
+  if (existingIdx >= 0) {
+    newSlots = build.slots.map((s, idx) => (idx === existingIdx ? { ...slotItem } : s));
+  } else {
+    newSlots = [...build.slots, { ...slotItem }];
+  }
+  return {
+    ...build,
+    slots: newSlots,
+    updatedAt: new Date().toISOString(),
   };
 }
 
@@ -1258,7 +1597,6 @@ export function findCompatibleReplacements(
   // 确定需要替换的槽位类型
   let targetSlotType: BuildSlotType | null = null;
   if (ruleResult.ruleId === 'rule_socket_match') {
-    // 默认提供兼容主板的替换选项
     targetSlotType = 'motherboard';
   } else if (ruleResult.ruleId === 'rule_ram_type_match' || ruleResult.ruleId === 'rule_ram_form_and_slots') {
     targetSlotType = 'ram';
@@ -1266,7 +1604,7 @@ export function findCompatibleReplacements(
     targetSlotType = 'cooler';
   } else if (ruleResult.ruleId === 'rule_motherboard_case_size' || ruleResult.ruleId === 'rule_gpu_length_clearance') {
     targetSlotType = 'case';
-  } else if (ruleResult.ruleId === 'rule_psu_capacity') {
+  } else if (ruleResult.ruleId === 'rule_psu_capacity' || ruleResult.ruleId === 'rule_gpu_power_connectors') {
     targetSlotType = 'psu';
   } else if (ruleResult.ruleId === 'rule_display_output') {
     targetSlotType = 'gpu';
@@ -1278,9 +1616,16 @@ export function findCompatibleReplacements(
   const currentSlot = currentBuild.slots.find((s) => s.type === targetSlotType);
   const currentPart = (currentSlot?.hardwareId ? catalogMap.get(currentSlot.hardwareId) : null) ?? null;
   const currentItem = getAsHardwareItem(currentPart);
-  const currentPrice = currentItem ? currentItem.marketPriceRange[0] || currentItem.msrpRmb : 0;
+  const currentPrice = currentItem
+    ? (isValidPriceRange(currentItem.marketPriceRange) ? currentItem.marketPriceRange[0] : (currentItem.msrpRmb || 0))
+    : 0;
 
-  // 筛选同一品类的候选硬件
+  // 记录基线现有错误
+  const baselineReport = checkBuildCompatibility(currentBuild, catalog);
+  const baselineErrorRuleIds = new Set(
+    baselineReport.rules.filter((r) => r.status === 'error').map((r) => r.ruleId)
+  );
+
   const candidates: ReplacementCandidate[] = [];
 
   for (const item of catalogMap.values()) {
@@ -1288,45 +1633,50 @@ export function findCompatibleReplacements(
     if (!rawItem || rawItem.category !== targetSlotType) continue;
     if (currentSlot?.hardwareId && rawItem.id === currentSlot.hardwareId) continue;
 
-    // 创建沙盒克隆配置
-    const sandboxBuild: CustomBuild = {
-      ...currentBuild,
-      slots: currentBuild.slots.map((s) => {
-        if (s.type === targetSlotType) {
-          return {
-            ...s,
-            hardwareId: rawItem.id,
-            customName: undefined,
-            userPrice: null, // 清空前一个配件的自定义改价
-            isExplicitZeroPrice: false,
-          };
-        }
-        return s;
-      }),
+    // 创建沙盒克隆配置（使用 updateOrInsertSlot）
+    const sandboxSlot: CustomBuildSlotItem = {
+      slotId: currentSlot?.slotId || `slot-${targetSlotType}`,
+      type: targetSlotType,
+      hardwareId: rawItem.id,
+      quantity: currentSlot?.quantity || 1,
+      userPrice: null,
+      isExplicitZeroPrice: false,
     };
+    const sandboxBuild = updateOrInsertSlot(currentBuild, sandboxSlot);
 
     // 在沙盒中执行完全相同的校验引擎
     const sandboxReport = checkBuildCompatibility(sandboxBuild, catalog);
 
-    // 检查条件 1: 目标规则不再是 error
+    // 条件 1: 目标规则在沙盒中必须变为 pass，不得降级为 unknown 或仍为 error
     const targetRuleInSandbox = sandboxReport.rules.find((r) => r.ruleId === ruleResult.ruleId);
-    if (targetRuleInSandbox && targetRuleInSandbox.status === 'error') {
+    if (!targetRuleInSandbox || targetRuleInSandbox.status !== 'pass') {
       continue;
     }
 
-    // 检查条件 2: 绝不引入任何全新的 error
-    if (sandboxReport.errorCount > 0) {
+    // 条件 2: 绝不引入任何全新的 error（除原先已存在的既有错误外）
+    const sandboxErrors = sandboxReport.rules.filter((r) => r.status === 'error');
+    const hasNewError = sandboxErrors.some(
+      (r) => r.ruleId !== ruleResult.ruleId && !baselineErrorRuleIds.has(r.ruleId)
+    );
+    if (hasNewError) {
       continue;
     }
 
-    // 通过充要条件！计算价格差异
-    const candidatePrice = rawItem.marketPriceRange[0] || rawItem.msrpRmb;
+    // 计算价格差异
+    const candidatePrice = isValidPriceRange(rawItem.marketPriceRange)
+      ? rawItem.marketPriceRange[0]
+      : (rawItem.msrpRmb || 0);
     const deltaPrice = candidatePrice > 0 && currentPrice > 0 ? candidatePrice - currentPrice : null;
+
+    // 收集沙盒中剩余的待注意问题（包括 warning, unknown 以及其他既有 error）
+    const remainingIssues = sandboxReport.rules.filter(
+      (r) => (r.status === 'warning' || r.status === 'unknown' || r.status === 'error') && r.ruleId !== ruleResult.ruleId
+    );
 
     candidates.push({
       item: rawItem,
       deltaPrice,
-      remainingIssues: sandboxReport.rules.filter((r) => r.status === 'warning' || r.status === 'unknown'),
+      remainingIssues,
     });
 
     if (candidates.length >= 3) break;

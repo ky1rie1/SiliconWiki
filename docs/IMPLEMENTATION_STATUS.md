@@ -10,7 +10,7 @@
 | :--- | :--- | :--- | :--- |
 | **阶段 1** | **修复真实性问题和基础交互** | **已完成（源码审查认可、真实浏览器验证待补）** | 修复无后端伪装提交、完善 GitHub Issue 与复制降级路径、修复 ThemeContext 存储异常与入口安全、统一导航 History 状态写入并防止元数据丢失、收紧隐私提示 |
 | **阶段 2** | **完善结构化数据与可信度** | **已完成（源码审查与定向回归通过，真实浏览器及持续数据核验待补）** | 区分芯片核心与具体商品变体、来源类别与核验状态分离、未知字段严谨化、数据状态汇总面板（详见 docs/PHASE_2_PLAN.md） |
-| **阶段 3** | **自选装机配置器与兼容性检查** | **已完成（全链路自动化测试与生产构建验收通过，真实物理装配公差以实物为准）** | 8大核心槽位自选、纯函数五态兼容性诊断、规格适配层、沙盒替代建议、电源功耗与成本估算、安全持久化防冲刷、JSON 导入导出与 URL-safe Base64 分享（详见 docs/PHASE_3_PLAN.md） |
+| **阶段 3** | **自选装机配置器与兼容性检查** | **已完成（源码审查与全链路定向回归通过，真实浏览器及实物物理装配公差待补）** | 8大核心槽位自选、五态规则准入收敛、价格口径统一、沙盒替代复检、功耗场景分离与经验告示、安全草稿持久化与防冲刷横幅、JSON 导入导出与 URL-safe Base64 分享（详见 docs/PHASE_3_PLAN.md） |
 | 阶段 4 | 性能天梯与对比方法完善 | 未开始 | 区分测试场景与跑分来源、避免无序混排、支持差异高亮与合理对比 |
 | 阶段 5 | 旧电脑升级助手 | 未开始 | 导入/选择旧机配件、锁定保留部件、升级瓶颈与成本评估 |
 | 阶段 6 | 3D 装机挑战与故障教学 | 未开始 | 4~6 个教学情境挑战、物理/气流免责与合理示意、故障排查 |
@@ -253,55 +253,62 @@
 ## 阶段 3：自选装机配置器与兼容性检查（已完成）
 
 详细架构规范、五态兼容性判定矩阵与数据契约已整理保存在 [`docs/PHASE_3_PLAN.md`](./PHASE_3_PLAN.md)。
+本阶段经历针对提交 `fffd3988` 的根因系统性收敛与整改，全链路契约完全拉齐。
 
-### 1. 本阶段核心规划与设计基准核查
-- [x] **五态独立判定系统**：严格定义并实现 `pass` / `warning` / `error` / `unknown` / `not-applicable`。`unknown` 代表规格缺失或信息不全，在引擎层与 UI 层坚决保持独立状态，绝不隐式归入 warning 或 pass；未齐备配件或含未知项时，整机状态标为“部分项目待核验 / 配置未齐备”，严禁妄称“整机 100% 绝对兼容”；
-- [x] **集中化规格适配层 (`src/utils/specAdapter.ts`)**：以阶段 2 `HardwareRecord` 结构化目录为主入口，提取插槽、DDR 代际、主板板型（严禁模糊 `includes('ATX')`，严格分词处理 `E-ATX`、`ATX`、`Micro-ATX`、`Mini-ITX`）、机箱显卡限长、散热器高度/冷排、显卡供电接口与电源额定功率。公版参考品（`reference-product`）尺寸绝对不自动附着给非公商品（`partner-variant`）；
-- [x] **独立纯函数兼容性与计算引擎 (`src/utils/pcCompatibility.ts`)**：
-  - 11 大核心规则纯函数判定：CPU 插槽、主板 BIOS 支持、内存代际匹配、内存形态与插槽数、散热器扣具、主板板型与机箱、显卡限长、散热器高度/冷排位、显卡供电接口、电源容量、可用显示输出（核显/独显/主板视频口）；
-  - 主动披露 V1 未覆盖的高阶装机检查项（PCIe 通道拆分、SATA/M.2 复用、高马甲内存与双塔风扇公差、定制线干涉、气流风道仿真），严禁将其虚假算作通过；
-  - 功耗估算：隔离 CPU/GPU 标称功耗、整机满载预估功耗（CPU + GPU + 平台基底 60W 经验假设，如实披露非实测值）、厂商官方建议电源功率；严禁将电源额定功率或散热器解热瓦数作为用电负载相加；
-  - 成本计算：区分用户覆盖价与目录参考价；支持明确输入 ¥0（自备/二手赠送）；含未报价配件时如实标注“已知部分合计”；更换配件型号时强制清空原型号自定义改价；
-- [x] **可解释沙盒替代建议 (`findCompatibleReplacements`)**：
-  - 针对产生 `error` 的配件，在克隆装机单副本中进行真实沙盒全量复检；
-  - 候选配件必须同时满足“彻底消解当前硬冲突”与“不引入任何新硬冲突”，计算差价（$\pm\text{¥}$）并支持一键替换；
-- [x] **装机单组件与交互体验 (`src/components/builder/`)**：
-  - `CustomBuilderView.tsx`：8 大核心配件槽位、预算与花费进度条、满载功耗与电源冗余评估、自定义改价与白嫖 0 元控制、数量控制、单槽位就地警报；
-  - `PartSelectModal.tsx`：默认开启“排除已知冲突，保留待核实型号”过滤器，支持品类筛选、搜索、排序、阶段 2 可信度徽标展示，候选配件标为“无已知硬冲突”，不夸大为已确认兼容；
-  - `CompatibilityDiagnosticsPanel.tsx`：分类规则卡片、五态过滤 Tab、可解释替代配件一键替换、未覆盖高阶规则主动披露展开项；
-  - `JsonImportModal.tsx`：遵循“解析与模式校验 → 预览 → 应用”三段式流程，严格限制 64KB 大小，损坏 JSON 明确报错且完整保留当前草稿；
-- [x] **推荐配置与自选装机单打通 (`src/components/builds/BudgetBuilds.tsx`)**：
-  - 支持“官方精选配置”与“自选装机配置器”子页面平滑切换；
-  - 精选配置卡片提供“以此为蓝本自选”一键载入功能，通过确切型号严格匹配 ID，未收录型号保留文本与参考价作为待确认项；
-  - 本地草稿自动保存接入 `_sw_custom_builder_draft_v1`，使用 `isHydrated` 状态门禁防止初始空状态冲刷草稿；存储受限时给出轻量提示；
-  - 打开含分享链接的 URL 时，弹出提示横幅“是否载入分享的配置（将覆盖当前未保存的草稿？）”，绝不静默覆盖用户本地草稿；
-- [x] **URL 分享编码与路由保护 (`src/utils/pcBuildShare.ts`, `navigation.ts`, `App.tsx`)**：
-  - 紧凑 URL-safe Base64 编码，URL 长度严格限制在 2048 字符以内，文案严格写“链接编码/解码”，严禁宣称为“加密”；
-  - 修复 `parseRouteToTab` 提取 hash 时对整个 hash 字符串调用 `.toLowerCase()` 导致 Base64 载荷破坏的缺陷，分离路径解析与查询参数提取，严格保留 Base64 原始大小写；
-  - 纯文本 / Markdown 格式化导出，生成带格式、核验状态、功耗及免责声明的配置清单。
+### 1. 核心规划与整改契约落实
+- [x] **五态独立判定系统与规则准入收敛**：
+  - 严格定义并实现 `pass` / `warning` / `error` / `unknown` / `not-applicable`。`unknown` 代表规格缺失或信息不全，坚决保持独立状态，绝不隐式归入 warning 或 pass；未齐备配件或含未知项时，整机状态标为“部分项目待核验 / 配置未齐备”，严禁妄称“整机 100% 绝对兼容”；
+  - **解耦 Rule 3 (代际) 与 Rule 4 (插槽/形态)**：代际不匹配（如 DDR4 内存装入 DDR5 主板）属于物理防呆不符的 `error`；插槽超额或形态不兼容独立在 Rule 4 评估；
+  - **禁止默认脑补规格**：主板内存插槽数未明确时返回 `totalSlots: null`，绝不盲目假定 4 槽；内存未声明形态时不默认 U-DIMM/DDR5；电源未声明接口时不默认 2 个 PCIe 8-pin；没有具体 CPU 支持与 BIOS 依据时不默认原生支持；显卡供电接口或电源线材缺失时严格返回 `unknown`；传统 6/8-pin 供电严格比对需求数与提供数；
+  - **物理与机箱公差**：多条件机箱限长完整解析并展示约束条件；冷排尺寸保留前置/顶置安装位置及空间条件；系统显示输出检查严格识别 Type-C 是否具备视频输出能力（DP Alt Mode / 显卡直连），裸数据口不判定为有效显示输出。
+- [x] **价格口径全局统一**：
+  - 默认预算计算仅采用用户明确报价和目录市场参考区间 `[min, max]`；发布价格（首发建议零售价）仅作为参考信息单独展示，绝对不自动回退为当前市场报价参与计算；
+  - `knownTotalCost` 固定为已知下限基线（`knownSubtotalMin`），区分完整总价区间（`knownSubtotalMin ~ knownSubtotalMax`）与单个已知小计；
+  - 预算状态严密区分四态：`within`（已知上限仍未超预算且无未知价格）、`spans-budget`（总价区间跨越预算线）、`exceeded`（已知下限已超预算，即使含未知价格亦明确警示并提示未报价件）、`unknown`（含未知价格且下限未超预算）；
+  - 页面总览、单项价格显示、规则替代建议补差价计算、纯文本 Markdown 复制导出 100% 使用同一价格计算结果。
+- [x] **配置单严格校验与导入导出防御**：
+  - 单槽位单型号架构，严禁多型号混装；严格正整数数量上限（CPU、主板、显卡、散热器、电源、机箱固定为 1；内存 1~2；存储 1~4），发现非正整数、小数或负数直接拒绝，不静默截断或取整；
+  - `isExplicitZeroPrice` 仅在用户价格为 0 时允许成立，价格大于 0 时直接拒绝；
+  - 导入 JSON 实行 64KB UTF-8 字节硬上限熔断；URL-safe Base64 实行 2048 字符硬上限熔断，保留浮点价格两位小数精度；
+  - 反序列化或导入时发现任何损坏、缺失必要字段或校验失败的项目，立即整体拒绝并报错，绝不静默 `continue` 跳过。
+- [x] **功耗与电源负荷分流**：
+  - 独立显卡功耗严格区分 4 种情形：`none`（明确未选配，功耗 0W）、`known`（目录收录且有确切功耗）、`unrecognized`（目录未收录型号）、`custom`（用户自定义型号）；
+  - 结构化提取厂商官方建议电源瓦数及测试条件（如 `gpu.recommendedPsu` 搭配 i9 处理器）；
+  - 经验估算采用温和、客观的免责告示（标明基于经验公式测算），绝不妄下确定性电源烧毁、缩水虚标等断言。
+- [x] **健全的沙盒替代引擎 (`findCompatibleReplacements`)**：
+  - 统一通过 `updateOrInsertSlot` 进行单槽位替换试算；
+  - 候选型号必须使当前硬冲突规则彻底转为 `pass`（转为 `unknown` 绝不放行），且不得引入任何新硬冲突；
+  - 装机单既有其他无关冲突允许保留，但在候选卡片中如实披露 `remainingIssues` 剩余未解决冲突数；按差价由低到高客观排序。
+- [x] **界面交互与草稿持久化防护**：
+  - 本地草稿自动保存接入 `_sw_custom_builder_draft_v1`，使用 `isHydrated` 门禁防止空状态冲刷；
+  - JSON 导入弹窗严格遵循“输入/上传 → 解析校验 → 预览 → 确认应用”流程，点击取消或解析失败时本地正在编辑的草稿绝对不受影响；
+  - 识别到 URL 携带外部分享参数时，展示横幅提示并允许用户选择“保留本地草稿”或“载入分享单”，绝不静默覆写。
 
-### 2. 代码变动清单
+### 2. 代码与模块清单
 1. **类型定义**
-   - [新建] `src/types/pcBuilder.ts`：装机单槽位、配置单契约、五态状态、诊断报告、功耗预算与沙盒替代候选结构；
-2. **纯函数与规格适配**
-   - [新建] `src/utils/specAdapter.ts`：集中化插槽、板型分词、限长、冷排、电源等结构化规格提取器；
-   - [新建] `src/utils/pcCompatibility.ts`：11 项物理/电气兼容性判定纯函数、整机满载功耗与电源评估、成本计算、全配置沙盒复检替代建议；
-   - [新建] `src/utils/pcBuildShare.ts`：JSON 导入校验（64KB 熔断）、URL-safe Base64 紧凑编码（2048 字符熔断）、URL 参数提取与大小写保护、配置单纯文本格式化导出、推荐配置转自选模型映射；
-3. **界面组件**
-   - [新建] `src/components/builder/CustomBuilderView.tsx`：自选装机单核心视图；
-   - [新建] `src/components/builder/PartSelectModal.tsx`：智能配件选择器（排除已知硬冲突、展示可信度）；
-   - [新建] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：五态规则诊断与沙盒替代方案面板；
-   - [新建] `src/components/builder/JsonImportModal.tsx`：JSON 导入与预览校验弹窗；
-   - [修改] `src/components/builds/BudgetBuilds.tsx`：双模式切换器、载入推荐蓝本自选、安全草稿持久化与防冲刷横幅；
-4. **路由与安全导航**
-   - [修改] `src/utils/navigation.ts`：扩展 `MAIN_TAB_ROUTES` 包含 `builder`，修复带 query 参数时 hash 路径判定异常；
-   - [修改] `src/App.tsx`：修复 `parseRouteToTab` 中 hash 路径与 query 分割，严格保护 query 串大小写敏感性；
-5. **自动化测试套件**
-   - [新建] `src/__tests__/pcCompatibility.test.ts`：五态规则判定、缺失数据 unknown 保护、功耗估算、沙盒替代复检单测（13 个用例）；
-   - [新建] `src/__tests__/pcBuildShare.test.ts`：JSON 导入导出验证、大小与非法格式拦截、URL-safe Base64 编解码与大小写保护、纯文本导出单测（17 个用例）；
-   - [新建] `src/__tests__/pcBuilderIntegration.test.tsx`：React 18 + happy-dom 真实 DOM 用户全链路集成测试（双子页面切换、载入推荐蓝本、打开智能选择器、缺件 unknown 防御、0元白嫖价格）（5 个用例）。
+   - [修改] `src/types/pcBuilder.ts`：扩展 `BudgetStatus`、`GpuPowerScenario`、`PowerEstimate`、`CostSummary` 价格区间字段，完善 `CompatibilityRuleResult` 核验依据与未满足条件；
+2. **纯函数与适配引擎**
+   - [修改] `src/utils/specAdapter.ts`：增加 `getSpecificationRecord` 保留来源/核验/条件/变体，收敛内存插槽、形态、电源接口脑补，增强机箱限长条件解析与显卡 Type-C 视频辨识；
+   - [修改] `src/utils/pcCompatibility.ts`：导出 `createCatalogMap` 与 `updateOrInsertSlot`，重写 Rule 2/3/4/9 为严格五态逻辑，重写 `calculateBuildPower` 4 类显卡情形与厂商电源提取，重写 `calculateBuildCost` 价格区间与预算状态判定，重写 `findCompatibleReplacements` 沙盒过滤；
+   - [修改] `src/utils/pcBuildShare.ts`：实现并导出 `validateCustomBuild`，收紧 64KB JSON 字节与 2048 字符 URL 限制，禁止反序列化静默 continue，统一纯文本导出价格口径与温和告示；
+3. **界面交互组件**
+   - [修改] `src/components/builder/CustomBuilderView.tsx`：显卡数量锁定为 1，接入区间价格与预算状态徽标，接入温和经验功耗告示；
+   - [修改] `src/components/builder/PartSelectModal.tsx`：使用 `updateOrInsertSlot` 进行沙盒预检，精准识别“无已知硬冲突”；
+   - [修改] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：展示沙盒候选型号的 `remainingIssues` 剩余待注意项；
+   - [保留] `src/components/builder/JsonImportModal.tsx`：安全预览与取消机制；
+   - [保留] `src/components/builds/BudgetBuilds.tsx`：双模式切换与草稿冲突防冲刷横幅；
+4. **测试套件**
+   - [新建] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：针对整改契约的 23 组定向回归测试（100% 通过）；
+   - [新建] `src/__tests__/pcBuilderDOMFlow.test.tsx`：React 18 + happy-dom 真实 DOM 完整交互链路测试（选件 → 冲突发现 → 沙盒替代 → 报告自动更新 → 本地存储更新与重载 → 导入预览取消/应用 → 损坏导入与分享链接草稿防冲刷）（3 组大流程用例全部通过）。
 
-### 3. 验收与构建数据
-- **测试结果**：全量 23 个测试文件、192 项测试全部通过（192 passed，0 failed）；阶段 1 与阶段 2 所有已有测试 100% 保持绿色；
-- **构建结果**：TypeScript 严格类型检查与 Vite 生产构建 0 错误（`built in 2.82s`）；
-- **验收结论**：阶段 3 正式闭环并打上验收标记。遵照指示，不进入阶段 4。
+### 3. 自动化测试与构建验收
+- **全量测试套件执行**：`npx vitest run`
+  - **25 个测试文件全部通过，共 218 项用例全部通过，0 失败**；
+  - 涵盖阶段 1（基础交互与存储隔离）、阶段 2（可信度、来源、功耗事实核验）、阶段 3（五态规则、配置单校验、价格区间、全链路 DOM 交互）；
+- **生产打包构建**：`npm run build` (`tsc && vite build`)
+  - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
+  - Vite 生产打包 0 错误（dist 产物构建成功，耗时 ~3.09s）；
+- **验收结论与边界说明**：
+  - 阶段 3 源码审查、全量自动化测试与全链路 DOM 交互回归全部通过；
+  - 标记为：**“源码审查与全链路定向回归通过，真实浏览器及实物物理装配公差待补”**；
+  - 遵照指示，暂不重构第一、二阶段，暂不进入第四阶段。

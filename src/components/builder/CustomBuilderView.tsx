@@ -33,6 +33,7 @@ import {
   checkBuildCompatibility,
   calculateBuildPower,
   calculateBuildCost,
+  updateOrInsertSlot,
 } from '../../utils/pcCompatibility';
 import { hardwareCatalog } from '../../data/hardware';
 import { PartSelectModal } from './PartSelectModal';
@@ -188,7 +189,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
       if (s.type === slotType) {
         const nextQty = Math.max(1, (s.quantity || 1) + delta);
         // 核心单件配件限制最大 1 个
-        if (['cpu', 'motherboard', 'case', 'psu', 'cooler'].includes(slotType) && nextQty > 1) {
+        if (['cpu', 'motherboard', 'gpu', 'case', 'psu', 'cooler'].includes(slotType) && nextQty > 1) {
           return s;
         }
         if (slotType === 'storage' && nextQty > 4) return s; // 存储上限 4 块
@@ -219,39 +220,16 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
   // 应用替代建议
   const handleApplyReplacement = (candidate: ReplacementCandidate) => {
     const slotType = candidate.item.category as BuildSlotType;
-    const exists = build.slots.some((s) => s.type === slotType);
-    let updatedSlots: CustomBuildSlotItem[];
-    if (exists) {
-      updatedSlots = build.slots.map((s) => {
-        if (s.type === slotType) {
-          return {
-            ...s,
-            hardwareId: candidate.item.id,
-            customName: undefined,
-            userPrice: null, // 更换型号时清空原型号自定义改价，严禁静默继承！
-            isExplicitZeroPrice: false,
-          };
-        }
-        return s;
-      });
-    } else {
-      updatedSlots = [
-        ...build.slots,
-        {
-          slotId: `slot-${slotType}-${Date.now()}`,
-          type: slotType,
-          hardwareId: candidate.item.id,
-          userPrice: null,
-          isExplicitZeroPrice: false,
-          quantity: 1,
-        },
-      ];
-    }
-    onUpdateBuild({
-      ...build,
-      slots: updatedSlots,
-      updatedAt: new Date().toISOString(),
-    });
+    const existing = build.slots.find((s) => s.type === slotType);
+    const newSlot: CustomBuildSlotItem = {
+      slotId: existing?.slotId || `slot-${slotType}-${Date.now()}`,
+      type: slotType,
+      hardwareId: candidate.item.id,
+      userPrice: null, // 更换型号时清空原型号自定义改价，严禁静默继承！
+      isExplicitZeroPrice: false,
+      quantity: existing?.quantity || 1,
+    };
+    onUpdateBuild(updateOrInsertSlot(build, newSlot));
   };
 
   return (
@@ -376,28 +354,37 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
               </div>
             </div>
 
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-neutral-900 dark:text-white font-mono">
-                ¥{costSummary.knownTotalCost.toLocaleString()}
+                {costSummary.isRange
+                  ? `¥${costSummary.knownSubtotalMin.toLocaleString()} ~ ¥${costSummary.knownSubtotalMax.toLocaleString()}`
+                  : `¥${costSummary.knownTotalCost.toLocaleString()}`}
               </span>
               {build.targetBudget && (
                 <span
-                  className={`text-xs font-semibold ${
-                    costSummary.isBudgetExceeded
-                      ? 'text-rose-600 dark:text-rose-400'
-                      : 'text-emerald-600 dark:text-emerald-400'
+                  className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                    costSummary.budgetStatus === 'exceeded'
+                      ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
+                      : costSummary.budgetStatus === 'spans-budget'
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
+                      : costSummary.budgetStatus === 'within'
+                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
                   }`}
                 >
-                  {costSummary.isBudgetExceeded
-                    ? `超出预算 ¥${Math.abs(costSummary.budgetDifference!).toLocaleString()}`
-                    : `剩余预算 ¥${Math.abs(costSummary.budgetDifference!).toLocaleString()}`}
+                  {costSummary.budgetStatus === 'exceeded' &&
+                    `超出预算 ¥${Math.abs(costSummary.budgetDifferenceMin!).toLocaleString()}`}
+                  {costSummary.budgetStatus === 'spans-budget' && '区间跨越预算线'}
+                  {costSummary.budgetStatus === 'within' &&
+                    `预算内 (剩余约 ¥${Math.abs(costSummary.budgetDifferenceMin!).toLocaleString()})`}
+                  {costSummary.budgetStatus === 'unknown' && '已知小计未超，但有未报价配件'}
                 </span>
               )}
             </div>
 
             {costSummary.hasUnknownPrices && (
               <p className="text-[11px] text-amber-600 dark:text-amber-400">
-                提示：当前有 {costSummary.unknownPriceSlotCount} 件配件暂无参考报价，上方金额仅为已知部件合计，未包含全部费用。
+                提示：当前有 {costSummary.unknownPriceSlotCount} 件配件暂无当前市场报价{costSummary.hasLaunchPriceFallback ? '（首发价未直接计入市场小计）' : ''}，上方金额仅为已知部件合计，未包含全部费用。
               </p>
             )}
           </div>
@@ -429,7 +416,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
             </div>
 
             <p className="text-[11px] text-neutral-400 dark:text-neutral-500 leading-tight">
-              {powerEst.basePlatformAssumptionText}
+              {powerEst.empiricalEstimateNotice || powerEst.basePlatformAssumptionText}
             </p>
           </div>
         </div>

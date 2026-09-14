@@ -267,6 +267,11 @@ export const CompatibilityDiagnosticsPanel: React.FC<CompatibilityDiagnosticsPan
                                   : `预计省 ¥${Math.abs(cand.deltaPrice)}`
                                 : '参考价以实际选购为准'}
                             </div>
+                            {cand.remainingIssues && cand.remainingIssues.length > 0 && (
+                              <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">
+                                替换后仍存 {cand.remainingIssues.length} 项需注意
+                              </div>
+                            )}
                           </div>
                           <button
                             type="button"

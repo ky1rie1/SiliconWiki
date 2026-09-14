@@ -7,10 +7,248 @@ import {
 import { HardwareItem, RecommendedBuild } from '../types';
 import { HardwareRecord } from '../types/hardwareCatalog';
 import { hardwareCatalog } from '../data/hardware';
-import { calculateBuildCost, calculateBuildPower, checkBuildCompatibility } from './pcCompatibility';
+import {
+  calculateBuildCost,
+  calculateBuildPower,
+  checkBuildCompatibility,
+  createCatalogMap,
+  CatalogInput,
+} from './pcCompatibility';
+import { isValidPriceRange } from './hardwareCatalog';
 
-const MAX_JSON_SIZE_BYTES = 65536; // 64KB
-const MAX_URL_PARAM_LENGTH = 2048; // 2048 characters max
+export const MAX_JSON_SIZE_BYTES = 65536; // 64KB
+export const MAX_URL_PARAM_LENGTH = 2048; // 2048 characters max
+
+export interface BuildValidationResult {
+  valid: boolean;
+  error?: string;
+  build?: CustomBuild;
+}
+
+/**
+ * 统一配置单合法性验证引擎
+ * 严格验证 schemaVersion、单品类单槽位模型、slotId 唯一性、品类匹配度、严格数量区间与价格冲突
+ */
+export function validateCustomBuild(
+  rawBuild: unknown,
+  catalog?: CatalogInput
+): BuildValidationResult {
+  if (!rawBuild || typeof rawBuild !== 'object' || Array.isArray(rawBuild)) {
+    return { valid: false, error: '配置单结构不合法：必须是有效对象' };
+  }
+
+  const obj = rawBuild as Record<string, unknown>;
+
+  if (obj.schemaVersion !== 1) {
+    return {
+      valid: false,
+      error: `不支持的配置单版本（期望 schemaVersion: 1，实际为 ${String(obj.schemaVersion)}）`,
+    };
+  }
+
+  const title =
+    typeof obj.title === 'string' && obj.title.trim()
+      ? obj.title.trim().slice(0, 50)
+      : '自选装机单';
+
+  let targetBudget: number | null = null;
+  if (obj.targetBudget !== undefined && obj.targetBudget !== null) {
+    if (typeof obj.targetBudget === 'number' && Number.isFinite(obj.targetBudget) && obj.targetBudget >= 0) {
+      targetBudget = Math.round(obj.targetBudget);
+    } else {
+      return { valid: false, error: '目标预算 (targetBudget) 必须是非负数值或 null' };
+    }
+  }
+
+  if (!Array.isArray(obj.slots)) {
+    return { valid: false, error: '配置单配件列表 (slots) 必须是数组' };
+  }
+
+  if (obj.slots.length > 20) {
+    return { valid: false, error: '配置单配件项过多（超出 20 项上限）' };
+  }
+
+  const catalogMap = catalog ? createCatalogMap(catalog) : hardwareCatalog.byId;
+  const validTypesSet = new Set<string>(BuildSlotTypes);
+  const seenTypes = new Set<string>();
+  const seenSlotIds = new Set<string>();
+  const validatedSlots: CustomBuildSlotItem[] = [];
+
+  for (let i = 0; i < obj.slots.length; i++) {
+    const rawSlot = obj.slots[i];
+    if (!rawSlot || typeof rawSlot !== 'object') {
+      return { valid: false, error: `第 ${i + 1} 项配件结构损坏` };
+    }
+    const s = rawSlot as Record<string, unknown>;
+
+    if (typeof s.type !== 'string' || !validTypesSet.has(s.type)) {
+      return {
+        valid: false,
+        error: `第 ${i + 1} 项配件品类不合法：${String(s.type)}`,
+      };
+    }
+
+    const type = s.type as BuildSlotType;
+
+    // 单品类单槽位模型：同一品类不允许重复出现
+    if (seenTypes.has(type)) {
+      return {
+        valid: false,
+        error: `配置单中存在重复的配件槽位类型「${type}」，每种品类仅允许配置一个主槽位`,
+      };
+    }
+    seenTypes.add(type);
+
+    // slotId 唯一性检查
+    const rawSlotId = typeof s.slotId === 'string' && s.slotId.trim() ? s.slotId.trim() : null;
+    if (rawSlotId) {
+      if (seenSlotIds.has(rawSlotId)) {
+        return {
+          valid: false,
+          error: `配置单中存在重复的 slotId「${rawSlotId}」`,
+        };
+      }
+      seenSlotIds.add(rawSlotId);
+    }
+    const slotId = rawSlotId || `slot-${type}-${Date.now()}-${i}`;
+
+    // 数量严格检查（拒绝负数、0、小数，及不符合品类规格的超限数量，禁止静默截断）
+    const qty = s.quantity;
+    if (typeof qty !== 'number' || !Number.isInteger(qty) || qty <= 0) {
+      return {
+        valid: false,
+        error: `配件「${type}」数量必须为正整数，当前为 ${String(qty)}`,
+      };
+    }
+
+    // 单件品类装机数量必须严格为 1
+    const singleUnitTypes: BuildSlotType[] = ['cpu', 'motherboard', 'gpu', 'cooler', 'psu', 'case'];
+    if (singleUnitTypes.includes(type)) {
+      if (qty !== 1) {
+        return {
+          valid: false,
+          error: `单件品类「${type}」的装机数量必须为 1，不支持配置 ${qty} 件`,
+        };
+      }
+    } else if (type === 'ram') {
+      if (qty < 1 || qty > 2) {
+        return {
+          valid: false,
+          error: `内存数量必须为 1 到 2 套，当前为 ${qty} 套`,
+        };
+      }
+    } else if (type === 'storage') {
+      if (qty < 1 || qty > 4) {
+        return {
+          valid: false,
+          error: `存储数量必须为 1 到 4 块，当前为 ${qty} 块`,
+        };
+      }
+    }
+
+    // 自定义价格与自备 0 元冲突检查
+    const isExplicitZeroPrice = Boolean(s.isExplicitZeroPrice);
+    let userPrice: number | null = null;
+    if (s.userPrice !== undefined && s.userPrice !== null) {
+      if (typeof s.userPrice === 'number' && Number.isFinite(s.userPrice) && s.userPrice >= 0) {
+        userPrice = Math.round(s.userPrice * 100) / 100;
+      } else {
+        return {
+          valid: false,
+          error: `配件「${type}」的自定义价格必须为非负数值`,
+        };
+      }
+    }
+
+    if (isExplicitZeroPrice && userPrice !== null && userPrice > 0) {
+      return {
+        valid: false,
+        error: `配件「${type}」同时标记为自备 0 元与自定义大于 0 价格冲突`,
+      };
+    }
+
+    // hardwareId 与品类匹配度检查
+    let hardwareId: string | null = null;
+    if (typeof s.hardwareId === 'string' && s.hardwareId.trim()) {
+      hardwareId = s.hardwareId.trim().slice(0, 100);
+
+      // 先查 catalog
+      const catalogItem = catalogMap.get(hardwareId);
+      if (catalogItem) {
+        const itemCat = 'category' in catalogItem ? catalogItem.category : catalogItem.identity?.category;
+        if (itemCat && itemCat !== type) {
+          return {
+            valid: false,
+            error: `配件「${hardwareId}」所属品类 (${itemCat}) 与槽位品类 (${type}) 不匹配`,
+          };
+        }
+      } else {
+        // 未在配件库中直接查到，检查 ID 前缀是否与当前槽位品类冲突
+        const prefixMap: Record<string, BuildSlotType> = {
+          'gpu-': 'gpu',
+          'cpu-': 'cpu',
+          'mb-': 'motherboard',
+          'motherboard-': 'motherboard',
+          'ram-': 'ram',
+          'cooler-': 'cooler',
+          'psu-': 'psu',
+          'case-': 'case',
+          'chassis-': 'case',
+          'ssd-': 'storage',
+          'storage-': 'storage',
+        };
+        for (const [prefix, pType] of Object.entries(prefixMap)) {
+          if (hardwareId.toLowerCase().startsWith(prefix) && pType !== type) {
+            return {
+              valid: false,
+              error: `配件「${hardwareId}」所属类别与槽位类别 (${type}) 不匹配`,
+            };
+          }
+        }
+        // 未冲突的前缀或自定义 ID 保留为未核实配件
+      }
+    }
+
+    const customName =
+      typeof s.customName === 'string' && s.customName.trim()
+        ? s.customName.trim().slice(0, 100)
+        : undefined;
+
+    const notes =
+      typeof s.notes === 'string' && s.notes.trim()
+        ? s.notes.trim().slice(0, 200)
+        : undefined;
+
+    validatedSlots.push({
+      slotId,
+      type,
+      hardwareId,
+      customName,
+      userPrice,
+      isExplicitZeroPrice,
+      quantity: qty,
+      notes,
+    });
+  }
+
+  const buildNotes =
+    typeof obj.notes === 'string' && obj.notes.trim()
+      ? obj.notes.trim().slice(0, 200)
+      : undefined;
+
+  const validBuild: CustomBuild = {
+    schemaVersion: 1,
+    id: typeof obj.id === 'string' && obj.id.trim() ? obj.id.trim().slice(0, 50) : `build-${Date.now()}`,
+    title,
+    targetBudget,
+    slots: validatedSlots,
+    notes: buildNotes,
+    createdAt: typeof obj.createdAt === 'string' ? obj.createdAt : new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  return { valid: true, build: validBuild };
+}
 
 /**
  * 导出装机单为带模式版本 (schemaVersion: 1) 的标准 JSON 字符串
@@ -34,7 +272,7 @@ export function exportBuildToJson(build: CustomBuild): string {
           ? Math.round(s.userPrice * 100) / 100
           : null,
       isExplicitZeroPrice: Boolean(s.isExplicitZeroPrice),
-      quantity: Math.min(10, Math.max(1, Math.floor(s.quantity || 1))),
+      quantity: s.quantity,
       notes: s.notes ? String(s.notes).slice(0, 200) : undefined,
     })),
     notes: build.notes ? String(build.notes).slice(0, 200) : undefined,
@@ -48,7 +286,10 @@ export function exportBuildToJson(build: CustomBuild): string {
 /**
  * 导入装机单 JSON 字符串，严格进行安全性校验、大小熔断与字段边界审查
  */
-export function importBuildFromJson(jsonStr: string): {
+export function importBuildFromJson(
+  jsonStr: string,
+  catalog?: CatalogInput
+): {
   success: boolean;
   build?: CustomBuild;
   error?: string;
@@ -57,11 +298,16 @@ export function importBuildFromJson(jsonStr: string): {
     return { success: false, error: '导入数据为空' };
   }
 
-  // 1. 大小上限熔断 (64KB)
-  if (jsonStr.length > MAX_JSON_SIZE_BYTES) {
+  // 1. 大小上限熔断 (64KB UTF-8 字节)
+  const byteLength =
+    typeof TextEncoder !== 'undefined'
+      ? new TextEncoder().encode(jsonStr).length
+      : Buffer.byteLength(jsonStr, 'utf8');
+
+  if (byteLength > MAX_JSON_SIZE_BYTES) {
     return {
       success: false,
-      error: `文件体积超出上限（最大允许 64KB，当前为 ${(jsonStr.length / 1024).toFixed(1)}KB）`,
+      error: `文件体积超出上限（最大允许 64KB，当前为 ${(byteLength / 1024).toFixed(1)}KB）`,
     };
   }
 
@@ -73,135 +319,13 @@ export function importBuildFromJson(jsonStr: string): {
     return { success: false, error: 'JSON 格式解析失败，请检查文件是否完整' };
   }
 
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    return { success: false, error: '配置单结构不合法：根对象必须是键值对象' };
+  // 3. 统一委托至 validateCustomBuild
+  const res = validateCustomBuild(parsed, catalog);
+  if (!res.valid) {
+    return { success: false, error: res.error };
   }
 
-  const obj = parsed as Record<string, unknown>;
-
-  // 3. 版本校验
-  if (obj.schemaVersion !== 1) {
-    return {
-      success: false,
-      error: `不支持的配置单版本（期望 schemaVersion: 1，实际为 ${String(obj.schemaVersion)}）`,
-    };
-  }
-
-  // 4. 标题与预算字段验证
-  const title =
-    typeof obj.title === 'string' && obj.title.trim()
-      ? obj.title.trim().slice(0, 50)
-      : '导入的装机单';
-
-  let targetBudget: number | null = null;
-  if (obj.targetBudget !== undefined && obj.targetBudget !== null) {
-    if (typeof obj.targetBudget === 'number' && Number.isFinite(obj.targetBudget) && obj.targetBudget >= 0) {
-      targetBudget = Math.round(obj.targetBudget);
-    } else {
-      return { success: false, error: '目标预算 (targetBudget) 必须是非负数值或 null' };
-    }
-  }
-
-  // 5. 槽位列表验证
-  if (!Array.isArray(obj.slots)) {
-    return { success: false, error: '配置单配件列表 (slots) 必须是数组' };
-  }
-
-  if (obj.slots.length > 20) {
-    return { success: false, error: '配置单配件项过多（超出 20 项上限）' };
-  }
-
-  const validSlots: CustomBuildSlotItem[] = [];
-  const validTypesSet = new Set<string>(BuildSlotTypes);
-
-  for (let i = 0; i < obj.slots.length; i++) {
-    const rawSlot = obj.slots[i];
-    if (!rawSlot || typeof rawSlot !== 'object') {
-      return { success: false, error: `第 ${i + 1} 项配件结构损坏` };
-    }
-    const s = rawSlot as Record<string, unknown>;
-
-    if (typeof s.type !== 'string' || !validTypesSet.has(s.type)) {
-      return {
-        success: false,
-        error: `第 ${i + 1} 项配件品类不合法：${String(s.type)}`,
-      };
-    }
-
-    const type = s.type as BuildSlotType;
-    const slotId =
-      typeof s.slotId === 'string' && s.slotId.trim()
-        ? s.slotId.trim().slice(0, 50)
-        : `slot-${type}-${Date.now()}-${i}`;
-
-    let hardwareId: string | null = null;
-    if (s.hardwareId !== undefined && s.hardwareId !== null) {
-      if (typeof s.hardwareId === 'string') {
-        hardwareId = s.hardwareId.trim().slice(0, 100) || null;
-      }
-    }
-
-    let customName: string | undefined;
-    if (typeof s.customName === 'string' && s.customName.trim()) {
-      customName = s.customName.trim().slice(0, 100);
-    }
-
-    let userPrice: number | null = null;
-    let isExplicitZeroPrice = Boolean(s.isExplicitZeroPrice);
-
-    if (s.userPrice !== undefined && s.userPrice !== null) {
-      if (typeof s.userPrice === 'number' && Number.isFinite(s.userPrice) && s.userPrice >= 0) {
-        userPrice = Math.round(s.userPrice * 100) / 100;
-        if (userPrice === 0) {
-          isExplicitZeroPrice = true;
-        }
-      } else {
-        return {
-          success: false,
-          error: `配件「${type}」的自定义价格必须是非负数值`,
-        };
-      }
-    }
-
-    let quantity = 1;
-    if (typeof s.quantity === 'number' && Number.isFinite(s.quantity)) {
-      quantity = Math.min(10, Math.max(1, Math.floor(s.quantity)));
-    }
-
-    let notes: string | undefined;
-    if (typeof s.notes === 'string' && s.notes.trim()) {
-      notes = s.notes.trim().slice(0, 200);
-    }
-
-    validSlots.push({
-      slotId,
-      type,
-      hardwareId,
-      customName,
-      userPrice,
-      isExplicitZeroPrice,
-      quantity,
-      notes,
-    });
-  }
-
-  const notes =
-    typeof obj.notes === 'string' && obj.notes.trim()
-      ? obj.notes.trim().slice(0, 200)
-      : undefined;
-
-  const validBuild: CustomBuild = {
-    schemaVersion: 1,
-    id: typeof obj.id === 'string' && obj.id.trim() ? obj.id.trim().slice(0, 50) : `imported-${Date.now()}`,
-    title,
-    targetBudget,
-    slots: validSlots,
-    notes,
-    createdAt: typeof obj.createdAt === 'string' ? obj.createdAt : new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  return { success: true, build: validBuild };
+  return { success: true, build: res.build };
 }
 
 /**
@@ -269,7 +393,7 @@ function fromUrlSafeBase64(urlSafeBase64: string): string {
 
 /**
  * 将装机单序列化为可在 URL 查询参数中传递的紧凑 Base64 编码字符串
- * 包含 2048 字符硬限制，不包含敏感用户长备注
+ * 包含 2048 字符硬限制，不包含敏感用户长备注，保留 2 位小数报价
  */
 export function serializeBuildToUrl(build: CustomBuild): {
   success: boolean;
@@ -287,7 +411,9 @@ export function serializeBuildToUrl(build: CustomBuild): {
       s: (build.slots || []).map((s) => [
         s.type,
         s.hardwareId ? s.hardwareId : null,
-        typeof s.userPrice === 'number' ? Math.round(s.userPrice) : null,
+        typeof s.userPrice === 'number' && Number.isFinite(s.userPrice) && s.userPrice >= 0
+          ? Math.round(s.userPrice * 100) / 100 // 保留 2 位小数
+          : null,
         s.quantity > 1 ? s.quantity : 1,
         s.customName ? s.customName.slice(0, 30) : undefined,
         s.isExplicitZeroPrice ? 1 : undefined,
@@ -315,9 +441,9 @@ export function serializeBuildToUrl(build: CustomBuild): {
 
 /**
  * 从 URL 参数中反序列化装机单
- * 遵循客户端重算原则，绝不轻信外来状态
+ * 严格审查每个槽位结构，损坏项拒绝反序列化，绝不静默 continue 丢件
  */
-export function deserializeBuildFromUrl(urlParam: string): CustomBuild | null {
+export function deserializeBuildFromUrl(urlParam: string, catalog?: CatalogInput): CustomBuild | null {
   if (!urlParam || typeof urlParam !== 'string' || !urlParam.trim()) {
     return null;
   }
@@ -331,24 +457,30 @@ export function deserializeBuildFromUrl(urlParam: string): CustomBuild | null {
     }
 
     const validTypesSet = new Set<string>(BuildSlotTypes);
-    const slots: CustomBuildSlotItem[] = [];
+    const rawSlots: any[] = [];
 
     for (let i = 0; i < parsed.s.length; i++) {
       const item = parsed.s[i];
-      if (!Array.isArray(item) || item.length < 2) continue;
+      // 如果不是有效数组，或缺少基础元素，严禁使用 continue 静默忽略，必须整个拒绝！
+      if (!Array.isArray(item) || item.length < 2) {
+        return null;
+      }
 
       const type = item[0];
-      if (!validTypesSet.has(type)) continue;
+      if (!validTypesSet.has(type)) {
+        // 发现损坏的品类类型，必须直接拒绝，绝不静默跳过！
+        return null;
+      }
 
       const hardwareId = typeof item[1] === 'string' && item[1].trim() ? item[1].trim() : null;
       const userPrice = typeof item[2] === 'number' && Number.isFinite(item[2]) && item[2] >= 0 ? item[2] : null;
-      const quantity = typeof item[3] === 'number' && item[3] >= 1 ? Math.min(10, Math.floor(item[3])) : 1;
+      const quantity = typeof item[3] === 'number' ? item[3] : 1;
       const customName = typeof item[4] === 'string' && item[4].trim() ? item[4].trim() : undefined;
       const isExplicitZeroPrice = item[5] === 1 || userPrice === 0;
 
-      slots.push({
+      rawSlots.push({
         slotId: `shared-slot-${type}-${i}`,
-        type: type as BuildSlotType,
+        type,
         hardwareId,
         customName,
         userPrice,
@@ -357,15 +489,21 @@ export function deserializeBuildFromUrl(urlParam: string): CustomBuild | null {
       });
     }
 
-    return {
+    const candidateBuild = {
       schemaVersion: 1,
       id: `shared-${Date.now()}`,
       title: typeof parsed.t === 'string' && parsed.t.trim() ? parsed.t.trim() : '分享的装机单',
       targetBudget: typeof parsed.b === 'number' && parsed.b > 0 ? parsed.b : null,
-      slots,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      slots: rawSlots,
     };
+
+    // 严格调用统一校验器，不合法则返回 null
+    const valRes = validateCustomBuild(candidateBuild, catalog);
+    if (!valRes.valid || !valRes.build) {
+      return null;
+    }
+
+    return valRes.build;
   } catch {
     return null;
   }
@@ -380,6 +518,7 @@ export function generateBuildPlainText(
   lang: 'zh' | 'en' = 'zh'
 ): string {
   const safeCatalog = Array.isArray(catalog) && catalog.length > 0 ? catalog : Array.from(hardwareCatalog.byId.values());
+  const catalogMap = createCatalogMap(safeCatalog);
   const cost = calculateBuildCost(build, safeCatalog);
   const power = calculateBuildPower(build, safeCatalog);
   const report = checkBuildCompatibility(build, safeCatalog);
@@ -400,35 +539,36 @@ export function generateBuildPlainText(
     let priceText = '价格待查';
     let verifiedNote = '';
 
-    if (slot.hardwareId) {
-      for (const item of safeCatalog) {
+    if (slot.userPrice !== null) {
+      priceText = slot.isExplicitZeroPrice ? '￥0 (自备/赠送)' : `￥${slot.userPrice} (自选报价)`;
+    } else if (slot.hardwareId) {
+      const item = catalogMap.get(slot.hardwareId);
+      if (item) {
         if ('identity' in item) {
-          if (item.identity.id === slot.hardwareId) {
-            name = item.identity.name;
-            if (item.pricing.launchReference) {
-              priceText = `￥${item.pricing.launchReference}`;
-            }
-            if (item.auditSummary.hasOfficialSource) {
-              verifiedNote = ' [官方核验]';
-            } else if (item.auditSummary.verifiedCoreCount > 0) {
-              verifiedNote = ' [已核验核心]';
-            }
-            break;
+          name = item.identity.name;
+          if (item.pricing?.isKnownRange && typeof item.pricing.referenceRange?.min === 'number') {
+            const pMin = item.pricing.referenceRange.min;
+            const pMax = item.pricing.referenceRange.max;
+            priceText = pMin !== pMax ? `￥${pMin}~￥${pMax} (市场参考)` : `￥${pMin} (市场参考)`;
+          } else if (item.pricing?.launchReference) {
+            priceText = `￥${item.pricing.launchReference} (首发参考，未取到当前市场报价)`;
+          }
+          if (item.auditSummary?.hasOfficialSource) {
+            verifiedNote = ' [官方核验]';
+          } else if (item.auditSummary && item.auditSummary.verifiedCoreCount > 0) {
+            verifiedNote = ' [已核验核心]';
           }
         } else {
-          if (item.id === slot.hardwareId) {
-            name = item.name;
-            if (item.msrpRmb) {
-              priceText = `￥${item.msrpRmb}`;
-            }
-            break;
+          name = item.name;
+          if (isValidPriceRange(item.marketPriceRange)) {
+            const pMin = item.marketPriceRange[0];
+            const pMax = item.marketPriceRange[1];
+            priceText = pMin !== pMax ? `￥${pMin}~￥${pMax} (市场参考)` : `￥${pMin} (市场参考)`;
+          } else if (item.msrpRmb) {
+            priceText = `￥${item.msrpRmb} (首发参考，未取到当前市场报价)`;
           }
         }
       }
-    }
-
-    if (slot.userPrice !== null) {
-      priceText = slot.isExplicitZeroPrice ? '￥0 (自备/赠送)' : `￥${slot.userPrice} (自选报价)`;
     }
 
     if (slot.quantity > 1) {
@@ -441,9 +581,14 @@ export function generateBuildPlainText(
   const lines: string[] = [];
 
   if (lang === 'en') {
+    const costText = cost.isRange
+      ? `¥${cost.knownSubtotalMin} ~ ¥${cost.knownSubtotalMax}`
+      : `¥${cost.knownTotalCost}`;
+    const budgetNote = cost.budgetStatus === 'spans-budget' ? ' [Spans Budget]' : '';
+
     lines.push(`【SiliconWiki Custom PC Build】${build.title}`);
     lines.push(
-      `Budget: ${build.targetBudget ? `¥${build.targetBudget}` : 'N/A'} | Total Cost: ¥${cost.knownTotalCost} (${cost.hasUnknownPrices ? 'Partial Known Subtotal' : 'Complete Total'})`
+      `Budget: ${build.targetBudget ? `¥${build.targetBudget}` : 'N/A'} | Total Cost: ${costText}${budgetNote} (${cost.hasUnknownPrices ? `Partial Known Subtotal, ${cost.unknownPriceSlotCount} item(s) unpriced` : 'Complete Total'})`
     );
     lines.push('----------------------------------------');
     lines.push('Component Bill of Materials (BOM):');
@@ -459,6 +604,7 @@ export function generateBuildPlainText(
     lines.push(
       `Recommended PSU Rating: ≥ ${power.manufacturerPsuRecommendationWatts ?? 'unknown'}W (Installed PSU: ${power.psuRatedWatts ? `${power.psuRatedWatts}W` : 'Not Selected'})`
     );
+    lines.push(`Notice: ${power.empiricalEstimateNotice}`);
     lines.push('----------------------------------------');
     lines.push(
       `Compatibility Diagnostic: ${
@@ -482,9 +628,14 @@ export function generateBuildPlainText(
       'Notice: Generated by SiliconWiki Custom Builder based on known rules. Not an official hardware manufacturer certification. Verify physical fit prior to purchase.'
     );
   } else {
+    const costText = cost.isRange
+      ? `￥${cost.knownSubtotalMin} ~ ￥${cost.knownSubtotalMax}`
+      : `￥${cost.knownTotalCost}`;
+    const budgetNote = cost.budgetStatus === 'spans-budget' ? ' [跨越预算线]' : '';
+
     lines.push(`【SiliconWiki 芯知自选装机单】${build.title}`);
     lines.push(
-      `目标预算：${build.targetBudget ? `￥${build.targetBudget}` : '未设定'} | 配件花费：￥${cost.knownTotalCost}（${cost.hasUnknownPrices ? '已知部分合计' : '完整总计'}）`
+      `目标预算：${build.targetBudget ? `￥${build.targetBudget}` : '未设定'} | 配件花费：${costText}${budgetNote}（${cost.hasUnknownPrices ? `已知部分合计，${cost.unknownPriceSlotCount}项未报价` : '完整总计'}）`
     );
     lines.push('----------------------------------------');
     lines.push('配件配置清单 (BOM)：');
@@ -500,6 +651,7 @@ export function generateBuildPlainText(
     lines.push(
       `建议电源额定：≥ ${power.manufacturerPsuRecommendationWatts ?? '未知'}W（已选电源：${power.psuRatedWatts ? `${power.psuRatedWatts}W` : '未选择'}）`
     );
+    lines.push(`功耗说明：${power.empiricalEstimateNotice}`);
     lines.push('----------------------------------------');
     lines.push(
       `兼容性规则诊断：${

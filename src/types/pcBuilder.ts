@@ -1,4 +1,5 @@
 import { HardwareItem } from './index';
+import { SourceKind, VerificationStatus } from './hardwareSources';
 
 export type BuildSlotType =
   | 'cpu'
@@ -73,6 +74,8 @@ export interface CompatibilityRuleResult {
   message: string;
   basis: string; // 判定依据与引用规格
   condition?: string; // 适用前提与安装条件
+  sourceKind?: SourceKind;
+  verificationStatus?: VerificationStatus;
   involvedSlotTypes: BuildSlotType[];
   involvedHardwareIds: string[];
   missingFields?: string[]; // 待补数据或未核实字段
@@ -94,29 +97,48 @@ export interface CompatibilityReport {
   summaryText: string;
 }
 
+export type GpuPowerScenario = 'none' | 'known' | 'unrecognized' | 'custom';
+
 export interface PowerEstimate {
   cpuWatts: number | null;
   gpuWatts: number | null;
+  gpuScenario: GpuPowerScenario;
   basePlatformWatts: number; // 60W empirical baseline
   basePlatformAssumptionText: string;
   otherWatts: number;
   estimatedPeakWatts: number | null;
   manufacturerPsuRecommendationWatts: number | null;
+  manufacturerPsuSource?: {
+    valueWatts: number;
+    sourceKind?: SourceKind;
+    condition?: string;
+  } | null;
   psuRatedWatts: number | null;
   headroomWatts: number | null;
   isFullyKnown: boolean;
   missingInputs: string[];
   status: 'pass' | 'warning' | 'error' | 'unknown';
   notes: string[];
+  empiricalEstimateNotice: string;
 }
 
+export type BudgetStatus = 'within' | 'exceeded' | 'spans-budget' | 'unknown' | 'unspecified';
+
 export interface CostSummary {
-  knownTotalCost: number;
+  knownTotalCost: number; // 确定已知金额基线（即 knownSubtotalMin）
+  knownSubtotalMin: number;
+  knownSubtotalMax: number;
+  isRange: boolean;
   targetBudget: number | null;
-  budgetDifference: number | null;
+  budgetDifferenceMin: number | null;
+  budgetDifferenceMax: number | null;
+  budgetDifference: number | null; // backward compatibility
   isBudgetExceeded: boolean;
+  budgetStatus: BudgetStatus;
   hasUnknownPrices: boolean;
   unknownPriceSlotCount: number;
+  hasLaunchPriceFallback: boolean;
+  launchPriceFallbackCount: number;
   totalSlotsCount: number;
   filledSlotsCount: number;
   priceSourceBreakdown: {
@@ -124,6 +146,7 @@ export interface CostSummary {
     catalogReferenceCount: number;
     zeroPriceCount: number;
     unknownCount: number;
+    launchPriceOnlyCount: number;
   };
 }
 
@@ -132,3 +155,4 @@ export interface ReplacementCandidate {
   deltaPrice: number | null;
   remainingIssues: CompatibilityRuleResult[];
 }
+
