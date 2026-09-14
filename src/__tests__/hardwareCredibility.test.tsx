@@ -9,6 +9,9 @@ import {
   safeSortHardwareByPrice,
   safeSortHardwareByTdp,
   createHardwareCatalog,
+  isValidCheckDate,
+  formatHardwarePrice,
+  isValidPriceRange,
 } from '../utils/hardwareCatalog';
 import { computeCatalogCredibilityStats } from '../utils/dataCredibilityStats';
 import { HardwareTableView } from '../components/wiki/HardwareTableView';
@@ -402,36 +405,336 @@ describe('Phase 2: Hardware Credibility, Structured Data & Audit Suite', () => {
         expect(tableText).not.toContain('标准功耗');
         expect(tableText).toContain('功耗未记录');
 
-        // 3. Render SearchModal
+        // 3. Render SearchModal with controllable data injection
         await act(async () => {
           testRoot.render(
             <ThemeProvider>
               <LanguageProvider>
                 <CustomContentProvider>
-                  <SearchModal isOpen={true} onClose={() => {}} onNavigate={() => {}} />
+                  <SearchModal
+                    isOpen={true}
+                    onClose={() => {}}
+                    onNavigate={() => {}}
+                    hardwareItems={[testItem, ...hardwareList]}
+                  />
                 </CustomContentProvider>
               </LanguageProvider>
             </ThemeProvider>
           );
         });
 
-        // Type query that matches an item with unrecorded price or inspect search items
+        // Type query that matches an item with unrecorded price
         const searchInput = testContainer.querySelector('input[type="text"]') as HTMLInputElement;
         expect(searchInput).not.toBeNull();
         await act(async () => {
-          searchInput.value = 'Zero Price';
+          const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+          descriptor?.set?.call(searchInput, 'Zero Price');
           searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+          searchInput.dispatchEvent(new Event('change', { bubbles: true }));
         });
 
-        // Even for any zero price item, SearchModal must not show ￥0~0
-        const searchContainerText = testContainer.textContent || '';
-        expect(searchContainerText).not.toContain('￥0~0');
+        // 1. Positively assert that the target item appears in the search results
+        const titleEl = Array.from(testContainer.querySelectorAll('span')).find(
+          (el) => el.textContent === 'Zero Price Test CPU'
+        );
+        expect(titleEl).toBeDefined();
+
+        // 2. Locate the specific result item row DOM node for Zero Price Test CPU
+        const itemRow = titleEl!.closest('.cursor-pointer');
+        expect(itemRow).not.toBeNull();
+        expect(itemRow!.textContent).toContain('Zero Price Test CPU');
+        expect(itemRow!.textContent).toContain('暂无参考价');
+        expect(itemRow!.textContent).not.toContain('￥0 ~ ￥0');
+        expect(itemRow!.textContent).not.toContain('￥0~0');
+        expect(itemRow!.textContent).not.toContain('￥0');
       } finally {
         await act(async () => {
           testRoot.unmount();
         });
         testContainer.remove();
       }
+    });
+
+    it('date validation rejects nonexistent calendar dates while preserving valid leap years', () => {
+      // Nonexistent calendar dates
+      expect(isValidCheckDate('2026-02-31')).toBe(false);
+      expect(isValidCheckDate('2025-02-29')).toBe(false); // 2025 is not leap year
+      expect(isValidCheckDate('2026-04-31')).toBe(false); // April has 30 days
+      expect(isValidCheckDate('2026-06-31')).toBe(false); // June has 30 days
+      expect(isValidCheckDate('2026-09-31')).toBe(false); // September has 30 days
+      expect(isValidCheckDate('2026-11-31')).toBe(false); // November has 30 days
+      expect(isValidCheckDate('2026-13-01')).toBe(false); // Month 13
+      expect(isValidCheckDate('2026-00-10')).toBe(false); // Month 0
+
+      // Valid dates and leap years
+      expect(isValidCheckDate('2024-02-29')).toBe(true); // 2024 is leap year
+      expect(isValidCheckDate('2020-02-29')).toBe(true); // 2020 is leap year
+      expect(isValidCheckDate('2026-09-11')).toBe(true);
+      expect(isValidCheckDate('2024-11-07')).toBe(true);
+    });
+
+    it('unified price validity: [0, 1000] is unknown across catalog, formatting, and sorting, along with NaN, Infinity, inverted, and missing endpoints', () => {
+      // 0. Direct helper checks
+      expect(isValidPriceRange([0, 1000])).toBe(false);
+      expect(isValidPriceRange([0, 0])).toBe(false);
+      expect(isValidPriceRange([1000, 2000])).toBe(true);
+
+      // 1. [0, 1000] in catalog
+      const dummyPartialZero: HardwareItem = {
+        ...hardwareList[0],
+        id: 'partial-zero-price-item',
+        name: 'Partial Zero Item',
+        marketPriceRange: [0, 1000],
+      };
+      const catalog = createHardwareCatalog([dummyPartialZero]);
+      const rec = catalog.byId.get('partial-zero-price-item')!;
+      expect(rec.pricing.isKnownRange).toBe(false);
+      expect(rec.pricing.referenceRange.min).toBeNull();
+      expect(rec.pricing.referenceRange.max).toBeNull();
+
+      // 2. [0, 1000] in formatting
+      expect(formatHardwarePrice([0, 1000], 'zh')).toBe('暂无参考价');
+      expect(formatHardwarePrice([0, 1000], 'en')).toBe('Price unrecorded');
+
+      // 3. NaN, Infinity, inverted ranges, and missing endpoints in formatting
+      expect(formatHardwarePrice([NaN, 1000] as any)).toBe('暂无参考价');
+      expect(formatHardwarePrice([Infinity, 1000] as any)).toBe('暂无参考价');
+      expect(formatHardwarePrice([1000, Infinity] as any)).toBe('暂无参考价');
+      expect(formatHardwarePrice([2000, 1000])).toBe('暂无参考价'); // inverted
+      expect(formatHardwarePrice([null, 1000] as any)).toBe('暂无参考价');
+      expect(formatHardwarePrice([1000, null] as any)).toBe('暂无参考价');
+      expect(formatHardwarePrice([] as any)).toBe('暂无参考价');
+
+      // 4. Sorting: [0, 1000], [0, 0], [NaN, 1000] are all placed at the end in both asc and desc
+      const items = [
+        { ...dummyPartialZero, id: 'unknown-0-1000', marketPriceRange: [0, 1000] as [number, number] },
+        { ...dummyPartialZero, id: 'known-mid', marketPriceRange: [2000, 2500] as [number, number] },
+        { ...dummyPartialZero, id: 'known-low', marketPriceRange: [500, 600] as [number, number] },
+        { ...dummyPartialZero, id: 'unknown-0-0', marketPriceRange: [0, 0] as [number, number] },
+      ];
+      const sortedAsc = safeSortHardwareByPrice(items, true);
+      expect(sortedAsc[0].id).toBe('known-low');
+      expect(sortedAsc[1].id).toBe('known-mid');
+      expect(['unknown-0-1000', 'unknown-0-0']).toContain(sortedAsc[2].id);
+      expect(['unknown-0-1000', 'unknown-0-0']).toContain(sortedAsc[3].id);
+
+      const sortedDesc = safeSortHardwareByPrice(items, false);
+      expect(sortedDesc[0].id).toBe('known-mid');
+      expect(sortedDesc[1].id).toBe('known-low');
+      expect(['unknown-0-1000', 'unknown-0-0']).toContain(sortedDesc[2].id);
+      expect(['unknown-0-1000', 'unknown-0-0']).toContain(sortedDesc[3].id);
+    });
+
+    it('power evidence requires valid official source and check date, not just matching tdpWatts', () => {
+      const dummyItem: HardwareItem = {
+        ...hardwareList[0],
+        id: 'bad-power-source-item',
+        name: 'Bad Power Source Item',
+        tdpWatts: 150,
+      };
+
+      // Verified has matching tdpWatts, BUT invalid check date (nonexistent date 2026-02-31)
+      const verificationWithBadDate: HardwareVerification = {
+        modelName: 'Bad Power Source Item',
+        sourceTitle: 'Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-02-31', // invalid date!
+        scope: 'Test power evidence validation',
+        fields: {},
+        tdpWatts: 150,
+        powerSourceField: 'TDP',
+      };
+
+      const catalogBadDate = createHardwareCatalog(
+        [dummyItem],
+        (id) => (id === 'bad-power-source-item' ? verificationWithBadDate : undefined)
+      );
+      const rec1 = catalogBadDate.byId.get('bad-power-source-item')!;
+      expect(rec1.power.evidence).not.toBe('manufacturer-checked');
+      expect(rec1.power.evidence).toBe('editorial-reference');
+
+      // Verified has matching tdpWatts, BUT invalid sourceUrl
+      const verificationWithBadUrl: HardwareVerification = {
+        modelName: 'Bad Power Source Item',
+        sourceTitle: 'Official Spec',
+        sourceUrl: 'javascript:alert(1)', // invalid url!
+        checkedAt: '2026-09-11',
+        scope: 'Test power evidence validation',
+        fields: {},
+        tdpWatts: 150,
+        powerSourceField: 'TDP',
+      };
+      const catalogBadUrl = createHardwareCatalog(
+        [dummyItem],
+        (id) => (id === 'bad-power-source-item' ? verificationWithBadUrl : undefined)
+      );
+      const rec2 = catalogBadUrl.byId.get('bad-power-source-item')!;
+      expect(rec2.power.evidence).not.toBe('manufacturer-checked');
+      expect(rec2.power.evidence).toBe('editorial-reference');
+    });
+
+    it('explicit sourceId rejects nonexistent IDs and sourceKind conflicts without fallback', () => {
+      const dummyItem: HardwareItem = {
+        ...hardwareList[0],
+        id: 'source-id-check-item',
+        name: 'Source ID Check Item',
+      };
+
+      // 1. Explicit sourceId does NOT exist -> must degrade to unverified and NOT fallback to manufacturer
+      const verificationNonexistentSourceId: HardwareVerification = {
+        modelName: 'Source ID Check Item',
+        sourceTitle: 'Valid Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Test explicit invalid sourceId',
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: dummyItem.specs['核心/线程'] || '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+            sourceId: 'completely-non-existent-source-id',
+          },
+        },
+        tdpWatts: 120,
+        powerSourceField: 'TDP',
+      };
+
+      const catalog1 = createHardwareCatalog(
+        [dummyItem],
+        (id) => (id === 'source-id-check-item' ? verificationNonexistentSourceId : undefined)
+      );
+      const rec1 = catalog1.byId.get('source-id-check-item')!;
+      const spec1 = rec1.specifications.find((s) => s.label === '核心/线程')!;
+      expect(spec1.verificationStatus).toBe('unverified');
+      expect(spec1.evidence).toBe('editorial-reference');
+      expect(rec1.auditSummary.verifiedFieldCount).toBe(0);
+
+      // 2. Conflict: sourceId points to a third-party source (zol), but fact.sourceKind claims 'manufacturer'
+      const verificationKindConflict: HardwareVerification = {
+        modelName: 'Source ID Check Item',
+        sourceTitle: 'Valid Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Test kind conflict',
+        zol: {
+          parameterUrl: 'https://detail.zol.com.cn/cpu/index.html',
+          checkedAt: '2026-09-11',
+        },
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: dummyItem.specs['核心/线程'] || '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer', // Claiming manufacturer!
+            sourceId: 'source-id-check-item:zol', // But sourceId points to product-database!
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+        tdpWatts: 120,
+        powerSourceField: 'TDP',
+      };
+
+      const catalog2 = createHardwareCatalog(
+        [dummyItem],
+        (id) => (id === 'source-id-check-item' ? verificationKindConflict : undefined)
+      );
+      const rec2 = catalog2.byId.get('source-id-check-item')!;
+      const spec2 = rec2.specifications.find((s) => s.label === '核心/线程')!;
+      // Conflict must degrade to unverified, cannot label third-party link as manufacturer!
+      expect(spec2.verificationStatus).toBe('unverified');
+      expect(spec2.evidence).toBe('editorial-reference');
+      expect(rec2.auditSummary.verifiedFieldCount).toBe(0);
+    });
+
+    it('credibility stats: having official link but only third-party verified fields does not count as officially verified', () => {
+      const dummyItem: HardwareItem = {
+        ...hardwareList[0],
+        id: 'tp-only-verified-item',
+        name: 'Third Party Only Verified Item',
+      };
+
+      const verification: HardwareVerification = {
+        modelName: 'Third Party Only Verified Item',
+        sourceTitle: 'Official AMD Spec Link',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Only third-party fields verified',
+        zol: {
+          parameterUrl: 'https://detail.zol.com.cn/cpu/index.html',
+          checkedAt: '2026-09-11',
+        },
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: dummyItem.specs['核心/线程'] || '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'product-database',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+        tdpWatts: 120,
+        powerSourceField: 'TDP',
+      };
+
+      const catalog = createHardwareCatalog([dummyItem], () => verification);
+      const stats = computeCatalogCredibilityStats(catalog);
+
+      // Must NOT count as officially verified, because 0 official fields are verified!
+      expect(stats.totalOfficiallyVerified).toBe(0);
+      expect(stats.categories.cpu.officiallyVerifiedCount).toBe(0);
+
+      // Must count as third-party verified!
+      expect(stats.totalThirdPartyVerified).toBe(1);
+      expect(stats.categories.cpu.thirdPartyVerifiedCount).toBe(1);
+    });
+
+    it('credibility stats: having only third-party link with zero verified fields does not count as third-party verified', () => {
+      const dummyItem: HardwareItem = {
+        ...hardwareList[0],
+        id: 'link-only-item',
+        name: 'Link Only Item',
+      };
+
+      const verificationLinkOnly: HardwareVerification = {
+        modelName: 'Link Only Item',
+        sourceTitle: 'Reference Link',
+        sourceUrl: 'https://example.com/unverified',
+        checkedAt: '2026-09-11',
+        scope: 'Only link, zero verified fields',
+        zol: {
+          parameterUrl: 'https://detail.zol.com.cn/cpu/index.html',
+          checkedAt: '2026-09-11',
+        },
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: dummyItem.specs['核心/线程'] || '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'product-database',
+            verificationStatus: 'unverified', // unverified!
+            checkedAt: '2026-09-11',
+          },
+        },
+        tdpWatts: 120,
+        powerSourceField: 'TDP',
+      };
+
+      const catalog = createHardwareCatalog([dummyItem], () => verificationLinkOnly);
+      const stats = computeCatalogCredibilityStats(catalog);
+
+      // Cannot count as third-party verified when verified fields is 0!
+      expect(stats.totalThirdPartyVerified).toBe(0);
+      expect(stats.categories.cpu.thirdPartyVerifiedCount).toBe(0);
+      expect(stats.totalOfficiallyVerified).toBe(0);
+
+      // Since it has sources/links, it falls into editorial reference
+      expect(stats.totalEditorialReference).toBe(1);
+      expect(stats.categories.cpu.editorialReferenceCount).toBe(1);
     });
 
     it('table view places unknown prices at the end in both asc and desc sorts', async () => {

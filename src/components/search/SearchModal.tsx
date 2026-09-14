@@ -19,7 +19,7 @@ import { assemblyStepsData } from '../../data/assemblySteps';
 import { stepTranslationsEn } from '../../data/assemblyTranslationsEn';
 import { recommendedBuilds } from '../../data/builds';
 import { getLocalizedBuildTitle, getLocalizedBuildTagline, getLocalizedBuildScenario } from '../../data/buildTranslationsEn';
-import { ActiveTab } from '../../types';
+import { ActiveTab, HardwareItem } from '../../types';
 import { useCustomContent } from '../../context/CustomContentContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { computeDetailOpenUrl } from '../../utils/navigation';
@@ -45,7 +45,7 @@ export interface SearchResultItem {
   hardwareId?: string;
 }
 
-interface SearchModalProps {
+export interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (
@@ -57,12 +57,14 @@ interface SearchModalProps {
       historyState?: Record<string, unknown>;
     }
   ) => void;
+  hardwareItems?: readonly HardwareItem[];
 }
 
 export const SearchModal: React.FC<SearchModalProps> = ({
   isOpen,
   onClose,
   onNavigate,
+  hardwareItems,
 }) => {
   const { lang } = useLanguage();
   const { unlockDevMode } = useCustomContent();
@@ -180,11 +182,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     const searchKeyword = normalizeAcronym(q);
 
     // 1. Hardware items
-    hardwareList.forEach((h) => {
+    const activeHardwareList = hardwareItems ?? hardwareList;
+    activeHardwareList.forEach((h) => {
       const matchName = h.name.toLowerCase().includes(searchKeyword);
       const matchBrand = h.brand.toLowerCase().includes(searchKeyword);
       const matchSeries = h.series.toLowerCase().includes(searchKeyword);
-      const matchHighlights = h.highlights.some((hl) => hl.toLowerCase().includes(searchKeyword));
+      const matchHighlights = (h.highlights || []).some((hl: string) => hl.toLowerCase().includes(searchKeyword));
       if (matchName || matchBrand || matchSeries || matchHighlights) {
         items.push({
           id: `hw-${h.id}`,
@@ -224,7 +227,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       const matchDesc = g.shortDesc.toLowerCase().includes(searchKeyword) || localizedDesc.toLowerCase().includes(searchKeyword);
       if (matchTerm || matchAlias || matchDesc) {
         items.push({
-          id: `glossary-${g.id}`,
+          id: `term-${g.id}`,
           title: localizedTitle,
           subtitle: localizedDesc,
           category: lang === 'en' ? 'Glossary' : '名词术语',
@@ -277,7 +280,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     });
 
     return items.slice(0, 15);
-  }, [query, lang]);
+  }, [query, lang, hardwareItems]);
 
   const handleSelect = (item: SearchResultItem) => {
     if (item.id === 'sys-diag-workbench' || isDiagnosticsToken(query.trim().toLowerCase())) {

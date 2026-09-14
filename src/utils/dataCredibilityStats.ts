@@ -83,18 +83,31 @@ export function computeCatalogCredibilityStats(catalog: HardwareCatalog): Catalo
       totalChipsAndSeries++;
     }
 
-    // 2. Verification tier for this hardware item
-    if (record.auditSummary.hasOfficialSource && record.auditSummary.verifiedFieldCount > 0) {
+    // 2. Verification tier for this hardware item (based on actual validated fields and their sources)
+    const hasOfficialVerifiedFields = record.specifications.some(
+      (s) => s.verificationStatus === 'verified' && s.sourceKind === 'manufacturer'
+    );
+    const hasThirdPartyVerifiedFields = record.specifications.some(
+      (s) => s.verificationStatus === 'verified' && s.sourceKind === 'product-database'
+    );
+
+    // Each verified source category is counted independently; a record can contain both
+    if (hasOfficialVerifiedFields) {
       catStats.officiallyVerifiedCount++;
       totalOfficiallyVerified++;
-    } else if (record.sources.some((s) => s.kind === 'product-database')) {
+    }
+    if (hasThirdPartyVerifiedFields) {
       catStats.thirdPartyVerifiedCount++;
       totalThirdPartyVerified++;
-    } else if (record.sources.length > 0 || record.specifications.some((s) => s.sourceKind === 'editorial')) {
-      catStats.editorialReferenceCount++;
-      totalEditorialReference++;
-    } else {
-      catStats.unverifiedCount++;
+    }
+
+    if (!hasOfficialVerifiedFields && !hasThirdPartyVerifiedFields) {
+      if (record.sources.length > 0 || record.specifications.some((s) => s.sourceKind === 'editorial')) {
+        catStats.editorialReferenceCount++;
+        totalEditorialReference++;
+      } else {
+        catStats.unverifiedCount++;
+      }
     }
 
     // 3. Known measurements check (avoiding defaulting missing to 0)

@@ -108,7 +108,7 @@ export const DataCredibilityModal: React.FC<DataCredibilityModalProps> = ({ isOp
                 {stats.totalOfficiallyVerified}
               </div>
               <span className="text-[10px] text-emerald-700/70 dark:text-emerald-400/70 block">
-                {zh ? '逐项核对官网白皮书' : 'Matched with official specs'}
+                {zh ? '含原厂核验字段（可并存）' : 'Has official verified fields'}
               </span>
             </div>
 
@@ -120,7 +120,7 @@ export const DataCredibilityModal: React.FC<DataCredibilityModalProps> = ({ isOp
                 {stats.totalThirdPartyVerified}
               </div>
               <span className="text-[10px] text-blue-700/70 dark:text-blue-400/70 block">
-                {zh ? 'TechPowerUp / ZOL' : 'TechPowerUp / ZOL'}
+                {zh ? '含第三方核验字段（可并存）' : 'Has 3rd-party verified fields'}
               </span>
             </div>
 
@@ -181,8 +181,8 @@ export const DataCredibilityModal: React.FC<DataCredibilityModalProps> = ({ isOp
                   2. 来源类别与核验状态彻底分离
                 </strong>
                 {zh
-                  ? '区分官方原厂规格、第三方产品库与社区编辑参考。未核验字段严禁自动生成或假借当天日期，始终保留真实核验踪迹。'
-                  : 'Sources are categorized as manufacturer, database, or editorial. Unverified fields never receive fabricated dates.'}
+                  ? '区分官方原厂规格、第三方产品库与社区编辑参考。统计严格基于实际已核验字段：仅附第三方链接无核验字段不计入第三方核验；支持单条硬件同时具有原厂与第三方核验字段。'
+                  : 'Sources are categorized as manufacturer, database, or editorial. Verification metrics require actual verified fields; items can contain both official and 3rd-party verified fields.'}
               </div>
               <div>
                 <strong className="text-slate-900 dark:text-slate-200 block mb-0.5">

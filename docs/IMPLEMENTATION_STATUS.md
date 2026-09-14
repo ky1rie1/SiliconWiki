@@ -159,14 +159,28 @@
   - 详情页与汇总面板文案与算法保持一致，明确采用品类核心基准标准计算。
 
 - [x] **E. 严密来源有效性校验与第三方来源解耦**
-  - **校验防御**：实现 `isValidSourceUrl`（限制 http/https 协议）与 `isValidCheckDate`（严格校验 YYYY-MM-DD 格式），来源 URL 无效或核验日期损坏时不得计入已核验；
-  - **真实状态判断**：杜绝仅凭 `Boolean(fact)` 判定为官方核验；显式标记 `status === 'unverified'` 的字段绝不产生已核验证据标签；
-  - **第三方来源独立绑定**：支持第三方事实记录（如 ZOL 中关村在线）关联至真实第三方来源对象，杜绝将第三方数据硬编码指向厂商官方来源。
+  - **校验防御**：
+    - 实现 `isValidSourceUrl`（严格限制 `http/https` 协议）；
+    - 实现 `isValidCheckDate`（校验 `YYYY-MM-DD` 格式并基于 UTC 日历精确校验真实日历天数，拒绝 `2026-02-31`、`2025-02-29`、`2026-04-31` 等不存在日期，正确保留 `2024-02-29` 等合法闰年）；
+  - **sourceId 关联校验修复**：
+    - 区分“旧数据没有填写 sourceId”与“显式填写了错误 sourceId”；
+    - 显式 `sourceId` 不存在时，拒绝静默回退到其他来源，严格降级为未核验；
+    - `sourceId` 指向的来源类型与 `fact.sourceKind` 冲突时（如指向产品库却声称 manufacturer），降级为未核验，杜绝给第三方链接贴官方标签；
+  - **整机功耗证据严密性**：
+    - `power.evidence` 必须同时满足官方来源有效、核验日期有效、功耗已知且核验数值相等，才可标记 `manufacturer-checked`，杜绝仅凭功耗数值相等虚标；
+  - **全站可信度汇总算法与文案对齐**：
+    - `computeCatalogCredibilityStats` 基于实际通过校验字段的关联来源计算：
+      - 仅当硬件包含有效的厂商核验字段时，计入 `officiallyVerifiedCount`（即使附有官方链接，若核验字段全为第三方，绝不计入官方核验）；
+      - 仅当硬件包含有效的第三方核验字段时，计入 `thirdPartyVerifiedCount`（仅附有第三方链接而无核验字段者计入参考资料，绝不计入第三方已核验）；
+      - 明确统计规则支持单条硬件同时具有原厂与第三方核验字段，弹窗卡片文案与算法保持高度一致。
 
-- [x] **F. 全入口未知值统一防御与安全排序**
-  - **全场景统一样式**：在 `src/utils/hardwareCatalog.ts` 中封装 `formatHardwarePrice` 与 `formatHardwareTdp`，在卡片、详情弹窗、尺寸面板、表格视图及全局搜索弹窗中统一应用；
-  - 未知价格绝不显示 `¥0~¥0` 或 `¥0`，统一显示“价格未记录”或“暂无参考价”；未知功耗绝不显示 `0W` 或虚标“标准功耗”，统一显示“功耗未记录”；
-  - **表格视图三态排序与末尾归并**：修复 `HardwareTableView.tsx` 价格与功耗列排序三态逻辑（降序 -> 升序 -> 取消），并保证在升序和降序两种状态下，未知值条目均稳定排在列表末尾，避免未知价格在升序排序中冲到顶部。
+- [x] **F. 全入口未知值统一防御、价格区间收敛与安全排序**
+  - **统一价格区间有效性**：在 `src/utils/hardwareCatalog.ts` 中封装 `isValidPriceRange` 纯函数，目录构建、文本格式化与表格排序共用这同一判断基准；
+  - `[0, 1000]` 在目录、格式化与排序中状态彻底统一：识别为历史未知占位，在目录中为未知，格式化输出“暂无参考价”（英文 "Price unrecorded"），杜绝输出 `￥0~￥1000`；
+  - 全面防御并收敛 `NaN`、`Infinity`、反向区间（`min > max`）与缺失端点（`null` / `undefined`）；支持 `allowZero` 区分真实零价格与历史占位，不机械替换数值；
+  - **全场景统一样式**：`formatHardwarePrice` 与 `formatHardwareTdp` 在卡片、详情弹窗、尺寸面板、表格视图及全局搜索弹窗中统一应用；
+  - **表格视图三态排序与末尾归并**：修复 `HardwareTableView.tsx` 价格与功耗列排序三态逻辑（降序 -> 升序 -> 取消），并保证在升序和降序两种状态下，未知值条目均稳定排在列表末尾；
+  - **搜索弹窗可控注入与真实项断言**：`SearchModal` 支持 `hardwareItems` 可控注入，回归测试真实搜索到目标测试条目，正向断言出现并校验其显示“暂无参考价”且不显示零元区间。
 
 - [x] **G. 非公品牌实测与物理规格严谨化**
   - 修正七彩虹 RTX 4070 SUPER Ultra W OC 供电接口描述为 `16-pin (12VHPWR / 12V-2x6)`，与规格表严格对应；
@@ -178,17 +192,17 @@
 ### 2. 自动化测试与质量验收
 
 - **测试套件执行**：`npm test`
-  - **20 个测试文件全部通过，共 150 个用例全部通过，0 失败**；
-  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 18 个用例，包含针对提交 8a0b9f64 的 7 项专属回归测试：
-    1. 统计口径隔离：RTX 5090 核心字段 4/8，总核验字段 6 项；
-    2. 无效来源 URL（如 javascript: 伪协议）与损坏日期（非 YYYY-MM-DD）防御拦截；
-    3. 显式 unverified 字段不生成官方核验徽标；
-    4. 第三方事实记录正确绑定第三方数据源 ID；
-    5. 卡片、表格、搜索弹窗全入口未知价格统一格式化（无 ¥0 漏网）；
-    6. 表格升序与降序时未知价格均稳定置底；
-    7. 非公变体供电接口文案一致性与去虚构描述校验。
+  - **20 个测试文件全部通过，共 156 个用例全部通过，0 失败**；
+  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 24 个用例，包含针对提交 2ba4c99c 的 7 项专属精确回归测试：
+    1. 真实日历校验：拒绝 `2026-02-31`、`2025-02-29`、`2026-04-31` 等虚构日期，正确保留 `2024-02-29` 闰年；
+    2. 统一价格有效性：`[0, 1000]`、`[0, 0]`、`[NaN, 1000]`、`[Infinity, 1000]`、反向区间及缺失端点在目录、格式化与排序中一致表现为未知；
+    3. 功耗核验严密性：日期无效或来源 URL 无效时，`power.evidence` 绝不带 `manufacturer-checked`；
+    4. 显式 sourceId 校验：不存在的 sourceId 或类别冲突拒绝回退，严格降级为未核验；
+    5. 官方核验口径：仅有第三方字段核验但附有官方链接的条目，绝不计入官方核验条目；
+    6. 第三方核验口径：仅有第三方链接但核验字段为 0 的条目，绝不计入第三方核验条目；
+    7. 搜索弹窗真实注入与精确断言：通过 `hardwareItems` 属性注入，搜索并正向断言测试条目出现，验证其显示“暂无参考价”且不显示零元区间。
 - **生产构建验证**：`npm run build` (`tsc && vite build`)
-  - TypeScript 严格类型检查 0 错误；
+  - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
   - Vite 生产打包 0 警告 0 错误（产物位于 `dist/`）。
 
 ---
@@ -198,8 +212,8 @@
 1. **类型定义与工具库**
    - [修改] `src/types/hardwareSources.ts`：增加 `EntityKind`, `SourceKind`, `VerificationStatus`，补充 `gpu.dimensions` 字段 ID 与 `sourceId`；
    - [修改] `src/types/hardwareCatalog.ts`：扩展 `HardwareRecord`（`verifiedCoreCount`, `entityKind`, `variantDetails`, `auditSummary` 等）；
-   - [新建] `src/utils/dataCredibilityStats.ts`：全品类可信度指标计算纯函数 `computeCatalogCredibilityStats`；
-   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`（口径分离）、`formatHardwarePrice`、`formatHardwareTdp`、`isValidSourceUrl`、`isValidCheckDate`、`safeSortHardwareByPrice`、`safeSortHardwareByTdp`；
+   - [新建] `src/utils/dataCredibilityStats.ts`：基于实际核验字段的来源层级计算，支持多来源并存统计；
+   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`（口径分离）、`isValidPriceRange`、`formatHardwarePrice`、`formatHardwareTdp`、`isValidSourceUrl`、`isValidCheckDate`（拒绝溢出日历）、`safeSortHardwareByPrice`、`safeSortHardwareByTdp`；
 2. **硬件数据底册**
    - [修改] `src/data/sources/verifiedHardware.ts`：补充官方核验记录、拆分实体类型，完善尺寸核验与供电接口一致性，剔除“实测”浮夸文案；
    - [修改] `src/data/hardware/gpus.ts`：新增 `gpu-colorful-rtx4070s-ultra-w` 非公显卡条目；
@@ -210,11 +224,11 @@
    - [修改] `src/components/wiki/HardwareCard.tsx`：展示核心已核验比率，接入统一格式化器；
    - [修改] `src/components/wiki/HardwareMeasurements.tsx`：实体层级标签、字段级核验状态、折叠来源与待核验清单、统一价格防御；
    - [修改] `src/components/wiki/HardwareDetailModal.tsx`：头部可信度徽章口径对齐、表格字段打钩标示；
-   - [修改] `src/components/search/SearchModal.tsx`：接入统一价格格式化器，防止未知价格在搜索条目副标题显示 `¥0~¥0`；
+   - [修改] `src/components/search/SearchModal.tsx`：支持 `hardwareItems` 可控注入，接入统一价格格式化器；
 4. **自动化测试**
-   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件（18 个测试用例）；
+   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件（24 个测试用例，全量拦截审查缺陷）；
 5. **项目文档**
    - [新建] `docs/PHASE_2_PLAN.md`：阶段 2 需求规范与实施计划；
-   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与审查修复验收记录。
+   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与两轮审查修复验收记录。
 
 

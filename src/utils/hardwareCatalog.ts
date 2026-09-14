@@ -20,8 +20,12 @@ export function isValidCheckDate(dateStr?: string | null): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
   const [y, m, d] = dateStr.split('-').map(Number);
   if (y < 2000 || y > 2099 || m < 1 || m > 12 || d < 1 || d > 31) return false;
-  const parsed = new Date(dateStr);
-  return !Number.isNaN(parsed.getTime());
+  const utcDate = new Date(Date.UTC(y, m - 1, d));
+  return (
+    utcDate.getUTCFullYear() === y &&
+    utcDate.getUTCMonth() + 1 === m &&
+    utcDate.getUTCDate() === d
+  );
 }
 
 export function isValidSourceUrl(urlStr?: string | null): boolean {
@@ -36,17 +40,39 @@ export function isValidSourceUrl(urlStr?: string | null): boolean {
 
 const safeLink = (value: { url: string }) => isValidSourceUrl(value.url);
 
+export function isValidPriceRange(
+  range: unknown,
+  options?: { allowZero?: boolean }
+): range is [number, number] {
+  if (!Array.isArray(range) || range.length < 2) return false;
+  const min = range[0];
+  const max = range[1];
+  if (typeof min !== 'number' || typeof max !== 'number') return false;
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return false;
+  if (min < 0 || max < 0) return false;
+  if (min > max) return false;
+
+  // Distinguish real zero price from historical unknown placeholders:
+  // In retail hardware datasets, [0, 0] or [0, max] are standard placeholders for unrecorded price.
+  // Unless explicitly allowed via allowZero, min === 0 indicates an unknown price.
+  if (min === 0 && !options?.allowZero) return false;
+
+  return true;
+}
+
 export function formatHardwarePrice(
-  priceRange: [number, number] | undefined | null,
-  lang: 'zh' | 'en' = 'zh'
+  priceRange: [number, number] | undefined | null | unknown,
+  lang: 'zh' | 'en' = 'zh',
+  options?: { allowZero?: boolean }
 ): string {
-  if (!priceRange || (priceRange[0] <= 0 && priceRange[1] <= 0)) {
+  if (!isValidPriceRange(priceRange, options)) {
     return lang === 'en' ? 'Price unrecorded' : '暂无参考价';
   }
-  if (priceRange[0] === priceRange[1]) {
-    return `￥${priceRange[0]}`;
+  const [min, max] = priceRange;
+  if (min === max) {
+    return `￥${min}`;
   }
-  return `￥${priceRange[0]} ~ ￥${priceRange[1]}`;
+  return `￥${min} ~ ￥${max}`;
 }
 
 export function formatHardwareTdp(
@@ -330,16 +356,28 @@ export function createHardwareCatalog(
       if (fact && fact.verificationStatus === 'verified') {
         const checkDate = fact.checkedAt || verified?.checkedAt;
         if (isValidCheckDate(checkDate)) {
-          const targetKind = fact.sourceKind || 'manufacturer';
-          const targetSource =
-            (fact.sourceId ? validSourcesById.get(fact.sourceId) : undefined) ||
-            sources.find((s) => s.kind === targetKind);
+          let resolvedSource: typeof sources[number] | undefined;
+          let hasSourceError = false;
 
-          if (targetSource) {
+          if (fact.sourceId !== undefined && fact.sourceId !== '') {
+            const found = validSourcesById.get(fact.sourceId);
+            if (!found) {
+              hasSourceError = true;
+            } else if (fact.sourceKind && fact.sourceKind !== found.kind) {
+              hasSourceError = true;
+            } else {
+              resolvedSource = found;
+            }
+          } else {
+            const targetKind = fact.sourceKind || 'manufacturer';
+            resolvedSource = sources.find((s) => s.kind === targetKind);
+          }
+
+          if (!hasSourceError && resolvedSource) {
             isEffectivelyVerified = true;
-            effectiveSourceId = targetSource.id;
+            effectiveSourceId = resolvedSource.id;
             effectiveCheckedAt = checkDate;
-            sourceKind = targetKind;
+            sourceKind = resolvedSource.kind;
           }
         }
       }
@@ -378,9 +416,20 @@ export function createHardwareCatalog(
     );
 
     const hasKnownPower = finitePositive(item.tdpWatts);
-    const isKnownPrice = finitePositive(rawMin) && finitePositive(rawMax) && rawMin <= rawMax;
+    const isKnownPrice = isValidPriceRange(item.marketPriceRange);
     const min = isKnownPrice ? rawMin : null;
     const max = isKnownPrice ? rawMax : null;
+
+    const hasValidOfficialSource = sources.some(
+      (s) => s.kind === 'manufacturer' && isValidSourceUrl(s.url) && isValidCheckDate(s.checkedAt)
+    );
+
+    const isPowerVerified =
+      hasKnownPower &&
+      hasValidOfficialSource &&
+      Boolean(verified) &&
+      verified?.tdpWatts === item.tdpWatts &&
+      isValidCheckDate(verified?.checkedAt);
 
     const record: HardwareRecord = {
       schemaVersion: 1,
@@ -401,12 +450,9 @@ export function createHardwareCatalog(
       power: {
         watts: hasKnownPower ? item.tdpWatts : null,
         isKnown: hasKnownPower,
-        evidence:
-          verified && verified.tdpWatts === item.tdpWatts
-            ? 'manufacturer-checked'
-            : 'editorial-reference',
+        evidence: isPowerVerified ? 'manufacturer-checked' : 'editorial-reference',
         meaning:
-          verified?.powerSourceField ||
+          (isPowerVerified && verified?.powerSourceField) ||
           (hasKnownPower
             ? 'Catalog power reference; meaning depends on component category'
             : '功耗未记录'),
@@ -439,23 +485,22 @@ export function createHardwareCatalog(
 
 /**
  * Pure safe sort function for price ascending/descending.
- * Unknown or 0 prices are placed at the very end of the list, preventing NaN / Infinity or
- * misplacing missing items as cheapest.
+ * Unknown, invalid, or zero placeholder prices are placed at the very end of the list.
  */
 export function safeSortHardwareByPrice<T extends { marketPriceRange: [number, number] }>(
   items: readonly T[],
   ascending: boolean
 ): T[] {
   return [...items].sort((a, b) => {
+    const aValid = isValidPriceRange(a.marketPriceRange);
+    const bValid = isValidPriceRange(b.marketPriceRange);
+
+    if (!aValid && !bValid) return 0;
+    if (!aValid) return 1;
+    if (!bValid) return -1;
+
     const aMin = a.marketPriceRange[0];
     const bMin = b.marketPriceRange[0];
-    const aKnown = typeof aMin === 'number' && Number.isFinite(aMin) && aMin > 0;
-    const bKnown = typeof bMin === 'number' && Number.isFinite(bMin) && bMin > 0;
-
-    if (!aKnown && !bKnown) return 0;
-    if (!aKnown) return 1;
-    if (!bKnown) return -1;
-
     return ascending ? aMin - bMin : bMin - aMin;
   });
 }
