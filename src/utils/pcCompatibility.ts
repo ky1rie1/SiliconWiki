@@ -28,7 +28,10 @@ import {
   extractPsuSpecs,
   extractDisplayOutputInfo,
   getSpecificationRecord,
+  analyzeRadiatorInstallation,
+  resolveConditionalGpuLimits,
 } from './specAdapter';
+export { analyzeRadiatorInstallation, resolveConditionalGpuLimits };
 import { isValidPriceRange } from './hardwareCatalog';
 
 /** Uncovered rules in this version to disclose explicitly */
@@ -673,6 +676,8 @@ export function checkBuildCompatibility(
         const limits = condLimits.map((c) => c.maxGpuLengthMm);
         const minLim = Math.min(...limits);
         const maxLim = Math.max(...limits);
+        const { frontLimit, noFrontLimit } = resolveConditionalGpuLimits(condLimits);
+        const radAnalysis = analyzeRadiatorInstallation(cooler, chassis);
 
         if (gLen > maxLim) {
           // 超过所有已知条件限长最大值，绝对无法安装
@@ -687,31 +692,30 @@ export function checkBuildCompatibility(
             involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
             suggestedFix: `更换内部更宽裕的机箱，或更换长度小于 ${maxLim}mm 的显卡。`,
           });
-        } else if (gLen > minLim && gLen <= maxLim) {
-          // 介于条件区间内：不能粗暴断言装不下，未确定安装状态时明确待核实
-          const condDesc = condLimits.map((c) => `「${c.condition}」限长 ${c.maxGpuLengthMm}mm`).join('；');
-          rules.push({
-            ruleId: 'rule_gpu_length_clearance',
-            category: '物理空间与干涉',
-            status: 'unknown',
-            title: '显卡长度处于机箱多条件限长区间（待核实安装状态）',
-            message: `显卡长度为 ${gLen}mm，处于机箱多条件限长区间内（${condDesc}）。未确定实际装配方案或前置散热器安装状态时，无法断定是否发生物理干涉，需待核实实物安装条件。`,
-            basis: `显卡长: ${gLen}mm; 条件限长范围: ${minLim}~${maxLim}mm`,
-            involvedSlotTypes: ['gpu', 'case'],
-            involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
-            missingFields: ['case.installationCondition'],
-          });
-        } else {
-          // 小于等于最保守限长
-          if (minLim - gLen < 15) {
+        } else if (radAnalysis.coolerType === 'air') {
+          // 确定为风冷散热：机箱前置未安装水冷排，适用无前置冷排限长
+          const effectiveLimit = noFrontLimit ?? maxLim;
+          if (gLen > effectiveLimit) {
+            rules.push({
+              ruleId: 'rule_gpu_length_clearance',
+              category: '物理空间与干涉',
+              status: 'error',
+              title: '显卡超长无法放入机箱',
+              message: `显卡实际长度为 ${gLen}mm，超过机箱无前置冷排限长 (${effectiveLimit}mm)，物理无法装入！`,
+              basis: `显卡长: ${gLen}mm; 机箱限长: ${effectiveLimit}mm`,
+              condition: '未安装前置冷排',
+              involvedSlotTypes: ['gpu', 'case'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+            });
+          } else if (effectiveLimit - gLen < 15) {
             rules.push({
               ruleId: 'rule_gpu_length_clearance',
               category: '物理空间与干涉',
               status: 'warning',
-              title: '显卡安装空间极为紧凑',
-              message: `显卡长度 (${gLen}mm) 接近机箱保守条件限长 (${minLim}mm)，间隙不足 15mm。装配时可能需要调整角度小心放入。`,
-              basis: `保守净空余量仅 ${minLim - gLen}mm`,
-              condition: '严苛安装状态下空间紧凑',
+              title: '显卡安装空间极度紧凑',
+              message: `显卡长度 (${gLen}mm) 接近机箱无前置冷排限长 (${effectiveLimit}mm)，间隙不足 15mm。`,
+              basis: `净空余量仅 ${effectiveLimit - gLen}mm`,
+              condition: '未安装前置冷排',
               involvedSlotTypes: ['gpu', 'case'],
               involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
             });
@@ -721,11 +725,223 @@ export function checkBuildCompatibility(
               category: '物理空间与干涉',
               status: 'pass',
               title: '显卡长度符合机箱限长要求',
-              message: `显卡长度为 ${gLen}mm，在机箱各种条件限长（最低 ${minLim}mm）下均可正常安装，余量充沛 (${minLim - gLen}mm)。`,
-              basis: `显卡: ${gLen}mm; 保守限长: ${minLim}mm`,
+              message: `配置采用风冷散热，机箱前置未安装冷排，适用无前置冷排限长 ${effectiveLimit}mm。显卡长 ${gLen}mm 可正常安装，余量充沛 (${effectiveLimit - gLen}mm)。`,
+              basis: `显卡: ${gLen}mm; 无前置冷排限长: ${effectiveLimit}mm`,
+              condition: '未安装前置冷排',
               involvedSlotTypes: ['gpu', 'case'],
               involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
             });
+          }
+        } else if (radAnalysis.coolerType === 'liquid' && radAnalysis.radiatorSizeMm) {
+          // 水冷排场景：依据冷排安装可行位置精准分流
+          if (radAnalysis.isForcedFront) {
+            // 场景 1: 水冷排只能前置（如顶部仅 240，前置支持 360）
+            const effectiveLimit = frontLimit ?? minLim;
+            if (gLen > effectiveLimit) {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'error',
+                title: '前置冷排占用显卡空间导致超长干涉',
+                message: `所选 ${radAnalysis.radiatorSizeMm}mm 水冷排在机箱中仅支持前置安装（顶部不支持该规格），前置冷排状态下显卡限长缩减至 ${effectiveLimit}mm。当前显卡长度为 ${gLen}mm，超过前置限长，发生严重物理干涉无法装入！`,
+                basis: `前置冷排限长: ${effectiveLimit}mm; 显卡长: ${gLen}mm`,
+                condition: '水冷排前置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+                suggestedFix: `更换支持顶置安装的更小规格水冷排、更换长度小于 ${effectiveLimit}mm 的显卡，或更换前置装冷排后仍有充裕限长的机箱。`,
+              });
+            } else if (effectiveLimit - gLen < 15) {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'warning',
+                title: '前置冷排状态下显卡空间极度紧凑',
+                message: `因 ${radAnalysis.radiatorSizeMm}mm 水冷排必须前置安装，适用前置冷排限长 ${effectiveLimit}mm。显卡长 ${gLen}mm，余量仅 ${effectiveLimit - gLen}mm。`,
+                basis: `前置冷排限长: ${effectiveLimit}mm; 显卡长: ${gLen}mm`,
+                condition: '水冷排前置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            } else {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'pass',
+                title: '显卡长度符合前置冷排限长要求',
+                message: `因 ${radAnalysis.radiatorSizeMm}mm 水冷排必须前置安装，适用前置冷排限长 ${effectiveLimit}mm。显卡长 ${gLen}mm，可正常放入并留有 ${effectiveLimit - gLen}mm 余量。`,
+                basis: `前置冷排限长: ${effectiveLimit}mm; 显卡长: ${gLen}mm`,
+                condition: '水冷排前置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            }
+          } else if (radAnalysis.isForcedTop) {
+            // 场景 2: 水冷排明确顶置，不影响前置显卡限长
+            const effectiveLimit = noFrontLimit ?? maxLim;
+            if (gLen > effectiveLimit) {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'error',
+                title: '显卡超长无法放入机箱',
+                message: `显卡实际长度为 ${gLen}mm，超过机箱限长 (${effectiveLimit}mm)，物理无法装入！`,
+                basis: `显卡长: ${gLen}mm; 机箱限长: ${effectiveLimit}mm`,
+                condition: '水冷排顶置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            } else if (effectiveLimit - gLen < 15) {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'warning',
+                title: '显卡安装空间极度紧凑',
+                message: `水冷排顶置安装，显卡长 (${gLen}mm) 接近机箱限长 (${effectiveLimit}mm)，间隙不足 15mm。`,
+                basis: `净空余量仅 ${effectiveLimit - gLen}mm`,
+                condition: '水冷排顶置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            } else {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'pass',
+                title: '显卡长度符合机箱限长要求（冷排顶置不占前置进深）',
+                message: `所选 ${radAnalysis.radiatorSizeMm}mm 水冷排安装于机箱顶部，不占用前置进深，显卡享有完整限长 ${effectiveLimit}mm。显卡长 ${gLen}mm 可正常安装。`,
+                basis: `显卡: ${gLen}mm; 顶置冷排限长: ${effectiveLimit}mm`,
+                condition: '水冷排顶置安装',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            }
+          } else if (radAnalysis.hasMultipleViablePositions) {
+            // 场景 3: 顶部与前置均支持该冷排规格（多个安装位均可选）
+            const fLimit = frontLimit ?? minLim;
+            const tLimit = noFrontLimit ?? maxLim;
+
+            if (gLen <= fLimit) {
+              // 在前置或顶置下均能装下
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'pass',
+                title: '显卡长度在水冷排各种安装位下均符合要求',
+                message: `机箱顶部与前置均支持 ${radAnalysis.radiatorSizeMm}mm 水冷排。即使选择占用空间的前置安装（限长 ${fLimit}mm），${gLen}mm 显卡亦可正常放入并留有 ${fLimit - gLen}mm 余量。`,
+                basis: `显卡: ${gLen}mm; 最严苛前置限长: ${fLimit}mm`,
+                condition: '顶部或前置冷排均可容纳显卡',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            } else if (gLen > tLimit) {
+              // 在任何位置都装不下
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'error',
+                title: '显卡超长无法放入机箱',
+                message: `显卡长 ${gLen}mm 超过机箱最大显卡限长 (${tLimit}mm)，无论水冷排安装在顶部还是前置均无法容纳。`,
+                basis: `显卡长: ${gLen}mm; 最大限长: ${tLimit}mm`,
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+              });
+            } else {
+              // 顶置可装下，但前置会干涉！多个可行位置且用户未选，保留 unknown 与条件提示
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'unknown',
+                title: '显卡限长取决于水冷排安装位置（需确认安装位）',
+                message: `机箱顶部与前置面板均支持 ${radAnalysis.radiatorSizeMm}mm 水冷排。若选择顶置安装，不占用前置限长（限长 ${tLimit}mm，${gLen}mm 显卡可正常兼容）；若选择前置安装，限长缩减至 ${fLimit}mm 将发生物理干涉。需在实物装配时确认采用顶置安装。`,
+                basis: `前置限长: ${fLimit}mm; 顶置限长: ${tLimit}mm; 显卡长: ${gLen}mm`,
+                condition: '需选择顶置水冷排以避开显卡干涉',
+                involvedSlotTypes: ['gpu', 'case', 'cooler'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis), getItemId(cooler)].filter(Boolean),
+                missingFields: ['case.installationPosition'],
+              });
+            }
+          } else {
+            // 未匹配到特定冷排位解析
+            if (gLen > minLim && gLen <= maxLim) {
+              const condDesc = condLimits.map((c) => `「${c.condition}」限长 ${c.maxGpuLengthMm}mm`).join('；');
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'unknown',
+                title: '显卡长度处于机箱多条件限长区间（待核实安装状态）',
+                message: `显卡长度为 ${gLen}mm，处于机箱多条件限长区间内（${condDesc}）。未确定实际装配方案或前置散热器安装状态时，无法断定是否发生物理干涉，需待核实实物安装条件。`,
+                basis: `显卡长: ${gLen}mm; 条件限长范围: ${minLim}~${maxLim}mm`,
+                involvedSlotTypes: ['gpu', 'case'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+                missingFields: ['case.installationCondition'],
+              });
+            } else {
+              if (minLim - gLen < 15) {
+                rules.push({
+                  ruleId: 'rule_gpu_length_clearance',
+                  category: '物理空间与干涉',
+                  status: 'warning',
+                  title: '显卡安装空间极为紧凑',
+                  message: `显卡长度 (${gLen}mm) 接近机箱保守条件限长 (${minLim}mm)，间隙不足 15mm。装配时可能需要调整角度小心放入。`,
+                  basis: `保守净空余量仅 ${minLim - gLen}mm`,
+                  condition: '严苛安装状态下空间紧凑',
+                  involvedSlotTypes: ['gpu', 'case'],
+                  involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+                });
+              } else {
+                rules.push({
+                  ruleId: 'rule_gpu_length_clearance',
+                  category: '物理空间与干涉',
+                  status: 'pass',
+                  title: '显卡长度符合机箱限长要求',
+                  message: `显卡长度为 ${gLen}mm，在机箱各种条件限长（最低 ${minLim}mm）下均可正常安装，余量充沛 (${minLim - gLen}mm)。`,
+                  basis: `显卡: ${gLen}mm; 保守限长: ${minLim}mm`,
+                  involvedSlotTypes: ['gpu', 'case'],
+                  involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+                });
+              }
+            }
+          }
+        } else {
+          // 未选散热器或散热器未确定类型
+          if (gLen > minLim && gLen <= maxLim) {
+            const condDesc = condLimits.map((c) => `「${c.condition}」限长 ${c.maxGpuLengthMm}mm`).join('；');
+            rules.push({
+              ruleId: 'rule_gpu_length_clearance',
+              category: '物理空间与干涉',
+              status: 'unknown',
+              title: '显卡长度处于机箱多条件限长区间（待核实安装状态）',
+              message: `显卡长度为 ${gLen}mm，处于机箱多条件限长区间内（${condDesc}）。未确定实际装配方案或前置散热器安装状态时，无法断定是否发生物理干涉，需待核实实物安装条件。`,
+              basis: `显卡长: ${gLen}mm; 条件限长范围: ${minLim}~${maxLim}mm`,
+              involvedSlotTypes: ['gpu', 'case'],
+              involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+              missingFields: ['case.installationCondition'],
+            });
+          } else {
+            if (minLim - gLen < 15) {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'warning',
+                title: '显卡安装空间极为紧凑',
+                message: `显卡长度 (${gLen}mm) 接近机箱保守条件限长 (${minLim}mm)，间隙不足 15mm。装配时可能需要调整角度小心放入。`,
+                basis: `保守净空余量仅 ${minLim - gLen}mm`,
+                condition: '严苛安装状态下空间紧凑',
+                involvedSlotTypes: ['gpu', 'case'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+              });
+            } else {
+              rules.push({
+                ruleId: 'rule_gpu_length_clearance',
+                category: '物理空间与干涉',
+                status: 'pass',
+                title: '显卡长度符合机箱限长要求',
+                message: `显卡长度为 ${gLen}mm，在机箱各种条件限长（最低 ${minLim}mm）下均可正常安装，余量充沛 (${minLim - gLen}mm)。`,
+                basis: `显卡: ${gLen}mm; 保守限长: ${minLim}mm`,
+                involvedSlotTypes: ['gpu', 'case'],
+                involvedHardwareIds: [getItemId(gpu), getItemId(chassis)],
+              });
+            }
           }
         }
       } else {
@@ -857,13 +1073,33 @@ export function checkBuildCompatibility(
 
         if (supportedRads.length > 0) {
           if (supportedRads.includes(radSize)) {
+            const radAnalysis = analyzeRadiatorInstallation(cooler, chassis);
+            let conditionText: string | undefined = undefined;
+            let detailMessage = `水冷排规格为 ${radSize}mm，机箱支持水冷规格 [${supportedRads.join(', ')} mm]。`;
+            let ruleTitle = '机箱支持该规格水冷排安装';
+
+            if (radAnalysis.isForcedFront) {
+              conditionText = '水冷排前置安装';
+              ruleTitle = '机箱前置支持该规格水冷排安装（仅支持前置）';
+              detailMessage = `所选 ${radSize}mm 水冷排在机箱中仅支持前置安装（顶部不支持该规格），安装位置已确定为前置（将占用机箱前置进深与显卡限长）。`;
+            } else if (radAnalysis.isForcedTop) {
+              conditionText = '水冷排顶置安装';
+              ruleTitle = '机箱顶部支持该规格水冷排安装（顶置不占显卡空间）';
+              detailMessage = `所选 ${radSize}mm 水冷排在机箱中安装于顶部，不占用前置进深及显卡限长空间。`;
+            } else if (radAnalysis.hasMultipleViablePositions) {
+              conditionText = '顶部或前置安装位可选';
+              ruleTitle = '机箱支持该规格水冷排安装（多位置可选）';
+              detailMessage = `机箱顶部与前置均支持 ${radSize}mm 水冷排，装配时可按散热风道和显卡长度灵活选择安装位置。`;
+            }
+
             rules.push({
               ruleId: 'rule_cooler_clearance',
               category: '物理空间与干涉',
               status: 'pass',
-              title: '机箱支持该规格水冷排安装',
-              message: `水冷排规格为 ${radSize}mm，机箱支持水冷规格 [${supportedRads.join(', ')} mm]。`,
+              title: ruleTitle,
+              message: detailMessage,
               basis: `冷排: ${radSize}mm; 机箱支持: ${supportedRads.join('/')}mm`,
+              condition: conditionText,
               involvedSlotTypes: ['cooler', 'case'],
               involvedHardwareIds: [getItemId(cooler), getItemId(chassis)],
             });
@@ -1106,17 +1342,34 @@ export function checkBuildCompatibility(
         const peak = powerEst.estimatedPeakWatts!;
         const mfgRec = powerEst.manufacturerPsuRecommendationWatts;
 
-        if (rated < peak) {
+        const nominalBaseWatts = (powerEst.cpuWatts ?? 0) + (powerEst.gpuWatts ?? 0);
+
+        if (nominalBaseWatts > 0 && rated < nominalBaseWatts) {
+          // 确定证据的容量不足：电源额定功率已低于核心硬件标称基础功耗之和 -> error
           rules.push({
             ruleId: 'rule_psu_capacity',
             category: '电源与供电',
             status: 'error',
-            title: '电源额定功率低于系统预估负载',
-            message: `电源额定功率 (${rated}W) 低于整机预估峰值功耗 (${peak}W)。在重负载工况下电源功率余量不足，建议提升电源规格以保证系统稳定运行。`,
-            basis: `电源额定: ${rated}W; 预估峰值: ${peak}W`,
+            title: '电源额定功率低于配件标称功耗',
+            message: `电源额定功率 (${rated}W) 低于 CPU 与显卡官方标称基础功耗总和 (${nominalBaseWatts}W)。在配件基础负荷下电源容量已存在确定性缺口，属于已证实供电不足！`,
+            basis: `电源额定: ${rated}W; 核心标称功耗: ${nominalBaseWatts}W (确定性缺口)`,
             involvedSlotTypes: ['psu', ...(cpu ? ['cpu' as BuildSlotType] : []), ...(gpu ? ['gpu' as BuildSlotType] : [])],
             involvedHardwareIds: [getItemId(psu), getItemId(cpu), getItemId(gpu)].filter(Boolean),
-            suggestedFix: `更换为额定功率至少 ${Math.ceil((peak * 1.3) / 50) * 50}W 以上的品质电源。`,
+            suggestedFix: `更换为额定功率至少 ${Math.ceil((nominalBaseWatts * 1.3) / 50) * 50}W 以上的品质电源。`,
+          });
+        } else if (rated < peak) {
+          // 经验估算风险：低于 CPU×1.15 + GPU×1.1 + 60W 经验模型，不得单独作为确定性硬冲突 -> warning
+          rules.push({
+            ruleId: 'rule_psu_capacity',
+            category: '电源与供电',
+            status: 'warning',
+            title: '电源额定功率低于经验预估峰值负载',
+            message: `电源额定功率 (${rated}W) 低于基于经验模型推算的整机预估峰值 (${peak}W)。该估算包含瞬态波峰与平台经验基底（非厂商实测硬限），但在重载高负荷工况下可能存在余量偏紧或触发过载保护的风险，建议配置更充裕的电源。`,
+            basis: `电源额定: ${rated}W; 经验预估峰值: ${peak}W (经验模型参考)`,
+            condition: '应对极端瞬态尖峰经验估算',
+            involvedSlotTypes: ['psu', ...(cpu ? ['cpu' as BuildSlotType] : []), ...(gpu ? ['gpu' as BuildSlotType] : [])],
+            involvedHardwareIds: [getItemId(psu), getItemId(cpu), getItemId(gpu)].filter(Boolean),
+            suggestedFix: `建议提升至额定功率 ${Math.ceil((peak * 1.25) / 50) * 50}W 以上以获得稳健工程余量。`,
           });
         } else if (mfgRec && rated < mfgRec) {
           rules.push({
@@ -1397,32 +1650,50 @@ export function calculateBuildPower(
             (typeof s.label === 'string' && (s.label.includes('建议') && s.label.includes('供电') || s.label.includes('建议电源')))
         );
         if (psuSpec) {
-          const isVerifiedMfg =
-            psuSpec.verificationStatus === 'verified' ||
-            psuSpec.sourceKind === 'manufacturer';
-          if (isVerifiedMfg) {
-            const rawVal = String(psuSpec.value || '').trim();
-            // 严禁将范围值（如 650–750 W、650-750W、650~750W）盲目折合为单值
-            const isRange = /[-–—~至]/.test(rawVal);
-            if (!isRange) {
-              let num: number | null = null;
-              if (typeof psuSpec.numericValue === 'number' && psuSpec.numericValue > 0) {
-                num = psuSpec.numericValue;
-              } else {
-                const matchSingle =
-                  rawVal.match(/^(\d{3,4})\s*W?$/i) ||
-                  rawVal.match(/(?:建议(?:系统)?电源|PSU|电源)[^\d]*(\d{3,4})\s*W/i);
-                if (matchSingle) {
-                  num = parseInt(matchSingle[1], 10);
-                }
+          let isSourceKindValid = psuSpec.sourceKind === 'manufacturer';
+          if ('sources' in gpu && Array.isArray((gpu as HardwareRecord).sources) && (gpu as HardwareRecord).sources.length > 0) {
+            const sources = (gpu as HardwareRecord).sources;
+            if (psuSpec.sourceId) {
+              const src = sources.find((s) => s.id === psuSpec.sourceId);
+              if (src && src.kind !== 'manufacturer') {
+                isSourceKindValid = false;
               }
-              if (num && num > 0) {
+            } else {
+              const hasMfg = sources.some((s) => s.kind === 'manufacturer');
+              if (!hasMfg) isSourceKindValid = false;
+            }
+          }
+
+          const isVerifiedMfg =
+            psuSpec.verificationStatus === 'verified' &&
+            isSourceKindValid;
+
+          const rawVal = String(psuSpec.value || '').trim();
+          // 严禁将范围值（如 650–750 W、650-750W、650~750W）盲目折合为单值
+          const isRange = /[-–—~至]/.test(rawVal);
+          if (!isRange) {
+            let num: number | null = null;
+            if (typeof psuSpec.numericValue === 'number' && psuSpec.numericValue > 0) {
+              num = psuSpec.numericValue;
+            } else {
+              const matchSingle =
+                rawVal.match(/^(\d{3,4})\s*W?$/i) ||
+                rawVal.match(/(?:建议(?:系统)?电源|PSU|电源)[^\d]*(\d{3,4})\s*W/i);
+              if (matchSingle) {
+                num = parseInt(matchSingle[1], 10);
+              }
+            }
+            if (num && num > 0) {
+              if (isVerifiedMfg) {
                 manufacturerPsuRecommendationWatts = num;
                 manufacturerPsuSource = {
                   valueWatts: num,
-                  sourceKind: psuSpec.sourceKind,
+                  sourceKind: 'manufacturer',
                   condition: psuSpec.condition,
                 };
+              } else {
+                // 第三方或未核验数据作为参考，不写入厂商官方建议字段
+                notes.push(`包含参考建议电源 (${num}W)，非显卡厂商官方核验建议。`);
               }
             }
           }
@@ -1457,12 +1728,19 @@ export function calculateBuildPower(
   }
 
   let status: 'pass' | 'warning' | 'error' | 'unknown' = 'pass';
+  const nominalBaseWatts = (cpuWatts ?? 0) + (gpuWatts ?? 0);
+
   if (!isFullyKnown || psuRatedWatts === null) {
     status = 'unknown';
     notes.push('输入功耗或电源额定功率数据不全，当前功耗估算不完整，无法精确计算冗余裕量。');
-  } else if (headroomWatts !== null && headroomWatts < 0) {
+  } else if (nominalBaseWatts > 0 && psuRatedWatts < nominalBaseWatts) {
+    // 确定证据的容量不足
     status = 'error';
-    notes.push(`系统预估峰值负载 (${estimatedPeakWatts}W) 超过电源额定容量 (${psuRatedWatts}W)，高负载运行存在触发过载保护或掉电风险。`);
+    notes.push(`电源额定容量 (${psuRatedWatts}W) 低于 CPU 与显卡标称基础功耗之和 (${nominalBaseWatts}W)，存在明确的供电容量确定性缺口。`);
+  } else if (headroomWatts !== null && headroomWatts < 0) {
+    // 经验估算风险：高于标称基础，但低于经验预估峰值，不单独作为确定性硬冲突
+    status = 'warning';
+    notes.push(`系统经验预估峰值 (${estimatedPeakWatts}W，含瞬态与平台基底经验估算) 超过电源额定容量 (${psuRatedWatts}W)。非实测硬性限值，但高负荷工况下可能存在余量偏紧或触发过载保护风险。`);
   } else if (manufacturerPsuRecommendationWatts && psuRatedWatts < manufacturerPsuRecommendationWatts) {
     status = 'warning';
     notes.push(`电源额定容量 (${psuRatedWatts}W) 低于显卡官方建议的 ${manufacturerPsuRecommendationWatts}W 系统电源。高负载瞬态尖峰下可能接近电源限值。`);

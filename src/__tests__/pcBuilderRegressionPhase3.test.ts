@@ -1028,5 +1028,341 @@ describe('Phase 3 Regression: Extended Verification Suites', () => {
       expect(cand?.deltaPrice).toBeNull(); // range, not single number
     });
   });
+
+  describe('Phase 3 Closure: Rigorous Power Verification & Radiator-Coupled Clearance', () => {
+    const baseGpuSpecs = (sourceKind: 'manufacturer' | 'product-database', verificationStatus: 'verified' | 'unverified'): HardwareRecord => ({
+      schemaVersion: 1,
+      entityKind: 'reference-product',
+      identity: {
+        id: 'gpu-power-test',
+        name: 'Test GPU',
+        brand: 'NVIDIA',
+        category: 'gpu',
+        series: 'RTX 40',
+        releaseYear: 2024,
+        platform: 'desktop',
+      },
+      specifications: [
+        {
+          id: 'gpu.recommendedPsu',
+          label: '建议系统供电',
+          value: '750W',
+          numericValue: 750,
+          unit: 'W',
+          evidence: sourceKind === 'manufacturer' && verificationStatus === 'verified' ? 'manufacturer-checked' : 'editorial-reference',
+          sourceKind,
+          verificationStatus,
+          condition: '搭配标准系统平台',
+        },
+      ],
+      power: { watts: 250, isKnown: true, evidence: 'editorial-reference', meaning: 'TGP' },
+      auditSummary: {
+        entityKind: 'reference-product',
+        verifiedFieldCount: 1,
+        verifiedCoreCount: 1,
+        coreFieldTotal: 5,
+        verificationRate: 0.2,
+        hasOfficialSource: sourceKind === 'manufacturer',
+        lastCheckedAt: null,
+        missingCoreFields: [],
+      },
+      sources: sourceKind === 'manufacturer' ? [{ id: 'src-mfg', title: 'Official', url: 'https://nvidia.com', kind: 'manufacturer', checkedAt: '2024-01-01' }] : [],
+    } as unknown as HardwareRecord);
+
+    it('Item 1.1: manufacturer + verified 正向 -> 进入显卡厂商官方建议电源', () => {
+      const gpuRec = baseGpuSpecs('manufacturer', 'verified');
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-psu-mfg-v',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [{ slotId: 's1', type: 'gpu', hardwareId: 'gpu-power-test', userPrice: null, quantity: 1 }],
+      };
+      const est = calculateBuildPower(build, [gpuRec]);
+      expect(est.manufacturerPsuRecommendationWatts).toBe(750);
+      expect(est.manufacturerPsuSource?.sourceKind).toBe('manufacturer');
+    });
+
+    it('Item 1.2: manufacturer + unverified 反向 -> 不得显示成厂商官方建议，进入参考说明', () => {
+      const gpuRec = baseGpuSpecs('manufacturer', 'unverified');
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-psu-mfg-u',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [{ slotId: 's1', type: 'gpu', hardwareId: 'gpu-power-test', userPrice: null, quantity: 1 }],
+      };
+      const est = calculateBuildPower(build, [gpuRec]);
+      expect(est.manufacturerPsuRecommendationWatts).toBeNull();
+      expect(est.notes.some((n) => n.includes('非显卡厂商官方核验建议'))).toBe(true);
+    });
+
+    it('Item 1.3: product-database + verified 反向 -> 第三方不可显示为厂商官方建议', () => {
+      const gpuRec = baseGpuSpecs('product-database', 'verified');
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-psu-pdb-v',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [{ slotId: 's1', type: 'gpu', hardwareId: 'gpu-power-test', userPrice: null, quantity: 1 }],
+      };
+      const est = calculateBuildPower(build, [gpuRec]);
+      expect(est.manufacturerPsuRecommendationWatts).toBeNull();
+      expect(est.notes.some((n) => n.includes('非显卡厂商官方核验建议'))).toBe(true);
+    });
+
+    it('Item 2: 区分确定证据的容量不足 (error) 与经验估算风险 (warning)', () => {
+      // 场景 A: 确定证据容量不足（标称基础之和已超过电源额定）
+      // CPU 150W + GPU 300W = 450W > 400W 电源
+      const cpu150 = { id: 'cpu-150', category: 'cpu', tdpWatts: 150, specs: {} } as unknown as HardwareItem;
+      const gpu300 = { id: 'gpu-300w', category: 'gpu', tdpWatts: 300, specs: {} } as unknown as HardwareItem;
+      const psu400 = { id: 'psu-400', category: 'psu', tdpWatts: 400, specs: { '额定功率': '400W' } } as unknown as HardwareItem;
+
+      const buildA: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-cap-err',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300w', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-400', userPrice: null, quantity: 1 },
+        ],
+      };
+      const estA = calculateBuildPower(buildA, [cpu150, gpu300, psu400]);
+      expect(estA.status).toBe('error');
+      const repA = checkBuildCompatibility(buildA, [cpu150, gpu300, psu400]);
+      const ruleA = repA.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleA?.status).toBe('error');
+      expect(ruleA?.title).toContain('电源额定功率低于配件标称功耗');
+
+      // 场景 B: 经验估算风险（高于标称基础 265W，但低于经验预估峰值 355W）
+      // CPU 65W + GPU 200W = 265W <= 300W 电源，峰值估算 355W > 300W
+      const cpu65 = { id: 'cpu-65', category: 'cpu', tdpWatts: 65, specs: {} } as unknown as HardwareItem;
+      const gpu200 = { id: 'gpu-200', category: 'gpu', tdpWatts: 200, specs: {} } as unknown as HardwareItem;
+      const psu300 = { id: 'psu-300', category: 'psu', tdpWatts: 300, specs: { '额定功率': '300W' } } as unknown as HardwareItem;
+
+      const buildB: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-emp-warn',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-65', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-200', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-300', userPrice: null, quantity: 1 },
+        ],
+      };
+      const estB = calculateBuildPower(buildB, [cpu65, gpu200, psu300]);
+      expect(estB.status).toBe('warning'); // NOT error!
+      const repB = checkBuildCompatibility(buildB, [cpu65, gpu200, psu300]);
+      const ruleB = repB.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleB?.status).toBe('warning'); // NOT error!
+      expect(ruleB?.title).toContain('电源额定功率低于经验预估峰值负载');
+    });
+
+    describe('Item 3: 打通冷排安装位置与显卡条件限长', () => {
+      // 机箱设定：顶部仅 240，前置支持 360；无前置冷排 380mm，前置冷排 330mm
+      const caseTop240Front360 = {
+        id: 'case-top240-front360',
+        name: '前置360机箱',
+        category: 'case',
+        specs: {
+          '冷排支持': '顶部最大支持 240mm 冷排，前置最大支持 360mm 冷排',
+          '显卡限长': '前置冷排 330mm，无前置冷排 380mm',
+        },
+      } as unknown as HardwareItem;
+
+      const cooler360 = {
+        id: 'cooler-aio-360',
+        name: '360 一体式水冷',
+        category: 'cooler',
+        specs: {
+          'cooler.type': '水冷',
+          'cooler.radiator': '360mm',
+        },
+      } as unknown as HardwareItem;
+
+      const gpu350 = {
+        id: 'gpu-350mm',
+        name: '350mm 显卡',
+        category: 'gpu',
+        specs: {
+          '尺寸': '350mm x 140mm x 60mm',
+        },
+      } as unknown as HardwareItem;
+
+      const gpu300 = {
+        id: 'gpu-300mm',
+        name: '300mm 显卡',
+        category: 'gpu',
+        specs: {
+          '尺寸': '300mm x 120mm x 45mm',
+        },
+      } as unknown as HardwareItem;
+
+      it('3.1 强制前置场景：360水冷只能前置，显卡350mm超过330mm限长返回 error', () => {
+        const build: CustomBuild = {
+          schemaVersion: 1,
+          id: 'b-forced-front-err',
+          title: '',
+          targetBudget: null,
+          createdAt: '',
+          updatedAt: '',
+          slots: [
+            { slotId: 's1', type: 'cooler', hardwareId: 'cooler-aio-360', userPrice: null, quantity: 1 },
+            { slotId: 's2', type: 'gpu', hardwareId: 'gpu-350mm', userPrice: null, quantity: 1 },
+            { slotId: 's3', type: 'case', hardwareId: 'case-top240-front360', userPrice: null, quantity: 1 },
+          ],
+        };
+
+        const report = checkBuildCompatibility(build, [caseTop240Front360, cooler360, gpu350]);
+
+        // Rule 8 确定为前置安装
+        const rule8 = report.rules.find((r) => r.ruleId === 'rule_cooler_clearance');
+        expect(rule8?.status).toBe('pass');
+        expect(rule8?.condition).toBe('水冷排前置安装');
+        expect(rule8?.title).toContain('仅支持前置');
+
+        // Rule 7 共享已确定的“前置冷排”条件，使用 330mm 进行判断，350mm 超长返回 error！
+        const rule7 = report.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+        expect(rule7?.status).toBe('error');
+        expect(rule7?.condition).toBe('水冷排前置安装');
+        expect(rule7?.title).toContain('前置冷排占用显卡空间导致超长干涉');
+      });
+
+      it('3.2 强制前置场景：360水冷只能前置，显卡300mm满足330mm限长返回 pass', () => {
+        const build: CustomBuild = {
+          schemaVersion: 1,
+          id: 'b-forced-front-pass',
+          title: '',
+          targetBudget: null,
+          createdAt: '',
+          updatedAt: '',
+          slots: [
+            { slotId: 's1', type: 'cooler', hardwareId: 'cooler-aio-360', userPrice: null, quantity: 1 },
+            { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300mm', userPrice: null, quantity: 1 },
+            { slotId: 's3', type: 'case', hardwareId: 'case-top240-front360', userPrice: null, quantity: 1 },
+          ],
+        };
+
+        const report = checkBuildCompatibility(build, [caseTop240Front360, cooler360, gpu300]);
+        const rule7 = report.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+        expect(rule7?.status).toBe('pass');
+        expect(rule7?.condition).toBe('水冷排前置安装');
+      });
+
+      it('3.3 顶部可装 360 场景：不影响前置显卡限长，350mm 显卡满足 380mm 返回 pass', () => {
+        // 机箱顶部支持 360，前置不支持 360（仅 240）
+        const caseTop360Front240 = {
+          id: 'case-top360-front240',
+          name: '顶置360机箱',
+          category: 'case',
+          specs: {
+            '冷排支持': '顶部支持 240/360mm 冷排，前置支持 240mm 冷排',
+            '显卡限长': '前置冷排 330mm，无前置冷排 380mm',
+          },
+        } as unknown as HardwareItem;
+
+        const build: CustomBuild = {
+          schemaVersion: 1,
+          id: 'b-top360-pass',
+          title: '',
+          targetBudget: null,
+          createdAt: '',
+          updatedAt: '',
+          slots: [
+            { slotId: 's1', type: 'cooler', hardwareId: 'cooler-aio-360', userPrice: null, quantity: 1 },
+            { slotId: 's2', type: 'gpu', hardwareId: 'gpu-350mm', userPrice: null, quantity: 1 },
+            { slotId: 's3', type: 'case', hardwareId: 'case-top360-front240', userPrice: null, quantity: 1 },
+          ],
+        };
+
+        const report = checkBuildCompatibility(build, [caseTop360Front240, cooler360, gpu350]);
+        const rule8 = report.rules.find((r) => r.ruleId === 'rule_cooler_clearance');
+        expect(rule8?.condition).toBe('水冷排顶置安装');
+
+        const rule7 = report.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+        expect(rule7?.status).toBe('pass');
+        expect(rule7?.condition).toBe('水冷排顶置安装');
+        expect(rule7?.title).toContain('冷排顶置不占前置进深');
+      });
+
+      it('3.4 多个安装位均可选场景：顶部与前置均支持 360，350mm 显卡保留 unknown 与条件提示', () => {
+        // 顶部与前置均支持 360
+        const caseDual360 = {
+          id: 'case-dual360',
+          name: '全能360机箱',
+          category: 'case',
+          specs: {
+            '冷排支持': '顶部支持 240/360mm 冷排，前置支持 240/360mm 冷排',
+            '显卡限长': '前置冷排 330mm，无前置冷排 380mm',
+          },
+        } as unknown as HardwareItem;
+
+        const build: CustomBuild = {
+          schemaVersion: 1,
+          id: 'b-dual360-unknown',
+          title: '',
+          targetBudget: null,
+          createdAt: '',
+          updatedAt: '',
+          slots: [
+            { slotId: 's1', type: 'cooler', hardwareId: 'cooler-aio-360', userPrice: null, quantity: 1 },
+            { slotId: 's2', type: 'gpu', hardwareId: 'gpu-350mm', userPrice: null, quantity: 1 },
+            { slotId: 's3', type: 'case', hardwareId: 'case-dual360', userPrice: null, quantity: 1 },
+          ],
+        };
+
+        const report = checkBuildCompatibility(build, [caseDual360, cooler360, gpu350]);
+        const rule7 = report.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+        expect(rule7?.status).toBe('unknown');
+        expect(rule7?.title).toContain('显卡限长取决于水冷排安装位置');
+        expect(rule7?.condition).toContain('需选择顶置水冷排以避开显卡干涉');
+      });
+
+      it('3.5 风冷散热场景：前置未安装水冷排，享受无前置冷排 380mm 限长，350mm 显卡返回 pass', () => {
+        const airCooler = {
+          id: 'cooler-air',
+          name: '双塔风冷',
+          category: 'cooler',
+          specs: {
+            'cooler.type': '风冷',
+            'cooler.height': '155mm',
+          },
+        } as unknown as HardwareItem;
+
+        const build: CustomBuild = {
+          schemaVersion: 1,
+          id: 'b-air-pass',
+          title: '',
+          targetBudget: null,
+          createdAt: '',
+          updatedAt: '',
+          slots: [
+            { slotId: 's1', type: 'cooler', hardwareId: 'cooler-air', userPrice: null, quantity: 1 },
+            { slotId: 's2', type: 'gpu', hardwareId: 'gpu-350mm', userPrice: null, quantity: 1 },
+            { slotId: 's3', type: 'case', hardwareId: 'case-top240-front360', userPrice: null, quantity: 1 },
+          ],
+        };
+
+        const report = checkBuildCompatibility(build, [caseTop240Front360, airCooler, gpu350]);
+        const rule7 = report.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+        expect(rule7?.status).toBe('pass');
+        expect(rule7?.condition).toBe('未安装前置冷排');
+      });
+    });
+  });
 });
+
 

@@ -362,8 +362,86 @@ describe('PC Compatibility Engine - Milestone 3A Tests', () => {
 
     const report = checkBuildCompatibility(build, [...allRecords, smallPsu]);
     const psuRule = report.rules.find((r) => r.ruleId === 'rule_psu_capacity');
-    expect(psuRule?.status).toBe('error');
-    expect(psuRule?.title).toContain('电源额定功率低于系统预估负载');
+    expect(psuRule?.title).toContain('电源额定功率低于配件标称功耗');
+  });
+
+  it('7.2 电源额定功率高于标称基础功耗但低于经验预估峰值返回 warning (经验风险非硬冲突)', () => {
+    // 假定配件：CPU 65W + GPU 200W (标称和 265W)。
+    // 经验峰值：65*1.15 + 200*1.1 + 60 = 74.75 + 220 + 60 = 354.75W (~355W)。
+    // 电源额定：300W。300W > 265W (标称未超)，但 300W < 355W (经验预估超额)。
+    const psu300: HardwareItem = {
+      id: 'psu-300w-mid',
+      name: '额定 300W 电源',
+      category: 'psu',
+      brand: 'Test',
+      series: '',
+      releaseYear: 2023,
+      specs: { '额定功率': '300 W' },
+      highlights: [],
+      pros: [],
+      cons: [],
+      tdpWatts: 300,
+      msrpRmb: 100,
+      marketPriceRange: [100, 100],
+      priceTrend: 'stable',
+      jdSearchQuery: '',
+      tbSearchQuery: '',
+      pddSearchQuery: '',
+    };
+    const cpu65: HardwareItem = {
+      id: 'cpu-65w',
+      name: '65W CPU',
+      category: 'cpu',
+      brand: 'AMD',
+      series: '',
+      releaseYear: 2023,
+      specs: {},
+      highlights: [],
+      pros: [],
+      cons: [],
+      tdpWatts: 65,
+      msrpRmb: 1000,
+      marketPriceRange: [1000, 1000],
+      priceTrend: 'stable',
+      jdSearchQuery: '',
+      tbSearchQuery: '',
+      pddSearchQuery: '',
+    };
+    const gpu200: HardwareItem = {
+      id: 'gpu-200w',
+      name: '200W GPU',
+      category: 'gpu',
+      brand: 'NVIDIA',
+      series: '',
+      releaseYear: 2023,
+      specs: {},
+      highlights: [],
+      pros: [],
+      cons: [],
+      tdpWatts: 200,
+      msrpRmb: 2000,
+      marketPriceRange: [2000, 2000],
+      priceTrend: 'stable',
+      jdSearchQuery: '',
+      tbSearchQuery: '',
+      pddSearchQuery: '',
+    };
+
+    const build = createTestBuild([
+      { type: 'cpu', hardwareId: 'cpu-65w' },
+      { type: 'gpu', hardwareId: 'gpu-200w' },
+      { type: 'psu', hardwareId: 'psu-300w-mid' },
+    ]);
+
+    const powerEst = calculateBuildPower(build, [cpu65, gpu200, psu300]);
+    // 经验预估峰值超过额定，返回 warning，非 error！
+    expect(powerEst.status).toBe('warning');
+    expect(powerEst.estimatedPeakWatts).toBe(355);
+
+    const report = checkBuildCompatibility(build, [cpu65, gpu200, psu300]);
+    const psuRule = report.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+    expect(psuRule?.status).toBe('warning');
+    expect(psuRule?.title).toContain('电源额定功率低于经验预估峰值负载');
   });
 
   // ========================================================

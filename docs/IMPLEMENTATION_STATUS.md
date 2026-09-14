@@ -310,17 +310,22 @@
    - [修改] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：展示沙盒候选型号的 `remainingIssues` 剩余待注意项，并支持显示差价区间（`预计差价 ¥... ~ ¥...`）；
    - [保留] `src/components/builder/JsonImportModal.tsx`：安全预览与取消机制；
    - [保留] `src/components/builds/BudgetBuilds.tsx`：双模式切换与草稿冲突防冲刷横幅；
-4. **测试套件**
-   - [修改] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：扩充至 40 个用例，全量覆盖 BIOS unknown、Rule 3 交叉 unknown、供电接口解析与 16-pin 方案、多条件机箱限长与冷排数组、原始导入校验、纯文本导出真实型号保留、电源范围解析与差价区间；
-   - [修改] `src/__tests__/pcBuilderDOMFlow.test.tsx`：React 18 + happy-dom 真实 DOM 完整交互链路测试（选件 → 冲突发现 → 沙盒替代 → 报告自动更新 → 自选调价 → 真实型号纯文本导出 → 自定义配件“已填写但待确认”状态与移除），4 组完整流程用例全部通过。
+4. **收尾专项治理（基于提交 70692ca0 审查反馈）**
+   - **厂商建议电源核验收敛**：`calculateBuildPower` 严格要求同时满足 `verificationStatus === 'verified'` 与 `sourceKind === 'manufacturer'`（且来源列表中无第三方冲突）；第三方或未核验数据仅作为参考说明，绝不写入厂商官方建议字段；
+   - **经验功耗与确定性容量不足分流**：Rule 10 与功耗评估严格区分“确定证据的容量不足（CPU 与显卡标称基础功耗之和已超出额定容量，输出 `error`）”与“经验估算风险（高于标称基础但低于 CPU×1.15 + GPU×1.1 + 60W 经验模型，输出 `warning`）”，经验模型不得单独制造确定性硬冲突；
+   - **打通冷排安装位置与显卡条件限长**：Rule 7 与 Rule 8 共享 `analyzeRadiatorInstallation` 分析结果。水冷排因机箱空间限制强制前置时（如顶部仅 240、前置 360），自动应用前置限长条件（330mm）判定 350mm 显卡超长干涉（`error`）；顶部可装 360 时不影响显卡限长（`pass`）；顶部与前置均可行且未选时保留 `unknown` 条件提示；
+5. **测试套件**
+   - [修改] `src/__tests__/pcCompatibility.test.ts`：更新测试 7.1 并新增测试 7.2，覆盖标称基础超额（error）与经验估算峰值超额（warning）；
+   - [修改] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：扩充至 49 个用例，全量覆盖厂商建议电源三类来源核验（manufacturer+verified 正向、manufacturer+unverified 反向、product-database+verified 反向）、经验风险分流、以及强制前置/顶置/多位置可选/风冷 5 大冷排与显卡限长联动场景；
+   - [保留] `src/__tests__/pcBuilderDOMFlow.test.tsx`：4 组真实 DOM 完整操作链用例全部保持通过。
 
 ### 3. 自动化测试与构建验收
 - **全量测试套件执行**：`npx vitest run`
-  - **25 个测试文件全部通过，共 236 项用例全部通过，0 失败**；
-  - 涵盖阶段 1（基础交互与存储隔离）、阶段 2（可信度、来源、功耗事实核验）、阶段 3（五态规则、配置单校验、价格区间、全链路 DOM 交互）；
+  - **25 个测试文件全部通过，共 246 项用例全部通过，0 失败**；
+  - 涵盖阶段 1（基础交互与存储隔离）、阶段 2（可信度、来源、功耗事实核验）、阶段 3（五态规则、配置单校验、价格区间、全链路 DOM 交互、电源核验收敛、经验风险分流、冷排位置联动）；
 - **生产打包构建**：`npm run build` (`tsc && vite build`)
   - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
-  - Vite 生产打包 0 错误（dist 产物构建成功，耗时 ~3.01s）；
+  - Vite 生产打包 0 错误（dist 产物构建成功，耗时 ~2.86s）；
 - **验收结论与边界说明**：
   - 阶段 3 源码审查、全量自动化测试与全链路 DOM 交互回归全部通过；
   - 标记为：**“源码审查与全链路定向回归通过，真实浏览器及实物物理装配公差待补”**；

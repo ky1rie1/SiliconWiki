@@ -598,6 +598,130 @@ export function extractCaseClearance(item: HardwareItem | HardwareRecord | null)
   };
 }
 
+export interface ConditionalLimitsResolution {
+  frontLimit: number | null;
+  noFrontLimit: number | null;
+}
+
+export function resolveConditionalGpuLimits(limits: ConditionalGpuLimit[]): ConditionalLimitsResolution {
+  let frontLimit: number | null = null;
+  let noFrontLimit: number | null = null;
+
+  for (const item of limits) {
+    const isFront =
+      /前置.*(?:冷排|水冷|散热|风扇)|安装.*前置|前置安装/i.test(item.condition) &&
+      !/无.*前置|未.*前置|不.*前置/i.test(item.condition);
+    const isNoFront = /无.*前置|未.*前置|不.*前置|顶置|顶部|风冷|默认|正常/i.test(item.condition);
+
+    if (isFront) {
+      if (frontLimit === null || item.maxGpuLengthMm < frontLimit) {
+        frontLimit = item.maxGpuLengthMm;
+      }
+    }
+    if (isNoFront) {
+      if (noFrontLimit === null || item.maxGpuLengthMm > noFrontLimit) {
+        noFrontLimit = item.maxGpuLengthMm;
+      }
+    }
+  }
+
+  const allLimits = limits.map((l) => l.maxGpuLengthMm).filter((n) => n > 0);
+  if (allLimits.length >= 2) {
+    const min = Math.min(...allLimits);
+    const max = Math.max(...allLimits);
+    if (frontLimit === null) frontLimit = min;
+    if (noFrontLimit === null) noFrontLimit = max;
+  }
+
+  return { frontLimit, noFrontLimit };
+}
+
+export interface RadiatorInstallationAnalysis {
+  coolerType: 'air' | 'liquid' | 'unknown';
+  radiatorSizeMm: number | null;
+  supportedPositions: ('top' | 'front' | 'rear' | 'side' | 'bottom')[];
+  canMountTop: boolean;
+  canMountFront: boolean;
+  isForcedFront: boolean;
+  isForcedTop: boolean;
+  hasMultipleViablePositions: boolean;
+  isLiquidSupported: boolean;
+}
+
+export function analyzeRadiatorInstallation(
+  cooler: HardwareItem | HardwareRecord | null,
+  chassis: HardwareItem | HardwareRecord | null
+): RadiatorInstallationAnalysis {
+  if (!cooler || !chassis) {
+    return {
+      coolerType: 'unknown',
+      radiatorSizeMm: null,
+      supportedPositions: [],
+      canMountTop: false,
+      canMountFront: false,
+      isForcedFront: false,
+      isForcedTop: false,
+      hasMultipleViablePositions: false,
+      isLiquidSupported: false,
+    };
+  }
+
+  const coolerDim = extractCoolerDimensions(cooler);
+  const caseClr = extractCaseClearance(chassis);
+
+  if (coolerDim.value?.type === 'air') {
+    return {
+      coolerType: 'air',
+      radiatorSizeMm: null,
+      supportedPositions: [],
+      canMountTop: false,
+      canMountFront: false,
+      isForcedFront: false,
+      isForcedTop: false,
+      hasMultipleViablePositions: false,
+      isLiquidSupported: false,
+    };
+  }
+
+  const radSize = coolerDim.value?.radiatorSizeMm ?? null;
+  const positions = caseClr.value?.radiatorPositions ?? [];
+  const supportedPositions: ('top' | 'front' | 'rear' | 'side' | 'bottom')[] = [];
+
+  let canMountTop = false;
+  let canMountFront = false;
+
+  if (radSize !== null) {
+    for (const pos of positions) {
+      if (pos.sizesMm.includes(radSize)) {
+        supportedPositions.push(pos.position);
+        if (pos.position === 'top') canMountTop = true;
+        if (pos.position === 'front') canMountFront = true;
+      }
+    }
+  }
+
+  const isLiquidSupported =
+    radSize !== null &&
+    (supportedPositions.length > 0 ||
+      (caseClr.value?.supportedRadiatorsMm?.includes(radSize) ?? false));
+
+  const isForcedFront = canMountFront && !canMountTop && supportedPositions.length === 1;
+  const isForcedTop = canMountTop && !canMountFront && supportedPositions.length === 1;
+  const hasMultipleViablePositions = supportedPositions.length > 1;
+
+  return {
+    coolerType: 'liquid',
+    radiatorSizeMm: radSize,
+    supportedPositions,
+    canMountTop,
+    canMountFront,
+    isForcedFront,
+    isForcedTop,
+    hasMultipleViablePositions,
+    isLiquidSupported,
+  };
+}
+
 /**
  * 11. 显卡尺寸与供电接口提取
  * 严格解析必要供电接口（16-pin / 8-pin / 6-pin 具体数量）
