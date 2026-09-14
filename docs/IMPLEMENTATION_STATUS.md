@@ -212,12 +212,12 @@
     5. 官方核验口径：仅有第三方字段核验但附有官方链接的条目，绝不计入官方核验条目；
     6. 第三方核验口径：仅有第三方链接但核验字段为 0 的条目，绝不计入第三方核验条目；
     7. 搜索弹窗真实注入与精确断言：通过 `hardwareItems` 属性注入，搜索并正向断言测试条目出现，验证其显示“暂无参考价”且不显示零元区间；
-    8. **功耗事实精准关联与结构化完整性测试 (11 组细分测试)**：
+    8. **功耗事实精准关联与结构化完整性测试 (12 组细分测试)**：
        - **审查反例 A**：规格文本为“65W TDP”且未提供 numericValue / unit，条目与核验对象顶层均为 120 $\rightarrow$ 严格降级为 `editorial-reference`；
        - **审查反例 B**：GPU 没有 `gpu.tgp` 只有已核验 `gpu.recommendedPsu = 650W`，`powerSourceField` 指向建议电源且 `tdpWatts = 650` $\rightarrow$ 严格降级为 `editorial-reference`；
-       - **缺失关键元数据反例**：单独缺失 `numericValue`、单独缺失 `unit` $\rightarrow$ 严格降级为 `editorial-reference`；
+       - **缺失关键元数据反例**：单独缺失 `numericValue`、单独缺失 `unit`、单独缺失 `condition` $\rightarrow$ 均严格降级为 `editorial-reference`；
        - **前期反向测试保留**：显式未核验、第三方产品库来源、无效 sourceId 降级、数值显式不匹配、单位显式非瓦特（如 `unit: 'A'`）、CPU 配件被核验为 `gpu.tgp`（品类混淆） $\rightarrow$ 均验证为 `editorial-reference`；
-       - **官方核验正向测试**：字段 ID 正确（`cpu.defaultTdp`）、官方来源、日期有效、`numericValue = 120`、`unit = 'W'`、瓦数与含义完全一致 $\rightarrow$ 正确输出 `manufacturer-checked`。
+       - **官方核验正向测试**：字段 ID 正确（`cpu.defaultTdp`）、官方来源、日期有效、`numericValue = 120`、`unit = 'W'`、`condition = '默认 TDP'`、瓦数与含义完全一致 $\rightarrow$ 正确输出 `manufacturer-checked`。
 - **生产构建验证**：`npm run build` (`tsc && vite build`)
   - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
   - Vite 生产打包 0 警告 0 错误（产物位于 `dist/`）。

@@ -457,13 +457,13 @@ export function createHardwareCatalog(
       typeof powerSpec.unit === 'string' &&
       ['W', '瓦'].includes(powerSpec.unit.trim().toUpperCase());
 
-    // 4. Condition must be consistent: for reference products, partner OC conditions cannot endorse.
+    // 4. Condition must be explicit and consistent:
+    // Missing condition is NOT accepted. For reference products, partner OC conditions cannot endorse.
     const isPowerConditionValid =
       powerSpec !== undefined &&
-      (powerSpec.condition === undefined ||
-        (typeof powerSpec.condition === 'string' &&
-          powerSpec.condition.trim().length > 0 &&
-          (entityKind === 'partner-variant' || !/一键超频|非公/.test(powerSpec.condition))));
+      typeof powerSpec.condition === 'string' &&
+      powerSpec.condition.trim().length > 0 &&
+      (entityKind === 'partner-variant' || !/一键超频|非公/.test(powerSpec.condition));
 
     const isPowerVerified = Boolean(
       hasKnownPower &&

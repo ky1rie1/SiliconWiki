@@ -893,6 +893,28 @@ describe('Phase 2: Hardware Credibility, Structured Data & Audit Suite', () => {
       const cat11 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verMissingUnitAlone : undefined));
       const rec11 = cat11.byId.get(baseCpu.id)!;
       expect(rec11.power.evidence).toBe('editorial-reference');
+
+      // 12. Missing condition alone (even with numericValue: 120 and unit: 'W') -> editorial-reference
+      const verMissingConditionAlone: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            numericValue: 120,
+            unit: 'W',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+            // condition explicitly omitted
+          },
+        },
+      };
+      const cat12 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verMissingConditionAlone : undefined));
+      const rec12 = cat12.byId.get(baseCpu.id)!;
+      expect(rec12.power.evidence).toBe('editorial-reference');
     });
 
     it('explicit sourceId rejects nonexistent IDs and sourceKind conflicts without fallback', () => {
