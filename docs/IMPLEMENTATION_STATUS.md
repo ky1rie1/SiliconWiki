@@ -288,27 +288,44 @@
 1. **类型定义**
    - [修改] `src/types/pcBuilder.ts`：扩展 `BudgetStatus`、`GpuPowerScenario`、`PowerEstimate`、`CostSummary` 价格区间字段，完善 `CompatibilityRuleResult` 核验依据与未满足条件；
 2. **纯函数与适配引擎**
-   - [修改] `src/utils/specAdapter.ts`：增加 `getSpecificationRecord` 保留来源/核验/条件/变体，收敛内存插槽、形态、电源接口脑补，增强机箱限长条件解析与显卡 Type-C 视频辨识；
-   - [修改] `src/utils/pcCompatibility.ts`：导出 `createCatalogMap` 与 `updateOrInsertSlot`，重写 Rule 2/3/4/9 为严格五态逻辑，重写 `calculateBuildPower` 4 类显卡情形与厂商电源提取，重写 `calculateBuildCost` 价格区间与预算状态判定，重写 `findCompatibleReplacements` 沙盒过滤；
-   - [修改] `src/utils/pcBuildShare.ts`：实现并导出 `validateCustomBuild`，收紧 64KB JSON 字节与 2048 字符 URL 限制，禁止反序列化静默 continue，统一纯文本导出价格口径与温和告示；
+   - [修改] `src/utils/specAdapter.ts`：
+     - 增加 `getSpecificationRecord` 保留来源/核验/条件/变体；
+     - 升级显卡供电接口解析 `parseGpuPowerConnectors`：精准识别 ≤75W 免独立供电金手指取电（slot-power-only）、前置/后置倍数与乘号语法（`8-pin × 3`、`3 x 8-pin`）、避免 16-pin 干扰 8/6-pin 统计、不折叠多个 6-pin（`6-pin + 6-pin` 计算为 2 个）、将“待核实”等不可解析文本设为 `isUnparseable = true`；
+     - 多条件机箱限长提取完整分句与数值（如 330/380mm），解析冷排前置/顶置安装支持尺寸数组（`[240, 280, 360]`）；
+     - 收敛内存插槽、形态、电源接口脑补；
+   - [修改] `src/utils/pcCompatibility.ts`：
+     - Rule 2 (BIOS)：禁止通过 CPU/主板型号正则名称组合推断兼容，缺少厂商核验清单记录时坚决返回 `unknown`；
+     - Rule 3：补齐 CPU 内存代际未知而主板代际已知时的 `unknown` 准入判定；
+     - Rule 7：基于机箱多条件限长区间判定，位于区间内提示 `unknown`（需核对实物安装条件）；
+     - Rule 9：支持免外接供电通过；未确认 16-pin 具体转接线方案时返回 `unknown`（不暗示可驱动）；不可解析文本返回 `unknown`；
+     - 功耗估算：彻底移除 `replace(/[^\d]/g, '')` 盲目提取，严禁将范围值（如 `650–750 W`）强行折合为单值；仅采纳官方核验事实，废弃 `cons`/`pairingAdvice` 编辑猜测；彻底剔除“极大概率断电”、“黄金能效区间”等无依据文案；
+     - 替代建议差价：接入当前槽位自选报价与候选件价格区间 `[min, max]`，保留预计差价区间（`deltaPriceMin` ~ `deltaPriceMax`），不盲目回退至首发价；
+   - [修改] `src/utils/pcBuildShare.ts`：
+     - `validateCustomBuild`：严格校验 `isExplicitZeroPrice` 仅在用户价格为 0 时为 true；严格校验 `userPrice >= 0` 与 `quantity` 正整数；
+     - `deserializeBuildFromUrl`：解析前即时校验 URL 长度 ≤ 2048 字符与解码字节 ≤ 64KB；安全处理空值序列化；
+     - `generateBuildPlainText`：解耦配件型号展示与价格来源，自选报价时依然输出真实目录配件名称（如 `AMD Ryzen 7 9800X3D —— ￥3499 (自选报价)`），绝不退化为“未选配件”；
 3. **界面交互组件**
-   - [修改] `src/components/builder/CustomBuilderView.tsx`：显卡数量锁定为 1，接入区间价格与预算状态徽标，接入温和经验功耗告示；
+   - [修改] `src/components/builder/CustomBuilderView.tsx`：显卡数量锁定为 1，接入区间价格与预算状态徽标，接入温和经验功耗告示；未收录或自定义配件显示“已填写但待确认”徽章并支持正常编辑与移除；
    - [修改] `src/components/builder/PartSelectModal.tsx`：使用 `updateOrInsertSlot` 进行沙盒预检，精准识别“无已知硬冲突”；
-   - [修改] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：展示沙盒候选型号的 `remainingIssues` 剩余待注意项；
+   - [修改] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：展示沙盒候选型号的 `remainingIssues` 剩余待注意项，并支持显示差价区间（`预计差价 ¥... ~ ¥...`）；
    - [保留] `src/components/builder/JsonImportModal.tsx`：安全预览与取消机制；
    - [保留] `src/components/builds/BudgetBuilds.tsx`：双模式切换与草稿冲突防冲刷横幅；
 4. **测试套件**
-   - [新建] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：针对整改契约的 23 组定向回归测试（100% 通过）；
-   - [新建] `src/__tests__/pcBuilderDOMFlow.test.tsx`：React 18 + happy-dom 真实 DOM 完整交互链路测试（选件 → 冲突发现 → 沙盒替代 → 报告自动更新 → 本地存储更新与重载 → 导入预览取消/应用 → 损坏导入与分享链接草稿防冲刷）（3 组大流程用例全部通过）。
+   - [修改] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：扩充至 40 个用例，全量覆盖 BIOS unknown、Rule 3 交叉 unknown、供电接口解析与 16-pin 方案、多条件机箱限长与冷排数组、原始导入校验、纯文本导出真实型号保留、电源范围解析与差价区间；
+   - [修改] `src/__tests__/pcBuilderDOMFlow.test.tsx`：React 18 + happy-dom 真实 DOM 完整交互链路测试（选件 → 冲突发现 → 沙盒替代 → 报告自动更新 → 自选调价 → 真实型号纯文本导出 → 自定义配件“已填写但待确认”状态与移除），4 组完整流程用例全部通过。
 
 ### 3. 自动化测试与构建验收
 - **全量测试套件执行**：`npx vitest run`
-  - **25 个测试文件全部通过，共 218 项用例全部通过，0 失败**；
+  - **25 个测试文件全部通过，共 236 项用例全部通过，0 失败**；
   - 涵盖阶段 1（基础交互与存储隔离）、阶段 2（可信度、来源、功耗事实核验）、阶段 3（五态规则、配置单校验、价格区间、全链路 DOM 交互）；
 - **生产打包构建**：`npm run build` (`tsc && vite build`)
   - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
-  - Vite 生产打包 0 错误（dist 产物构建成功，耗时 ~3.09s）；
+  - Vite 生产打包 0 错误（dist 产物构建成功，耗时 ~3.01s）；
 - **验收结论与边界说明**：
   - 阶段 3 源码审查、全量自动化测试与全链路 DOM 交互回归全部通过；
   - 标记为：**“源码审查与全链路定向回归通过，真实浏览器及实物物理装配公差待补”**；
+  - **真实物理与环境边界如实披露**：
+    1. 真实物理装配公差（如不同批次机箱内部线材仓侵占、显卡越肩高度压迫侧板、风冷散热器扣具公差等）需在实物装配前核对；
+    2. 主板对新 CPU 的 BIOS 支持版本需以主板出厂生产批次为准，测试通过仅保证规则逻辑不虚构原生支持；
+    3. happy-dom 驱动的客户端测试已验证 DOM 状态机与事件链路，多终端跨浏览器（iOS Safari、Android Chrome、Edge）真实物理渲染待补；
   - 遵照指示，暂不重构第一、二阶段，暂不进入第四阶段。

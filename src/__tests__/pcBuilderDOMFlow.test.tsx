@@ -80,6 +80,20 @@ describe('Phase 3 Regression: Full Client-Side DOM Interaction Chain Flow', () =
     textarea.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  function setInputValue(input: HTMLInputElement, value: string) {
+    const nativeSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value'
+    )?.set;
+    if (nativeSetter) {
+      nativeSetter.call(input, value);
+    } else {
+      input.value = value;
+    }
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
   it('DOM Flow: pick -> conflict -> replace -> report update -> save/reload', async () => {
     // 1. Initial Render in Custom View
     await renderBudgetBuilds();
@@ -332,5 +346,174 @@ describe('Phase 3 Regression: Full Client-Side DOM Interaction Chain Flow', () =
     expect(container!.textContent).not.toContain('检测到来自分享链接的装机单');
     expect(container!.textContent).toContain('珍贵本地草稿');
     expect(window.localStorage.getItem(DRAFT_STORAGE_KEY)).toContain('珍贵本地草稿');
+  });
+
+  it('DOM Flow: full end-to-end interactive journey (pick via modal -> conflict -> replace -> edit price -> plain text copy has real model -> uncataloged item display & operations)', async () => {
+    // Mock clipboard
+    let copiedText = '';
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: async (text: string) => {
+          copiedText = text;
+        },
+      },
+      configurable: true,
+      writable: true,
+    });
+
+    // 1. Mount blank builder
+    await renderBudgetBuilds();
+    expect(container!.textContent).toContain('自选装机配置器');
+
+    // 2. Pick CPU via PartSelectModal
+    const pickCpuBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('挑选 CPU')
+    );
+    expect(pickCpuBtn).toBeDefined();
+    await act(async () => {
+      pickCpuBtn!.click();
+    });
+
+    expect(container!.textContent).toContain('选择配件：CPU 处理器');
+    // Type search query to find 9800X3D AM5 CPU
+    const cpuSearchInput = container!.querySelector('input[placeholder*="搜索型号"]') as HTMLInputElement;
+    if (cpuSearchInput) {
+      await act(async () => {
+        setInputValue(cpuSearchInput, '9800X3D');
+      });
+    }
+
+    const selectCpuBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.trim() === '选取配件'
+    );
+    expect(selectCpuBtn).toBeDefined();
+    await act(async () => {
+      selectCpuBtn!.click();
+    });
+
+    // CPU slot is now populated with AMD CPU
+    expect(container!.textContent).toContain('9800X3D');
+
+    // 3. Pick Conflicted Motherboard via PartSelectModal (select an Intel LGA1700 motherboard)
+    const pickMbBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('挑选 主板')
+    );
+    expect(pickMbBtn).toBeDefined();
+    await act(async () => {
+      pickMbBtn!.click();
+    });
+
+    expect(container!.textContent).toContain('选择配件：主板');
+    // Uncheck "排除已知冲突" checkbox so conflicted motherboards can be seen and selected
+    const excludeErrorsCheckbox = container!.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    if (excludeErrorsCheckbox && excludeErrorsCheckbox.checked) {
+      await act(async () => {
+        excludeErrorsCheckbox.click();
+      });
+    }
+
+    // Type search query to find LGA1700 motherboard
+    const searchInput = container!.querySelector('input[placeholder*="搜索型号"]') as HTMLInputElement;
+    if (searchInput) {
+      await act(async () => {
+        setInputValue(searchInput, 'B760');
+      });
+    }
+
+    const selectMbBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.trim() === '仍要选择' || b.textContent?.trim() === '选取配件'
+    );
+    expect(selectMbBtn).toBeDefined();
+    await act(async () => {
+      selectMbBtn!.click();
+    });
+
+    // 4. Hard conflict appears in DOM
+    expect(container!.textContent).toContain('CPU 与主板插槽物理不兼容');
+    expect(container!.textContent).toContain('推荐消解冲突的可行替代方案');
+
+    // 5. Replace via sandbox recommendation
+    const replaceMbBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('替换') && b.closest('.bg-rose-50\\/40, [class*="bg-rose"]')
+    );
+    expect(replaceMbBtn).toBeDefined();
+    await act(async () => {
+      replaceMbBtn!.click();
+    });
+
+    // Conflict resolved!
+    expect(container!.textContent).not.toContain('CPU 与主板插槽物理不兼容');
+
+    // 6. Edit CPU Price in DOM
+    const cpuInputs = Array.from(container!.querySelectorAll('input[type="number"]')) as HTMLInputElement[];
+    // Find the price input for the CPU slot
+    const cpuPriceInput = cpuInputs.find((input) => input.placeholder === '自定义价格');
+    expect(cpuPriceInput).toBeDefined();
+
+    await act(async () => {
+      setInputValue(cpuPriceInput!, '3499');
+    });
+
+    // 7. Plain text copy preserves real hardware model name
+    const copyBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('复制配置单')
+    );
+    expect(copyBtn).toBeDefined();
+
+    await act(async () => {
+      copyBtn!.click();
+    });
+
+    expect(copiedText).toContain('【SiliconWiki');
+    expect(copiedText).toContain('AMD Ryzen 7 9800X3D —— ￥3499 (自选报价)');
+    expect(copiedText).not.toContain('处理器 (CPU)       ：未选配件');
+
+    // 8. Test Uncataloged / Custom Part ("已填写但待确认") & Clear / Delete
+    const uncatalogedBuild: CustomBuild = {
+      schemaVersion: 1,
+      id: 'uncataloged-flow-build',
+      title: '库外配件测试单',
+      targetBudget: 8000,
+      slots: [
+        {
+          slotId: 'slot-gpu-custom',
+          type: 'gpu',
+          hardwareId: 'unknown-gpu-model-9999',
+          customName: '自备矿卡魔改版 16G',
+          userPrice: 850,
+          quantity: 1,
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    window.localStorage.setItem(DRAFT_STORAGE_KEY, exportBuildToJson(uncatalogedBuild));
+    await reloadApp();
+
+    // Must show "已填写但待确认" badge
+    expect(container!.textContent).toContain('已填写但待确认');
+    expect(container!.textContent).toContain('自备矿卡魔改版 16G');
+
+    // Price input for custom part is editable
+    const customGpuInput = (Array.from(container!.querySelectorAll('input[type="number"]')) as HTMLInputElement[]).find(
+      (inp) => inp.value === '850'
+    );
+    expect(customGpuInput).toBeDefined();
+
+    // "更换" and "移除" buttons exist for unconfirmed slot
+    const trashBtn = Array.from(container!.querySelectorAll('button')).find((b) =>
+      b.getAttribute('title')?.includes('移除配件')
+    );
+    expect(trashBtn).toBeDefined();
+
+    // Click trash button to remove custom part
+    await act(async () => {
+      trashBtn!.click();
+    });
+
+    // Slot is now cleared to unselected state
+    expect(container!.textContent).not.toContain('自备矿卡魔改版 16G');
+    expect(container!.textContent).toContain('未选配配件');
+    expect(container!.textContent).toContain('挑选 独立显卡');
   });
 });

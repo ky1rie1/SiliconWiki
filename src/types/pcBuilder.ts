@@ -153,6 +153,8 @@ export interface CostSummary {
 export interface ReplacementCandidate {
   item: HardwareItem;
   deltaPrice: number | null;
+  deltaPriceMin?: number;
+  deltaPriceMax?: number;
   remainingIssues: CompatibilityRuleResult[];
 }
 

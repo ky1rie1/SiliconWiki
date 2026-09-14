@@ -265,7 +265,9 @@ export const CompatibilityDiagnosticsPanel: React.FC<CompatibilityDiagnosticsPan
                                 ? cand.deltaPrice >= 0
                                   ? `预计补差价 +¥${cand.deltaPrice}`
                                   : `预计省 ¥${Math.abs(cand.deltaPrice)}`
-                                : '参考价以实际选购为准'}
+                                : cand.deltaPriceMin !== undefined && cand.deltaPriceMax !== undefined
+                                ? `预计差价 ¥${cand.deltaPriceMin >= 0 ? `+${cand.deltaPriceMin}` : cand.deltaPriceMin} ~ ¥${cand.deltaPriceMax >= 0 ? `+${cand.deltaPriceMax}` : cand.deltaPriceMax}`
+                                : '差价待查（缺少确定报价）'}
                             </div>
                             {cand.remainingIssues && cand.remainingIssues.length > 0 && (
                               <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">

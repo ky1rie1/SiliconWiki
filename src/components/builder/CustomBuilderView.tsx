@@ -425,9 +425,10 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
       {/* 8 大核心槽位卡片列表 */}
       <div className="space-y-3">
         {slotDefinitions.map(({ type, label, icon: Icon }) => {
-          const slotItem = build.slots.find((s) => s.type === type && s.hardwareId);
-          const hardware = slotItem ? getHardwareForSlot(slotItem.hardwareId) : null;
+          const slotItem = build.slots.find((s) => s.type === type && (s.hardwareId || s.customName));
+          const hardware = slotItem?.hardwareId ? getHardwareForSlot(slotItem.hardwareId) : null;
           const record = slotItem?.hardwareId ? hardwareCatalog.byId.get(slotItem.hardwareId) : null;
+          const isConfigured = Boolean(slotItem && (slotItem.hardwareId || slotItem.customName));
 
           // 找出当前槽位直接涉及的冲突或警告
           const slotIssues = report.rules.filter(
@@ -438,7 +439,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
             <div
               key={type}
               className={`p-4 rounded-2xl border transition-all ${
-                slotItem && hardware
+                isConfigured
                   ? 'bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800'
                   : 'bg-neutral-50/50 dark:bg-neutral-900/30 border-dashed border-neutral-300 dark:border-neutral-800'
               }`}
@@ -448,7 +449,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
                 <div className="flex items-start gap-3.5 flex-1 min-w-0">
                   <div
                     className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      slotItem
+                      isConfigured
                         ? 'bg-primary-50 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400 border border-primary-200/50 dark:border-primary-800/50'
                         : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-400'
                     }`}
@@ -456,33 +457,48 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
                     <Icon size={20} />
                   </div>
 
-                  {slotItem && hardware ? (
+                  {isConfigured && slotItem ? (
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
                           {label}
                         </span>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                          {hardware.brand}
-                        </span>
-                        <h3 className="text-sm font-bold text-neutral-900 dark:text-white truncate">
-                          {hardware.name}
-                        </h3>
+                        {hardware ? (
+                          <>
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                              {hardware.brand}
+                            </span>
+                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white truncate">
+                              {hardware.name}
+                            </h3>
 
-                        {/* Phase 2 可信度徽标 */}
-                        {record?.auditSummary && (
-                          <span
-                            className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60"
-                            title={`官方核验核心字段 ${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} 项`}
-                          >
-                            <ShieldCheck className="w-3 h-3" />
-                            <span>核心 {record.auditSummary.verifiedCoreCount}/{record.auditSummary.coreFieldTotal}</span>
-                          </span>
+                            {/* Phase 2 可信度徽标 */}
+                            {record?.auditSummary && (
+                              <span
+                                className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60"
+                                title={`官方核验核心字段 ${record.auditSummary.verifiedCoreCount}/${record.auditSummary.coreFieldTotal} 项`}
+                              >
+                                <ShieldCheck className="w-3 h-3" />
+                                <span>核心 {record.auditSummary.verifiedCoreCount}/{record.auditSummary.coreFieldTotal}</span>
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                              已填写但待确认
+                            </span>
+                            <h3 className="text-sm font-bold text-neutral-900 dark:text-white truncate">
+                              {slotItem.customName || slotItem.hardwareId || '自定义配件'}
+                            </h3>
+                          </>
                         )}
                       </div>
 
                       <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-1">
-                        {hardware.highlights.join(' · ') || `${hardware.series} / 功耗 ${hardware.tdpWatts}W`}
+                        {hardware
+                          ? (hardware.highlights.join(' · ') || `${hardware.series} / 功耗 ${hardware.tdpWatts}W`)
+                          : (slotItem.notes || (slotItem.hardwareId ? `未收录型号 ID: ${slotItem.hardwareId}（请人工核对物理兼容性）` : '自定义录入配件（请人工核对物理接口与尺寸）'))}
                       </p>
                     </div>
                   ) : (
@@ -499,7 +515,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
 
                 {/* 价格与操作区域 */}
                 <div className="flex items-center gap-3 justify-between sm:justify-end flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-100 dark:border-neutral-800">
-                  {slotItem && hardware ? (
+                  {isConfigured && slotItem ? (
                     <>
                       {/* 数量调整 (仅对内存与存储开放) */}
                       {(type === 'ram' || type === 'storage') && (
@@ -535,7 +551,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
                                 ? '0'
                                 : typeof slotItem.userPrice === 'number'
                                 ? slotItem.userPrice
-                                : hardware.marketPriceRange[0] || hardware.msrpRmb || ''
+                                : hardware ? (hardware.marketPriceRange[0] || hardware.msrpRmb || '') : ''
                             }
                             onChange={(e) => {
                               const val = e.target.value;
@@ -548,7 +564,7 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
                                 }
                               }
                             }}
-                            placeholder="自定义价格"
+                            placeholder={hardware ? '自定义价格' : '录入价格'}
                             className="w-20 px-2 py-1 text-sm font-bold text-right font-mono bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg text-primary-600 dark:text-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-500"
                             title="可输入您的实际入手价格"
                           />
@@ -558,23 +574,27 @@ export const CustomBuilderView: React.FC<CustomBuilderViewProps> = ({
                           {slotItem.isExplicitZeroPrice ? (
                             <span className="text-emerald-600 dark:text-emerald-400">自备 (¥0)</span>
                           ) : typeof slotItem.userPrice === 'number' ? (
-                            <button
-                              type="button"
-                              onClick={() => handleUpdatePrice(type, null)}
-                              className="text-neutral-500 hover:text-primary-600 underline"
-                              title="点击恢复为官方参考价"
-                            >
-                              恢复参考价
-                            </button>
+                            hardware ? (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdatePrice(type, null)}
+                                className="text-neutral-500 hover:text-primary-600 underline"
+                                title="点击恢复为官方参考价"
+                              >
+                                恢复参考价
+                              </button>
+                            ) : (
+                              <span>已设报价</span>
+                            )
                           ) : (
-                            <span>参考均价</span>
+                            <span>{hardware ? '参考均价' : '未设价格'}</span>
                           )}
                         </div>
                       </div>
 
                       {/* 更换与移除按钮 */}
                       <div className="flex items-center gap-1">
-                        {onOpenSpecs && (
+                        {hardware && onOpenSpecs && (
                           <button
                             type="button"
                             onClick={() => onOpenSpecs(hardware)}

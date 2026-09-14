@@ -147,7 +147,17 @@ export function validateCustomBuild(
     }
 
     // 自定义价格与自备 0 元冲突检查
-    const isExplicitZeroPrice = Boolean(s.isExplicitZeroPrice);
+    if (
+      s.isExplicitZeroPrice !== undefined &&
+      s.isExplicitZeroPrice !== null &&
+      typeof s.isExplicitZeroPrice !== 'boolean'
+    ) {
+      return {
+        valid: false,
+        error: `配件「${type}」的 isExplicitZeroPrice 必须为布尔值 (boolean)，当前为 ${typeof s.isExplicitZeroPrice}`,
+      };
+    }
+    const isExplicitZeroPrice = s.isExplicitZeroPrice === true;
     let userPrice: number | null = null;
     if (s.userPrice !== undefined && s.userPrice !== null) {
       if (typeof s.userPrice === 'number' && Number.isFinite(s.userPrice) && s.userPrice >= 0) {
@@ -448,8 +458,23 @@ export function deserializeBuildFromUrl(urlParam: string, catalog?: CatalogInput
     return null;
   }
 
+  // 0. URL 长度上限检查（必须在解码前拦截）
+  if (urlParam.trim().length > MAX_URL_PARAM_LENGTH) {
+    return null;
+  }
+
   try {
     const jsonStr = fromUrlSafeBase64(urlParam.trim());
+
+    // 0.1 解码后 JSON 体积上限检查
+    const byteLength =
+      typeof TextEncoder !== 'undefined'
+        ? new TextEncoder().encode(jsonStr).length
+        : Buffer.byteLength(jsonStr, 'utf8');
+    if (byteLength > MAX_JSON_SIZE_BYTES) {
+      return null;
+    }
+
     const parsed = JSON.parse(jsonStr) as CompactBuildSharePayload;
 
     if (!parsed || parsed.v !== 1 || !Array.isArray(parsed.s)) {
@@ -473,10 +498,18 @@ export function deserializeBuildFromUrl(urlParam: string, catalog?: CatalogInput
       }
 
       const hardwareId = typeof item[1] === 'string' && item[1].trim() ? item[1].trim() : null;
-      const userPrice = typeof item[2] === 'number' && Number.isFinite(item[2]) && item[2] >= 0 ? item[2] : null;
-      const quantity = typeof item[3] === 'number' ? item[3] : 1;
+      // 保持原始数据形态传递给统一校验器，绝不在反序列化前提前将负数篡改为 null 或将字符串篡改为 1
+      const userPrice = item[2];
+      const quantity = item[3];
       const customName = typeof item[4] === 'string' && item[4].trim() ? item[4].trim() : undefined;
-      const isExplicitZeroPrice = item[5] === 1 || userPrice === 0;
+      const isExplicitZeroPrice =
+        item[5] === 1
+          ? true
+          : item[5] === 0
+          ? false
+          : item[5] === null || item[5] === undefined
+          ? (userPrice === 0 ? true : false)
+          : item[5];
 
       rawSlots.push({
         slotId: `shared-slot-${type}-${i}`,
@@ -535,24 +568,15 @@ export function generateBuildPlainText(
   };
 
   const getHardwareInfo = (slot: CustomBuildSlotItem): { name: string; priceText: string; verifiedNote: string } => {
+    // 1. 独立解析配件型号与核验状态（即使填写了自定义价格，也必须优先输出真实的库内型号名称）
     let name = slot.customName || '未选配件';
-    let priceText = '价格待查';
     let verifiedNote = '';
 
-    if (slot.userPrice !== null) {
-      priceText = slot.isExplicitZeroPrice ? '￥0 (自备/赠送)' : `￥${slot.userPrice} (自选报价)`;
-    } else if (slot.hardwareId) {
+    if (slot.hardwareId) {
       const item = catalogMap.get(slot.hardwareId);
       if (item) {
         if ('identity' in item) {
           name = item.identity.name;
-          if (item.pricing?.isKnownRange && typeof item.pricing.referenceRange?.min === 'number') {
-            const pMin = item.pricing.referenceRange.min;
-            const pMax = item.pricing.referenceRange.max;
-            priceText = pMin !== pMax ? `￥${pMin}~￥${pMax} (市场参考)` : `￥${pMin} (市场参考)`;
-          } else if (item.pricing?.launchReference) {
-            priceText = `￥${item.pricing.launchReference} (首发参考，未取到当前市场报价)`;
-          }
           if (item.auditSummary?.hasOfficialSource) {
             verifiedNote = ' [官方核验]';
           } else if (item.auditSummary && item.auditSummary.verifiedCoreCount > 0) {
@@ -560,6 +584,30 @@ export function generateBuildPlainText(
           }
         } else {
           name = item.name;
+        }
+      } else if (!slot.customName) {
+        name = `${slot.hardwareId} (库外配件)`;
+      }
+    }
+
+    // 2. 独立解析价格信息
+    let priceText = '价格待查';
+    if (slot.isExplicitZeroPrice) {
+      priceText = '￥0 (自备/赠送)';
+    } else if (slot.userPrice !== null && typeof slot.userPrice === 'number') {
+      priceText = `￥${slot.userPrice} (自选报价)`;
+    } else if (slot.hardwareId) {
+      const item = catalogMap.get(slot.hardwareId);
+      if (item) {
+        if ('identity' in item) {
+          if (item.pricing?.isKnownRange && typeof item.pricing.referenceRange?.min === 'number') {
+            const pMin = item.pricing.referenceRange.min;
+            const pMax = item.pricing.referenceRange.max;
+            priceText = pMin !== pMax ? `￥${pMin}~￥${pMax} (市场参考)` : `￥${pMin} (市场参考)`;
+          } else if (item.pricing?.launchReference) {
+            priceText = `￥${item.pricing.launchReference} (首发参考，未取到当前市场报价)`;
+          }
+        } else {
           if (isValidPriceRange(item.marketPriceRange)) {
             const pMin = item.marketPriceRange[0];
             const pMax = item.marketPriceRange[1];

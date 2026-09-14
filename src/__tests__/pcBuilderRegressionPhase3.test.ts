@@ -6,6 +6,7 @@ import {
   extractPsuSpecs,
   extractCaseClearance,
   extractDisplayOutputInfo,
+  parseGpuPowerConnectors,
 } from '../utils/specAdapter';
 import {
   checkBuildCompatibility,
@@ -16,6 +17,7 @@ import {
 import {
   validateCustomBuild,
   deserializeBuildFromUrl,
+  generateBuildPlainText,
 } from '../utils/pcBuildShare';
 import { CustomBuild } from '../types/pcBuilder';
 import { HardwareRecord } from '../types/hardwareCatalog';
@@ -596,3 +598,435 @@ describe('Phase 3 Regression: Sandbox Replacement Engine', () => {
     expect(ramCand?.remainingIssues.some((i) => i.ruleId === 'rule_gpu_length_clearance')).toBe(true);
   });
 });
+
+describe('Phase 3 Regression: Extended Verification Suites', () => {
+  it('Rule 3: returns unknown when CPU RAM support is unknown but MB support is known', () => {
+    const build: CustomBuild = {
+      schemaVersion: 1,
+      id: 'b-ram-cpu-unknown',
+      title: 'RAM CPU Unknown',
+      targetBudget: null,
+      createdAt: '',
+      updatedAt: '',
+      slots: [
+        { slotId: 's1', type: 'cpu', hardwareId: 'cpu-vague-ram', userPrice: null, quantity: 1 },
+        { slotId: 's2', type: 'motherboard', hardwareId: 'mb-ddr5', userPrice: null, quantity: 1 },
+        { slotId: 's3', type: 'ram', hardwareId: 'ram-ddr5', userPrice: null, quantity: 1 },
+      ],
+    };
+    const catalog = [
+      { id: 'cpu-vague-ram', category: 'cpu', specs: {} } as unknown as HardwareItem, // no RAM spec & no socket
+      { id: 'mb-ddr5', category: 'motherboard', specs: { 'motherboard.socket': 'AM5', 'motherboard.ram': 'DDR5' } } as unknown as HardwareItem,
+      { id: 'ram-ddr5', category: 'ram', specs: { 'ram.frequency': 'DDR5' } } as unknown as HardwareItem,
+    ];
+    const report = checkBuildCompatibility(build, catalog);
+    const rule3 = report.rules.find((r) => r.ruleId === 'rule_ram_type_match');
+    expect(rule3).toBeDefined();
+    expect(rule3?.status).toBe('unknown');
+    expect(rule3?.message).toMatch(/配件库未记录该 CPU 的内存代际支持规格/);
+  });
+
+  describe('GPU Power Connectors & Multipliers', () => {
+    it('correctly parses "8-pin × 3" and "8-pin * 3" without collapsing into 1', () => {
+      const res1 = parseGpuPowerConnectors('8-pin × 3');
+      expect(res1?.count8Pin).toBe(3);
+      expect(res1?.count6Pin).toBe(0);
+      expect(res1?.count16Pin).toBe(0);
+
+      const res2 = parseGpuPowerConnectors('3 x 8-pin');
+      expect(res2?.count8Pin).toBe(3);
+
+      const res3 = parseGpuPowerConnectors('8-pin + 8-pin + 8-pin');
+      expect(res3?.count8Pin).toBe(3);
+    });
+
+    it('correctly parses "6-pin + 6-pin" and "2 x 6-pin" without collapsing into 1', () => {
+      const res1 = parseGpuPowerConnectors('6-pin + 6-pin');
+      expect(res1?.count6Pin).toBe(2);
+      expect(res1?.count8Pin).toBe(0);
+
+      const res2 = parseGpuPowerConnectors('2 x 6-pin');
+      expect(res2?.count6Pin).toBe(2);
+    });
+
+    it('flags unparseable connector text as isUnparseable', () => {
+      const res = parseGpuPowerConnectors('待核实');
+      expect(res?.isUnparseable).toBe(true);
+      expect(res?.count8Pin).toBe(0);
+      expect(res?.count6Pin).toBe(0);
+      expect(res?.count16Pin).toBe(0);
+    });
+
+    it('identifies slot-power-only GPUs and Rule 9 evaluates to pass without PSU PCIe ports', () => {
+      const res = parseGpuPowerConnectors('PCIe 插槽直接供电 (无需外接供电)');
+      expect(res?.isSlotPowerOnly).toBe(true);
+
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-slot-power',
+        title: 'Slot Power Only',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-gt1030', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'psu', hardwareId: 'psu-basic', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        { id: 'gpu-gt1030', category: 'gpu', specs: { '供电接口': '无需外接电源' } } as unknown as HardwareItem,
+        { id: 'psu-basic', category: 'psu', specs: { '额定功率': '300W', '显卡原生接口': '无独立供电线' } } as unknown as HardwareItem,
+      ];
+      const report = checkBuildCompatibility(build, catalog);
+      const rule9 = report.rules.find((r) => r.ruleId === 'rule_gpu_power_connectors');
+      expect(rule9?.status).toBe('pass');
+      expect(rule9?.message).toMatch(/无需从电源引出独立供电线/);
+    });
+
+    it('16-pin GPU on PSU without native 16-pin returns unknown, not asserting drivability', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-16pin',
+        title: '16-Pin Adapter',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-4080', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'psu', hardwareId: 'psu-old-8pin', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        { id: 'gpu-4080', category: 'gpu', specs: { '供电接口': '16-pin (12VHPWR)' } } as unknown as HardwareItem,
+        { id: 'psu-old-8pin', category: 'psu', specs: { '额定功率': '850W', '显卡原生接口': 'PCIe 8-pin x 4' } } as unknown as HardwareItem,
+      ];
+      const report = checkBuildCompatibility(build, catalog);
+      const rule9 = report.rules.find((r) => r.ruleId === 'rule_gpu_power_connectors');
+      expect(rule9?.status).toBe('unknown');
+      expect(rule9?.message).toMatch(/未确认具体转接方案前/);
+    });
+  });
+
+  describe('Conditional Dimensions & Radiator Extraction', () => {
+    it('handles 330/380mm multi-condition limits: 350mm GPU evaluates to unknown, not hard error', () => {
+      const caseItem: Partial<HardwareItem> = {
+        id: 'case-conditional',
+        category: 'case',
+        specs: { '显卡限长': '前置安装水冷时限长 330mm，无前置水冷 380mm' },
+      };
+
+      const build350: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-350',
+        title: '350mm GPU',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-350', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'case', hardwareId: 'case-conditional', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        caseItem as HardwareItem,
+        { id: 'gpu-350', category: 'gpu', specs: { '尺寸': '350mm x 140mm' } } as unknown as HardwareItem,
+        { id: 'gpu-390', category: 'gpu', specs: { '尺寸': '390mm x 140mm' } } as unknown as HardwareItem,
+        { id: 'gpu-320', category: 'gpu', specs: { '尺寸': '320mm x 140mm' } } as unknown as HardwareItem,
+      ];
+
+      const report350 = checkBuildCompatibility(build350, catalog);
+      const rule7_350 = report350.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+      expect(rule7_350?.status).toBe('unknown');
+      expect(rule7_350?.message).toMatch(/需待核实实物安装条件/);
+
+      // 390mm > 380mm -> error
+      const build390: CustomBuild = {
+        ...build350,
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-390', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'case', hardwareId: 'case-conditional', userPrice: null, quantity: 1 },
+        ],
+      };
+      const report390 = checkBuildCompatibility(build390, catalog);
+      const rule7_390 = report390.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+      expect(rule7_390?.status).toBe('error');
+
+      // 300mm <= 330mm with >15mm margin -> pass
+      const build300: CustomBuild = {
+        ...build350,
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-300', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'case', hardwareId: 'case-conditional', userPrice: null, quantity: 1 },
+        ],
+      };
+      const report300 = checkBuildCompatibility(build300, [
+        caseItem as HardwareItem,
+        { id: 'gpu-300', category: 'gpu', specs: { '尺寸': '300mm x 140mm' } } as unknown as HardwareItem,
+      ]);
+      const rule7_300 = report300.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+      expect(rule7_300?.status).toBe('pass');
+
+      // 320mm <= 330mm but clearance < 15mm -> warning
+      const build320: CustomBuild = {
+        ...build350,
+        slots: [
+          { slotId: 's1', type: 'gpu', hardwareId: 'gpu-320', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'case', hardwareId: 'case-conditional', userPrice: null, quantity: 1 },
+        ],
+      };
+      const report320 = checkBuildCompatibility(build320, [
+        caseItem as HardwareItem,
+        { id: 'gpu-320', category: 'gpu', specs: { '尺寸': '320mm x 140mm' } } as unknown as HardwareItem,
+      ]);
+      const rule7_320 = report320.rules.find((r) => r.ruleId === 'rule_gpu_length_clearance');
+      expect(rule7_320?.status).toBe('warning');
+    });
+
+    it('extracts all radiator sizes in each position clause into array', () => {
+      const caseItem: Partial<HardwareItem> = {
+        id: 'case-rads',
+        category: 'case',
+        specs: { '冷排支持': '顶部支持 240/280/360mm，前置支持 240/280/360/420mm' },
+      };
+      const res = extractCaseClearance(caseItem as HardwareItem);
+      expect(res.value?.radiatorPositions).toBeDefined();
+      const topPos = res.value?.radiatorPositions?.find((p) => p.position === 'top');
+      expect(topPos?.sizesMm).toEqual(expect.arrayContaining([240, 280, 360]));
+      const frontPos = res.value?.radiatorPositions?.find((p) => p.position === 'front');
+      expect(frontPos?.sizesMm).toEqual(expect.arrayContaining([240, 280, 360, 420]));
+    });
+  });
+
+  describe('Import Raw Value Validation', () => {
+    it('rejects URL parameter exceeding 2048 characters before decode', () => {
+      const hugeParam = 'a'.repeat(2049);
+      expect(deserializeBuildFromUrl(hugeParam)).toBeNull();
+    });
+
+    it('rejects string "false" for isExplicitZeroPrice', () => {
+      const rawBuild = {
+        schemaVersion: 1,
+        title: 'String False Test',
+        slots: [
+          {
+            slotId: 's1',
+            type: 'cpu',
+            hardwareId: null,
+            quantity: 1,
+            userPrice: 1000,
+            isExplicitZeroPrice: 'false', // invalid type!
+          },
+        ],
+      };
+      const res = validateCustomBuild(rawBuild);
+      expect(res.valid).toBe(false);
+      expect(res.error).toMatch(/isExplicitZeroPrice 必须为布尔值/);
+    });
+
+    it('rejects negative userPrice in validateCustomBuild', () => {
+      const rawBuild = {
+        schemaVersion: 1,
+        title: 'Negative Price Test',
+        slots: [
+          {
+            slotId: 's1',
+            type: 'cpu',
+            hardwareId: null,
+            quantity: 1,
+            userPrice: -500,
+          },
+        ],
+      };
+      const res = validateCustomBuild(rawBuild);
+      expect(res.valid).toBe(false);
+      expect(res.error).toMatch(/自定义价格必须为非负数值/);
+    });
+
+    it('rejects string quantity in validateCustomBuild', () => {
+      const rawBuild = {
+        schemaVersion: 1,
+        title: 'String Qty Test',
+        slots: [
+          {
+            slotId: 's1',
+            type: 'ram',
+            hardwareId: null,
+            quantity: '2', // string, not integer!
+          },
+        ],
+      };
+      const res = validateCustomBuild(rawBuild);
+      expect(res.valid).toBe(false);
+      expect(res.error).toMatch(/数量必须为正整数/);
+    });
+  });
+
+  describe('Plain Text BOM Hardware Resolution', () => {
+    it('outputs real hardware model name even when user custom price is set', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-bom',
+        title: 'BOM Model Test',
+        targetBudget: 10000,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          {
+            slotId: 's1',
+            type: 'cpu',
+            hardwareId: 'amd-r7-7800x3d',
+            userPrice: 2399, // user custom price!
+            quantity: 1,
+          },
+        ],
+      };
+      const catalog: HardwareItem[] = [
+        {
+          id: 'amd-r7-7800x3d',
+          name: 'AMD Ryzen 7 7800X3D',
+          brand: 'AMD',
+          category: 'cpu',
+          series: 'Ryzen 7000',
+          marketPriceRange: [2400, 2600],
+          highlights: [],
+          specs: {},
+        } as unknown as HardwareItem,
+      ];
+      const plainText = generateBuildPlainText(build, catalog, 'zh');
+      // Must contain real model name!
+      expect(plainText).toContain('AMD Ryzen 7 7800X3D');
+      expect(plainText).not.toContain('未选配件');
+      expect(plainText).toContain('￥2399 (自选报价)');
+    });
+  });
+
+  describe('Power Calculation & Evidence Copy', () => {
+    it('does not parse range wattage "650–750 W" as a single recommendation or 650750W', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-pwr-range',
+        title: 'Range Wattage Test',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-1', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-range-spec', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-1', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        { id: 'cpu-1', category: 'cpu', tdpWatts: 120, specs: {} } as unknown as HardwareItem,
+        {
+          id: 'gpu-range-spec',
+          category: 'gpu',
+          tdpWatts: 250,
+          specifications: [
+            {
+              id: 'gpu.recommendedPsu',
+              label: '建议电源',
+              value: '650–750 W', // range string!
+              verificationStatus: 'verified',
+              sourceKind: 'manufacturer',
+            },
+          ],
+        } as unknown as HardwareRecord,
+        { id: 'psu-1', category: 'psu', specs: { '额定功率': '650W' } } as unknown as HardwareItem,
+      ];
+      const power = calculateBuildPower(build, catalog);
+      // manufacturerPsuRecommendationWatts must NOT be 650750! It must be null.
+      expect(power.manufacturerPsuRecommendationWatts).toBeNull();
+    });
+
+    it('does not fall back to editorial cons/pairingAdvice for official recommendation', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-pwr-cons',
+        title: 'Cons Fallback Test',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-1', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-cons', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-1', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        { id: 'cpu-1', category: 'cpu', tdpWatts: 100, specs: {} } as unknown as HardwareItem,
+        {
+          id: 'gpu-cons',
+          category: 'gpu',
+          tdpWatts: 200,
+          cons: ['建议系统电源 850W'], // editorial text!
+          pairingAdvice: '建议系统电源 850W',
+          specs: {},
+        } as unknown as HardwareItem,
+        { id: 'psu-1', category: 'psu', specs: { '额定功率': '650W' } } as unknown as HardwareItem,
+      ];
+      const power = calculateBuildPower(build, catalog);
+      expect(power.manufacturerPsuRecommendationWatts).toBeNull();
+    });
+
+    it('power notes do not contain unevidenced marketing claims', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-copy',
+        title: 'Copy Clean Test',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-1', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-1', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-1', userPrice: null, quantity: 1 },
+        ],
+      };
+      const catalog = [
+        { id: 'cpu-1', category: 'cpu', tdpWatts: 65, specs: {} } as unknown as HardwareItem,
+        { id: 'gpu-1', category: 'gpu', tdpWatts: 150, specs: {} } as unknown as HardwareItem,
+        { id: 'psu-1', category: 'psu', specs: { '额定功率': '850W' } } as unknown as HardwareItem,
+      ];
+      const power = calculateBuildPower(build, catalog);
+      const allNotes = power.notes.join(' ');
+      expect(allNotes).not.toContain('黄金能效区间');
+      expect(allNotes).not.toContain('极大概率断电');
+    });
+  });
+
+  describe('Sandbox Replacement Delta Pricing', () => {
+    it('calculates replacement price delta considering slot quantity, user price, and market range', () => {
+      const build: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-repl-price',
+        title: 'Repl Price Test',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-am5', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'motherboard', hardwareId: 'mb-lga1700', userPrice: 1500, quantity: 1 }, // user price 1500
+        ],
+      };
+      const catalog: HardwareItem[] = [
+        { id: 'cpu-am5', name: 'AM5 CPU', brand: 'AMD', category: 'cpu', series: '', marketPriceRange: [2000, 2000], highlights: [], specs: { 'cpu.socket': 'AM5' } } as unknown as HardwareItem,
+        { id: 'mb-lga1700', name: 'LGA1700 MB', brand: 'MSI', category: 'motherboard', series: '', marketPriceRange: [1200, 1400], highlights: [], specs: { 'motherboard.socket': 'LGA1700' } } as unknown as HardwareItem,
+        { id: 'mb-am5-range', name: 'AM5 MB Range', brand: 'ASUS', category: 'motherboard', series: '', marketPriceRange: [1800, 2100], highlights: [], specs: { 'motherboard.socket': 'AM5' } } as unknown as HardwareItem,
+      ];
+
+      const report = checkBuildCompatibility(build, catalog);
+      const socketError = report.rules.find((r) => r.ruleId === 'rule_socket_match');
+      expect(socketError).toBeDefined();
+
+      const candidates = findCompatibleReplacements(socketError!, build, catalog);
+      const cand = candidates.find((c) => c.item.id === 'mb-am5-range');
+      expect(cand).toBeDefined();
+      // Candidate market range: [1800, 2100]. Current user price: 1500.
+      // Delta min = 1800 - 1500 = 300. Delta max = 2100 - 1500 = 600.
+      expect(cand?.deltaPriceMin).toBe(300);
+      expect(cand?.deltaPriceMax).toBe(600);
+      expect(cand?.deltaPrice).toBeNull(); // range, not single number
+    });
+  });
+});
+

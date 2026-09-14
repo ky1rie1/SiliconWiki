@@ -17,7 +17,7 @@ export interface FieldExtractionResult<T> {
 import { SpecificationRecord } from '../types/hardwareCatalog';
 
 /** Helper to find underlying SpecificationRecord */
-function getSpecificationRecord(
+export function getSpecificationRecord(
   item: HardwareItem | HardwareRecord | null,
   keys: string[]
 ): SpecificationRecord | null {
@@ -557,14 +557,17 @@ export function extractCaseClearance(item: HardwareItem | HardwareRecord | null)
     }
   }
 
-  // 解析具体冷排安装位空间
+  // 解析具体冷排安装位空间（截取完整子句，提取该位置支持的所有冷排尺寸）
   const radiatorPositions: RadiatorPositionSupport[] = [];
-  const parsePos = (posName: 'top' | 'front' | 'rear' | 'side' | 'bottom', regex: RegExp) => {
-    const matchPos = rawRad.match(regex);
-    if (matchPos) {
+  const parsePos = (posName: 'top' | 'front' | 'rear' | 'side' | 'bottom', posRegex: RegExp) => {
+    const matchClause = rawRad.match(new RegExp(`(?:${posRegex.source})[^，,;；\\n]*`, 'i'));
+    if (matchClause) {
+      const clause = matchClause[0];
       const sizes: number[] = [];
       for (const rad of [120, 140, 240, 280, 360, 420]) {
-        if (new RegExp(String(rad)).test(matchPos[0])) sizes.push(rad);
+        if (new RegExp(`(?:\\b|[^0-9])${rad}(?:\\b|[^0-9]|mm)`).test(clause)) {
+          sizes.push(rad);
+        }
       }
       if (sizes.length > 0) {
         radiatorPositions.push({ position: posName, sizesMm: sizes });
@@ -572,10 +575,11 @@ export function extractCaseClearance(item: HardwareItem | HardwareRecord | null)
     }
   };
 
-  parsePos('top', /顶部[^，,;]*?(?:120|140|240|280|360|420)/i);
-  parsePos('front', /前置[^，,;]*?(?:120|140|240|280|360|420)/i);
-  parsePos('rear', /后置[^，,;]*?(?:120|140)/i);
-  parsePos('side', /(?:侧面|侧置)[^，,;]*?(?:120|240|280|360)/i);
+  parsePos('top', /顶部|顶置|Top/);
+  parsePos('front', /前置|前面板|Front/);
+  parsePos('rear', /后置|后面板|Rear/);
+  parsePos('side', /侧面|侧置|Side/);
+  parsePos('bottom', /底部|底置|Bottom/);
 
   return {
     isKnown: maxGpuLengthMm !== null || maxCoolerHeightMm !== null || supportedRadiatorsMm.length > 0,
@@ -602,7 +606,85 @@ export interface GpuPowerConnectorInfo {
   count16Pin: number;
   count8Pin: number;
   count6Pin: number;
+  isSlotPowerOnly?: boolean;
+  isUnparseable?: boolean;
   rawText?: string;
+}
+
+export function parseGpuPowerConnectors(raw: string | null): GpuPowerConnectorInfo | undefined {
+  if (!raw || !raw.trim()) return undefined;
+  const text = raw.trim();
+
+  // 1. 明确声明无需外接供电 / PCIe 插槽直接供电 (≤75W)
+  if (/无需(?:辅助|额外|外接)?供电|免插电|PCIe\s*插槽(?:直接)?供电|免供电|无需外接电源/i.test(text)) {
+    return {
+      count16Pin: 0,
+      count8Pin: 0,
+      count6Pin: 0,
+      isSlotPowerOnly: true,
+      rawText: text,
+    };
+  }
+
+  let count16Pin = 0;
+  let count8Pin = 0;
+  let count6Pin = 0;
+
+  // 2. 解析 16-pin / 12VHPWR / 12V-2x6
+  const m16Front = text.match(/(\d+)\s*[x*×]\s*(?:16-pin|12VHPWR|12V-2x6)/i);
+  const m16Back = text.match(/(?:16-pin|12VHPWR|12V-2x6)\s*[x*×]\s*(\d+)/i);
+  if (m16Front) {
+    count16Pin = parseInt(m16Front[1], 10) || 1;
+  } else if (m16Back) {
+    count16Pin = parseInt(m16Back[1], 10) || 1;
+  } else if (/16-pin|12VHPWR|12V-2x6/i.test(text)) {
+    count16Pin = 1;
+  }
+
+  // 屏蔽 16-pin 文本后解析 8-pin 与 6-pin，避免 "16-pin" 中的 "6" 或 "16" 干扰
+  const maskedText = text.replace(/16-pin|12VHPWR|12V-2x6/gi, '');
+
+  // 3. 解析 8-pin（支持 "3 x 8-pin" 与 "8-pin x 3" / "8-pin × 3" / "8-pin + 8-pin"）
+  const m8Front = maskedText.match(/(\d+)\s*[x*×]\s*(?:8-pin|8P|6\+2-pin)/i);
+  const m8Back = maskedText.match(/(?:8-pin|8P|6\+2-pin)\s*[x*×]\s*(\d+)/i);
+  if (m8Front) {
+    count8Pin = parseInt(m8Front[1], 10) || 1;
+  } else if (m8Back) {
+    count8Pin = parseInt(m8Back[1], 10) || 1;
+  } else {
+    // 统计独立出现的 8-pin 数量（如 "8-pin + 8-pin" 或 "8-pin + 8-pin + 8-pin"）
+    const all8Matches = maskedText.match(/(?:8-pin|6\+2-pin|\b8P\b)/gi);
+    if (all8Matches) {
+      count8Pin = all8Matches.length;
+    }
+  }
+
+  // 4. 解析 6-pin（支持 "2 x 6-pin" 与 "6-pin x 2" / "6-pin + 6-pin"，禁止将多个 6-pin 折为一个）
+  const m6Front = maskedText.match(/(\d+)\s*[x*×]\s*(?:6-pin|6P)/i);
+  const m6Back = maskedText.match(/(?:6-pin|6P)\s*[x*×]\s*(\d+)/i);
+  if (m6Front) {
+    count6Pin = parseInt(m6Front[1], 10) || 1;
+  } else if (m6Back) {
+    count6Pin = parseInt(m6Back[1], 10) || 1;
+  } else {
+    // 统计独立出现的 6-pin 数量（如 "6-pin + 6-pin"）
+    const all6Matches = maskedText.match(/(?:6-pin|\b6P\b)/gi);
+    if (all6Matches) {
+      count6Pin = all6Matches.length;
+    }
+  }
+
+  // 5. 若无法解析出任何有效接口且非免插电（如文本为“待核实”、“详见说明”），标记为无法解析
+  const isUnparseable = count16Pin === 0 && count8Pin === 0 && count6Pin === 0;
+
+  return {
+    count16Pin,
+    count8Pin,
+    count6Pin,
+    isSlotPowerOnly: false,
+    isUnparseable,
+    rawText: text,
+  };
 }
 
 export interface GpuDimensionsInfo {
@@ -610,36 +692,6 @@ export interface GpuDimensionsInfo {
   slotThickness: number | null;
   powerConnectors: string | null;
   parsedConnectors?: GpuPowerConnectorInfo;
-}
-
-export function parseGpuPowerConnectors(raw: string | null): GpuPowerConnectorInfo | undefined {
-  if (!raw || !raw.trim()) return undefined;
-  let count16Pin = 0;
-  let count8Pin = 0;
-  let count6Pin = 0;
-
-  const m16 = raw.match(/(\d+)\s*[x*×]?\s*(?:16-pin|12VHPWR|12V-2x6)/i);
-  if (m16) {
-    count16Pin = parseInt(m16[1], 10) || 1;
-  } else if (/16-pin|12VHPWR|12V-2x6/i.test(raw)) {
-    count16Pin = 1;
-  }
-
-  const m8 = raw.match(/(\d+)\s*[x*×]?\s*(?:8-pin|8P|6\+2-pin)/i);
-  if (m8) {
-    count8Pin = parseInt(m8[1], 10) || 1;
-  } else if (/8-pin|8P|6\+2-pin/i.test(raw) && !/16-pin/i.test(raw)) {
-    count8Pin = 1;
-  }
-
-  const m6 = raw.match(/(\d+)\s*[x*×]?\s*(?:6-pin|6P)/i);
-  if (m6) {
-    count6Pin = parseInt(m6[1], 10) || 1;
-  } else if (/6-pin|6P/i.test(raw)) {
-    count6Pin = 1;
-  }
-
-  return { count16Pin, count8Pin, count6Pin, rawText: raw };
 }
 
 export function extractGpuDimensions(item: HardwareItem | HardwareRecord | null): FieldExtractionResult<GpuDimensionsInfo> {
