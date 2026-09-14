@@ -178,13 +178,6 @@ export const CATEGORY_POWER_FIELD_IDS: Partial<Record<HardwareCategory, Hardware
   cooler: 'cooler.tdpRating',
 };
 
-export const CATEGORY_POWER_CORE_CANONICAL: Partial<Record<HardwareCategory, string>> = {
-  cpu: '基础功耗 / 最大睿频功耗',
-  gpu: '整卡功耗 (TGP/TBP)',
-  psu: '额定功率',
-  cooler: '标称解热能力TDP',
-};
-
 const AIC_PARTNER_BRANDS = new Set([
   'Colorful',
   '七彩虹',
@@ -440,46 +433,37 @@ export function createHardwareCatalog(
     );
 
     const expectedPowerFieldId = CATEGORY_POWER_FIELD_IDS[item.category];
-    const canonicalPowerCore = CATEGORY_POWER_CORE_CANONICAL[item.category];
-    const coreSpecs = CATEGORY_CORE_FIELDS[item.category] || [];
-    const powerCoreSpec = canonicalPowerCore
-      ? coreSpecs.find((c) => c.canonicalName === canonicalPowerCore)
-      : undefined;
-    const powerAliases = powerCoreSpec ? powerCoreSpec.aliases : [];
 
-    // Resolve the power specification fact from specifications
-    let powerSpec = expectedPowerFieldId
+    // 1. Power specification fact must strictly match the canonical power field ID for this category.
+    // Loose label matching or sourceField text matching is strictly forbidden so that non-power
+    // facts (such as gpu.recommendedPsu) can never endorse power.
+    const powerSpec = expectedPowerFieldId
       ? specifications.find((s) => s.id === `${item.id}:${expectedPowerFieldId}`)
       : undefined;
 
-    if (!powerSpec && verified?.powerSourceField) {
-      powerSpec = specifications.find((s) => s.sourceField === verified.powerSourceField);
-    }
-
-    if (!powerSpec && powerAliases.length > 0) {
-      powerSpec = specifications.find((s) => powerAliases.includes(s.label));
-    }
-
+    // 2. Verified numeric value must be explicit, finite positive, and equal to item.tdpWatts.
+    // numericValue being null/undefined is NOT accepted.
     const isPowerNumericValid =
       powerSpec !== undefined &&
-      (powerSpec.numericValue === undefined ||
-        powerSpec.numericValue === null ||
-        powerSpec.numericValue === item.tdpWatts);
+      typeof powerSpec.numericValue === 'number' &&
+      Number.isFinite(powerSpec.numericValue) &&
+      powerSpec.numericValue > 0 &&
+      powerSpec.numericValue === item.tdpWatts;
 
+    // 3. Unit must be explicit and must be valid power units ('W' or '瓦').
+    // Missing or empty unit is NOT accepted.
     const isPowerUnitValid =
       powerSpec !== undefined &&
-      (powerSpec.unit === undefined ||
-        powerSpec.unit === '' ||
-        ['W', '瓦'].includes(powerSpec.unit.trim().toUpperCase()));
+      typeof powerSpec.unit === 'string' &&
+      ['W', '瓦'].includes(powerSpec.unit.trim().toUpperCase());
 
-    const isPowerFieldConsistent =
+    // 4. Condition must be consistent: for reference products, partner OC conditions cannot endorse.
+    const isPowerConditionValid =
       powerSpec !== undefined &&
-      (!powerSpec.id.startsWith(`${item.id}:`) ||
-        !expectedPowerFieldId ||
-        powerSpec.id === `${item.id}:${expectedPowerFieldId}` ||
-        !Object.values(CATEGORY_POWER_FIELD_IDS).includes(
-          powerSpec.id.slice(item.id.length + 1) as HardwareSpecFieldId
-        ));
+      (powerSpec.condition === undefined ||
+        (typeof powerSpec.condition === 'string' &&
+          powerSpec.condition.trim().length > 0 &&
+          (entityKind === 'partner-variant' || !/一键超频|非公/.test(powerSpec.condition))));
 
     const isPowerVerified = Boolean(
       hasKnownPower &&
@@ -493,7 +477,7 @@ export function createHardwareCatalog(
       powerSpec.evidence === 'manufacturer-checked' &&
       isPowerNumericValid &&
       isPowerUnitValid &&
-      isPowerFieldConsistent
+      isPowerConditionValid
     );
 
     const record: HardwareRecord = {

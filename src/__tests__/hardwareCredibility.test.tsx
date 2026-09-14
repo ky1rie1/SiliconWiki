@@ -716,6 +716,9 @@ describe('Phase 2: Hardware Credibility, Structured Data & Audit Suite', () => {
             value: '120W TDP',
             sourceField: 'Default TDP',
             sourceKind: 'manufacturer',
+            numericValue: 120,
+            unit: 'W',
+            condition: '默认 TDP',
             verificationStatus: 'verified',
             checkedAt: '2026-09-11',
           },
@@ -784,6 +787,112 @@ describe('Phase 2: Hardware Credibility, Structured Data & Audit Suite', () => {
       const cat7 = createHardwareCatalog([cpuWithTgp], (id) => (id === cpuWithTgp.id ? verConflatedCategory : undefined));
       const rec7 = cat7.byId.get(cpuWithTgp.id)!;
       expect(rec7.power.evidence).toBe('editorial-reference');
+
+      // 8. Regression A: Spec text is "65W TDP", missing numericValue / unit,
+      // while top-level tdpWatts is 120 -> must degrade to editorial-reference
+      const cpuWith65wText: HardwareItem = {
+        ...baseCpu,
+        specs: {
+          ...baseCpu.specs,
+          '基础功耗 / 最大睿频功耗': '65W TDP',
+        },
+      };
+      const verTextDiscrepancyMissingNumeric: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '65W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+            // numericValue and unit explicitly omitted / undefined
+          },
+        },
+      };
+      const cat8 = createHardwareCatalog([cpuWith65wText], (id) => (id === cpuWith65wText.id ? verTextDiscrepancyMissingNumeric : undefined));
+      const rec8 = cat8.byId.get(cpuWith65wText.id)!;
+      expect(rec8.power.evidence).toBe('editorial-reference');
+
+      // 9. Regression B: GPU has NO gpu.tgp, only verified gpu.recommendedPsu = 650W.
+      // Even if powerSourceField points to recommended PSU and tdpWatts is 650,
+      // gpu.recommendedPsu can NEVER endorse power -> must be editorial-reference
+      const baseGpu: HardwareItem = {
+        ...hardwareList[0],
+        id: 'psu-power-check-gpu',
+        name: 'PSU Power Check GPU',
+        category: 'gpu',
+        tdpWatts: 650,
+        specs: {
+          '建议电源': '650W 及以上',
+        },
+      };
+      const verGpuOnlyRecommendedPsu: HardwareVerification = {
+        modelName: 'PSU Power Check GPU',
+        sourceTitle: 'Official Spec',
+        sourceUrl: 'https://www.nvidia.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'GPU recommended PSU counterexample',
+        tdpWatts: 650,
+        powerSourceField: '建议电源',
+        fields: {
+          '建议电源': {
+            fieldId: 'gpu.recommendedPsu',
+            value: '650W 及以上',
+            sourceField: '建议电源',
+            sourceKind: 'manufacturer',
+            numericValue: 650,
+            unit: 'W',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+      const cat9 = createHardwareCatalog([baseGpu], (id) => (id === baseGpu.id ? verGpuOnlyRecommendedPsu : undefined));
+      const rec9 = cat9.byId.get(baseGpu.id)!;
+      expect(rec9.power.evidence).toBe('editorial-reference');
+
+      // 10. Missing numericValue alone (even with unit: 'W') -> editorial-reference
+      const verMissingNumericAlone: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            unit: 'W',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+      const cat10 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verMissingNumericAlone : undefined));
+      const rec10 = cat10.byId.get(baseCpu.id)!;
+      expect(rec10.power.evidence).toBe('editorial-reference');
+
+      // 11. Missing unit alone (even with numericValue: 120) -> editorial-reference
+      const verMissingUnitAlone: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            numericValue: 120,
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+      const cat11 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verMissingUnitAlone : undefined));
+      const rec11 = cat11.byId.get(baseCpu.id)!;
+      expect(rec11.power.evidence).toBe('editorial-reference');
     });
 
     it('explicit sourceId rejects nonexistent IDs and sourceKind conflicts without fallback', () => {

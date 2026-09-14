@@ -190,12 +190,13 @@
 ---
 
 - [x] **H. 功耗证据与功耗事实记录严格关联 (关联性、来源、数值、单位与概念隔离)**
-  - **修复 `isPowerVerified` 判定**：在 `src/utils/hardwareCatalog.ts` 中废弃此前“仅检查整机官方链接存在即替功耗背书”的漏洞，改为严格关联 `specifications` 中的实际功耗事实项（CPU `cpu.defaultTdp`、GPU `gpu.tgp`、电源 `psu.wattage`、散热器 `cooler.tdpRating` 或品类核心功耗别名）；
-  - **严格对齐多维核验要求**：
-    1. **核验状态对齐**：功耗事实项本身必须为 `verificationStatus === 'verified'`，若明确未核验或因 sourceId 无效降级，整机 `power.evidence` 必须为 `editorial-reference`；
-    2. **实际来源对齐**：功耗事实项的来源必须为 `sourceKind === 'manufacturer'` 且证据为 `manufacturer-checked`，若仅经第三方数据库（如 ZOL 参数页）核验，不得将整机功耗标记为官方核验；
-    3. **数值与单位对齐**：若事实项提供 `numericValue`，必须与顶层 `tdpWatts` 精确相等；若提供单位 `unit`，必须为功率单位（`W` 或 `瓦`）；
-    4. **概念与品类隔离**：品类功耗概念严格隔离，CPU 不得与显卡整卡功耗 (TGP/TBP)、超频功耗等混淆，其他字段的官方核验结果绝不可替功耗背书；数据不足以建立可靠关联时，保留数值作为参考，证据降级为 `editorial-reference`。
+  - **修复 `isPowerVerified` 判定**：在 `src/utils/hardwareCatalog.ts` 中废弃此前“仅检查整机官方链接存在即替功耗背书”的漏洞，以及通过 `sourceField` 文本或显示标签相似回退的模糊匹配路径；
+  - **采用保守、明确的准入条件**：
+    1. **品类字段精确限定**：功耗事实必须明确对应当前品类的标准功耗字段 ID（CPU `cpu.defaultTdp`、GPU `gpu.tgp`、电源 `psu.wattage`、散热器 `cooler.tdpRating`）。不得使用 `sourceField` 文本相同或显示标签相似将任意其他事实认作功耗；明确 `gpu.recommendedPsu`（建议电源）绝对不能为 `gpu.tgp` 背书；
+    2. **核验状态对齐**：功耗事实项本身必须为 `verificationStatus === 'verified'`，若明确未核验或因 sourceId 无效降级，整机 `power.evidence` 必须为 `editorial-reference`；
+    3. **实际来源对齐**：功耗事实项的来源必须为 `sourceKind === 'manufacturer'` 且证据为 `manufacturer-checked`，若仅经第三方数据库（如 ZOL 参数页）核验，不得将整机功耗标记为官方核验；
+    4. **结构化数值与单位必须明确**：核验数值必须明确、有限，并与当前功耗值严格相符；单位必须明确且为有效功率单位（`W` 或 `瓦`）。`numericValue` 为 null/undefined、单位缺失不等于检查通过；
+    5. **概念隔离与旧数据降级**：品类功耗概念严格隔离，CPU 不得与显卡整卡功耗 (TGP/TBP)、超频功耗等混淆。旧数据没有足够结构化信息时，保留原数值和原规格文本，仅将 `power.evidence` 降级为 `editorial-reference`，不自动猜数值或补单位；含义明确且有真实依据的 7 项官方核验硬件，规范补齐结构化事实（`numericValue`、`unit: 'W'`、`condition`）。
 
 ---
 
@@ -203,7 +204,7 @@
 
 - **测试套件执行**：`npm test`
   - **20 个测试文件全部通过，共 157 个用例全部通过，0 失败**；
-  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 25 个用例，包含针对提交 6bbe9ca9 的功耗核验专项回归测试：
+  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 25 个用例，包含针对提交 6bbe9ca9 / d52831c7 的功耗核验专项回归测试：
     1. 真实日历校验：拒绝 `2026-02-31`、`2025-02-29`、`2026-04-31` 等虚构日期，正确保留 `2024-02-29` 闰年；
     2. 统一价格有效性：`[0, 1000]`、`[0, 0]`、`[NaN, 1000]`、`[Infinity, 1000]`、反向区间及缺失端点在目录、格式化与排序中一致表现为未知；
     3. 功耗核验严密性：日期无效或来源 URL 无效时，`power.evidence` 绝不带 `manufacturer-checked`；
@@ -211,7 +212,12 @@
     5. 官方核验口径：仅有第三方字段核验但附有官方链接的条目，绝不计入官方核验条目；
     6. 第三方核验口径：仅有第三方链接但核验字段为 0 的条目，绝不计入第三方核验条目；
     7. 搜索弹窗真实注入与精确断言：通过 `hardwareItems` 属性注入，搜索并正向断言测试条目出现，验证其显示“暂无参考价”且不显示零元区间；
-    8. **功耗事实精准关联测试**：覆盖 3 组审查复现反例（功耗字段明确 unverified、功耗字段仅第三方核验、功耗字段 sourceId 无效降级）、3 组边界反例（数值不匹配、单位非瓦特、CPU 与 GPU TGP 概念混淆）以及 1 组官方核验正向测试。
+    8. **功耗事实精准关联与结构化完整性测试 (11 组细分测试)**：
+       - **审查反例 A**：规格文本为“65W TDP”且未提供 numericValue / unit，条目与核验对象顶层均为 120 $\rightarrow$ 严格降级为 `editorial-reference`；
+       - **审查反例 B**：GPU 没有 `gpu.tgp` 只有已核验 `gpu.recommendedPsu = 650W`，`powerSourceField` 指向建议电源且 `tdpWatts = 650` $\rightarrow$ 严格降级为 `editorial-reference`；
+       - **缺失关键元数据反例**：单独缺失 `numericValue`、单独缺失 `unit` $\rightarrow$ 严格降级为 `editorial-reference`；
+       - **前期反向测试保留**：显式未核验、第三方产品库来源、无效 sourceId 降级、数值显式不匹配、单位显式非瓦特（如 `unit: 'A'`）、CPU 配件被核验为 `gpu.tgp`（品类混淆） $\rightarrow$ 均验证为 `editorial-reference`；
+       - **官方核验正向测试**：字段 ID 正确（`cpu.defaultTdp`）、官方来源、日期有效、`numericValue = 120`、`unit = 'W'`、瓦数与含义完全一致 $\rightarrow$ 正确输出 `manufacturer-checked`。
 - **生产构建验证**：`npm run build` (`tsc && vite build`)
   - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
   - Vite 生产打包 0 警告 0 错误（产物位于 `dist/`）。
