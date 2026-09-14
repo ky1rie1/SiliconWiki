@@ -1,0 +1,134 @@
+import { HardwareItem } from './index';
+
+export type BuildSlotType =
+  | 'cpu'
+  | 'cooler'
+  | 'motherboard'
+  | 'ram'
+  | 'gpu'
+  | 'storage'
+  | 'psu'
+  | 'case';
+
+export const BUILD_SLOT_TYPES: BuildSlotType[] = [
+  'cpu',
+  'cooler',
+  'motherboard',
+  'ram',
+  'gpu',
+  'storage',
+  'psu',
+  'case',
+];
+
+export const BuildSlotTypes = BUILD_SLOT_TYPES;
+
+export interface CustomBuildSlotItem {
+  slotId: string;
+  type: BuildSlotType;
+  hardwareId: string | null;
+  customName?: string;
+  userPrice: number | null; // null = use catalog reference; number = explicit user override (including 0)
+  isExplicitZeroPrice?: boolean; // true if user explicitly set ¥0
+  quantity: number;
+  notes?: string;
+}
+
+export interface CustomBuild {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  targetBudget: number | null;
+  slots: CustomBuildSlotItem[];
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CompatibilityStatus =
+  | 'pass'
+  | 'warning'
+  | 'error'
+  | 'unknown'
+  | 'not-applicable';
+
+export type CompatibilityRuleId =
+  | 'rule_socket_match'
+  | 'rule_bios_support'
+  | 'rule_ram_type_match'
+  | 'rule_ram_form_and_slots'
+  | 'rule_cooler_bracket'
+  | 'rule_motherboard_case_size'
+  | 'rule_gpu_length_clearance'
+  | 'rule_cooler_clearance'
+  | 'rule_gpu_power_connectors'
+  | 'rule_psu_capacity'
+  | 'rule_display_output';
+
+export interface CompatibilityRuleResult {
+  ruleId: CompatibilityRuleId;
+  category: string;
+  status: CompatibilityStatus;
+  title: string;
+  message: string;
+  basis: string; // 判定依据与引用规格
+  condition?: string; // 适用前提与安装条件
+  involvedSlotTypes: BuildSlotType[];
+  involvedHardwareIds: string[];
+  missingFields?: string[]; // 待补数据或未核实字段
+  suggestedFix?: string;
+  suggestedReplacementIds?: string[];
+}
+
+export interface CompatibilityReport {
+  overallStatus: CompatibilityStatus;
+  rules: CompatibilityRuleResult[];
+  passCount: number;
+  warningCount: number;
+  errorCount: number;
+  unknownCount: number;
+  notApplicableCount: number;
+  isBuildComplete: boolean;
+  missingCoreSlotTypes: BuildSlotType[];
+  uncoveredChecks: string[];
+  summaryText: string;
+}
+
+export interface PowerEstimate {
+  cpuWatts: number | null;
+  gpuWatts: number | null;
+  basePlatformWatts: number; // 60W empirical baseline
+  basePlatformAssumptionText: string;
+  otherWatts: number;
+  estimatedPeakWatts: number | null;
+  manufacturerPsuRecommendationWatts: number | null;
+  psuRatedWatts: number | null;
+  headroomWatts: number | null;
+  isFullyKnown: boolean;
+  missingInputs: string[];
+  status: 'pass' | 'warning' | 'error' | 'unknown';
+  notes: string[];
+}
+
+export interface CostSummary {
+  knownTotalCost: number;
+  targetBudget: number | null;
+  budgetDifference: number | null;
+  isBudgetExceeded: boolean;
+  hasUnknownPrices: boolean;
+  unknownPriceSlotCount: number;
+  totalSlotsCount: number;
+  filledSlotsCount: number;
+  priceSourceBreakdown: {
+    userOverrideCount: number;
+    catalogReferenceCount: number;
+    zeroPriceCount: number;
+    unknownCount: number;
+  };
+}
+
+export interface ReplacementCandidate {
+  item: HardwareItem;
+  deltaPrice: number | null;
+  remainingIssues: CompatibilityRuleResult[];
+}

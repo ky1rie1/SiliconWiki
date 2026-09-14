@@ -57,14 +57,16 @@ function parseRouteToTab(): ActiveTab {
     if (tabParam === 'builds' || tabParam === 'budget') return 'builds';
   }
 
-  // 2. URL Hash (/#/3d, #/rankings, #simulator3d, #builds, etc.)
-  const rawHash = window.location.hash.toLowerCase().replace(/^#\/?/, '').trim();
+  // 2. URL Hash (/#/3d, #/rankings, #simulator3d, #builds, #/builds?view=custom, etc.)
+  const rawHash = window.location.hash.replace(/^#\/?/, '').trim();
   if (rawHash) {
-    if (rawHash === 'simulator3d' || rawHash === '3d' || rawHash === 'build') return 'simulator3d';
-    if (rawHash === 'rankings' || rawHash === 'rank' || rawHash === 'ladder') return 'rankings';
-    if (rawHash === 'wiki') return 'wiki';
-    if (rawHash === 'glossary' || rawHash === 'dict') return 'glossary';
-    if (rawHash === 'builds' || rawHash === 'budget') return 'builds';
+    const [hashPath] = rawHash.split('?');
+    const cleanHash = hashPath.toLowerCase();
+    if (cleanHash === 'simulator3d' || cleanHash === '3d' || cleanHash === 'build') return 'simulator3d';
+    if (cleanHash === 'rankings' || cleanHash === 'rank' || cleanHash === 'ladder') return 'rankings';
+    if (cleanHash === 'wiki') return 'wiki';
+    if (cleanHash === 'glossary' || cleanHash === 'dict') return 'glossary';
+    if (cleanHash === 'builds' || cleanHash === 'budget' || cleanHash === 'builder') return 'builds';
   }
 
   // 3. Pathname for SPA rewrites (/3d, /rankings, /wiki, /glossary, /builds)

@@ -22,6 +22,7 @@ export const MAIN_TAB_ROUTES = [
   'dict',
   'builds',
   'budget',
+  'builder',
 ];
 
 function toUrl(currentUrlInput: string | URL): URL {
@@ -94,7 +95,8 @@ export function computeDetailCloseUrl(currentUrlInput: string | URL): string {
   }
 
   const rawHash = url.hash.replace(/^#\/?/, '').trim();
-  if (rawHash && !MAIN_TAB_ROUTES.includes(rawHash)) {
+  const [hashPath] = rawHash.split('?');
+  if (hashPath && !MAIN_TAB_ROUTES.includes(hashPath.toLowerCase())) {
     url.hash = '#/wiki';
   } else if (!rawHash && !url.searchParams.has('tab')) {
     url.hash = '#/wiki';
@@ -114,8 +116,9 @@ export function parseHardwareFromUrl(currentUrlInput: string | URL): string | nu
     if (hardwareParam) return hardwareParam;
 
     const rawHash = url.hash.replace(/^#\/?/, '').trim();
-    if (rawHash && !MAIN_TAB_ROUTES.includes(rawHash)) {
-      return rawHash;
+    const [hashPath] = rawHash.split('?');
+    if (hashPath && !MAIN_TAB_ROUTES.includes(hashPath.toLowerCase())) {
+      return hashPath;
     }
     return null;
   } catch {
