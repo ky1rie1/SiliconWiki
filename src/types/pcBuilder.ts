@@ -99,10 +99,21 @@ export interface CompatibilityReport {
 
 export type GpuPowerScenario = 'none' | 'known' | 'unrecognized' | 'custom';
 
+export type PowerEvidenceLevel = 'manufacturer-checked' | 'editorial-reference' | 'legacy-unverified';
+
+export interface ComponentPowerDetail {
+  watts: number | null;
+  evidence: PowerEvidenceLevel;
+  meaning?: string;
+  isVerifiedManufacturer: boolean;
+}
+
 export interface PowerEstimate {
   cpuWatts: number | null;
   gpuWatts: number | null;
   gpuScenario: GpuPowerScenario;
+  cpuPowerDetail?: ComponentPowerDetail;
+  gpuPowerDetail?: ComponentPowerDetail;
   basePlatformWatts: number; // 60W empirical baseline
   basePlatformAssumptionText: string;
   otherWatts: number;
@@ -116,6 +127,7 @@ export interface PowerEstimate {
   psuRatedWatts: number | null;
   headroomWatts: number | null;
   isFullyKnown: boolean;
+  isDeterministicDeficiency?: boolean;
   missingInputs: string[];
   status: 'pass' | 'warning' | 'error' | 'unknown';
   notes: string[];

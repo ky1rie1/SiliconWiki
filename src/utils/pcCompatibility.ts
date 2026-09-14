@@ -8,6 +8,8 @@ import {
   CompatibilityRuleResult,
   CompatibilityReport,
   PowerEstimate,
+  PowerEvidenceLevel,
+  ComponentPowerDetail,
   GpuPowerScenario,
   CostSummary,
   BudgetStatus,
@@ -1345,18 +1347,34 @@ export function checkBuildCompatibility(
         const nominalBaseWatts = (powerEst.cpuWatts ?? 0) + (powerEst.gpuWatts ?? 0);
 
         if (nominalBaseWatts > 0 && rated < nominalBaseWatts) {
-          // 确定证据的容量不足：电源额定功率已低于核心硬件标称基础功耗之和 -> error
-          rules.push({
-            ruleId: 'rule_psu_capacity',
-            category: '电源与供电',
-            status: 'error',
-            title: '电源额定功率低于配件标称功耗',
-            message: `电源额定功率 (${rated}W) 低于 CPU 与显卡官方标称基础功耗总和 (${nominalBaseWatts}W)。在配件基础负荷下电源容量已存在确定性缺口，属于已证实供电不足！`,
-            basis: `电源额定: ${rated}W; 核心标称功耗: ${nominalBaseWatts}W (确定性缺口)`,
-            involvedSlotTypes: ['psu', ...(cpu ? ['cpu' as BuildSlotType] : []), ...(gpu ? ['gpu' as BuildSlotType] : [])],
-            involvedHardwareIds: [getItemId(psu), getItemId(cpu), getItemId(gpu)].filter(Boolean),
-            suggestedFix: `更换为额定功率至少 ${Math.ceil((nominalBaseWatts * 1.3) / 50) * 50}W 以上的品质电源。`,
-          });
+          if (powerEst.isDeterministicDeficiency) {
+            // 确定证据的容量不足：电源额定功率已低于核心硬件官方标称基础功耗之和 -> error
+            rules.push({
+              ruleId: 'rule_psu_capacity',
+              category: '电源与供电',
+              status: 'error',
+              title: '电源额定功率低于配件标称功耗 (确定性容量不足)',
+              message: `电源额定功率 (${rated}W) 低于 CPU 与显卡官方标称基础功耗总和 (${nominalBaseWatts}W)。在配件官方标称基础负荷下电源容量已存在确定性缺口，属于已证实供电不足！`,
+              basis: `电源额定: ${rated}W; 官方标称功耗: ${nominalBaseWatts}W (确定性缺口)`,
+              involvedSlotTypes: ['psu', ...(cpu ? ['cpu' as BuildSlotType] : []), ...(gpu ? ['gpu' as BuildSlotType] : [])],
+              involvedHardwareIds: [getItemId(psu), getItemId(cpu), getItemId(gpu)].filter(Boolean),
+              suggestedFix: `更换为额定功率至少 ${Math.ceil((nominalBaseWatts * 1.3) / 50) * 50}W 以上的品质电源。`,
+            });
+          } else {
+            // 非确定性证据（如 editorial-reference、legacy bare tdpWatts 或语义不明确）-> warning
+            rules.push({
+              ruleId: 'rule_psu_capacity',
+              category: '电源与供电',
+              status: 'warning',
+              title: '电源额定功率低于配件参考功耗之和 (数据待进一步核验)',
+              message: `电源额定功率 (${rated}W) 低于 CPU 与显卡参考功耗之和 (${nominalBaseWatts}W)。由于部分配件功耗来自编辑参考、历史无来源字段或语义未核实，证据等级不足以判定硬性容量缺口，建议核实官方白皮书与标称功耗。`,
+              basis: `电源额定: ${rated}W; 参考功耗: ${nominalBaseWatts}W (功耗证据等级不足以断定硬缺口)`,
+              condition: '功耗来源包含编辑参考或未核验数据',
+              involvedSlotTypes: ['psu', ...(cpu ? ['cpu' as BuildSlotType] : []), ...(gpu ? ['gpu' as BuildSlotType] : [])],
+              involvedHardwareIds: [getItemId(psu), getItemId(cpu), getItemId(gpu)].filter(Boolean),
+              suggestedFix: `建议核实配件官方标称功耗，或更换为额定功率更高的电源。`,
+            });
+          }
         } else if (rated < peak) {
           // 经验估算风险：低于 CPU×1.15 + GPU×1.1 + 60W 经验模型，不得单独作为确定性硬冲突 -> warning
           rules.push({
@@ -1564,6 +1582,68 @@ export function checkBuildCompatibility(
 }
 
 /**
+ * 提取配件功率明细，包含功耗值、证据等级与功率语义
+ */
+export function extractComponentPowerDetail(
+  item: HardwareRecord | HardwareItem | null | undefined,
+  category: 'cpu' | 'gpu'
+): ComponentPowerDetail {
+  if (!item) {
+    return {
+      watts: null,
+      evidence: 'legacy-unverified',
+      meaning: undefined,
+      isVerifiedManufacturer: false,
+    };
+  }
+
+  let watts: number | null = null;
+  let evidence: PowerEvidenceLevel = 'legacy-unverified';
+  let meaning: string | undefined = undefined;
+
+  if ('power' in item && item.power) {
+    watts = typeof item.power.watts === 'number' && item.power.watts > 0 ? item.power.watts : null;
+    if (item.power.evidence === 'manufacturer-checked') {
+      evidence = 'manufacturer-checked';
+    } else if (item.power.evidence === 'editorial-reference') {
+      evidence = 'editorial-reference';
+    } else {
+      evidence = 'legacy-unverified';
+    }
+    meaning = typeof item.power.meaning === 'string' ? item.power.meaning : undefined;
+  } else if ('tdpWatts' in item && typeof item.tdpWatts === 'number' && item.tdpWatts > 0) {
+    watts = item.tdpWatts;
+    evidence = 'legacy-unverified';
+    meaning = 'legacy bare tdpWatts';
+  }
+
+  let isSemanticValid = false;
+  if (evidence === 'manufacturer-checked' && meaning) {
+    const trimmedMeaning = meaning.trim();
+    // 排除歧义、非硬件自身基础功耗语义、或待定/未知/参考语义
+    const isAmbiguousOrMismatched =
+      /建议电源|推荐电源|系统电源|PSU|平台功耗|整机功耗|未知|待核实|暂无|参考|估算|Catalog power reference/i.test(trimmedMeaning);
+
+    if (!isAmbiguousOrMismatched) {
+      if (category === 'cpu') {
+        isSemanticValid = /TDP|PBP|Base Power|Package|PL1|Default TDP|标称功耗|热设计功耗|基准功耗|官方核验功耗/i.test(trimmedMeaning);
+      } else if (category === 'gpu') {
+        isSemanticValid = /TGP|TBP|Total Graphics Power|Total Board Power|Graphics Card Power|整卡功耗|板卡功耗|标称功耗|GPU功耗|TDP|官方核验功耗/i.test(trimmedMeaning);
+      }
+    }
+  }
+
+  const isVerifiedManufacturer = evidence === 'manufacturer-checked' && isSemanticValid && watts !== null && watts > 0;
+
+  return {
+    watts,
+    evidence,
+    meaning,
+    isVerifiedManufacturer,
+  };
+}
+
+/**
  * 功耗与电源负荷评估纯函数
  */
 export function calculateBuildPower(
@@ -1588,14 +1668,11 @@ export function calculateBuildPower(
   const notes: string[] = [];
 
   // CPU 功耗
-  let cpuWatts: number | null = null;
+  const cpuPowerDetail = extractComponentPowerDetail(cpu, 'cpu');
+  let cpuWatts: number | null = cpuPowerDetail.watts;
   if (cpuSlot) {
     if (cpu) {
-      if ('power' in cpu && cpu.power?.isKnown && typeof cpu.power.watts === 'number' && cpu.power.watts > 0) {
-        cpuWatts = cpu.power.watts;
-      } else if ('tdpWatts' in cpu && typeof cpu.tdpWatts === 'number' && cpu.tdpWatts > 0) {
-        cpuWatts = cpu.tdpWatts;
-      } else {
+      if (cpuWatts === null) {
         missingInputs.push('CPU 标称功耗');
       }
     } else if (cpuSlot.customName) {
@@ -1612,6 +1689,12 @@ export function calculateBuildPower(
   // GPU 功耗及 4 种情形
   let gpuWatts: number | null = null;
   let gpuScenario: GpuPowerScenario = 'none';
+  let gpuPowerDetail: ComponentPowerDetail = {
+    watts: 0,
+    evidence: 'manufacturer-checked',
+    meaning: '无独立显卡',
+    isVerifiedManufacturer: true,
+  };
   let manufacturerPsuRecommendationWatts: number | null = null;
   let manufacturerPsuSource: PowerEstimate['manufacturerPsuSource'] = null;
 
@@ -1619,25 +1702,41 @@ export function calculateBuildPower(
     // 明确未选配独立显卡
     gpuScenario = 'none';
     gpuWatts = 0;
+    gpuPowerDetail = {
+      watts: 0,
+      evidence: 'manufacturer-checked',
+      meaning: '无独立显卡',
+      isVerifiedManufacturer: true,
+    };
   } else if (gpuSlot.customName && !gpuSlot.hardwareId) {
     // 自填/二手未收录型号
     gpuScenario = 'custom';
     gpuWatts = null;
+    gpuPowerDetail = {
+      watts: null,
+      evidence: 'legacy-unverified',
+      meaning: '自填显卡',
+      isVerifiedManufacturer: false,
+    };
     missingInputs.push('自填显卡功耗');
   } else if (gpuSlot.hardwareId) {
     if (!gpu) {
       // 提供了 hardwareId 但配件库中不存在
       gpuScenario = 'unrecognized';
       gpuWatts = null;
+      gpuPowerDetail = {
+        watts: null,
+        evidence: 'legacy-unverified',
+        meaning: '未收录显卡',
+        isVerifiedManufacturer: false,
+      };
       missingInputs.push('未收录显卡功耗');
     } else {
       // 配件库已知型号
       gpuScenario = 'known';
-      if ('power' in gpu && gpu.power?.isKnown && typeof gpu.power.watts === 'number' && gpu.power.watts > 0) {
-        gpuWatts = gpu.power.watts;
-      } else if ('tdpWatts' in gpu && typeof gpu.tdpWatts === 'number' && gpu.tdpWatts > 0) {
-        gpuWatts = gpu.tdpWatts;
-      } else {
+      gpuPowerDetail = extractComponentPowerDetail(gpu, 'gpu');
+      gpuWatts = gpuPowerDetail.watts;
+      if (gpuWatts === null) {
         missingInputs.push('显卡标称功耗');
       }
 
@@ -1730,13 +1829,38 @@ export function calculateBuildPower(
   let status: 'pass' | 'warning' | 'error' | 'unknown' = 'pass';
   const nominalBaseWatts = (cpuWatts ?? 0) + (gpuWatts ?? 0);
 
+  // 判断是否属于具备明确官方核验证据等级与有效功率语义的确定性容量缺口
+  let isDeterministicDeficiency = false;
+  if (psuRatedWatts !== null && nominalBaseWatts > 0 && psuRatedWatts < nominalBaseWatts) {
+    if (gpuScenario === 'none') {
+      isDeterministicDeficiency =
+        cpuPowerDetail.isVerifiedManufacturer &&
+        cpuPowerDetail.watts !== null &&
+        psuRatedWatts < cpuPowerDetail.watts;
+    } else if (gpuScenario === 'known') {
+      if (cpuPowerDetail.isVerifiedManufacturer && gpuPowerDetail.isVerifiedManufacturer) {
+        isDeterministicDeficiency = true;
+      } else if (cpuPowerDetail.isVerifiedManufacturer && cpuPowerDetail.watts !== null && psuRatedWatts < cpuPowerDetail.watts) {
+        isDeterministicDeficiency = true;
+      } else if (gpuPowerDetail.isVerifiedManufacturer && gpuPowerDetail.watts !== null && psuRatedWatts < gpuPowerDetail.watts) {
+        isDeterministicDeficiency = true;
+      }
+    }
+  }
+
   if (!isFullyKnown || psuRatedWatts === null) {
     status = 'unknown';
     notes.push('输入功耗或电源额定功率数据不全，当前功耗估算不完整，无法精确计算冗余裕量。');
   } else if (nominalBaseWatts > 0 && psuRatedWatts < nominalBaseWatts) {
-    // 确定证据的容量不足
-    status = 'error';
-    notes.push(`电源额定容量 (${psuRatedWatts}W) 低于 CPU 与显卡标称基础功耗之和 (${nominalBaseWatts}W)，存在明确的供电容量确定性缺口。`);
+    if (isDeterministicDeficiency) {
+      // 确定证据的容量不足
+      status = 'error';
+      notes.push(`电源额定容量 (${psuRatedWatts}W) 低于 CPU 与显卡官方标称基础功耗之和 (${nominalBaseWatts}W)，已证实存在确定性容量缺口。`);
+    } else {
+      // 编辑参考或 legacy 无来源或语义不明确
+      status = 'warning';
+      notes.push(`电源额定容量 (${psuRatedWatts}W) 虽然低于配件参考功耗之和 (${nominalBaseWatts}W)，但由于配件功耗数据为编辑参考或未核验来源，证据等级不足以判定硬性容量缺口，建议查实官方规格。`);
+    }
   } else if (headroomWatts !== null && headroomWatts < 0) {
     // 经验估算风险：高于标称基础，但低于经验预估峰值，不单独作为确定性硬冲突
     status = 'warning';
@@ -1756,6 +1880,8 @@ export function calculateBuildPower(
     cpuWatts,
     gpuWatts,
     gpuScenario,
+    cpuPowerDetail,
+    gpuPowerDetail,
     basePlatformWatts,
     basePlatformAssumptionText,
     otherWatts: 0,
@@ -1765,6 +1891,7 @@ export function calculateBuildPower(
     psuRatedWatts,
     headroomWatts,
     isFullyKnown,
+    isDeterministicDeficiency,
     missingInputs,
     status,
     notes,

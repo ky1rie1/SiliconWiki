@@ -1117,14 +1117,25 @@ describe('Phase 3 Regression: Extended Verification Suites', () => {
       expect(est.notes.some((n) => n.includes('非显卡厂商官方核验建议'))).toBe(true);
     });
 
-    it('Item 2: 区分确定证据的容量不足 (error) 与经验估算风险 (warning)', () => {
-      // 场景 A: 确定证据容量不足（标称基础之和已超过电源额定）
-      // CPU 150W + GPU 300W = 450W > 400W 电源
-      const cpu150 = { id: 'cpu-150', category: 'cpu', tdpWatts: 150, specs: {} } as unknown as HardwareItem;
-      const gpu300 = { id: 'gpu-300w', category: 'gpu', tdpWatts: 300, specs: {} } as unknown as HardwareItem;
+    it('Item 2: 区分确定证据的容量不足 (error) 与经验估算风险 (warning) 及证据等级衰减', () => {
       const psu400 = { id: 'psu-400', category: 'psu', tdpWatts: 400, specs: { '额定功率': '400W' } } as unknown as HardwareItem;
 
-      const buildA: CustomBuild = {
+      // 场景 A1: 官方核验明确语义 (manufacturer-checked) -> 触发确定性容量不足 (error)
+      // CPU 150W (Default TDP) + GPU 300W (TGP) = 450W > 400W 电源
+      const cpu150Verified = {
+        id: 'cpu-150-mfg',
+        category: 'cpu',
+        power: { watts: 150, isKnown: true, evidence: 'manufacturer-checked', meaning: 'Default TDP' },
+        specs: {},
+      } as unknown as HardwareRecord;
+      const gpu300Verified = {
+        id: 'gpu-300-mfg',
+        category: 'gpu',
+        power: { watts: 300, isKnown: true, evidence: 'manufacturer-checked', meaning: 'Total Graphics Power (W)' },
+        specs: {},
+      } as unknown as HardwareRecord;
+
+      const buildA1: CustomBuild = {
         schemaVersion: 1,
         id: 'b-cap-err',
         title: '',
@@ -1132,17 +1143,126 @@ describe('Phase 3 Regression: Extended Verification Suites', () => {
         createdAt: '',
         updatedAt: '',
         slots: [
-          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150', userPrice: null, quantity: 1 },
-          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300w', userPrice: null, quantity: 1 },
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150-mfg', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300-mfg', userPrice: null, quantity: 1 },
           { slotId: 's3', type: 'psu', hardwareId: 'psu-400', userPrice: null, quantity: 1 },
         ],
       };
-      const estA = calculateBuildPower(buildA, [cpu150, gpu300, psu400]);
-      expect(estA.status).toBe('error');
-      const repA = checkBuildCompatibility(buildA, [cpu150, gpu300, psu400]);
-      const ruleA = repA.rules.find((r) => r.ruleId === 'rule_psu_capacity');
-      expect(ruleA?.status).toBe('error');
-      expect(ruleA?.title).toContain('电源额定功率低于配件标称功耗');
+      const estA1 = calculateBuildPower(buildA1, [cpu150Verified, gpu300Verified, psu400]);
+      expect(estA1.status).toBe('error');
+      expect(estA1.isDeterministicDeficiency).toBe(true);
+      expect(estA1.cpuPowerDetail?.evidence).toBe('manufacturer-checked');
+      expect(estA1.cpuPowerDetail?.isVerifiedManufacturer).toBe(true);
+      expect(estA1.gpuPowerDetail?.evidence).toBe('manufacturer-checked');
+      expect(estA1.gpuPowerDetail?.isVerifiedManufacturer).toBe(true);
+
+      const repA1 = checkBuildCompatibility(buildA1, [cpu150Verified, gpu300Verified, psu400]);
+      const ruleA1 = repA1.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleA1?.status).toBe('error');
+      expect(ruleA1?.title).toContain('电源额定功率低于配件标称功耗 (确定性容量不足)');
+
+      // 场景 A2: 编辑参考数据 (editorial-reference) -> 数值超标亦降为 warning，说明证据不足
+      const cpu150Editorial = {
+        id: 'cpu-150-edit',
+        category: 'cpu',
+        power: { watts: 150, isKnown: true, evidence: 'editorial-reference', meaning: 'Default TDP' },
+        specs: {},
+      } as unknown as HardwareRecord;
+      const gpu300Editorial = {
+        id: 'gpu-300-edit',
+        category: 'gpu',
+        power: { watts: 300, isKnown: true, evidence: 'editorial-reference', meaning: 'TGP' },
+        specs: {},
+      } as unknown as HardwareRecord;
+
+      const buildA2: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-cap-editorial',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150-edit', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300-edit', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-400', userPrice: null, quantity: 1 },
+        ],
+      };
+      const estA2 = calculateBuildPower(buildA2, [cpu150Editorial, gpu300Editorial, psu400]);
+      expect(estA2.status).toBe('warning'); // NOT error!
+      expect(estA2.isDeterministicDeficiency).toBe(false);
+      expect(estA2.notes.some((n) => n.includes('证据等级不足以判定硬性容量缺口'))).toBe(true);
+
+      const repA2 = checkBuildCompatibility(buildA2, [cpu150Editorial, gpu300Editorial, psu400]);
+      const ruleA2 = repA2.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleA2?.status).toBe('warning'); // NOT error!
+      expect(ruleA2?.title).toContain('电源额定功率低于配件参考功耗之和 (数据待进一步核验)');
+
+      // 场景 A3: 普通 legacy bare tdpWatts 无来源字段 -> 降为 warning
+      const cpu150Bare = { id: 'cpu-150-bare', category: 'cpu', tdpWatts: 150, specs: {} } as unknown as HardwareItem;
+      const gpu300Bare = { id: 'gpu-300-bare', category: 'gpu', tdpWatts: 300, specs: {} } as unknown as HardwareItem;
+
+      const buildA3: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-cap-bare',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150-bare', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300-bare', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-400', userPrice: null, quantity: 1 },
+        ],
+      };
+      const estA3 = calculateBuildPower(buildA3, [cpu150Bare, gpu300Bare, psu400]);
+      expect(estA3.status).toBe('warning'); // NOT error!
+      expect(estA3.isDeterministicDeficiency).toBe(false);
+      expect(estA3.cpuPowerDetail?.evidence).toBe('legacy-unverified');
+      expect(estA3.cpuPowerDetail?.isVerifiedManufacturer).toBe(false);
+
+      const repA3 = checkBuildCompatibility(buildA3, [cpu150Bare, gpu300Bare, psu400]);
+      const ruleA3 = repA3.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleA3?.status).toBe('warning'); // NOT error!
+      expect(ruleA3?.title).toContain('电源额定功率低于配件参考功耗之和 (数据待进一步核验)');
+
+      // 场景 A4: manufacturer-checked 但语义不明确或不属于基础功耗 (如 meaning 为'未知'或'建议电源') -> 降为 warning
+      const cpu150Ambiguous = {
+        id: 'cpu-150-ambig',
+        category: 'cpu',
+        power: { watts: 150, isKnown: true, evidence: 'manufacturer-checked', meaning: '未知' },
+        specs: {},
+      } as unknown as HardwareRecord;
+      const gpu300Mismatched = {
+        id: 'gpu-300-mismatched',
+        category: 'gpu',
+        power: { watts: 300, isKnown: true, evidence: 'manufacturer-checked', meaning: '建议电源 650W' },
+        specs: {},
+      } as unknown as HardwareRecord;
+
+      const buildA4: CustomBuild = {
+        schemaVersion: 1,
+        id: 'b-cap-ambig',
+        title: '',
+        targetBudget: null,
+        createdAt: '',
+        updatedAt: '',
+        slots: [
+          { slotId: 's1', type: 'cpu', hardwareId: 'cpu-150-ambig', userPrice: null, quantity: 1 },
+          { slotId: 's2', type: 'gpu', hardwareId: 'gpu-300-mismatched', userPrice: null, quantity: 1 },
+          { slotId: 's3', type: 'psu', hardwareId: 'psu-400', userPrice: null, quantity: 1 },
+        ],
+      };
+      const estA4 = calculateBuildPower(buildA4, [cpu150Ambiguous, gpu300Mismatched, psu400]);
+      expect(estA4.status).toBe('warning'); // NOT error!
+      expect(estA4.isDeterministicDeficiency).toBe(false);
+      expect(estA4.cpuPowerDetail?.isVerifiedManufacturer).toBe(false);
+      expect(estA4.gpuPowerDetail?.isVerifiedManufacturer).toBe(false);
+
+      const repA4 = checkBuildCompatibility(buildA4, [cpu150Ambiguous, gpu300Mismatched, psu400]);
+      const ruleA4 = repA4.rules.find((r) => r.ruleId === 'rule_psu_capacity');
+      expect(ruleA4?.status).toBe('warning'); // NOT error!
+      expect(ruleA4?.title).toContain('电源额定功率低于配件参考功耗之和 (数据待进一步核验)');
 
       // 场景 B: 经验估算风险（高于标称基础 265W，但低于经验预估峰值 355W）
       // CPU 65W + GPU 200W = 265W <= 300W 电源，峰值估算 355W > 300W

@@ -310,13 +310,14 @@
    - [修改] `src/components/builder/CompatibilityDiagnosticsPanel.tsx`：展示沙盒候选型号的 `remainingIssues` 剩余待注意项，并支持显示差价区间（`预计差价 ¥... ~ ¥...`）；
    - [保留] `src/components/builder/JsonImportModal.tsx`：安全预览与取消机制；
    - [保留] `src/components/builds/BudgetBuilds.tsx`：双模式切换与草稿冲突防冲刷横幅；
-4. **收尾专项治理（基于提交 70692ca0 审查反馈）**
+4. **收尾专项治理（基于提交 70692ca0 与 e2fa0e26 审查反馈）**
    - **厂商建议电源核验收敛**：`calculateBuildPower` 严格要求同时满足 `verificationStatus === 'verified'` 与 `sourceKind === 'manufacturer'`（且来源列表中无第三方冲突）；第三方或未核验数据仅作为参考说明，绝不写入厂商官方建议字段；
    - **经验功耗与确定性容量不足分流**：Rule 10 与功耗评估严格区分“确定证据的容量不足（CPU 与显卡标称基础功耗之和已超出额定容量，输出 `error`）”与“经验估算风险（高于标称基础但低于 CPU×1.15 + GPU×1.1 + 60W 经验模型，输出 `warning`）”，经验模型不得单独制造确定性硬冲突；
+   - **Rule 10 功率证据等级与语义准入**：传递 `cpuPowerDetail` / `gpuPowerDetail`（包含 `watts`、`evidence`、`meaning`、`isVerifiedManufacturer`）。只有具备明确、可靠且语义足以支持容量判断的官方核验数据（`manufacturer-checked` 且语义为 `Default TDP`/`PBP`/`TGP`/`TBP` 等基础功耗，排除建议电源/整机功耗/未知等歧义）时，才允许进入确定性容量不足（`error`）分支；普通 legacy `tdpWatts`、编辑参考（`editorial-reference`）或语义不明确时，即使数值之和高于 PSU 额定容量，也不称为“已证实确定性容量缺口”，统一降为 `warning` 并说明证据不足；
    - **打通冷排安装位置与显卡条件限长**：Rule 7 与 Rule 8 共享 `analyzeRadiatorInstallation` 分析结果。水冷排因机箱空间限制强制前置时（如顶部仅 240、前置 360），自动应用前置限长条件（330mm）判定 350mm 显卡超长干涉（`error`）；顶部可装 360 时不影响显卡限长（`pass`）；顶部与前置均可行且未选时保留 `unknown` 条件提示；
 5. **测试套件**
    - [修改] `src/__tests__/pcCompatibility.test.ts`：更新测试 7.1 并新增测试 7.2，覆盖标称基础超额（error）与经验估算峰值超额（warning）；
-   - [修改] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：扩充至 49 个用例，全量覆盖厂商建议电源三类来源核验（manufacturer+verified 正向、manufacturer+unverified 反向、product-database+verified 反向）、经验风险分流、以及强制前置/顶置/多位置可选/风冷 5 大冷排与显卡限长联动场景；
+   - [修改] `src/__tests__/pcBuilderRegressionPhase3.test.ts`：扩充至 49 个用例，全量覆盖厂商建议电源三类来源核验（manufacturer+verified 正向、manufacturer+unverified 反向、product-database+verified 反向）、经验风险分流、Rule 10 功率证据等级 4 态衰减判定（manufacturer-checked 明确语义 -> error，editorial-reference -> warning，legacy bare tdpWatts -> warning，语义不明确/未知 -> warning），以及强制前置/顶置/多位置可选/风冷 5 大冷排与显卡限长联动场景；
    - [保留] `src/__tests__/pcBuilderDOMFlow.test.tsx`：4 组真实 DOM 完整操作链用例全部保持通过。
 
 ### 3. 自动化测试与构建验收
