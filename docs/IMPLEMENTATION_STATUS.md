@@ -189,18 +189,29 @@
 
 ---
 
+- [x] **H. 功耗证据与功耗事实记录严格关联 (关联性、来源、数值、单位与概念隔离)**
+  - **修复 `isPowerVerified` 判定**：在 `src/utils/hardwareCatalog.ts` 中废弃此前“仅检查整机官方链接存在即替功耗背书”的漏洞，改为严格关联 `specifications` 中的实际功耗事实项（CPU `cpu.defaultTdp`、GPU `gpu.tgp`、电源 `psu.wattage`、散热器 `cooler.tdpRating` 或品类核心功耗别名）；
+  - **严格对齐多维核验要求**：
+    1. **核验状态对齐**：功耗事实项本身必须为 `verificationStatus === 'verified'`，若明确未核验或因 sourceId 无效降级，整机 `power.evidence` 必须为 `editorial-reference`；
+    2. **实际来源对齐**：功耗事实项的来源必须为 `sourceKind === 'manufacturer'` 且证据为 `manufacturer-checked`，若仅经第三方数据库（如 ZOL 参数页）核验，不得将整机功耗标记为官方核验；
+    3. **数值与单位对齐**：若事实项提供 `numericValue`，必须与顶层 `tdpWatts` 精确相等；若提供单位 `unit`，必须为功率单位（`W` 或 `瓦`）；
+    4. **概念与品类隔离**：品类功耗概念严格隔离，CPU 不得与显卡整卡功耗 (TGP/TBP)、超频功耗等混淆，其他字段的官方核验结果绝不可替功耗背书；数据不足以建立可靠关联时，保留数值作为参考，证据降级为 `editorial-reference`。
+
+---
+
 ### 2. 自动化测试与质量验收
 
 - **测试套件执行**：`npm test`
-  - **20 个测试文件全部通过，共 156 个用例全部通过，0 失败**；
-  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 24 个用例，包含针对提交 2ba4c99c 的 7 项专属精确回归测试：
+  - **20 个测试文件全部通过，共 157 个用例全部通过，0 失败**；
+  - `src/__tests__/hardwareCredibility.test.tsx` 扩展至 25 个用例，包含针对提交 6bbe9ca9 的功耗核验专项回归测试：
     1. 真实日历校验：拒绝 `2026-02-31`、`2025-02-29`、`2026-04-31` 等虚构日期，正确保留 `2024-02-29` 闰年；
     2. 统一价格有效性：`[0, 1000]`、`[0, 0]`、`[NaN, 1000]`、`[Infinity, 1000]`、反向区间及缺失端点在目录、格式化与排序中一致表现为未知；
     3. 功耗核验严密性：日期无效或来源 URL 无效时，`power.evidence` 绝不带 `manufacturer-checked`；
     4. 显式 sourceId 校验：不存在的 sourceId 或类别冲突拒绝回退，严格降级为未核验；
     5. 官方核验口径：仅有第三方字段核验但附有官方链接的条目，绝不计入官方核验条目；
     6. 第三方核验口径：仅有第三方链接但核验字段为 0 的条目，绝不计入第三方核验条目；
-    7. 搜索弹窗真实注入与精确断言：通过 `hardwareItems` 属性注入，搜索并正向断言测试条目出现，验证其显示“暂无参考价”且不显示零元区间。
+    7. 搜索弹窗真实注入与精确断言：通过 `hardwareItems` 属性注入，搜索并正向断言测试条目出现，验证其显示“暂无参考价”且不显示零元区间；
+    8. **功耗事实精准关联测试**：覆盖 3 组审查复现反例（功耗字段明确 unverified、功耗字段仅第三方核验、功耗字段 sourceId 无效降级）、3 组边界反例（数值不匹配、单位非瓦特、CPU 与 GPU TGP 概念混淆）以及 1 组官方核验正向测试。
 - **生产构建验证**：`npm run build` (`tsc && vite build`)
   - TypeScript 严格类型检查 0 错误（`noUnusedLocals` 完全合规）；
   - Vite 生产打包 0 警告 0 错误（产物位于 `dist/`）。
@@ -213,7 +224,7 @@
    - [修改] `src/types/hardwareSources.ts`：增加 `EntityKind`, `SourceKind`, `VerificationStatus`，补充 `gpu.dimensions` 字段 ID 与 `sourceId`；
    - [修改] `src/types/hardwareCatalog.ts`：扩展 `HardwareRecord`（`verifiedCoreCount`, `entityKind`, `variantDetails`, `auditSummary` 等）；
    - [新建] `src/utils/dataCredibilityStats.ts`：基于实际核验字段的来源层级计算，支持多来源并存统计；
-   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS`，实现 `computeAuditSummary`（口径分离）、`isValidPriceRange`、`formatHardwarePrice`、`formatHardwareTdp`、`isValidSourceUrl`、`isValidCheckDate`（拒绝溢出日历）、`safeSortHardwareByPrice`、`safeSortHardwareByTdp`；
+   - [修改] `src/utils/hardwareCatalog.ts`：定义 9 大品类核心字段分母基准 `CATEGORY_CORE_FIELDS` 与品类功耗映射 `CATEGORY_POWER_FIELD_IDS` / `CATEGORY_POWER_CORE_CANONICAL`，实现 `computeAuditSummary`（口径分离）、`isValidPriceRange`、`formatHardwarePrice`、`formatHardwareTdp`、`isValidSourceUrl`、`isValidCheckDate`（拒绝溢出日历）、`safeSortHardwareByPrice`、`safeSortHardwareByTdp`，以及关联实际功耗事实项的 `isPowerVerified` 判定；
 2. **硬件数据底册**
    - [修改] `src/data/sources/verifiedHardware.ts`：补充官方核验记录、拆分实体类型，完善尺寸核验与供电接口一致性，剔除“实测”浮夸文案；
    - [修改] `src/data/hardware/gpus.ts`：新增 `gpu-colorful-rtx4070s-ultra-w` 非公显卡条目；
@@ -226,9 +237,9 @@
    - [修改] `src/components/wiki/HardwareDetailModal.tsx`：头部可信度徽章口径对齐、表格字段打钩标示；
    - [修改] `src/components/search/SearchModal.tsx`：支持 `hardwareItems` 可控注入，接入统一价格格式化器；
 4. **自动化测试**
-   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件（24 个测试用例，全量拦截审查缺陷）；
+   - [新建] `src/__tests__/hardwareCredibility.test.tsx`：纯函数与真实 DOM 组件交互自动化验收套件（25 个测试用例，全量拦截审查缺陷）；
 5. **项目文档**
    - [新建] `docs/PHASE_2_PLAN.md`：阶段 2 需求规范与实施计划；
-   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与两轮审查修复验收记录。
+   - [修改] `docs/IMPLEMENTATION_STATUS.md`：更新阶段 2 实施与三轮审查修复验收记录。
 
 

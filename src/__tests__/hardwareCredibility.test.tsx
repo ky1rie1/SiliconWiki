@@ -573,6 +573,219 @@ describe('Phase 2: Hardware Credibility, Structured Data & Audit Suite', () => {
       expect(rec2.power.evidence).toBe('editorial-reference');
     });
 
+    it('associates power evidence strictly with the verified power specification fact', () => {
+      const baseCpu: HardwareItem = {
+        ...hardwareList[0],
+        id: 'power-spec-test-cpu',
+        name: 'Power Spec Test CPU',
+        category: 'cpu',
+        tdpWatts: 120,
+        specs: {
+          '核心/线程': '8 核 / 16 线程',
+          '基础功耗 / 最大睿频功耗': '120W TDP',
+        },
+      };
+
+      // 1. Counterexample 1: CPU with valid official source and verified core/thread field,
+      // but power field is explicitly unverified -> power.evidence must be 'editorial-reference'
+      const verExplicitUnverified: HardwareVerification = {
+        modelName: 'Power Spec Test CPU',
+        sourceTitle: 'AMD Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Power unverified counterexample',
+        tdpWatts: 120,
+        powerSourceField: 'Default TDP',
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'unverified',
+          },
+        },
+      };
+
+      const cat1 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verExplicitUnverified : undefined));
+      const rec1 = cat1.byId.get(baseCpu.id)!;
+      expect(rec1.power.evidence).toBe('editorial-reference');
+
+      // 2. Counterexample 2: CPU with valid official source and verified core/thread field,
+      // but power field was only verified by third-party database (zol) -> power.evidence must NOT be manufacturer-checked
+      const verThirdPartyPower: HardwareVerification = {
+        modelName: 'Power Spec Test CPU',
+        sourceTitle: 'AMD Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Power third-party counterexample',
+        tdpWatts: 120,
+        powerSourceField: 'Default TDP',
+        zol: {
+          parameterUrl: 'https://detail.zol.com.cn/cpu/param.shtml',
+          checkedAt: '2026-09-11',
+        },
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'ZOL TDP',
+            sourceKind: 'product-database',
+            sourceId: `${baseCpu.id}:zol`,
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+
+      const cat2 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verThirdPartyPower : undefined));
+      const rec2 = cat2.byId.get(baseCpu.id)!;
+      expect(rec2.power.evidence).toBe('editorial-reference');
+
+      // 3. Counterexample 3: CPU with valid official source, but power field has invalid/nonexistent sourceId
+      // and degraded to unverified -> power.evidence must be 'editorial-reference'
+      const verBadSourceIdPower: HardwareVerification = {
+        modelName: 'Power Spec Test CPU',
+        sourceTitle: 'AMD Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Power bad sourceId counterexample',
+        tdpWatts: 120,
+        powerSourceField: 'Default TDP',
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            sourceId: 'nonexistent-power-source-id',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+
+      const cat3 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verBadSourceIdPower : undefined));
+      const rec3 = cat3.byId.get(baseCpu.id)!;
+      expect(rec3.power.evidence).toBe('editorial-reference');
+
+      // 4. Positive Example: CPU with valid official source, matching wattage, and verified manufacturer-checked power spec
+      const verOfficialPower: HardwareVerification = {
+        modelName: 'Power Spec Test CPU',
+        sourceTitle: 'AMD Official Spec',
+        sourceUrl: 'https://www.amd.com/spec',
+        checkedAt: '2026-09-11',
+        scope: 'Power verified positive example',
+        tdpWatts: 120,
+        powerSourceField: 'Default TDP',
+        fields: {
+          '核心/线程': {
+            fieldId: 'cpu.coresThreads',
+            value: '8 核 / 16 线程',
+            sourceField: 'Cores',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+          '基础功耗 / 最大睿频功耗': {
+            fieldId: 'cpu.defaultTdp',
+            value: '120W TDP',
+            sourceField: 'Default TDP',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+
+      const cat4 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verOfficialPower : undefined));
+      const rec4 = cat4.byId.get(baseCpu.id)!;
+      expect(rec4.power.evidence).toBe('manufacturer-checked');
+      expect(rec4.power.watts).toBe(120);
+      expect(rec4.power.meaning).toBe('Default TDP');
+
+      // 5. Numeric value mismatch: fact.numericValue is 65 while item.tdpWatts is 120 -> editorial-reference
+      const verNumericMismatch: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            ...verOfficialPower.fields['基础功耗 / 最大睿频功耗'],
+            numericValue: 65,
+          },
+        },
+      };
+      const cat5 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verNumericMismatch : undefined));
+      const rec5 = cat5.byId.get(baseCpu.id)!;
+      expect(rec5.power.evidence).toBe('editorial-reference');
+
+      // 6. Unit mismatch: fact.unit is 'A' (current) rather than watts -> editorial-reference
+      const verUnitMismatch: HardwareVerification = {
+        ...verOfficialPower,
+        fields: {
+          ...verOfficialPower.fields,
+          '基础功耗 / 最大睿频功耗': {
+            ...verOfficialPower.fields['基础功耗 / 最大睿频功耗'],
+            unit: 'A',
+          },
+        },
+      };
+      const cat6 = createHardwareCatalog([baseCpu], (id) => (id === baseCpu.id ? verUnitMismatch : undefined));
+      const rec6 = cat6.byId.get(baseCpu.id)!;
+      expect(rec6.power.evidence).toBe('editorial-reference');
+
+      // 7. Category/concept conflation: CPU item assigned gpu.tgp (TGP cannot endorse CPU TDP) -> editorial-reference
+      const cpuWithTgp: HardwareItem = {
+        ...baseCpu,
+        specs: {
+          '核心/线程': '8 核 / 16 线程',
+          '整卡功耗 (TGP/TBP)': '120W TGP',
+        },
+      };
+      const verConflatedCategory: HardwareVerification = {
+        ...verOfficialPower,
+        powerSourceField: 'Total Graphics Power (W)',
+        fields: {
+          '核心/线程': verOfficialPower.fields['核心/线程'],
+          '整卡功耗 (TGP/TBP)': {
+            fieldId: 'gpu.tgp',
+            value: '120W TGP',
+            sourceField: 'Total Graphics Power (W)',
+            sourceKind: 'manufacturer',
+            verificationStatus: 'verified',
+            checkedAt: '2026-09-11',
+          },
+        },
+      };
+      const cat7 = createHardwareCatalog([cpuWithTgp], (id) => (id === cpuWithTgp.id ? verConflatedCategory : undefined));
+      const rec7 = cat7.byId.get(cpuWithTgp.id)!;
+      expect(rec7.power.evidence).toBe('editorial-reference');
+    });
+
     it('explicit sourceId rejects nonexistent IDs and sourceKind conflicts without fallback', () => {
       const dummyItem: HardwareItem = {
         ...hardwareList[0],

@@ -10,6 +10,7 @@ import type {
   SourceKind,
   VerificationStatus,
   EntityKind,
+  HardwareSpecFieldId,
 } from '../types/hardwareSources';
 
 const finitePositive = (value: number | undefined | null): value is number =>
@@ -168,6 +169,20 @@ export const CATEGORY_CORE_FIELDS: Record<HardwareCategory, readonly CoreFieldSp
     { canonicalName: '电池容量', aliases: ['电池容量', '电池规格', '电池'] },
     { canonicalName: '整机重量', aliases: ['整机重量', '机身重量', '重量'] },
   ],
+};
+
+export const CATEGORY_POWER_FIELD_IDS: Partial<Record<HardwareCategory, HardwareSpecFieldId>> = {
+  cpu: 'cpu.defaultTdp',
+  gpu: 'gpu.tgp',
+  psu: 'psu.wattage',
+  cooler: 'cooler.tdpRating',
+};
+
+export const CATEGORY_POWER_CORE_CANONICAL: Partial<Record<HardwareCategory, string>> = {
+  cpu: '基础功耗 / 最大睿频功耗',
+  gpu: '整卡功耗 (TGP/TBP)',
+  psu: '额定功率',
+  cooler: '标称解热能力TDP',
 };
 
 const AIC_PARTNER_BRANDS = new Set([
@@ -424,12 +439,62 @@ export function createHardwareCatalog(
       (s) => s.kind === 'manufacturer' && isValidSourceUrl(s.url) && isValidCheckDate(s.checkedAt)
     );
 
-    const isPowerVerified =
+    const expectedPowerFieldId = CATEGORY_POWER_FIELD_IDS[item.category];
+    const canonicalPowerCore = CATEGORY_POWER_CORE_CANONICAL[item.category];
+    const coreSpecs = CATEGORY_CORE_FIELDS[item.category] || [];
+    const powerCoreSpec = canonicalPowerCore
+      ? coreSpecs.find((c) => c.canonicalName === canonicalPowerCore)
+      : undefined;
+    const powerAliases = powerCoreSpec ? powerCoreSpec.aliases : [];
+
+    // Resolve the power specification fact from specifications
+    let powerSpec = expectedPowerFieldId
+      ? specifications.find((s) => s.id === `${item.id}:${expectedPowerFieldId}`)
+      : undefined;
+
+    if (!powerSpec && verified?.powerSourceField) {
+      powerSpec = specifications.find((s) => s.sourceField === verified.powerSourceField);
+    }
+
+    if (!powerSpec && powerAliases.length > 0) {
+      powerSpec = specifications.find((s) => powerAliases.includes(s.label));
+    }
+
+    const isPowerNumericValid =
+      powerSpec !== undefined &&
+      (powerSpec.numericValue === undefined ||
+        powerSpec.numericValue === null ||
+        powerSpec.numericValue === item.tdpWatts);
+
+    const isPowerUnitValid =
+      powerSpec !== undefined &&
+      (powerSpec.unit === undefined ||
+        powerSpec.unit === '' ||
+        ['W', '瓦'].includes(powerSpec.unit.trim().toUpperCase()));
+
+    const isPowerFieldConsistent =
+      powerSpec !== undefined &&
+      (!powerSpec.id.startsWith(`${item.id}:`) ||
+        !expectedPowerFieldId ||
+        powerSpec.id === `${item.id}:${expectedPowerFieldId}` ||
+        !Object.values(CATEGORY_POWER_FIELD_IDS).includes(
+          powerSpec.id.slice(item.id.length + 1) as HardwareSpecFieldId
+        ));
+
+    const isPowerVerified = Boolean(
       hasKnownPower &&
       hasValidOfficialSource &&
-      Boolean(verified) &&
-      verified?.tdpWatts === item.tdpWatts &&
-      isValidCheckDate(verified?.checkedAt);
+      verified &&
+      verified.tdpWatts === item.tdpWatts &&
+      isValidCheckDate(verified.checkedAt) &&
+      powerSpec &&
+      powerSpec.verificationStatus === 'verified' &&
+      powerSpec.sourceKind === 'manufacturer' &&
+      powerSpec.evidence === 'manufacturer-checked' &&
+      isPowerNumericValid &&
+      isPowerUnitValid &&
+      isPowerFieldConsistent
+    );
 
     const record: HardwareRecord = {
       schemaVersion: 1,
@@ -451,11 +516,17 @@ export function createHardwareCatalog(
         watts: hasKnownPower ? item.tdpWatts : null,
         isKnown: hasKnownPower,
         evidence: isPowerVerified ? 'manufacturer-checked' : 'editorial-reference',
-        meaning:
-          (isPowerVerified && verified?.powerSourceField) ||
-          (hasKnownPower
-            ? 'Catalog power reference; meaning depends on component category'
-            : '功耗未记录'),
+        meaning: isPowerVerified
+          ? (verified?.powerSourceField ||
+             powerSpec?.sourceField ||
+             (item.category === 'cpu'
+               ? 'Default TDP'
+               : item.category === 'gpu'
+               ? 'Total Graphics Power (W)'
+               : '官方核验功耗'))
+          : (hasKnownPower
+              ? 'Catalog power reference; meaning depends on component category'
+              : '功耗未记录'),
       },
       pricing: {
         currency: 'CNY',
