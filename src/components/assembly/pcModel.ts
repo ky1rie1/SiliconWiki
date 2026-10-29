@@ -1,7 +1,9 @@
 import * as THREE from 'three';
-import { assemblyFrame, BOARD_MOUNT, type Vec3 } from './animation';
+import { assemblyFrame, BOARD_MOUNT, smooth, type Vec3 } from './animation';
 import { ModelResources } from './modelResources';
 import { batchStaticMeshes } from './batchStaticMeshes';
+import { createCpuSocket } from './cpuSocket';
+import { brushedSurface, addBoardPrint } from './hardwareSurfaces';
 
 // Representative ATX / AM5 layout. One scene unit is 100 mm; not a vendor CAD model.
 export const CPU_POSITION: Vec3 = [-.38, .68, .115];
@@ -21,13 +23,17 @@ export function createPCModel() {
   const silver = r.material('aluminium', 0xadb8bd, .85, .3);
   const darkSilver = r.material('brushed', 0x606e75, .82, .38);
   const gold = r.material('contacts', 0xb99c53, .82, .3);
-  const pcb = r.material('pcb', 0x163331, .3, .7);
+  const pcb = r.material('pcb', 0x17382e, .12, .78);
   const chip = r.material('silicon-packages', 0x1b2527, .2, .5);
   const copper = r.material('nickel-heatpipes', 0x9fa8a8, .92, .23);
   const cableMat = r.material('braided-cables', 0x343b40, .05, .95);
   const light = r.material('status-led', 0xc9a95c, .2, .35);
   light.emissive.set(0xf2c96a);
   light.emissiveIntensity = 0;
+  const grain = brushedSurface(r);
+  for (const material of [black, edge, silver, darkSilver, copper]) {
+    material.roughnessMap = grain; material.bumpMap = grain; material.bumpScale = .00018;
+  }
 
   function group(parent: THREE.Object3D, position: Vec3 = [0, 0, 0], key?: string) {
     const result = new THREE.Group();
@@ -117,10 +123,7 @@ export function createPCModel() {
   r.instancesOf(motherboard, r.geometry('choke', () => new THREE.BoxGeometry(.09, .09, .07)), darkSilver, chokes);
   const caps: Vec3[] = Array.from({ length: 10 }, (_, i) => [-.73, -.95 + i * .18, .07]);
   r.instancesOf(motherboard, r.geometry('capacitor', () => new THREE.CylinderGeometry(.027, .027, .08, 10).rotateX(Math.PI / 2)), silver, caps);
-  for (let i = 0; i < 18; i++) {
-    const x = -.52 + i * .054;
-    r.tube(motherboard, [[x, -.2, .021], [x, -.49 - i * .006, .021], [x + .18, -.7 - i * .006, .021], [x + .18, -1.12, .021]], .0025, darkSilver);
-  }
+  addBoardPrint(motherboard, r);
   r.box(motherboard, [.54, .52, .1], [.65, -.88, .08], black, .02);
   for (let i = 0; i < 6; i++) r.box(motherboard, [.46, .016, .024], [.65, -1.07 + i * .073, .14], edge);
   for (const y of [-.38, -.86]) {
@@ -132,24 +135,11 @@ export function createPCModel() {
   r.box(motherboard, [.27, .1, .13], [-.78, 1.46, .075], plastic);
   r.box(motherboard, [.22, .085, .11], [.93, -1.37, .06], plastic);
 
-  // Socket frame surrounds the CPU, rather than covering its heat spreader.
-  const socket = group(motherboard, [CPU_POSITION[0], CPU_POSITION[1], .055]);
-  r.box(socket, [.56, .59, .07], [0, 0, 0], plastic, .015);
-  const pins: Vec3[] = Array.from({ length: 16 * 16 }, (_, i) => [-.2 + (i % 16) * .026, -.2 + Math.floor(i / 16) * .026, .042]);
-  r.instancesOf(socket, r.geometry('socket-pin', () => new THREE.BoxGeometry(.009, .009, .016)), gold, pins);
-  const latch = group(socket, [0, .3, .04]);
-  for (const x of [-.25, .25]) r.box(latch, [.046, .59, .022], [x, -.3, 0], silver);
-  for (const y of [-.025, -.565]) r.box(latch, [.52, .045, .022], [0, y, 0], silver);
-  const lever = group(socket, [.32, -.31, .04]);
-  r.tube(lever, [[0, 0, 0], [0, .56, 0], [-.04, .66, .02]], .013, silver);
-  const cpu = group(boardAssembly, CPU_POSITION, 'cpu');
-  r.box(cpu, [.4, .4, .025], [0, 0, 0], pcb, .008);
-  r.box(cpu, [.32, .34, .03], [0, 0, .027], silver, .014);
-  for (const x of [-1, 1]) for (const y of [-1, 1]) r.box(cpu, [.055, .07, .028], [x * .177, y * .14, .026], silver, .004);
-  r.label(cpu, 'AM5', [0, .04, .044], .22);
-  r.label(cpu, 'CPU / 01', [0, -.05, .044], .25);
-  const triangle = new THREE.Shape(); triangle.moveTo(0, 0); triangle.lineTo(.027, 0); triangle.lineTo(0, .027); triangle.closePath();
-  r.mesh(cpu, r.geometry('orientation-triangle', () => new THREE.ShapeGeometry(triangle)), gold, [-.185, -.183, .02]);
+  // Detailed processor/socket is part of the production nine-step assembly hierarchy.
+  const { socket, cpu, latch, lever } = createCpuSocket(r);
+  socket.position.set(CPU_POSITION[0], CPU_POSITION[1], .055); motherboard.add(socket);
+  cpu.position.set(...CPU_POSITION); cpu.userData.component = 'cpu';
+  boardAssembly.add(cpu); parts.set('cpu', cpu);
   const pasteGroup = group(cpu, [0, 0, .049], 'thermal-paste');
   const paste = r.mesh(pasteGroup, r.geometry('paste', () => new THREE.SphereGeometry(1, 24, 12)), r.material('paste', 0x8e9699, .3, .85));
   paste.userData.dynamic = true;
@@ -279,9 +269,10 @@ export function createPCModel() {
     cooler.visible = step >= 4; pasteGroup.visible = step >= 4;
     psu.visible = step >= 6; gpu.visible = step >= 7; cables.visible = step >= 6;
     gpuCable.visible = step >= 7; signalCables.visible = step >= 8; glass.visible = step >= 9;
-    offset(cpu, 0, 0, pose.cpuLift + exploded * .48);
-    latch.rotation.x = -pose.cpuLatch * Math.PI * .62;
-    lever.rotation.x = pose.cpuLatch * Math.PI * .5;
+    offset(cpu, 0, 0, pose.cpuLift + smooth((exploded - .2) / .8) * .48);
+    const retentionOpen = Math.max(pose.cpuLatch, smooth(exploded / .2));
+    latch.rotation.x = -retentionOpen * Math.PI * .57;
+    lever.rotation.x = retentionOpen * Math.PI * .53;
     sticks.forEach((stick, i) => {
       offset(stick, exploded * .13 * (i + 1), 0, pose.ramLift[i] + exploded * .62);
       ramLatches[i].forEach((clip, side) => clip.rotation.x = (side ? -1 : 1) * Math.min(1, pose.ramLift[i] * 5) * .55);

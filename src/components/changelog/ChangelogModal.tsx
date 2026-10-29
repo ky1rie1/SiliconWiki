@@ -152,7 +152,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
                   </div>
                 ))}
               </div>
-              {log.previewTab && onNavigate && <button className="primary-action" onClick={() => { onClose(dontShowAgain); onNavigate(log.previewTab!); }}>{lang === 'en' ? 'Explore preview' : '查看本次样稿'}</button>}
+              {log.previewTab && onNavigate && <button className="primary-action" onClick={() => { onClose(dontShowAgain); onNavigate(log.previewTab!); }}>{log.previewTab === 'simulator3d' ? (lang === 'en' ? 'Open 3D assembly' : '打开 3D 实景装机') : (lang === 'en' ? 'Explore preview' : '查看本次样稿')}</button>}
             </div>
           ))}
         </div>

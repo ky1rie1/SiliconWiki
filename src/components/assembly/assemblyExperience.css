@@ -1,0 +1,67 @@
+.assembly-experience { --glass-ink: #28332e; --glass-muted: #606d65; --glass-edge: #ffffffa8; --glass-fill: #fafcf43d; --glass-solid: #f1f3ed; --studio-line: #cdd4ca; --studio-gold: #947d46; }
+.dark .assembly-experience { --glass-ink: #edf3e8; --glass-muted: #b2beb2; --glass-edge: #ebfff52e; --glass-fill: #1f2d266e; --glass-solid: #26352d; --studio-line: #3d4a40; --studio-gold: #c6b57d; }
+.assembly-experience-layout { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(315px, 1fr); align-items: start; gap: 28px; }
+.assembly-stage-panel { position: relative; border: 1px solid var(--studio-line); border-radius: 26px; background: #f1f2ed; overflow: hidden; box-shadow: 0 18px 50px -30px #243a2940; }
+.dark .assembly-stage-panel { background: #202b25; }
+.assembly-experience .assembly-studio-heading { padding: 22px 26px; }
+.assembly-experience .assembly-studio-heading h3 { font-weight: 500; font-size: 23px; }
+.assembly-experience .assembly-model-stage { position: relative; isolation: isolate; width: 100%; height: 600px; overflow: hidden; background: #e9eee7; }
+.dark .assembly-experience .assembly-model-stage { background: #1e2823; }
+.assembly-model-stage canvas { display: block; }
+.assembly-model-caption { position: absolute; inset: 20px 24px auto; z-index: 2; display: flex; justify-content: space-between; gap: 18px; color: var(--glass-muted); font: 10px/1.5 monospace; letter-spacing: .07em; pointer-events: none; }
+.assembly-liquid-glass { position: relative; isolation: isolate; color: var(--glass-ink); background: var(--glass-fill); border: 1px solid var(--glass-edge); backdrop-filter: blur(18px) saturate(160%) brightness(1.04); -webkit-backdrop-filter: blur(18px) saturate(160%) brightness(1.04); box-shadow: 0 12px 30px -14px #162f3147, inset 0 1px 1px #ffffffd9, inset 0 -1px 2px #273f3029, inset 2px 0 3px #ffffff7a, inset -2px 0 3px #ffffff52; }
+.assembly-liquid-glass::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(170px circle at var(--glass-x, 25%) var(--glass-y, 0%), #ffffffad, #ffffff0a 72%), linear-gradient(125deg, #ffffff4f, transparent 35%, #d6e6d712 70%, #ffffff38); z-index: -1; }
+.assembly-liquid-glass::after { content: ''; position: absolute; inset: 2px; border: 1px solid #ffffff30; border-radius: inherit; pointer-events: none; }
+.dark .assembly-liquid-glass { box-shadow: 0 12px 32px -12px #0008, inset 0 1px 1px #ffffff66, inset 0 -1px 2px #0006, inset 2px 0 3px #ffffff24; }
+.dark .assembly-liquid-glass::before { opacity: .3; }
+.assembly-floating-tools { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; gap: 5px; padding: 7px; border-radius: 100px; max-width: calc(100% - 24px); white-space: nowrap; }
+.assembly-floating-tools button { min-height: 42px; min-width: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 100px; padding: 10px 12px; cursor: pointer; transition: background .2s, transform .25s cubic-bezier(.2,.8,.2,1.3), box-shadow .2s; }
+.assembly-floating-tools button:hover { background: #ffffff50; box-shadow: inset 0 1px 0 #ffffff80; transform: translateY(-2px); }
+.assembly-floating-tools button:active { transform: scale(.94); }
+.assembly-floating-tools button[aria-pressed=true] { background: #e4cf8c94; box-shadow: inset 0 1px 0 #ffffffa8, 0 2px 8px #263c2819; }
+.assembly-floating-tools button:disabled { opacity: .4; cursor: default; }
+.assembly-explode-control { font-size: 12px; font-weight: 600; }
+.assembly-glass-divider { width: 1px; height: 22px; background: var(--studio-line); margin: 0 3px; }
+.assembly-stage-hint { position: absolute; z-index: 2; bottom: 12px; left: 16px; right: 16px; text-align: center; color: var(--glass-muted); pointer-events: none; font-size: 10px; }
+.assembly-effects-button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--studio-line); background: #ffffff26; border-radius: 20px; padding: 7px 11px; color: var(--glass-ink); font-family: inherit; font-size: 11px; cursor: pointer; }
+.assembly-effects-button svg { color: var(--studio-gold); }
+.assembly-experience .assembly-quality-control { margin-top: 8px; }
+.assembly-experience .assembly-quality-control select { background: transparent; }
+.assembly-experience .assembly-quality-control select:disabled { opacity: .5; }
+.assembly-navigation-section { position: relative; padding: 21px 22px 24px; background: radial-gradient(ellipse at 15% 110%, #d8c9944d, transparent 65%), radial-gradient(ellipse at 90% -10%, #7ca89738, transparent 75%); }
+.assembly-step-rail { display: grid; grid-template-columns: repeat(9, minmax(0,1fr)); padding: 6px; border-radius: 22px; margin-top: 18px; }
+.assembly-step-rail button { position: relative; z-index: 1; min-width: 0; min-height: 58px; padding: 8px 2px; display: flex; align-items: center; flex-direction: column; gap: 7px; color: var(--glass-muted); cursor: pointer; }
+.assembly-step-rail button > span { font: 500 13px/1 monospace; }
+.assembly-step-rail button small { font-size: 9px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.assembly-step-rail button[aria-current=step] { color: var(--glass-ink); }
+.assembly-step-lens { position: absolute; left: 6px; top: 6px; bottom: 6px; width: calc((100% - 12px) / 9); transform: translateX(calc(var(--step-index, 0) * 100%)); transition: transform .5s cubic-bezier(.22,.85,.25,1.12); border-radius: 17px; background: linear-gradient(150deg, #ffffffb0, #fffffc40 65%, #ffffff85); box-shadow: inset 0 1px 1px #fff, inset 0 -1px 1px #89987c57, 0 4px 12px #314c2d1a; border: 1px solid #ffffff9c; }
+.dark .assembly-step-lens { background: linear-gradient(140deg, #dcefe52b, #dcefe508 60%, #eaffdc1a); border-color: #ffffff3b; box-shadow: inset 0 1px 1px #ffffff6b, 0 4px 12px #0003; }
+.assembly-guide-panel { padding: 22px 0 0; min-width: 0; }
+.assembly-guide-panel h3 { font-size: 23px; font-weight: 550; letter-spacing: -.035em; }
+.assembly-guide-panel [data-action=install] { min-height: 49px; border-radius: 14px; letter-spacing: .015em; }
+.assembly-experience :focus-visible { outline: 2px solid var(--studio-gold); outline-offset: 4px; }
+.assembly-reduced .assembly-liquid-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: none; border-color: var(--studio-line); }
+.assembly-reduced .assembly-liquid-glass::before, .assembly-reduced .assembly-liquid-glass::after { display: none; }
+.assembly-reduced *, .assembly-reduced *::before, .assembly-reduced *::after { transition: none !important; animation: none !important; }
+@supports not (backdrop-filter: blur(18px)) { .assembly-liquid-glass { background: var(--glass-solid); } }
+@media (prefers-reduced-transparency: reduce) { .assembly-liquid-glass { background: var(--glass-solid); backdrop-filter: none; -webkit-backdrop-filter: none; } .assembly-liquid-glass::before { display: none; } }
+@media (prefers-reduced-motion: reduce) { .assembly-experience *, .assembly-experience *::before, .assembly-experience *::after { transition: none !important; animation: none !important; } }
+@media (max-width: 1050px) { .assembly-experience-layout { grid-template-columns: minmax(0,1fr); } .assembly-guide-panel { padding: 12px 6px; } .assembly-experience .assembly-model-stage { height: 560px; } }
+@media (max-width: 600px) {
+  .assembly-stage-panel { border-radius: 20px; }
+  .assembly-experience .assembly-studio-heading { padding: 17px 16px; gap: 10px; }
+  .assembly-experience .assembly-studio-heading h3 { font-size: 20px; }
+  .assembly-studio-kicker { font-size: 8px; }
+  .assembly-experience .assembly-model-stage { height: 420px; }
+  .assembly-model-caption { inset: 15px 16px auto; font-size: 8px; }
+  .assembly-navigation-section { padding: 16px 10px 18px; }
+  .assembly-floating-tools { gap: 0; padding: 5px; bottom: 36px; }
+  .assembly-floating-tools button { min-width: 40px; padding: 9px; }
+  .assembly-explode-control { font-size: 11px; }
+  .assembly-step-rail { border-radius: 17px; padding: 4px; }
+  .assembly-step-rail button { min-height: 48px; }
+  .assembly-step-rail button small { display: none; }
+  .assembly-step-lens { left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 9); border-radius: 13px; }
+  .assembly-stage-hint { font-size: 8px; }
+  .assembly-experience .assembly-status-line { padding: 12px 14px; font-size: 10px; }
+}

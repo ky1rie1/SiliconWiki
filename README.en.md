@@ -39,15 +39,19 @@ Hardware illustrations use a consistent graphite, metal and warm-gold palette ac
 
 ## 3D assembly studio
 
+**v2.6.0 · October 29, 2026**: [Open 3D assembly](https://computer-wiki.vercel.app/#/simulator3d). The model and liquid-glass upgrade is integrated into the original nine-step assembly flow. The earlier `#/lab` remains a historical design preview. Each release is recorded in the website’s update announcement.
+
 The studio uses a representative **AM5 / DDR5 / ATX tower PC** to explain component placement, orientation and assembly order. The procedural model includes motherboard details, an M.2 mounting position, cooling fins and heat pipes, a graphics card, power cables and a transparent side panel.
 
-![English assembly studio showing its nine-step guide and an exploded ATX desktop](docs/assets/assembly-studio-en.png)
+![Production assembly studio: CPU socket details and liquid-glass controls](docs/assets/assembly-upgrade-en.jpg)
 
-*Actual English interface, showing the exploded view in the light theme.*
+*Actual English interface of the production assembly page.*
 
 `CPU → Memory → M.2 SSD → CPU cooler → Motherboard into case → Power supply → Graphics card → Front-panel wiring → First power-on`
 
 - **Grounded proportions and orientation.** The ATX motherboard follows 305 × 244 mm proportions. Two memory modules occupy A2/B2, an M.2 2280 drive enters at approximately 30°, the tower cooler exhausts toward the rear, and a conventionally mounted graphics card has downward-facing fans.
+- **CPU and socket detail.** An AM5-like notched heatspreader, intact substrate, LGA contacts, alignment marks, retention frame, screws and lever are integrated into the main model. Separation opens the retention mechanism before lifting the CPU. Board printing, traces and shared metal surface textures add detail, with the first view focused on the socket.
+- **Liquid-glass interaction.** The floating toolbar combines the scene backdrop with blur, edge highlights and pointer sheen. A sliding glass lens follows the selected assembly step. The effects button switches to reduced effects, disabling blur and animation and selecting Saver quality; switching back restores the previous quality.
 - **Connected assembly movement.** The installed CPU, memory, SSD and cooler move with the motherboard when it enters the case. The power supply enters through the rear opening, and the side panel approaches along its own normal.
 - **Repeatable inspection.** Orbit, pan, zoom, component focus, step navigation and the exploded view expose spatial relationships. Restoring the assembly returns components to their original transforms.
 - **Motion preferences and recovery.** A cancellable animation timeline supports repeated navigation and reduced motion. If 3D loading fails, the interface provides a fallback message.
@@ -60,7 +64,7 @@ The studio defaults to **Balanced** quality. All three profiles cap rendering pi
 | Balanced (default) | Cached shadows; target fan updates at 30 Hz |
 | Detailed | Higher pixel budget; target fan updates at 60 Hz |
 
-**Model scope.** This is educational geometry and animation, not product-specific CAD or a thermal, electrical, collision or full-system compatibility simulator. Fan rotation indicates the demonstrated powered state, not measured speed, temperature or load. Consult the actual product manuals for mounting points, mechanisms, cables and installation order.
+**Model scope.** This is educational geometry and animation, not product-specific CAD or a thermal, electrical, collision or full-system compatibility simulator. Contact counts, board traces, local dimensions and clearances are simplified and have not been checked against manufacturer mechanical drawings. Fan rotation indicates the demonstrated powered state, not measured speed, temperature or load. Consult the actual product manuals for mounting points, mechanisms, cables and installation order.
 
 <a id="data-sources"></a>
 
@@ -149,6 +153,10 @@ The assembly scene separates responsibilities across small modules: `PCScene3D.t
 In the same directory, `renderingBudget.ts` defines pixel budgets and fan update intervals for each quality profile. `batchStaticMeshes.ts` combines suitable static geometry while preserving component picking and assembly-animation boundaries.
 
 ## Contributing
+
+Every release should update the website dynamics in [`src/data/changelog.ts`](src/data/changelog.ts). UI and feature changes should also update both READMEs and the relevant actual screenshots.
+
+See the [v2.6.0 release notes](docs/assembly-upgrade.md) for scope, model limitations and validation results.
 
 When changing hardware content, check both languages, units and sources, and record the exact model, affected fields and review date. For assembly changes, check skipped steps, repeated playback, exploded-view restoration and reduced motion. Issues and pull requests with reproducible reports or source-backed corrections are welcome.
 

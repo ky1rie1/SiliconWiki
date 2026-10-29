@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { AssemblyTimeline, type AnimationResult } from './animation';
-import { createPCModel, type PCModel } from './pcModel';
+import { createPCModel, CPU_POSITION, type PCModel } from './pcModel';
 import { renderingBudget, type RenderingQuality } from './renderingBudget';
 
 const viewportFit = (aspect: number) => Math.max(1, 1.15 / aspect);
@@ -39,6 +39,9 @@ export class PCScene3D {
   private disposed = false;
   private onScreen = true;
   private powered = false;
+  private reducedEffects = false;
+  private renderedFrames = 0;
+  private get reduceMotion() { return this.reducedEffects || this.motion.matches; }
   private lastProgress = -1;
   private lastPose?: { step: number; progress: number; exploded: number };
   private quality: RenderingQuality = 'balanced';
@@ -59,7 +62,7 @@ export class PCScene3D {
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
       this.renderer.outputColorSpace = THREE.SRGBColorSpace;
       this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      this.renderer.toneMappingExposure = 1.08;
+      this.renderer.toneMappingExposure = 1;
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.autoUpdate = false;
       this.renderer.shadowMap.needsUpdate = true;
@@ -72,16 +75,16 @@ export class PCScene3D {
       try { this.environment = pmrem.fromScene(room, .04); }
       finally { room.dispose(); pmrem.dispose(); }
       this.scene.environment = this.environment.texture;
-      this.scene.environmentIntensity = .7;
-      this.scene.add(new THREE.HemisphereLight(0xf1f5f5, 0x59636a, 1.2));
-      const key = new THREE.DirectionalLight(0xfff5e0, 3.5);
+      this.scene.environmentIntensity = .85;
+      this.scene.add(new THREE.HemisphereLight(0xf4f5ef, 0x657568, .8));
+      const key = new THREE.DirectionalLight(0xfff6e8, 2.8);
       key.position.set(2, 7, 6); key.castShadow = true;
       key.shadow.mapSize.set(1024, 1024);
       key.shadow.camera.left = -5; key.shadow.camera.right = 5;
       key.shadow.camera.top = 5; key.shadow.camera.bottom = -5;
       key.shadow.normalBias = .025; key.shadow.bias = -.0002;
       this.scene.add(key);
-      const rim = new THREE.DirectionalLight(0xc4e1ff, 3); rim.position.set(-5, 3, -2); this.scene.add(rim);
+      const rim = new THREE.DirectionalLight(0xd9e8f0, 1.8); rim.position.set(-5, 3, -2); this.scene.add(rim);
       this.model = createPCModel(); this.scene.add(this.model.root);
       const r = this.model.resources;
       this.floor = r.box(this.scene, [200, .08, 200], [0, -2.45, 0], r.material('studio-floor', 0xe2e5e4, .05, .9));
@@ -114,14 +117,16 @@ export class PCScene3D {
 
   private updateTheme = () => {
     const dark = document.documentElement.classList.contains('dark');
-    this.scene.background = new THREE.Color(dark ? 0x252e34 : 0xe8eeeb);
-    this.scene.fog = new THREE.Fog(dark ? 0x252e34 : 0xe8eeeb, 10, 28);
-    if (this.floor) (this.floor.material as THREE.MeshStandardMaterial).color.set(dark ? 0x0a1015 : 0xaebbb3);
-    if (this.bench) (this.bench.material as THREE.MeshStandardMaterial).color.set(dark ? 0x394449 : 0xbfcac5);
+    this.scene.background = new THREE.Color(dark ? 0x1e2823 : 0xe9eee7);
+    this.scene.fog = new THREE.Fog(dark ? 0x1e2823 : 0xe9eee7, 10, 28);
+    if (this.floor) (this.floor.material as THREE.MeshStandardMaterial).color.set(dark ? 0x0e1711 : 0xabb6a8);
+    if (this.bench) (this.bench.material as THREE.MeshStandardMaterial).color.set(dark ? 0x283c2f : 0xa4b19f);
+    const gridMaterials = Array.isArray(this.grid.material) ? this.grid.material : [this.grid.material];
+    gridMaterials.forEach(material => { material.transparent = true; material.opacity = .18; material.depthWrite = false; });
     this.grid.visible = !dark; this.requestFrame();
   };
   private onMotionChange = () => {
-    if (this.motion.matches) {
+    if (this.reduceMotion) {
       this.timeline.cancel(); this.exploded = this.explodeTarget;
       this.camera.position.copy(this.cameraTarget); this.controls.target.copy(this.lookTarget); this.cameraMoving = false;
     }
@@ -146,6 +151,7 @@ export class PCScene3D {
     this.cameraTarget.sub(this.lookTarget).multiplyScalar(scale).add(this.lookTarget);
     this.renderer.setSize(width, height); this.requestFrame();
   };
+  setReducedEffects(reduced: boolean) { this.reducedEffects = reduced; this.onMotionChange(); }
   setQuality(quality: RenderingQuality) { this.quality = quality; this.handleResize(); }
   setStep(step: number) {
     this.timeline.cancel(); this.step = Math.max(1, Math.min(9, step)); this.lastProgress = -1;
@@ -153,11 +159,17 @@ export class PCScene3D {
   }
   setExploded(exploded: boolean) {
     this.timeline.cancel(); this.explodeTarget = exploded ? 1 : 0;
-    if (this.motion.matches) this.exploded = this.explodeTarget;
+    if (this.reduceMotion) this.exploded = this.explodeTarget;
     this.resetCamera(); this.requestFrame();
   }
   resetCamera(immediate = false) {
-    if (this.step < 5) {
+    if (this.step === 1) {
+      this.model.root.updateMatrixWorld(true);
+      // Frame the seated socket anchor, independent of the CPU's in-flight pose.
+      this.model.boardAssembly.localToWorld(this.lookTarget.set(...CPU_POSITION));
+      this.lookTarget.y += .18 + this.explodeTarget * .15;
+      this.cameraTarget.copy(this.lookTarget).add(new THREE.Vector3(1.25, 1.7 + this.explodeTarget * .35, 1.5 + this.explodeTarget * .4));
+    } else if (this.step < 5) {
       this.lookTarget.set(0, (this.step < 4 ? -1.7 : -1.05) + this.explodeTarget * .45, 0);
       this.cameraTarget.copy(this.lookTarget).add(new THREE.Vector3(3.2, 3.9 + this.explodeTarget, 4.4 + this.explodeTarget * 1.5));
     } else {
@@ -165,7 +177,7 @@ export class PCScene3D {
       this.cameraTarget.set(6.2, 3.3, 8.3 + this.explodeTarget * 3);
     }
     this.cameraTarget.sub(this.lookTarget).multiplyScalar(viewportFit(this.camera.aspect)).add(this.lookTarget);
-    if (immediate || this.motion.matches) {
+    if (immediate || this.reduceMotion) {
       this.camera.position.copy(this.cameraTarget); this.controls.target.copy(this.lookTarget); this.controls.update(); this.cameraMoving = false;
     } else this.cameraMoving = true;
     this.requestFrame();
@@ -184,13 +196,13 @@ export class PCScene3D {
     }
     this.cameraTarget.sub(this.lookTarget).multiplyScalar(viewportFit(this.camera.aspect)).add(this.lookTarget);
     this.cameraMoving = true;
-    if (this.motion.matches) { this.camera.position.copy(this.cameraTarget); this.controls.target.copy(this.lookTarget); this.cameraMoving = false; }
+    if (this.reduceMotion) { this.camera.position.copy(this.cameraTarget); this.controls.target.copy(this.lookTarget); this.cameraMoving = false; }
     this.requestFrame();
   }
   animateInstallStep(step: number, onComplete?: (result: AnimationResult) => void) {
     if (step !== this.step) { onComplete?.('cancelled'); return; }
     this.timeline.cancel(); this.exploded = 0; this.explodeTarget = 0; this.resetCamera(); this.lastProgress = -1;
-    if (this.motion.matches) { this.applyPose(1); onComplete?.('completed'); this.requestFrame(); return; }
+    if (this.reduceMotion) { this.applyPose(1); onComplete?.('completed'); this.requestFrame(); return; }
     this.timeline.start(performance.now(), step === 5 ? 4400 : step === 9 ? 4600 : 3400, onComplete);
     this.applyPose(0); this.requestFrame();
   }
@@ -242,10 +254,11 @@ export class PCScene3D {
       moving = this.cameraMoving || moving;
     }
     moving = this.controls.update() || moving;
-    const animateFans = this.powered && !this.motion.matches && this.exploded < .01;
+    const animateFans = this.powered && !this.reduceMotion && this.exploded < .01;
     if (animateFans) this.model.fans.forEach(fan => fan.rotation.z = (fan.rotation.z + elapsed * 5) % (Math.PI * 2));
     if (this.pointerDirty) { this.pointerDirty = false; this.pickHover(); }
     this.renderer.render(this.scene, this.camera);
+    Object.assign(this.renderer.domElement.dataset, { frames: String(++this.renderedFrames), calls: String(this.renderer.info.render.calls), triangles: String(this.renderer.info.render.triangles), assemblyStep: String(this.step) });
     this.lastDrawTime = now;
     if (moving || this.timeline.running) this.requestFrame();
     else if (animateFans) this.scheduleFanFrame(now);

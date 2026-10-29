@@ -39,7 +39,7 @@ describe('interactive preview and website dynamics', () => {
     expect(container.textContent).not.toMatch(/[\u3400-\u9fff]/);
   });
   it('publishes a bilingual prototype update with a working preview action', async () => {
-    const latest = changelogList[0];
+    const latest = changelogList.find(log => log.version === 'v2.6.0-preview.1')!;
     expect(latest.version).toBe('v2.6.0-preview.1');
     expect(latest.previewTab).toBe('lab');
     expect(latest.titleEn).toBeTruthy();
@@ -49,5 +49,16 @@ describe('interactive preview and website dynamics', () => {
     expect(container.textContent).toContain(latest.titleEn);
     await click('Explore preview');
     expect(navigate).toHaveBeenCalledWith('lab'); expect(close).toHaveBeenCalled();
+  });
+  it('links the latest bilingual release to the production assembly route', async () => {
+    const latest = changelogList[0];
+    expect(latest.version).toBe('v2.6.0');
+    expect(latest.previewTab).toBe('simulator3d');
+    expect(latest.titleEn).toBeTruthy();
+    expect(latest.updates.every(update => update.textEn)).toBe(true);
+    const navigate = vi.fn();
+    await act(async () => root.render(<LanguageProvider><ChangelogModal isOpen onClose={() => {}} onMarkAllAsRead={() => {}} onNavigate={navigate} /></LanguageProvider>));
+    await click('Open 3D assembly');
+    expect(navigate).toHaveBeenCalledWith('simulator3d');
   });
 });

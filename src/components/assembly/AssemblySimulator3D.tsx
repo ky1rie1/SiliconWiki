@@ -15,6 +15,7 @@ import {
   Scan,
   Focus,
   Box,
+  Droplets,
 } from 'lucide-react';
 import { assemblyStepsData } from '../../data/assemblySteps';
 import {
@@ -28,6 +29,8 @@ import { PCScene3D } from './PCScene3D';
 import type { RenderingQuality } from './renderingBudget';
 import { BilibiliGuidesModal } from './BilibiliGuidesModal';
 import { useLanguage } from '../../context/LanguageContext';
+import { LiquidGlass } from './LiquidGlass';
+import './assemblyExperience.css';
 
 export const AssemblySimulator3D: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -45,6 +48,7 @@ export const AssemblySimulator3D: React.FC = () => {
   const [installProgress, setInstallProgress] = useState(100);
   const mountedRef = useRef(false);
   const [quality, setQuality] = useState<RenderingQuality>('balanced');
+  const [reducedEffects, setReducedEffects] = useState(false);
 
   const rawStep = assemblyStepsData[currentStepIndex];
   const stepTranslation = lang === 'en' ? stepTranslationsEn[rawStep.stepNumber] : undefined;
@@ -92,7 +96,8 @@ export const AssemblySimulator3D: React.FC = () => {
     const selected = assemblyStepsData[currentStepIndex];
     scene.setStep(selected.stepNumber);
     scene.setExploded(isExploded);
-    scene.setQuality(quality);
+    scene.setQuality(reducedEffects ? 'saver' : quality);
+    scene.setReducedEffects(reducedEffects);
 
     // 3D Model click syncs to React state and updates right-hand panel
     scene.onComponentClick = (componentId: string) => {
@@ -121,6 +126,11 @@ export const AssemblySimulator3D: React.FC = () => {
     // The live controller handles step/explode changes; retry alone recreates the scene.
   }, [sceneVersion]);
 
+  useEffect(() => {
+    sceneRef.current?.setReducedEffects(reducedEffects);
+    sceneRef.current?.setQuality(reducedEffects ? 'saver' : quality);
+  }, [reducedEffects, quality]);
+
   const handleToggleExplode = () => {
     const next = !isExploded;
     setIsExploded(next);
@@ -145,51 +155,31 @@ export const AssemblySimulator3D: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className={`assembly-experience space-y-6 ${reducedEffects ? 'assembly-reduced' : ''}`}>
       <PageHeader eyebrow={t('assemblyHeroBadge')} title={t('assemblyHeroTitle')} description={t('assemblyHeroDesc')} actions={<button className="primary-action" onClick={() => setIsBilibiliModalOpen(true)}><Tv size={16} />{t('btnBilibiliGuides')}</button>} />
 
       {/* Main 3D Canvas + Step Instructions Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="assembly-experience-layout">
         {/* Left: 3D Stage (7 Cols) */}
-        <div className="assembly-studio lg:col-span-7 flex flex-col rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden relative transition-colors">
+        <div className="assembly-studio assembly-stage-panel">
           <div className="assembly-studio-heading">
             <div><span className="assembly-studio-kicker">SILICON WIKI / LAB 01</span><h3>{lang === 'zh' ? '装配研究室' : 'Assembly studio'}</h3></div>
-            <div className="assembly-studio-spec">ATX · AM5<br /><label className="assembly-quality-control"><span>{lang === 'zh' ? '画质' : 'Quality'}</span><select aria-label={lang === 'zh' ? '3D 画质与功耗' : '3D quality and power usage'} value={quality} onChange={event => { const next = event.target.value as RenderingQuality; setQuality(next); sceneRef.current?.setQuality(next); }}><option value="saver">{lang === 'zh' ? '省电' : 'Saver'}</option><option value="balanced">{lang === 'zh' ? '均衡' : 'Balanced'}</option><option value="quality">{lang === 'zh' ? '精细' : 'Detailed'}</option></select></label></div>
+            <div className="assembly-studio-spec"><button className="assembly-effects-button" data-action="reduce-effects" aria-label={lang === 'zh' ? '减少效果' : 'Reduce effects'} aria-pressed={reducedEffects} onClick={() => setReducedEffects(value => !value)}><Droplets size={14} />{reducedEffects ? (lang === 'zh' ? '轻量效果' : 'Reduced effects') : (lang === 'zh' ? '液态玻璃' : 'Liquid glass')}</button><label className="assembly-quality-control"><span>{lang === 'zh' ? '画质' : 'Quality'}</span><select aria-label={lang === 'zh' ? '3D 画质与功耗' : '3D quality and power usage'} value={reducedEffects ? 'saver' : quality} disabled={reducedEffects} onChange={event => setQuality(event.target.value as RenderingQuality)}><option value="saver">{lang === 'zh' ? '省电' : 'Saver'}</option><option value="balanced">{lang === 'zh' ? '均衡' : 'Balanced'}</option><option value="quality">{lang === 'zh' ? '精细' : 'Detailed'}</option></select></label></div>
           </div>
           {/* Canvas Container */}
           <div
             ref={containerRef}
-            className="assembly-viewport w-full h-[400px] sm:h-[520px] cursor-grab active:cursor-grabbing relative z-10 overflow-hidden"
+            className="assembly-viewport assembly-model-stage cursor-grab active:cursor-grabbing"
           >
             {sceneError && <div className="assembly-scene-error" role="status"><Box size={36} /><strong>{lang === 'zh' ? '3D 场景暂不可用' : '3D view is unavailable'}</strong><p>{lang === 'zh' ? '可继续阅读装机步骤，或重试加载场景。' : 'Follow the written guide, or try loading the scene again.'}</p><button className="primary-action" onClick={() => setSceneVersion(value => value + 1)}>{lang === 'zh' ? '重新加载' : 'Retry'}</button></div>}
-            {/* On-canvas Controls Overlay */}
-            <div className="absolute top-4 left-4 z-20 flex items-center space-x-2">
-              <button
-                onClick={handleToggleExplode}
-                disabled={sceneError}
-                aria-pressed={isExploded}
-                className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
-                  isExploded
-                    ? 'bg-[#F7D84A] text-zinc-950 ring-2 ring-[#F7D84A]/50 font-bold'
-                    : 'bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>{isExploded ? t('btnExplodeRestore') : t('btnExplodeToggle')}</span>
-              </button>
-
-              <button
-                onClick={handleResetCamera}
-                disabled={sceneError}
-                aria-label={t('btnResetView')}
-                className="p-2 rounded-xl bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 transition-colors shadow-xs cursor-pointer"
-                title={t('btnResetView')}
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-              <button className="assembly-camera-button" disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('front')} title={lang === 'zh' ? '正面查看' : 'Front view'} aria-label={lang === 'zh' ? '正面查看' : 'Front view'}><Scan size={15} /></button>
-              <button className="assembly-camera-button" disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('detail')} title={lang === 'zh' ? '零件特写' : 'Component detail'} aria-label={lang === 'zh' ? '零件特写' : 'Component detail'}><Focus size={15} /></button>
-            </div>
+            <div className="assembly-model-caption"><span>{String(currentStep.stepNumber).padStart(2, '0')} / {componentNameMap[currentStep.componentKey]}</span><span>{lang === 'zh' ? '代表性教学模型' : 'Representative teaching model'}</span></div>
+            <LiquidGlass className="assembly-floating-tools" reduced={reducedEffects} label={lang === 'zh' ? '场景控制' : 'Scene controls'}>
+              <button onClick={handleToggleExplode} disabled={sceneError} aria-pressed={isExploded} className="assembly-explode-control"><Layers size={16} /><span>{isExploded ? t('btnExplodeRestore') : t('btnExplodeToggle')}</span></button>
+              <span className="assembly-glass-divider" />
+              <button disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('front')} title={lang === 'zh' ? '正面查看' : 'Front view'} aria-label={lang === 'zh' ? '正面查看' : 'Front view'}><Scan size={17} /></button>
+              <button disabled={sceneError} onClick={() => sceneRef.current?.setCameraView('detail')} title={lang === 'zh' ? '零件特写' : 'Component detail'} aria-label={lang === 'zh' ? '零件特写' : 'Component detail'}><Focus size={17} /></button>
+              <button onClick={handleResetCamera} disabled={sceneError} aria-label={t('btnResetView')} title={t('btnResetView')}><RotateCcw size={16} /></button>
+            </LiquidGlass>
 
             {/* Hover Tooltip Overlay */}
             {hoveredComponentName && (
@@ -199,18 +189,12 @@ export const AssemblySimulator3D: React.FC = () => {
               </div>
             )}
 
-            {/* Hint in canvas bottom */}
-            <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none text-[11px] text-zinc-600 dark:text-zinc-400 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
-              <span>{t('cameraHintFull')}</span>
-              <span className="hidden sm:inline text-zinc-800 dark:text-zinc-200 font-medium">
-                {currentStepIndex < 4 ? (lang === 'zh' ? '平放预装' : 'Bench assembly') : (lang === 'zh' ? '机箱装配' : 'Case assembly')}
-              </span>
-            </div>
+            <div className="assembly-stage-hint">{t('cameraHintFull')}</div>
           </div>
 
           <div className="assembly-status-line" aria-live="polite"><span className={`assembly-status-dot ${currentStepIndex === 8 && !isExploded && installProgress >= 72 ? 'is-powered' : ''}`} /><span>{isInstalling ? (lang === 'zh' ? `装配演示 · ${installProgress}%` : `Installing · ${installProgress}%`) : isExploded ? (lang === 'zh' ? '分解观察 · 线缆暂时隐藏' : 'Exploded view · cables hidden') : currentStepIndex === 8 ? (lang === 'zh' ? '通电状态示意 · 非实际 POST 检测' : 'Power-on illustration · no POST diagnostics') : (lang === 'zh' ? '断电装配 · 风扇静止' : 'Power disconnected · fans stopped')}</span><span className="ml-auto font-mono">{String(currentStepIndex + 1).padStart(2, '0')} / 09</span></div>
           {/* Stepper & Progress Rail below Canvas */}
-          <div className="p-4 bg-zinc-50 dark:bg-slate-900 border-t border-zinc-200 dark:border-zinc-800 space-y-3">
+          <div className="assembly-navigation-section space-y-3">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center space-x-2">
                 <Wrench className="w-4 h-4 text-[#e5a912] dark:text-[#F7D84A]" />
@@ -229,71 +213,20 @@ export const AssemblySimulator3D: React.FC = () => {
               </div>
             </div>
 
-            {/* Tactile Pipeline Rail */}
-            <div className="relative pt-2 pb-1 px-3">
-              <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 pointer-events-none" />
-
-              <div
-                className="absolute top-1/2 left-6 -translate-y-1/2 h-1.5 rounded-full bg-zinc-900 dark:bg-[#F7D84A] transition-all duration-500 pointer-events-none"
-                style={{
-                  width: `calc(${
-                    (currentStepIndex / (assemblyStepsData.length - 1)) * 100
-                  }% * 0.88)`,
-                }}
-              />
-
-              {/* Step Node Pucks */}
-              <div className="relative z-10 flex items-center justify-between">
-                {assemblyStepsData.map((s, idx) => {
-                  const isCurrent = currentStepIndex === idx;
-                  const isPassed = currentStepIndex > idx;
-                  const localizedStep = lang === 'en' ? stepTranslationsEn[s.stepNumber] : undefined;
-                  const displayTitle = localizedStep?.title || s.title;
-
-                  return (
-                    <button
-                      key={s.stepNumber}
-                      onClick={() => handleStepChange(idx)}
-                      className={`group/step relative flex flex-col items-center transition-all cursor-pointer ${
-                        isCurrent ? 'scale-110 z-20' : 'hover:scale-105'
-                      }`}
-                      title={`${s.stepNumber}. ${displayTitle}`}
-                      aria-label={`${s.stepNumber}. ${displayTitle}`}
-                      aria-current={isCurrent ? 'step' : undefined}
-                      data-step={s.stepNumber}
-                    >
-                      <div
-                        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all ${
-                          isCurrent
-                            ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 ring-4 ring-[#F7D84A]/50 shadow-sm'
-                            : isPassed
-                            ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700'
-                            : 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-200'
-                        }`}
-                      >
-                        {s.stepNumber}
-                      </div>
-                      <span
-                        className={`text-[10px] mt-1 font-medium hidden md:inline-block max-w-[65px] truncate transition-colors ${
-                          isCurrent
-                            ? 'text-zinc-900 dark:text-[#F7D84A] font-bold'
-                            : isPassed
-                            ? 'text-zinc-700 dark:text-zinc-300'
-                            : 'text-zinc-400 dark:text-zinc-500'
-                        }`}
-                      >
-                        {displayTitle.split(' ')[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <LiquidGlass className="assembly-step-rail" reduced={reducedEffects} label={lang === 'zh' ? '九步装配导航' : 'Nine assembly steps'} style={{ '--step-index': currentStepIndex } as React.CSSProperties}>
+              <span className="assembly-step-lens" aria-hidden="true" />
+              {assemblyStepsData.map((s, idx) => {
+                const title = (lang === 'en' ? stepTranslationsEn[s.stepNumber]?.title : undefined) || s.title;
+                return <button key={s.stepNumber} onClick={() => handleStepChange(idx)} aria-label={`${s.stepNumber}. ${title}`} title={`${s.stepNumber}. ${title}`} aria-current={currentStepIndex === idx ? 'step' : undefined} data-step={s.stepNumber}>
+                  <span>{String(s.stepNumber).padStart(2, '0')}</span><small>{componentNameMap[s.componentKey] || title}</small>
+                </button>;
+              })}
+            </LiquidGlass>
           </div>
         </div>
 
         {/* Right: Step Detailed Guide Card (5 Cols) */}
-        <div className="lg:col-span-5 rounded-2xl bg-white dark:bg-slate-900 border border-zinc-200 dark:border-zinc-800 shadow-sm dark:shadow-md p-6 transition-colors">
+        <div className="assembly-guide-panel">
           <div key={currentStepIndex} className="space-y-5 animate-in fade-in slide-in-from-right-2 duration-300">
             {/* Step Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">

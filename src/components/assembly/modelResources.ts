@@ -7,6 +7,7 @@ export class ModelResources {
   private geometries = new Map<string, THREE.BufferGeometry>();
   private materials = new Map<string, THREE.Material>();
   private textures = new Set<THREE.Texture>();
+  private textureCache = new Map<string, THREE.Texture>();
   private instances = new Set<THREE.InstancedMesh>();
 
   material(name: string, color: number, metalness = .15, roughness = .55) {
@@ -26,6 +27,13 @@ export class ModelResources {
     mesh.receiveShadow = true;
     parent.add(mesh);
     return mesh;
+  }
+
+  texture(key: string, create: () => THREE.Texture) {
+    if (!this.textureCache.has(key)) {
+      const texture = create(); this.textures.add(texture); this.textureCache.set(key, texture);
+    }
+    return this.textureCache.get(key)!;
   }
 
   box(parent: THREE.Object3D, size: Vec3, position: Vec3, material: THREE.Material, radius = 0) {
@@ -83,6 +91,6 @@ export class ModelResources {
     this.geometries.forEach(geometry => geometry.dispose());
     this.materials.forEach(material => material.dispose());
     this.textures.forEach(texture => texture.dispose());
-    this.instances.clear(); this.geometries.clear(); this.materials.clear(); this.textures.clear();
+    this.instances.clear(); this.geometries.clear(); this.materials.clear(); this.textures.clear(); this.textureCache.clear();
   }
 }

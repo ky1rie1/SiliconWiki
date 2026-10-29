@@ -2,6 +2,20 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v2.6.0',
+    date: '2026-10-29',
+    title: '3D 实景装机升级：CPU 插槽细节与液态玻璃交互',
+    titleEn: '3D assembly upgrade: CPU socket details and liquid-glass controls',
+    tag: '最新发布', tagEn: 'Latest release', previewTab: 'simulator3d',
+    updates: [
+      { type: 'feature', text: '模型改动已进入原有 3D 实景装机九步流程：重建 AM5 类 CPU 缺口顶盖、封装基板、插槽触点、压框与锁杆，加入主板丝印、走线及共享金属表面纹理；首步直接聚焦 CPU 区域。', textEn: 'The existing nine-step 3D assembly now includes an AM5-like notched heatspreader, substrate, socket contacts, retention frame and lever, plus board printing and shared metal textures. Step one opens on the CPU area.' },
+      { type: 'feature', text: '正式装机页加入透景模糊、边缘高光、指针光泽与滑动选中层组成的液态玻璃工具栏和步骤导航；支持明暗主题与移动布局。', textEn: 'The assembly toolbar and step navigation use liquid-glass styling with backdrop blur, edge highlights, pointer sheen and a sliding selection lens, in light/dark themes and mobile layouts.' },
+      { type: 'fix', text: '修正 CPU 分解观察中压框未打开的问题：先打开固定机构，再抬起完整处理器。首页与最新动态直接进入正式装机页。', textEn: 'CPU separation now opens the retention mechanism before lifting the intact package. Homepage and latest-update actions lead to the actual assembly page.' },
+      { type: 'perf', text: '重复触点使用实例绘制，材质共用小尺寸纹理；轻量效果关闭玻璃模糊、过渡与风扇动画，并使用省电画质。继续保留按需绘制、后台暂停与资源释放。', textEn: 'Repeated contacts use instancing and materials share small textures. Reduced effects disables glass blur, transitions and fan animation and selects Saver quality. On-demand rendering, background suspension and resource cleanup remain in place.' },
+      { type: 'data', text: '同步中英文 README、正式页截图与模型精度说明。当前是代表性教学几何，触点数量和细节作简化，非产品 CAD；本次未新增实时数据采集。', textEn: 'Both READMEs, production-page screenshots and model-scope notes are updated. Geometry and contact counts are simplified teaching representations, not product CAD. This release adds no live data collection.' },
+    ],
+  },
+  {
     version: 'v2.6.0-preview.1',
     date: '2026-10-29',
     title: '视觉与模型样稿：玻璃控件、材质观察与结构分解',

@@ -33,8 +33,8 @@ export function WikiIntro({ onNavigate }: { onNavigate: (tab: ActiveTab) => void
             {en ? 'Find your next build' : '按预算找配置'}
             <ArrowUpRight size={16} />
           </button>
-          <button className="text-action" onClick={() => onNavigate('lab')}>
-            {en ? 'New design preview' : '体验视觉与模型样稿'}
+          <button className="text-action" onClick={() => onNavigate('simulator3d')}>
+            {en ? 'Explore 3D assembly' : '体验 3D 实景装机'}
             <ArrowUpRight size={16} />
           </button>
         </div>
