@@ -2,6 +2,19 @@ import { ChangelogItem } from '../types';
 
 export const changelogList: ChangelogItem[] = [
   {
+    version: 'v2.6.0-preview.1',
+    date: '2026-10-29',
+    title: '视觉与模型样稿：玻璃控件、材质观察与结构分解',
+    titleEn: 'Visual & model preview: glass controls, material studies and structural separation',
+    tag: '设计预览', tagEn: 'Design preview', previewTab: 'lab',
+    updates: [
+      { type: 'feature', text: '新增独立设计样稿入口，提供展厅与装配台两种布局，采用暖白、石墨与低饱和金色，以及局部玻璃浮动控件；支持深浅主题和移动布局。', textEn: 'A separate design preview offers showroom and workbench layouts in warm white, graphite and muted gold, with glass controls, light/dark themes and mobile layouts.' },
+      { type: 'feature', text: '新增原创 AM5 类插槽教学模型，展示完整 CPU 封装、插槽触点、压框和锁杆；支持分步分离、旋转、缩放与整机切换。模型为代表性几何，非精确产品 CAD。', textEn: 'An original AM5-like teaching study shows an intact CPU package, socket contacts, retention frame and lever, with staged separation, orbit, zoom and a full-build view. Geometry is representative, not product CAD.' },
+      { type: 'perf', text: '样稿场景按需绘制，离屏或后台暂停；提供三档像素预算、减少效果开关及 WebGL 故障重试，切换页面时释放模型与渲染资源。', textEn: 'The preview renders on demand and pauses offscreen or in the background. Three pixel budgets, reduced effects, WebGL retry and resource cleanup support a broader range of devices.' },
+      { type: 'data', text: '结构说明附 MSI 与 ASUS 安装资料及核对日期，明确区分结构参考与尺寸验证。本批次未接入实时价格或新增自动采集管线。', textEn: 'Structure notes link to MSI and ASUS installation references with a review date, distinguishing installation evidence from dimensional validation. Live pricing and automated collection are not connected in this batch.' },
+    ],
+  },
+  {
     version: 'v2.5.0',
     date: '2026-09-11',
     title: '3D装机性能重构与网格合批、工程设计体系刷新、硬件数据规范化与权威信源核验',

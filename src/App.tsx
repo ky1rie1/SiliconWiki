@@ -18,6 +18,7 @@ const BenchmarkLadder = lazy(() => import('./components/rankings/BenchmarkLadder
 const AssemblySimulator3D = lazy(() => import('./components/assembly/AssemblySimulator3D').then((module) => ({ default: module.AssemblySimulator3D })));
 const GlossaryView = lazy(() => import('./components/glossary/GlossaryView').then((module) => ({ default: module.GlossaryView })));
 const BudgetBuilds = lazy(() => import('./components/builds/BudgetBuilds').then((module) => ({ default: module.BudgetBuilds })));
+const DesignLab = lazy(() => import('./components/lab/DesignLab').then((module) => ({ default: module.DesignLab })));
 
 function RouteFeedback({ failed = false }: { failed?: boolean }) {
   const { lang } = useLanguage();
@@ -50,6 +51,7 @@ function parseRouteToTab(): ActiveTab {
   const searchParams = new URLSearchParams(window.location.search);
   const tabParam = searchParams.get('tab')?.toLowerCase();
   if (tabParam) {
+    if (tabParam === 'lab') return 'lab';
     if (tabParam === 'simulator3d' || tabParam === '3d' || tabParam === 'build') return 'simulator3d';
     if (tabParam === 'rankings' || tabParam === 'rank' || tabParam === 'ladder') return 'rankings';
     if (tabParam === 'wiki') return 'wiki';
@@ -62,6 +64,7 @@ function parseRouteToTab(): ActiveTab {
   if (rawHash) {
     const [hashPath] = rawHash.split('?');
     const cleanHash = hashPath.toLowerCase();
+    if (cleanHash === 'lab') return 'lab';
     if (cleanHash === 'simulator3d' || cleanHash === '3d' || cleanHash === 'build') return 'simulator3d';
     if (cleanHash === 'rankings' || cleanHash === 'rank' || cleanHash === 'ladder') return 'rankings';
     if (cleanHash === 'wiki') return 'wiki';
@@ -72,6 +75,7 @@ function parseRouteToTab(): ActiveTab {
   // 3. Pathname for SPA rewrites (/3d, /rankings, /wiki, /glossary, /builds)
   const pathname = window.location.pathname.toLowerCase().replace(/^\/+|\/+$/g, '').trim();
   if (pathname) {
+    if (pathname === 'lab') return 'lab';
     if (pathname === 'simulator3d' || pathname === '3d' || pathname === 'build') return 'simulator3d';
     if (pathname === 'rankings' || pathname === 'rank' || pathname === 'ladder') return 'rankings';
     if (pathname === 'wiki') return 'wiki';
@@ -209,7 +213,7 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <CustomContentProvider>
-          <div className="app-shell min-h-screen flex flex-col">
+          <div className={`app-shell min-h-screen flex flex-col ${activeTab === 'lab' ? 'preview-shell' : ''}`}>
             {/* Global Navbar */}
             <Navbar
               activeTab={activeTab}
@@ -233,6 +237,7 @@ export default function App() {
                   {activeTab === 'simulator3d' && <AssemblySimulator3D />}
                   {activeTab === 'glossary' && <GlossaryView />}
                   {activeTab === 'builds' && <BudgetBuilds />}
+                  {activeTab === 'lab' && <DesignLab onNavigate={handleTabChange} />}
                 </Suspense>
               </RouteErrorBoundary>
             </main>
@@ -256,6 +261,7 @@ export default function App() {
               onClose={handleCloseChangelog}
               onMarkAllAsRead={handleMarkAllAsRead}
               latestVersion={changelogList[0]?.version}
+              onNavigate={handleTabChange}
             />
 
             {/* Floating User Feedback Ball & System */}

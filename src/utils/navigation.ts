@@ -13,6 +13,7 @@ export const VALID_HARDWARE_CATEGORIES: HardwareCategory[] = [
 ];
 
 export const MAIN_TAB_ROUTES = [
+  'lab',
   'wiki',
   'rankings',
   'simulator3d',

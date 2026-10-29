@@ -151,14 +151,19 @@ export interface ChangelogItem {
   version: string;
   date: string;
   title: string;
+  titleEn?: string;
   tag?: string;
+  tagEn?: string;
+  previewTab?: ActiveTab;
   updates: {
     type: 'feature' | 'data' | 'price' | 'fix' | 'perf';
     text: string;
+    textEn?: string;
   }[];
 }
 
 export type ActiveTab =
+  | 'lab'
   | 'wiki'
   | 'rankings'
   | 'simulator3d'

@@ -60,8 +60,8 @@ describe('2026 Budget Builds Suite', () => {
 });
 
 describe('Version Changelog Suite', () => {
-  it('should have v2.5.0 as the latest release entry', () => {
-    const latest = changelogList[0];
+  it('should retain the v2.5.0 release entry', () => {
+    const latest = changelogList.find(entry => entry.version === 'v2.5.0')!;
     expect(latest.version).toBe('v2.5.0');
     expect(latest.date).toBe('2026-09-11');
     expect(latest.tag).toBe('最新发布');
@@ -73,7 +73,7 @@ describe('Version Changelog Suite', () => {
   });
 
   it('should cover all key update areas in v2.5.0', () => {
-    const latest = changelogList[0];
+    const latest = changelogList.find(entry => entry.version === 'v2.5.0')!;
     const texts = latest.updates.map((u) => u.text).join('\n');
 
     expect(texts).toContain('Draw Call');

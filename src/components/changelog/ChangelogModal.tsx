@@ -11,12 +11,14 @@ import {
 } from 'lucide-react';
 import { changelogList } from '../../data/changelog';
 import { useLanguage } from '../../context/LanguageContext';
+import type { ActiveTab } from '../../types';
 
 interface ChangelogModalProps {
   isOpen: boolean;
   onClose: (dontShowAgain?: boolean) => void;
   onMarkAllAsRead: () => void;
   latestVersion?: string;
+  onNavigate?: (tab: ActiveTab) => void;
 }
 
 export const ChangelogModal: React.FC<ChangelogModalProps> = ({
@@ -24,6 +26,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
   onClose,
   onMarkAllAsRead,
   latestVersion,
+  onNavigate,
 }) => {
   const { lang } = useLanguage();
   const [dontShowAgain, setDontShowAgain] = React.useState(true);
@@ -42,7 +45,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
         return (
           <span className="inline-flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 font-semibold shrink-0">
             <Layers className="w-2.5 h-2.5" />
-            <span>{lang === 'en' ? 'Benchmarks' : '数据校准'}</span>
+            <span>{lang === 'en' ? 'Data' : '数据校准'}</span>
           </span>
         );
       case 'price':
@@ -98,6 +101,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
           </div>
 
           <button
+            aria-label={lang === 'en' ? 'Close changelog' : '关闭更新日志'}
             onClick={() => onClose(dontShowAgain)}
             className="p-2 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
@@ -125,7 +129,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
                 </span>
                 {log.tag && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-bold">
-                    {log.tag}
+                    {lang === 'en' ? (log.tagEn ?? log.tag) : log.tag}
                   </span>
                 )}
                 <span className="text-xs text-zinc-400 flex items-center space-x-1 font-mono">
@@ -136,7 +140,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
 
               {/* Update Title */}
               <h4 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
-                {log.title}
+                {lang === 'en' ? (log.titleEn ?? log.title) : log.title}
               </h4>
 
               {/* Updates List */}
@@ -144,10 +148,11 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = ({
                 {log.updates.map((upd, uIdx) => (
                   <div key={upd.type + uIdx} className="flex items-start space-x-2 text-xs leading-relaxed">
                     {getTypeBadge(upd.type)}
-                    <span className="text-zinc-700 dark:text-zinc-300">{upd.text}</span>
+                    <span className="text-zinc-700 dark:text-zinc-300">{lang === 'en' ? (upd.textEn ?? upd.text) : upd.text}</span>
                   </div>
                 ))}
               </div>
+              {log.previewTab && onNavigate && <button className="primary-action" onClick={() => { onClose(dontShowAgain); onNavigate(log.previewTab!); }}>{lang === 'en' ? 'Explore preview' : '查看本次样稿'}</button>}
             </div>
           ))}
         </div>
